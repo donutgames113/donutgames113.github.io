@@ -13,13 +13,13 @@
         }
 
         .grid {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Adjust min width as needed */
+            gap: 1%; /* Space between items */
         }
 
         .graphics-item {
-            width: 30%; /* Adjust the width according to your preference */
-            margin: 1%; /* Adjust margin for spacing */
+            margin: 0; /* No margin needed as gap handles spacing */
             box-sizing: border-box; /* Include padding and border in element's total width and height */
         }
 
@@ -30,7 +30,6 @@
             border-radius: 8px; /* Optional: Add some rounded corners to the images */
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js"></script>
 </head>
 <body>
     <div class="grid" id="grid">
@@ -59,16 +58,5 @@
             <img src="Images/TheTower.PNG" alt="The tower">
         </div>
     </div>
-
-    <script>
-        // Initialize Masonry layout
-        const grid = document.getElementById('grid');
-
-        const masonry = new Masonry(grid, {
-            itemSelector: '.graphics-item',
-            columnWidth: '.graphics-item',
-            percentPosition: true
-        });
-    </script>
 </body>
 </html>
