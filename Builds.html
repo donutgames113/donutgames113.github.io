@@ -13,14 +13,18 @@
         }
 
         .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Adjust min width as needed */
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center; /* Center items horizontally */
+            align-items: flex-start; /* Align items to the top */
             gap: 1%; /* Space between items */
         }
 
         .graphics-item {
-            margin: 0; /* No margin needed as gap handles spacing */
+            flex-grow: 1;
+            flex-basis: calc(33% - 1%); /* Take up approximately 33% of the row, minus the gap */
             box-sizing: border-box; /* Include padding and border in element's total width and height */
+            margin-bottom: 1%; /* Add some margin to the bottom */
         }
 
         .graphics-item img {
@@ -28,6 +32,18 @@
             height: auto; /* Maintain aspect ratio */
             display: block;
             border-radius: 8px; /* Optional: Add some rounded corners to the images */
+        }
+
+        @media (max-width: 800px) {
+            .graphics-item {
+                flex-basis: calc(50% - 1%); /* For smaller screens, switch to 2 columns */
+            }
+        }
+
+        @media (max-width: 500px) {
+            .graphics-item {
+                flex-basis: calc(100% - 1%); /* For very small screens, switch to 1 column */
+            }
         }
     </style>
 </head>
