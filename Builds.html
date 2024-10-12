@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>aBuilds</title>
+    <title>aBuilds - Pinterest Style</title>
     <style>
         body {
             margin: 0;
@@ -13,36 +13,39 @@
         }
 
         .grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center; /* Center items horizontally */
-            align-items: flex-start; /* Align items to the top */
-            gap: 1%; /* Space between items */
+            column-count: 4; /* Number of columns */
+            column-gap: 1%; /* Space between columns */
+            padding: 1%;
         }
 
         .graphics-item {
-            flex-grow: 1;
-            flex-basis: calc(33% - 1%); /* Take up approximately 33% of the row, minus the gap */
-            box-sizing: border-box; /* Include padding and border in element's total width and height */
-            margin-bottom: 1%; /* Add some margin to the bottom */
+            margin-bottom: 1%; /* Space between items */
+            break-inside: avoid; /* Prevent items from breaking between columns */
+            box-sizing: border-box;
         }
 
         .graphics-item img {
             width: 100%;
             height: auto; /* Maintain aspect ratio */
             display: block;
-            border-radius: 8px; /* Optional: Add some rounded corners to the images */
+            border-radius: 8px; /* Optional: Add rounded corners */
+        }
+
+        @media (max-width: 1200px) {
+            .grid {
+                column-count: 3; /* 3 columns on medium screens */
+            }
         }
 
         @media (max-width: 800px) {
-            .graphics-item {
-                flex-basis: calc(50% - 1%); /* For smaller screens, switch to 2 columns */
+            .grid {
+                column-count: 2; /* 2 columns on smaller screens */
             }
         }
 
         @media (max-width: 500px) {
-            .graphics-item {
-                flex-basis: calc(100% - 1%); /* For very small screens, switch to 1 column */
+            .grid {
+                column-count: 1; /* 1 column on very small screens */
             }
         }
     </style>
