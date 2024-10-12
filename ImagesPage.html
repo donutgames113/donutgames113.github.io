@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Images</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: rgb(28, 28, 28);
+        }
+
+        .grid {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .graphics-item {
+            width: 30%; /* Adjust the width according to your preference */
+            margin: 1%; /* Adjust margin for spacing */
+            box-sizing: border-box; /* Include padding and border in element's total width and height */
+        }
+
+        .graphics-item img {
+            width: 100%;
+            height: auto; /* Maintain aspect ratio */
+            display: block;
+            border-radius: 8px; /* Optional: Add some rounded corners to the images */
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js"></script>
+</head>
+<body>
+    <div class="grid" id="grid">
+        <div class="graphics-item">
+            <img src="Images/csnew.png" alt="Cardswap logo">
+        </div>
+        <div class="graphics-item">
+            <img src="Images/PR2.png" alt="Parkour-Run-2">
+        </div>
+        <div class="graphics-item">
+            <img src="Images/PRUN logo.png" alt="Parkour run logo">
+        </div>
+        <div class="graphics-item">
+            <img src="Images/TheTower.PNG" alt="The tower">
+        </div>
+        <div class="graphics-item">
+            <img src="Images/pzbanner.png" alt="Playzero banner">
+        </div>
+        <div class="graphics-item">
+            <img src="Images/PZGlow.png" alt="Playzero glow logo">
+        </div>
+        <div class="graphics-item">
+            <img src="Images/PZLTD.png" alt="Playzero ltd logo">
+        </div>
+        <div class="graphics-item">
+            <img src="Images/PZLogo.png" alt="Playzero main logo">
+        </div>
+    </div>
+
+    <script>
+        // Initialize Masonry layout
+        const grid = document.getElementById('grid');
+
+        const masonry = new Masonry(grid, {
+            itemSelector: '.graphics-item',
+            columnWidth: '.graphics-item',
+            percentPosition: true
+        });
+    </script>
+</body>
+</html>
