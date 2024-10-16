@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox Developer Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+        }
+
+        header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        nav ul li {
+            display: inline;
+            margin: 0 10px;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        h3 {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .project-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin: 0px 0;
+        }
+
+        .project {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+            margin: 10px;
+            width: calc(33.33% - 20px); /* Adjust width for spacing */
+            text-align: center;
+            backdrop-filter: blur(10px);
+            overflow: hidden; /* Ensures images do not overflow */
+        }
+
+        .project img {
+            width: 100%; /* Image fills the container */
+            height: auto; /* Maintain aspect ratio */
+            border-radius: 16px 16px 0 0; /* Rounded corners for the top */
+        }
+
+        .project h4 {
+            margin: 10px 0;
+            color: #e0e0e0;
+        }
+
+        .project a {
+            display: inline-block;
+            margin: 10px 0;
+            padding: 10px 15px;
+            background: #2575fc;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .project a:hover {
+            background: #6a11cb;
+        }
+
+        /* New graphics section styles */
+        .graphics-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            padding: 10px 0;
+        }
+
+        .graphics-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .graphics-item img {
+            width: 100%;
+            height: auto;
+            display: block; /* Remove inline spacing */
+        }
+
+        .graphics-item:hover {
+            transform: scale(1.05);
+        }
+
+        form {
+            max-width: 600px;
+            margin: auto;
+        }
+
+        form label {
+            display: block;
+            margin: 10px 0 5px;
+            color: #f0f0f0;
+        }
+
+        form input, form textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            margin-bottom: 15px;
+            background-color: #2e2e2e;
+            color: #f0f0f0;
+        }
+
+        form button {
+            padding: 10px 15px;
+            background: #6a11cb;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        form button:hover {
+            background: #2575fc;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            background: #333;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Donut</h1>
+            <h2>Roblox Developer | Builder | Graphics Artist</h2>
+            <nav>
+                <ul>
+                    <li><a href="#projects">Projects</a></li>
+                    <li><a href="#skills">Skills</a></li>
+                    <li><a href="ImagesPage.html">Graphics</a></li>
+                    <li><a href="Builds.html">Builds</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="projects">
+            <h3>Projects</h3>
+            <div class="project-container">
+                <div class="project">
+                    <img src="Images/csnew.png" alt="CardSwap">
+                    <h4>Card Swap</h4>
+                    <p>Scripter - Graphics - Builder - Artist</p>
+                    <a href="https://www.roblox.com/games/14693594387/CardSwap" target="_blank">View Project</a>
+                </div>
+
+                <div class="project">
+                    <img src="Images/PRUN logo.png" alt="Parkour-Run">
+                    <h4>Parkour Run</h4>
+                    <p>Scripter - Graphics - Builder</p>
+                    <a href="https://www.roblox.com/games/17341244784/Parkour-run" target="_blank">View Project</a>
+                </div>
+
+                <div class="project">
+                    <img src="Images/PR2.png" alt="Parkour-Run-2">
+                    <h4>Parkour Run 2</h4>
+                    <p>Scripter - Graphics - Builder</p>
+                    <a href="https://www.roblox.com/games/131584583011393/Parkour-Run-2" target="_blank">View Project</a>
+                </div>
+
+                <div class="project">
+                    <img src="Images/Skyscraper Shenanigans Logo.png" alt="Skyscraper Shenanigans">
+                    <h4>Skyscraper Shenanigans</h4>
+                    <p>Scripter - Graphics - Builder</p>
+                    <a href="https://www.roblox.com/games/16981397555/SKYSCRAPER-SHENANIGANS" target="_blank">View Project</a>
+                </div>
+
+                <div class="project">
+                    <img src="Images/VSA Logo.png" alt="VSA">
+                    <h4>VSA</h4>
+                    <p>Scripter - Builder - Modeller</p>
+                    <a href="https://www.roblox.com/games/17639096239/Vehicle-Showcase" target="_blank">View Project</a>
+                </div>
+
+                <div class="project">
+                    <img src="Images/TheTower.PNG" alt="The Tower">
+                    <h4>The Tower</h4>
+                    <p>Scripter - Builder</p>
+                    <a href="https://www.roblox.com/games/18708310628/The-Tower" target="_blank">View Project</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="skills">
+            <h3>Skills</h3>
+            <div class="project-container">
+                <div class="project">
+                    <h4>Roblox Studio</h4>
+                </div>
+                <div class="project">
+                    <h4>Lua Programming</h4>
+                </div>
+                <div class="project">
+                    <h4>3D Modeling</h4>
+                </div>
+                <div class="project">
+                    <h4>Graphic Design</h4>
+                </div>
+                <div class="project">
+                    <h4>HTML/CSS Developer</h4>
+                </div>
+                <div class="project">
+                    <h4>Javascript Programmer</h4>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2024 Donut. All rights reserved.</p>
+    </footer>
+</body>
+</html>
