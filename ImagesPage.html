@@ -13,30 +13,21 @@
         }
 
         .masonry {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Creates flexible columns */
-            grid-auto-rows: 10px; /* Defines small row height */
-            gap: 10px; /* Adjust the space between items */
+            column-count: 3; /* Number of columns */
+            column-gap: 1%; /* Adjust space between columns */
         }
 
         .graphics-item {
-            display: block;
-            border-radius: 8px;
-            overflow: hidden;
-            position: relative;
+            margin-bottom: 1%; /* Space between items */
+            break-inside: avoid; /* Prevent images from breaking between columns */
         }
 
         .graphics-item img {
             width: 100%;
-            height: auto;
+            height: auto; /* Maintain aspect ratio */
             display: block;
+            border-radius: 8px; /* Optional rounded corners */
         }
-
-        /* Masonry effect: images of different heights will auto-fit */
-        .graphics-item {
-            grid-row-end: span 10; /* Adjust this value to affect row height span */
-        }
-
     </style>
 </head>
 <body>
