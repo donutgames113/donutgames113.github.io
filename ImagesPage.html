@@ -12,15 +12,19 @@
             background-color: rgb(28, 28, 28);
         }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Adjust min width as needed */
+        .flex-grid {
+            display: flex;
+            flex-wrap: wrap;
             gap: 1%; /* Space between items */
+            justify-content: space-around; /* Evenly distribute columns */
         }
 
-        .graphics-item {
-            margin: 0; /* No margin needed as gap handles spacing */
-            box-sizing: border-box; /* Include padding and border in element's total width and height */
+        .column {
+            flex: 1 1 300px; /* Adjust this value for column width */
+            max-width: 300px; /* Ensures columns don’t get wider than 300px */
+            display: flex;
+            flex-direction: column;
+            gap: 1%; /* Space between images in a column */
         }
 
         .graphics-item img {
@@ -32,42 +36,48 @@
     </style>
 </head>
 <body>
-    <div class="grid" id="grid">
-        <div class="graphics-item">
-            <img src="Images/PR2.png" alt="Parkour-Run-2">
+    <div class="flex-grid" id="flex-grid">
+        <div class="column">
+            <div class="graphics-item">
+                <img src="Images/PR2.png" alt="Parkour-Run-2">
+            </div>
+            <div class="graphics-item">
+                <img src="Images/PRUN logo.png" alt="Parkour run logo">
+            </div>
+            <div class="graphics-item">
+                <img src="Images/PZGlow.png" alt="Playzero glow logo">
+            </div>
+            <div class="graphics-item">
+                <img src="Images/PZLTD.png" alt="Playzero ltd logo">
+            </div>
         </div>
-        <div class="graphics-item">
-            <img src="Images/PRUN logo.png" alt="Parkour run logo">
+        <div class="column">
+            <div class="graphics-item">
+                <img src="Images/sverkerman1.webp" alt="svekerman 1">
+            </div>
+            <div class="graphics-item">
+                <img src="Images/PZLogo.png" alt="Playzero main logo">
+            </div>
+            <div class="graphics-item">
+                <img src="Images/csnew.png" alt="Cardswap logo">
+            </div>
+            <div class="graphics-item">
+                <img src="Images/pzbanner.png" alt="Playzero banner">
+            </div>
         </div>
-        <div class="graphics-item">
-            <img src="Images/PZGlow.png" alt="Playzero glow logo">
-        </div>
-        <div class="graphics-item">
-            <img src="Images/PZLTD.png" alt="Playzero ltd logo">
-        </div>
-        <div class="graphics-item">
-            <img src="Images/sverkerman1.webp" alt="svekerman 1">
-        </div>
-        <div class="graphics-item">
-            <img src="Images/PZLogo.png" alt="Playzero main logo">
-        </div>
-        <div class="graphics-item">
-            <img src="Images/csnew.png" alt="Cardswap logo">
-        </div>
-        <div class="graphics-item">
-            <img src="Images/pzbanner.png" alt="Playzero banner">
-        </div>
-        <div class="graphics-item">
-            <img src="Images/TheTower.PNG" alt="The tower">
-        </div>
-        <div class="graphics-item">
-            <img src="Images/Watercard.png" alt="Water card">
-        </div>
-        <div class="graphics-item">
-            <img src="Images/Windcard.png" alt="Wind card">
-        </div>
-        <div class="graphics-item">
-            <img src="Images/IMG_0133.png" alt="Midnight lights">
+        <div class="column">
+            <div class="graphics-item">
+                <img src="Images/TheTower.PNG" alt="The tower">
+            </div>
+            <div class="graphics-item">
+                <img src="Images/Watercard.png" alt="Water card">
+            </div>
+            <div class="graphics-item">
+                <img src="Images/Windcard.png" alt="Wind card">
+            </div>
+            <div class="graphics-item">
+                <img src="Images/IMG_0133.png" alt="Midnight lights">
+            </div>
         </div>
     </div>
 </body>
