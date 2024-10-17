@@ -64,16 +64,16 @@
             border-radius: 16px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
             margin: 10px;
-            width: calc(33.33% - 20px); /* Adjust width for spacing */
+            width: calc(33.33% - 20px);
             text-align: center;
             backdrop-filter: blur(10px);
-            overflow: hidden; /* Ensures images do not overflow */
+            overflow: hidden;
         }
 
         .project img {
-            width: 100%; /* Image fills the container */
-            height: auto; /* Maintain aspect ratio */
-            border-radius: 16px 16px 0 0; /* Rounded corners for the top */
+            width: 100%;
+            height: auto;
+            border-radius: 16px 16px 0 0;
         }
 
         .project h4 {
@@ -96,7 +96,6 @@
             background: #6a11cb;
         }
 
-        /* New graphics section styles */
         .graphics-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -115,7 +114,7 @@
         .graphics-item img {
             width: 100%;
             height: auto;
-            display: block; /* Remove inline spacing */
+            display: block;
         }
 
         .graphics-item:hover {
@@ -163,6 +162,34 @@
             background: #333;
             color: #fff;
         }
+
+        /* New Song Section Styles */
+        .song-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .song {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            width: calc(33.33% - 20px);
+            margin: 10px;
+        }
+
+        .song h4 {
+            color: #e0e0e0;
+        }
+
+        .song audio {
+            width: 100%;
+            margin-top: 10px;
+        }
+
     </style>
 </head>
 <body>
@@ -174,6 +201,7 @@
                 <ul>
                     <li><a href="#projects">Projects</a></li>
                     <li><a href="#skills">Skills</a></li>
+                    <li><a href="#songs">Songs</a></li>
                     <li><a href="ImagesPage.html">Graphics</a></li>
                     <li><a href="Builds.html">Builds</a></li>
                 </ul>
@@ -182,6 +210,7 @@
     </header>
 
     <main>
+        <!-- Projects Section -->
         <section id="projects">
             <h3>Projects</h3>
             <div class="project-container">
@@ -229,6 +258,7 @@
             </div>
         </section>
 
+        <!-- Skills Section -->
         <section id="skills">
             <h3>Skills</h3>
             <div class="project-container">
@@ -252,6 +282,21 @@
                 </div>
             </div>
         </section>
+
+        <!-- Songs Section -->
+        <section id="songs">
+            <h3>Songs</h3>
+            <div class="song-container">
+                <div class="song">
+                    <h4>Song 1</h4>
+                    <audio controls>
+                        <source src="songs/song1.mp3" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <footer>
