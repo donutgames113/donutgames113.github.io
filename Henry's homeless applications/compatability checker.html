@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compatibility Checker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #2b5876, #4e4376);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #f0e5d8;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1rem;
+            color: #eaeaea;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            outline: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        button {
+            font-size: 1.2rem;
+            padding: 12px 30px;
+            color: #fff;
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: #ffddc1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Compatibility Checker</h1>
+        <div class="input-group">
+            <label for="looks">Rate their looks (1-10):</label>
+            <input type="number" id="looks" min="1" max="10" placeholder="Enter a number">
+        </div>
+        <div class="input-group">
+            <label for="personality">Rate their personality (1-10):</label>
+            <input type="number" id="personality" min="1" max="10" placeholder="Enter a number">
+        </div>
+        <button onclick="calculateCompatibility()">Check Compatibility</button>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        function calculateCompatibility() {
+            const looks = parseFloat(document.getElementById('looks').value);
+            const personality = parseFloat(document.getElementById('personality').value);
+
+            let points = 0;
+            const maxPoints = 20; // 10 points for looks and 10 points for personality
+
+            // Calculate points for looks and personality
+            if (looks > 7) points += 10;
+            if (personality > 8) points += 10;
+
+            // Calculate compatibility percentage
+            const compatibilityPercentage = Math.max(0, Math.min(100, (points / maxPoints) * 100));
+
+            const resultText = compatibilityPercentage >= 80
+                ? "Great match! 💕"
+                : compatibilityPercentage >= 50
+                ? "There's potential! 😊"
+                : "Not a great match. 😕";
+
+            document.getElementById('result').innerHTML = `
+                Compatibility Percentage: <strong>${Math.round(compatibilityPercentage)}%</strong><br>
+                ${resultText}
+            `;
+        }
+    </script>
+</body>
+</html>
