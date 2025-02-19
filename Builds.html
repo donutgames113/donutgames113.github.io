@@ -13,39 +13,39 @@
         }
 
         .grid {
-            column-count: 4; /* Number of columns */
-            column-gap: 1%; /* Space between columns */
+            column-count: 4;
+            column-gap: 1%;
             padding: 1%;
         }
 
         .graphics-item {
-            margin-bottom: 1%; /* Space between items */
-            break-inside: avoid; /* Prevent items from breaking between columns */
+            margin-bottom: 1%;
+            break-inside: avoid;
             box-sizing: border-box;
         }
 
         .graphics-item img {
             width: 100%;
-            height: auto; /* Maintain aspect ratio */
+            height: auto;
             display: block;
-            border-radius: 8px; /* Optional: Add rounded corners */
+            border-radius: 8px;
         }
 
         @media (max-width: 1200px) {
             .grid {
-                column-count: 3; /* 3 columns on medium screens */
+                column-count: 3;
             }
         }
 
         @media (max-width: 800px) {
             .grid {
-                column-count: 2; /* 2 columns on smaller screens */
+                column-count: 2;
             }
         }
 
         @media (max-width: 500px) {
             .grid {
-                column-count: 1; /* 1 column on very small screens */
+                column-count: 1;
             }
         }
     </style>
