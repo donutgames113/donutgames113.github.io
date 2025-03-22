@@ -14,8 +14,8 @@
         }
 
         body {
-            background: black;
-            color: white;
+            background: #f5f5f5;
+            color: black;
             overflow-x: hidden;
             position: relative;
         }
@@ -34,7 +34,7 @@
         body::before {
             width: 400px;
             height: 400px;
-            background: rgba(106, 17, 203, 0.8);
+            background: rgba(128, 0, 128, 0.5);
             top: 10%;
             left: -10%;
         }
@@ -42,7 +42,7 @@
         body::after {
             width: 500px;
             height: 500px;
-            background: rgba(37, 117, 252, 0.8);
+            background: rgba(147, 112, 219, 0.5);
             bottom: 15%;
             right: -15%;
         }
@@ -51,14 +51,15 @@
             position: relative;
             text-align: center;
             padding: 50px 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.8);
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
             backdrop-filter: blur(10px);
         }
 
         header h1 {
             font-size: 3rem;
             font-weight: 600;
+            color: #800080;
         }
 
         header h2 {
@@ -80,7 +81,7 @@
 
         nav ul li a {
             text-decoration: none;
-            color: white;
+            color: #800080;
             font-size: 1rem;
             font-weight: 500;
             padding: 10px 20px;
@@ -89,9 +90,9 @@
         }
 
         nav ul li a:hover {
-            border-color: white;
-            background: white;
-            color: black;
+            border-color: #800080;
+            background: #800080;
+            color: white;
         }
 
         section {
@@ -103,6 +104,7 @@
             font-size: 2rem;
             font-weight: 600;
             margin-bottom: 20px;
+            color: #800080;
         }
 
         .project-container, .song-container {
@@ -114,10 +116,10 @@
 
         .project, .song {
             position: relative;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             text-align: center;
             width: 300px;
@@ -127,7 +129,7 @@
 
         .project:hover, .song:hover {
             transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(255, 255, 255, 0.3);
+            box-shadow: 0 15px 40px rgba(128, 0, 128, 0.3);
         }
 
         .project img, .song img {
@@ -138,15 +140,15 @@
         .project h4, .song h4 {
             margin: 15px 0;
             font-weight: 500;
-            color: #FFD700;
+            color: #800080;
         }
 
         .project a {
             display: inline-block;
             margin: 10px 0 20px;
             padding: 10px 20px;
-            background: rgba(255, 195, 102, 1);
-            color: black;
+            background: #800080;
+            color: white;
             text-decoration: none;
             font-weight: 600;
             border-radius: 5px;
@@ -155,7 +157,8 @@
 
         .project a:hover {
             background: white;
-            color: black;
+            color: #800080;
+            border: 2px solid #800080;
         }
 
         .song audio {
@@ -166,8 +169,8 @@
         footer {
             text-align: center;
             padding: 20px 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-top: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.8);
+            border-top: 2px solid rgba(0, 0, 0, 0.1);
             backdrop-filter: blur(10px);
         }
 
@@ -200,7 +203,6 @@
     <div class='bio'>Based individual game developer</div>
 
     <main>
-        <!-- Projects Section -->
         <section id="projects">
             <h3>Projects</h3>
             <div class="project-container">
@@ -222,57 +224,21 @@
                     <p>Scripter - Graphics - Builder</p>
                     <a href="https://www.roblox.com/games/131584583011393/Parkour-Run-2" target="_blank">View Project</a>
                 </div>
-
-                <div class="project">
-                    <img src="Images/Skyscraper Shenanigans Logo.png" alt="Skyscraper Shenanigans">
-                    <h4>Skyscraper Shenanigans</h4>
-                    <p>Scripter - Graphics - Builder</p>
-                    <a href="https://www.roblox.com/games/16981397555/SKYSCRAPER-SHENANIGANS" target="_blank">View Project</a>
-                </div>
-
-                <div class="project">
-                    <img src="Images/VSA Logo.png" alt="VSA">
-                    <h4>VSA</h4>
-                    <p>Scripter - Builder - Modeller</p>
-                    <a href="https://www.roblox.com/games/17639096239/Vehicle-Showcase" target="_blank">View Project</a>
-                </div>
-
-                <div class="project">
-                    <img src="Images/TheTower.PNG" alt="The Tower">
-                    <h4>The Tower</h4>
-                    <p>Scripter - Builder</p>
-                    <a href="https://www.roblox.com/games/18708310628/The-Tower" target="_blank">View Project</a>
-                </div>
-                <!-- Repeat other projects in the same structure -->
             </div>
         </section>
 
-        <!-- Skills Section -->
         <section id="skills">
             <h3>Skills</h3>
             <div class="project-container">
-                <div class="project">
-                    <h4>Roblox Studio</h4>
-                </div>
-                <div class="project">
-                    <h4>Lua Programming</h4>
-                </div>
-                <div class="project">
-                    <h4>3D Modeling</h4>
-                </div>
-                <div class="project">
-                    <h4>Graphic Design</h4>
-                </div>
-                <div class="project">
-                    <h4>HTML/CSS Developer</h4>
-                </div>
-                <div class="project">
-                    <h4>Javascript Programmer</h4>
-                </div>
+                <div class="project"><h4>Roblox Studio</h4></div>
+                <div class="project"><h4>Lua Programming</h4></div>
+                <div class="project"><h4>3D Modeling</h4></div>
+                <div class="project"><h4>Graphic Design</h4></div>
+                <div class="project"><h4>HTML/CSS Developer</h4></div>
+                <div class="project"><h4>Javascript Programmer</h4></div>
             </div>
         </section>
 
-        <!-- Songs Section -->
         <section id="songs">
             <h3>Songs</h3>
             <div class="song-container">
@@ -280,17 +246,14 @@
                     <h4>Midnight Lights</h4>
                     <audio controls>
                         <source src="Songs/MidnightLights.mp4" type="audio/mp4">
-                        Your browser does not support the audio element.
                     </audio>
                 </div>
                 <div class="song">
                     <h4>Silent Frost</h4>
                     <audio controls>
                         <source src="Songs/Silent Frost.mp3" type="audio/mp3">
-                        Your browser does not support the audio element.
                     </audio>
                 </div>
-                <!-- Repeat for other songs -->
             </div>
         </section>
     </main>
