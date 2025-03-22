@@ -1,24 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-	<title>Droogs</title>
-	<style type="text/css">
-		@page { size: 8.27in 11.69in; margin: 0.79in }
-		p { line-height: 115%; margin-bottom: 0.1in; background: transparent }
-		pre { background: transparent }
-		pre.western { font-family: "Liberation Mono", monospace; font-size: 10pt }
-		pre.cjk { font-family: "NSimSun", monospace; font-size: 10pt }
-		pre.ctl { font-family: "Liberation Mono", monospace; font-size: 10pt }
-	</style>
-</head>
-<body lang="en-US" link="#000080" vlink="#800000" dir="ltr"><pre class="western">&lt;!DOCTYPE html&gt;
-&lt;html lang=&quot;en&quot;&gt;
-&lt;head&gt;
-    &lt;meta charset=&quot;UTF-8&quot;&gt;
-    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
-    &lt;title&gt;DROOGS - Sweets So Good, They Should Be Illegal&lt;/title&gt;
-    &lt;style&gt;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DROOGS - Sweets So Good, They Should Be Illegal</title>
+    <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
         body { background: #121212; color: #fff; text-align: center; }
         .hero {
@@ -49,63 +35,61 @@
         }
         .product .variant-circle:hover { transform: scale(1.2); }
         .footer { padding: 20px; font-size: 0.9rem; opacity: 0.7; }
-    &lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
+    </style>
+</head>
+<body>
 
-    &lt;div class=&quot;hero&quot;&gt;
+    <div class="hero">
         DROOGS
-        &lt;span&gt;Sweets So Good, They Should Be Illegal&lt;/span&gt;
-        &lt;a href=&quot;#&quot; class=&quot;btn&quot;&gt;Get Your Fix&lt;/a&gt;
-    &lt;/div&gt;
+        <span>Sweets So Good, They Should Be Illegal</span>
+        <a href="#" class="btn">Get Your Fix</a>
+    </div>
 
-    &lt;div class=&quot;products&quot;&gt;
-        &lt;!-- Neon Candy Powder Product --&gt;
-        &lt;div class=&quot;product&quot;&gt;
-            &lt;img src=&quot;https://via.placeholder.com/100&quot; alt=&quot;Neon Candy Powder&quot; id=&quot;candyImage&quot;&gt;
-            &lt;h3 id=&quot;candyTitle&quot;&gt;Neon Candy Powder&lt;/h3&gt;
-            &lt;p id=&quot;candyDescription&quot;&gt;Choose your dose of sweetness!&lt;/p&gt;
-            &lt;div class=&quot;variants&quot;&gt;
-                &lt;div class=&quot;variant-circle&quot; style=&quot;background-color: #ff007f;&quot; onclick=&quot;changeCandy('Candy Acid', 'Neon Pink Candy Powder', 'https://via.placeholder.com/100?text=Pink')&quot;&gt;&lt;/div&gt;
-                &lt;div class=&quot;variant-circle&quot; style=&quot;background-color: #00c3ff;&quot; onclick=&quot;changeCandy('Blue Rush', 'Neon Blue Candy Powder', 'https://via.placeholder.com/100?text=Blue')&quot;&gt;&lt;/div&gt;
-                &lt;div class=&quot;variant-circle&quot; style=&quot;background-color: #32cd32;&quot; onclick=&quot;changeCandy('Lime Blast', 'Neon Green Candy Powder', 'https://via.placeholder.com/100?text=Green')&quot;&gt;&lt;/div&gt;
-                &lt;div class=&quot;variant-circle&quot; style=&quot;background-color: #ff8c00;&quot; onclick=&quot;changeCandy('Orange Crush', 'Neon Orange Candy Powder', 'https://via.placeholder.com/100?text=Orange')&quot;&gt;&lt;/div&gt;
-            &lt;/div&gt;
-        &lt;/div&gt;
+    <div class="products">
+        <!-- Neon Candy Powder Product -->
+        <div class="product">
+            <img src="https://via.placeholder.com/100" alt="Neon Candy Powder" id="candyImage">
+            <h3 id="candyTitle">Neon Candy Powder</h3>
+            <p id="candyDescription">Choose your dose of sweetness!</p>
+            <div class="variants">
+                <div class="variant-circle" style="background-color: #ff007f;" onclick="changeCandy('Candy Acid', 'Neon Pink Candy Powder', 'https://via.placeholder.com/100?text=Pink')"></div>
+                <div class="variant-circle" style="background-color: #00c3ff;" onclick="changeCandy('Blue Rush', 'Neon Blue Candy Powder', 'https://via.placeholder.com/100?text=Blue')"></div>
+                <div class="variant-circle" style="background-color: #32cd32;" onclick="changeCandy('Lime Blast', 'Neon Green Candy Powder', 'https://via.placeholder.com/100?text=Green')"></div>
+                <div class="variant-circle" style="background-color: #ff8c00;" onclick="changeCandy('Orange Crush', 'Neon Orange Candy Powder', 'https://via.placeholder.com/100?text=Orange')"></div>
+            </div>
+        </div>
 
-        &lt;!-- Meth Cook Product --&gt;
-        &lt;div class=&quot;product&quot;&gt;
-            &lt;img src=&quot;https://via.placeholder.com/100&quot; alt=&quot;Meth Cook&quot; id=&quot;methImage&quot;&gt;
-            &lt;h3 id=&quot;methTitle&quot;&gt;Meth Cook&lt;/h3&gt;
-            &lt;p id=&quot;methDescription&quot;&gt;Choose your cook, and taste the thrill!&lt;/p&gt;
-            &lt;div class=&quot;variants&quot;&gt;
-                &lt;div class=&quot;variant-circle&quot; style=&quot;background-color: red;&quot; onclick=&quot;changeMeth('Red Phosphorus Method', 'Red Rock Candy', 'https://via.placeholder.com/100')&quot;&gt;&lt;/div&gt;
-                &lt;div class=&quot;variant-circle&quot; style=&quot;background-color: white;&quot; onclick=&quot;changeMeth('The Methylamine Method', 'Clear White Rock Candy', 'https://via.placeholder.com/100?text=Clear')&quot;&gt;&lt;/div&gt;
-                &lt;div class=&quot;variant-circle&quot; style=&quot;background-color: #add8e6;&quot; onclick=&quot;changeMeth('Super Meth', 'Glass-like Crystalline Shards', 'https://via.placeholder.com/100?text=Crystalline')&quot;&gt;&lt;/div&gt;
-                &lt;div class=&quot;variant-circle&quot; style=&quot;background-color: #0000ff;&quot; onclick=&quot;changeMeth('Blue Meth', 'Blue Rock Candy', 'https://via.placeholder.com/100?text=Blue')&quot;&gt;&lt;/div&gt;
-            &lt;/div&gt;
-        &lt;/div&gt;
-    &lt;/div&gt;
+        <!-- Meth Cook Product -->
+        <div class="product">
+            <img src="https://via.placeholder.com/100" alt="Meth Cook" id="methImage">
+            <h3 id="methTitle">Meth Cook</h3>
+            <p id="methDescription">Choose your cook, and taste the thrill!</p>
+            <div class="variants">
+                <div class="variant-circle" style="background-color: red;" onclick="changeMeth('Red Phosphorus Method', 'Red Rock Candy', 'https://via.placeholder.com/100')"></div>
+                <div class="variant-circle" style="background-color: white;" onclick="changeMeth('The Methylamine Method', 'Clear White Rock Candy', 'https://via.placeholder.com/100?text=Clear')"></div>
+                <div class="variant-circle" style="background-color: #add8e6;" onclick="changeMeth('Super Meth', 'Glass-like Crystalline Shards', 'https://via.placeholder.com/100?text=Crystalline')"></div>
+                <div class="variant-circle" style="background-color: #0000ff;" onclick="changeMeth('Blue Meth', 'Blue Rock Candy', 'https://via.placeholder.com/100?text=Blue')"></div>
+            </div>
+        </div>
+    </div>
 
-    &lt;div class=&quot;footer&quot;&gt;
+    <div class="footer">
         © 2025 DROOGS. Not actually drugs, just sugar.
-    &lt;/div&gt;
+    </div>
 
-    &lt;script&gt;
+    <script>
         function changeCandy(title, description, imgSrc) {
-            document.getElementById(&quot;candyTitle&quot;).innerText = title;
-            document.getElementById(&quot;candyDescription&quot;).innerText = description;
-            document.getElementById(&quot;candyImage&quot;).src = imgSrc;
+            document.getElementById("candyTitle").innerText = title;
+            document.getElementById("candyDescription").innerText = description;
+            document.getElementById("candyImage").src = imgSrc;
         }
 
         function changeMeth(title, description, imgSrc) {
-            document.getElementById(&quot;methTitle&quot;).innerText = title;
-            document.getElementById(&quot;methDescription&quot;).innerText = description;
-            document.getElementById(&quot;methImage&quot;).src = imgSrc;
+            document.getElementById("methTitle").innerText = title;
+            document.getElementById("methDescription").innerText = description;
+            document.getElementById("methImage").src = imgSrc;
         }
-    &lt;/script&gt;
+    </script>
 
-&lt;/body&gt;
-&lt;/html&gt;</pre>
 </body>
 </html>
