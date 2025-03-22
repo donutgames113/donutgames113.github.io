@@ -1,114 +1,241 @@
 <!DOCTYPE html>
-<html>
+  
+<html lang="en">
+  
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-	<title></title>
-	<meta name="generator" content="LibreOffice 7.6.4.1 (Linux)"/>
-	<meta name="created" content="00:00:00"/>
-	<meta name="changed" content="00:00:00"/>
-	<style type="text/css">
-		@page { size: 8.27in 11.69in; margin: 0.79in }
-		p { line-height: 115%; margin-bottom: 0.1in; background: transparent }
-		pre { background: transparent }
-		pre.western { font-family: "Liberation Mono", monospace; font-size: 10pt }
-		pre.cjk { font-family: "NSimSun", monospace; font-size: 10pt }
-		pre.ctl { font-family: "Liberation Mono", monospace; font-size: 10pt }
-	</style>
+  
+    <meta charset="UTF-8">
+  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <title>Donut</title>
+  
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  
+    <style>
+  
+        * {
+  
+            margin: 0;
+  
+            padding: 0;
+  
+            box-sizing: border-box;
+  
+            font-family: 'Poppins', sans-serif;
+  
+        }
+  
+
+  
+        body {
+  
+            background: black;
+  
+            overflow: hidden;
+  
+            display: flex;
+  
+            justify-content: center;
+  
+            align-items: center;
+  
+            height: 100vh;
+  
+        }
+  
+
+  
+        .background {
+  
+            position: absolute;
+  
+            width: 100vw;
+  
+            height: 100vh;
+  
+            display: flex;
+  
+            justify-content: center;
+  
+            align-items: center;
+  
+        }
+  
+
+  
+        .background span {
+  
+            position: absolute;
+  
+            width: 200px;
+  
+            height: 200px;
+  
+            background: radial-gradient(circle, rgba(255,195,102,1) 0%, rgba(0,0,0,0) 70%);
+  
+            border-radius: 50%;
+  
+            filter: blur(50px);
+  
+            animation: float 5s infinite alternate;
+  
+        }
+  
+
+  
+        @keyframes float {
+  
+            0% { transform: translateY(-20px); }
+  
+            100% { transform: translateY(20px); }
+  
+        }
+  
+
+  
+        .container {
+  
+            position: relative;
+  
+            width: 80%;
+  
+            max-width: 800px;
+  
+            padding: 30px;
+  
+            background: rgba(255, 255, 255, 0.1);
+  
+            border-radius: 20px;
+  
+            backdrop-filter: blur(10px);
+  
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  
+            color: white;
+  
+            text-align: center;
+  
+        }
+  
+
+  
+        .title {
+  
+            font-size: 2rem;
+  
+            font-weight: 600;
+  
+        }
+  
+
+  
+        .subtitle {
+  
+            font-size: 1rem;
+  
+            margin-top: 10px;
+  
+        }
+  
+
+  
+        .button-container {
+  
+            margin-top: 20px;
+  
+            display: flex;
+  
+            justify-content: center;
+  
+            gap: 10px;
+  
+        }
+  
+
+  
+        .button {
+  
+            padding: 10px 20px;
+  
+            background: transparent;
+  
+            border: 2px solid white;
+  
+            color: white;
+  
+            border-radius: 5px;
+  
+            cursor: pointer;
+  
+            transition: 0.3s;
+  
+        }
+  
+
+  
+        .button:hover {
+  
+            background: white;
+  
+            color: black;
+  
+        }
+  
+    </style>
+  
 </head>
-<body lang="en-US" link="#000080" vlink="#800000" dir="ltr"><pre class="western">&lt;!DOCTYPE html&gt;
-&lt;html lang=&quot;en&quot;&gt;
-&lt;head&gt;
-    &lt;meta charset=&quot;UTF-8&quot;&gt;
-    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
-    &lt;title&gt;DROOGS - Sweets So Good, They Should Be Illegal&lt;/title&gt;
-    &lt;style&gt;
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-        body { background: #121212; color: #fff; text-align: center; }
-        .hero {
-            padding: 80px 20px; background: linear-gradient(135deg, #ff007f, #00c3ff);
-            font-size: 2.5rem; font-weight: bold; text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-        .hero span { display: block; font-size: 1rem; font-weight: normal; margin-top: 10px; }
-        .btn {
-            display: inline-block; margin: 20px auto; padding: 15px 30px;
-            background: linear-gradient(135deg, #ff007f, #00c3ff);
-            border-radius: 50px; box-shadow: inset 2px 2px 5px rgba(255, 255, 255, 0.2),
-                        inset -2px -2px 5px rgba(0, 0, 0, 0.2), 5px 5px 10px rgba(0, 0, 0, 0.3);
-            font-size: 1.2rem; font-weight: bold; text-decoration: none; color: #fff;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .btn:hover { transform: scale(1.05); }
-        .products { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; padding: 50px 20px; }
-        .product { 
-            background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 15px;
-            width: 250px; text-align: center; box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
-        }
-        .product img { width: 100px; height: 100px; }
-        .product h3 { margin: 10px 0; font-size: 1.5rem; }
-        .product .variants { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
-        .product .variant-circle {
-            width: 30px; height: 30px; border-radius: 50%; background-color: #ccc; cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .product .variant-circle:hover { transform: scale(1.2); }
-        .footer { padding: 20px; font-size: 0.9rem; opacity: 0.7; }
-    &lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
+  
+<body>
+  
+    <div class="background">
+  
+        <span style="top: 20%; left: 15%;"></span>
+  
+        <span style="top: 50%; left: 50%;"></span>
+  
+        <span style="top: 80%; left: 80%;"></span>
+  
+    </div>
+  
 
-    &lt;div class=&quot;hero&quot;&gt;
-        DROOGS
-        &lt;span&gt;Sweets So Good, They Should Be Illegal&lt;/span&gt;
-        &lt;a href=&quot;#&quot; class=&quot;btn&quot;&gt;Get Your Fix&lt;/a&gt;
-    &lt;/div&gt;
+  
+    <div class="container">
+  
+        <p class="subtitle">Welcome</p>
+  
+        <h1 class="title">Donut.</h1>
+  
+        <div class="button-container">
+  
+            <button class="button" id="portfolioButton">Portfolio</button>
+  
+            <button class="button" id="robloxButton">Roblox</button>
+  
+        </div>
+  
+    </div>
+  
 
-    &lt;div class=&quot;products&quot;&gt;
-        &lt;!-- Neon Candy Powder Product --&gt;
-        &lt;div class=&quot;product&quot;&gt;
-            &lt;img src=&quot;https://via.placeholder.com/100&quot; alt=&quot;Neon Candy Powder&quot; id=&quot;candyImage&quot;&gt;
-            &lt;h3 id=&quot;candyTitle&quot;&gt;Neon Candy Powder&lt;/h3&gt;
-            &lt;p id=&quot;candyDescription&quot;&gt;Choose your dose of sweetness!&lt;/p&gt;
-            &lt;div class=&quot;variants&quot;&gt;
-                &lt;div class=&quot;variant-circle&quot; style=&quot;background-color: #ff007f;&quot; onclick=&quot;changeCandy('Candy Acid', 'Neon Pink Candy Powder', 'https://via.placeholder.com/100?text=Pink')&quot;&gt;&lt;/div&gt;
-                &lt;div class=&quot;variant-circle&quot; style=&quot;background-color: #00c3ff;&quot; onclick=&quot;changeCandy('Blue Rush', 'Neon Blue Candy Powder', 'https://via.placeholder.com/100?text=Blue')&quot;&gt;&lt;/div&gt;
-                &lt;div class=&quot;variant-circle&quot; style=&quot;background-color: #32cd32;&quot; onclick=&quot;changeCandy('Lime Blast', 'Neon Green Candy Powder', 'https://via.placeholder.com/100?text=Green')&quot;&gt;&lt;/div&gt;
-                &lt;div class=&quot;variant-circle&quot; style=&quot;background-color: #ff8c00;&quot; onclick=&quot;changeCandy('Orange Crush', 'Neon Orange Candy Powder', 'https://via.placeholder.com/100?text=Orange')&quot;&gt;&lt;/div&gt;
-            &lt;/div&gt;
-        &lt;/div&gt;
+  
+    <script>
+  
+        document.getElementById('portfolioButton').addEventListener('click', function () {
+  
+            window.location.href = 'portfolio.html';
+  
+        });
+  
 
-        &lt;!-- Meth Cook Product --&gt;
-        &lt;div class=&quot;product&quot;&gt;
-            &lt;img src=&quot;https://via.placeholder.com/100&quot; alt=&quot;Meth Cook&quot; id=&quot;methImage&quot;&gt;
-            &lt;h3 id=&quot;methTitle&quot;&gt;Meth Cook&lt;/h3&gt;
-            &lt;p id=&quot;methDescription&quot;&gt;Choose your cook, and taste the thrill!&lt;/p&gt;
-            &lt;div class=&quot;variants&quot;&gt;
-                &lt;div class=&quot;variant-circle&quot; style=&quot;background-color: red;&quot; onclick=&quot;changeMeth('Red Phosphorus Method', 'Red Rock Candy', 'https://via.placeholder.com/100')&quot;&gt;&lt;/div&gt;
-                &lt;div class=&quot;variant-circle&quot; style=&quot;background-color: white;&quot; onclick=&quot;changeMeth('The Methylamine Method', 'Clear White Rock Candy', 'https://via.placeholder.com/100?text=Clear')&quot;&gt;&lt;/div&gt;
-                &lt;div class=&quot;variant-circle&quot; style=&quot;background-color: #add8e6;&quot; onclick=&quot;changeMeth('Super Meth', 'Glass-like Crystalline Shards', 'https://via.placeholder.com/100?text=Crystalline')&quot;&gt;&lt;/div&gt;
-                &lt;div class=&quot;variant-circle&quot; style=&quot;background-color: #0000ff;&quot; onclick=&quot;changeMeth('Blue Meth', 'Blue Rock Candy', 'https://via.placeholder.com/100?text=Blue')&quot;&gt;&lt;/div&gt;
-            &lt;/div&gt;
-        &lt;/div&gt;
-    &lt;/div&gt;
-
-    &lt;div class=&quot;footer&quot;&gt;
-        © 2025 DROOGS. Not actually drugs, just sugar.
-    &lt;/div&gt;
-
-    &lt;script&gt;
-        function changeCandy(title, description, imgSrc) {
-            document.getElementById(&quot;candyTitle&quot;).innerText = title;
-            document.getElementById(&quot;candyDescription&quot;).innerText = description;
-            document.getElementById(&quot;candyImage&quot;).src = imgSrc;
-        }
-
-        function changeMeth(title, description, imgSrc) {
-            document.getElementById(&quot;methTitle&quot;).innerText = title;
-            document.getElementById(&quot;methDescription&quot;).innerText = description;
-            document.getElementById(&quot;methImage&quot;).src = imgSrc;
-        }
-    &lt;/script&gt;
-
-&lt;/body&gt;
-&lt;/html&gt;</pre>
+  
+        document.getElementById('robloxButton').addEventListener('click', function () {
+  
+            window.location.href = 'https://www.roblox.com/users/2300704028/profile';
+  
+        });
+  
+    </script>
+  
 </body>
+  
 </html>
