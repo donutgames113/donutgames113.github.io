@@ -181,6 +181,68 @@
             text-align: center;
             font-size: 25px;
         }
+
+        #favorite-game {
+            width: 100%;
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .favorite-game-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            max-width: 900px;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        .favorite-game-container img {
+            width: 40%;
+            max-width: 300px;
+            border-radius: 10px;
+        }
+
+        .favorite-game-info {
+            flex: 1;
+            text-align: left;
+        }
+
+        .favorite-game-info h4 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #FFD700;
+        }
+
+        .favorite-game-info p {
+            margin: 10px 0;
+            font-size: 1rem;
+            color: white;
+        }
+
+        .favorite-game-info a {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: rgba(255, 195, 102, 1);
+            color: black;
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        .favorite-game-info a:hover {
+            background: white;
+            color: black;
+        }
+
     </style>
 </head>
 <body>
@@ -199,6 +261,19 @@
     </header>
     
     <div class='bio'>Pretty cool game developer</div>
+
+    <!-- Favorite Game Section -->
+    <section id="favorite-game">
+        <h3>Favorite Game</h3>
+        <div class="favorite-game-container">
+            <img src="Images/FavoriteGame.png" alt="Favorite Game">
+            <div class="favorite-game-info">
+                <h4>Neon Run</h4>
+                <p>I worked on scripting, graphics, and gameplay mechanics to create a fast-paced, visually stunning runner experience.</p>
+                <a href="https://www.roblox.com/games/123456789/Neon-Run" target="_blank">View Game</a>
+            </div>
+        </div>
+    </section>
 
     <main>
         <!-- Projects Section -->
