@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donut</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #301934);
+            color: #fff;
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .clay {
+            background: linear-gradient(145deg, #26264f, #1e1e3f);
+            border-radius: 20px;
+            box-shadow: 8px 8px 16px #14142b, -8px -8px 16px #2e2e5d;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+        }
+
+        .brands, .projects, .contact, .about, .skills, .testimonials, .social {
+            margin-top: 20px;
+        }
+
+        .brand-card {
+            padding: 20px;
+            border-radius: 15px;
+            margin: 10px 0;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .playzero { background: #6200ea; }
+        .droogs { background: #ff0055; }
+
+        .button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 25px;
+            font-size: 1.2em;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 25px;
+            background: linear-gradient(145deg, #5a189a, #3c1361);
+            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3), -4px -4px 8px rgba(255, 255, 255, 0.05);
+            transition: 0.2s;
+        }
+
+        .button:hover {
+            background: linear-gradient(145deg, #6a1bb3, #4a1178);
+            transform: translateY(-2px);
+        }
+
+        .skills ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .skills li {
+            font-size: 1.1em;
+            margin: 5px 0;
+        }
+
+        .testimonials blockquote {
+            font-style: italic;
+            margin-top: 15px;
+        }
+
+        .social a {
+            margin: 10px;
+            font-size: 1.5em;
+            color: #fff;
+            text-decoration: none;
+        }
+        
+        a:hover{
+            cdisplay: inline-block;
+            margin-top: 20px;
+            padding: 12px 25px;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 25px;
+            background: linear-gradient(145deg, #5a189a, #3c1361);
+            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3), -4px -4px 8px rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="glass">
+            <h1>Donut</h1>
+            <p>Game & Web Developer | Brand Creator</p>
+        </div>
+
+        <div class="clay about">
+            <h2>About Me</h2>
+            <p>Pretty cool game developer and marketer.</p>
+        </div>
+
+        <div class="clay skills">
+            <h2>Skills</h2>
+            <ul>
+                <li>Game Development</li>
+                <li>Web Development (HTML, CSS, JavaScript, Python)</li>
+                <li>UI/UX Design</li>
+                <li>Marketing & Branding</li>
+            </ul>
+        </div>
+
+        <div class="clay brands">
+            <h2>Associated Brands</h2>
+            <div class="brand-card playzero">Playzero - Game & Web Development Studio</div>
+            <div class="brand-card droogs">DROOGS - Sweets that look like controlled substances</div>
+        </div>
+
+        <div class="clay projects">
+            <h2>Projects</h2>
+            <p>Explore the games and apps I've built.</p>
+            <a href="portfolio.html" class="button">View Portfolio</a>
+        </div>
+
+        <div class="clay testimonials">
+            <h2>What People Say</h2>
+            <blockquote>"Donut is a highly creative and skilled developer. Working with them has been a game-changer for our project!" - Client A</blockquote>
+        </div>
+
+        <div class="clay contact">
+            <h2>Contact</h2>
+            <p>Get in touch for collaborations or inquiries.</p>
+            <a href="mailto:contact@donut.com" class="button">Email Me</a>
+        </div>
+
+        <div class="social">
+            <h2>Follow Me</h2>
+            <a href="https://github.com/Donut" target="_blank">GitHub</a>
+            <a href="https://www.youtube.com/@donutgames113" target="_blank">YouTube</a>
+            <a href="https://twitter.com/DonutDev" target="_blank">Twitter</a>
+        </div>
+    </div>
+
+</body>
+</html>
