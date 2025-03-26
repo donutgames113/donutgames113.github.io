@@ -3,376 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Donut Portfolio</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Donut</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
+            font-family: Arial, sans-serif;
         }
 
         body {
-            background: black;
-            color: white;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* Background Spheres */
-        body::before,
-        body::after {
-            content: '';
-            position: absolute;
-            border-radius: 50%;
-            z-index: -1;
-            filter: blur(100px);
-            opacity: 0.6;
-        }
-
-        body::before {
-            width: 400px;
-            height: 400px;
-            background: rgba(106, 17, 203, 0.8);
-            top: 10%;
-            left: -10%;
-        }
-
-        body::after {
-            width: 500px;
-            height: 500px;
-            background: rgba(37, 117, 252, 0.8);
-            bottom: 15%;
-            right: -15%;
-        }
-
-        header {
-            position: relative;
+            background: linear-gradient(135deg, #1a1a2e, #301934);
+            color: #fff;
             text-align: center;
-            overflow: hidden;
             padding: 50px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .glass {
             background: rgba(255, 255, 255, 0.1);
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
         }
 
-        header h1 {
-            font-size: 3rem;
-            font-weight: 600;
+        .clay {
+            background: linear-gradient(145deg, #26264f, #1e1e3f);
+            border-radius: 20px;
+            box-shadow: 8px 8px 16px #14142b, -8px -8px 16px #2e2e5d;
+            padding: 20px;
+            margin-bottom: 30px;
         }
 
-        header h2 {
-            font-size: 1.5rem;
-            margin-top: 10px;
-            font-weight: 300;
+        h1 {
+            font-size: 2.5em;
         }
 
-        nav {
+        h2 {
+            margin-bottom: 10px;
+        }
+
+        .brands, .projects, .contact, .about, .skills, .testimonials, .social {
             margin-top: 20px;
         }
 
-        nav ul {
-            list-style: none;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
+        .brand-card {
+            padding: 20px;
+            border-radius: 15px;
+            margin: 10px 0;
+            font-weight: bold;
+            color: #fff;
         }
 
-        nav ul li a {
-            text-decoration: none;
-            color: white;
-            font-size: 1rem;
-            font-weight: 500;
-            padding: 10px 20px;
-            border: 2px solid transparent;
-            transition: 0.3s;
-        }
+        .playzero { background: #6200ea; }
+        .droogs { background: #ff0055; }
 
-        nav ul li a:hover {
-            border-color: white;
-            background: white;
-            color: black;
-        }
-
-        section {
-            padding: 50px 20px;
-            text-align: center;
-        }
-
-        section h3 {
-            font-size: 2rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-
-        .project-container, .song-container {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .project, .song {
-            position: relative;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-            text-align: center;
-            width: 300px;
-            user-select: none;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .project:hover, .song:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(255, 255, 255, 0.3);
-        }
-
-        .project img, .song img {
-            width: 100%;
-            height: auto;
-        }
-
-        .project h4, .song h4 {
-            margin: 15px 0;
-            font-weight: 500;
-            color: #FFD700;
-        }
-
-        .project a {
+        .button {
             display: inline-block;
-            margin: 10px 0 20px;
-            padding: 10px 20px;
-            background: rgba(255, 195, 102, 1);
-            color: black;
+            margin-top: 20px;
+            padding: 12px 25px;
+            font-size: 1.2em;
+            color: #fff;
             text-decoration: none;
-            font-weight: 600;
-            border-radius: 5px;
-            transition: 0.3s;
+            border-radius: 25px;
+            background: linear-gradient(145deg, #5a189a, #3c1361);
+            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3), -4px -4px 8px rgba(255, 255, 255, 0.05);
+            transition: 0.2s;
         }
 
-        .project a:hover {
-            background: white;
-            color: black;
+        .button:hover {
+            background: linear-gradient(145deg, #6a1bb3, #4a1178);
+            transform: translateY(-2px);
         }
 
-        .song audio {
-            width: 90%;
-            margin: 15px auto;
+        .skills ul {
+            list-style: none;
+            padding: 0;
         }
 
-        footer {
-            text-align: center;
-            padding: 20px 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-top: 2px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
+        .skills li {
+            font-size: 1.1em;
+            margin: 5px 0;
         }
 
-        footer p {
-            font-size: 1rem;
+        .testimonials blockquote {
+            font-style: italic;
+            margin-top: 15px;
+        }
+
+        .social a {
+            margin: 10px;
+            font-size: 1.5em;
+            color: #fff;
+            text-decoration: none;
         }
         
-        .bio {
-            padding-top: 15px;
-            text-align: center;
-            font-size: 25px;
-        }
-
-        #favorite-game {
-            width: 100%;
-            text-align: center;
-            padding: 50px 20px;
-        }
-
-        .favorite-game-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 30px;
-            max-width: 900px;
-            margin: auto;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-            padding: 20px;
-        }
-
-        .favorite-game-container img {
-            width: 40%;
-            max-width: 300px;
-            border-radius: 10px;
-        }
-
-        .favorite-game-info {
-            flex: 1;
-            text-align: left;
-        }
-
-        .favorite-game-info h4 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: #FFD700;
-        }
-
-        .favorite-game-info p {
-            margin: 10px 0;
-            font-size: 1rem;
-            color: white;
-        }
-
-        .favorite-game-info a {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 10px 20px;
-            background: rgba(255, 195, 102, 1);
-            color: black;
+        a:hover{
+            margin-top: 20px;
+            padding: 12px 25px;
+            color: #fff;
             text-decoration: none;
-            font-weight: 600;
-            border-radius: 5px;
-            transition: 0.3s;
+            border-radius: 25px;
+            background: linear-gradient(145deg, #5a189a, #3c1361);
+            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3), -4px -4px 8px rgba(255, 255, 255, 0.05);
         }
 
-        .favorite-game-info a:hover {
-            background: white;
-            color: black;
+        .social h2{
+            padding-bottom: 15px;
         }
-
     </style>
 </head>
 <body>
-    <header>
-        <h1>Donut</h1>
-        <h2>Roblox and Web Developer | Graphics artist | Marketer</h2>
-        <nav>
-            <ul>
-                <li><a href="#projects">Projects</a></li>
-                <li><a href="#skills">Skills</a></li>
-                <li><a href="#songs">Songs</a></li>
-                <li><a href="ImagesPage.html">Graphics</a></li>
-                <li><a href="Builds.html">Builds</a></li>
-            </ul>
-        </nav>
-    </header>
-    
-    <div class='bio'>Pretty cool game developer</div>
 
-    <!-- Favorite Game Section -->
-    <section id="favorite-game">
-        <h3>Favorite Game</h3>
-        <div class="favorite-game-container">
-            <img src="Images/FavoriteGame.png" alt="Favorite Game">
-            <div class="favorite-game-info">
-                <h4>Neon Run</h4>
-                <p>I worked on scripting, graphics, and gameplay mechanics to create a fast-paced, visually stunning runner experience.</p>
-                <a href="https://www.roblox.com/games/123456789/Neon-Run" target="_blank">View Game</a>
-            </div>
+    <div class="container">
+        <div class="glass">
+            <h1>Donut</h1>
+            <p>Game & Web Developer | Brand Creator</p>
         </div>
-    </section>
 
-    <main>
-        <!-- Projects Section -->
-        <section id="projects">
-            <h3>Projects</h3>
-            <div class="project-container">
-                <div class="project">
-                    <img src="Images/csnew.png" alt="CardSwap">
-                    <h4>Card Swap</h4>
-                    <p>Scripter - Graphics - Builder - Artist</p>
-                    <a href="https://www.roblox.com/games/14693594387/CardSwap" target="_blank">View Project</a>
-                </div>
-                <div class="project">
-                    <img src="Images/PRUN logo.png" alt="Parkour-Run">
-                    <h4>Parkour Run</h4>
-                    <p>Scripter - Graphics - Builder</p>
-                    <a href="https://www.roblox.com/games/17341244784/Parkour-run" target="_blank">View Project</a>
-                </div>
-                <div class="project">
-                    <img src="Images/Prunnew.png" alt="Parkour-Run-2">
-                    <h4>Parkour Run 2</h4>
-                    <p>Scripter - Graphics - Builder</p>
-                    <a href="https://www.roblox.com/games/131584583011393/Parkour-Run-2" target="_blank">View Project</a>
-                </div>
+        <div class="clay about">
+            <h2>About Me</h2>
+            <p>Pretty cool game developer and marketer.</p>
+        </div>
 
-                <div class="project">
-                    <img src="Images/Skyscraper Shenanigans Logo.png" alt="Skyscraper Shenanigans">
-                    <h4>Skyscraper Shenanigans</h4>
-                    <p>Scripter - Graphics - Builder</p>
-                    <a href="https://www.roblox.com/games/16981397555/SKYSCRAPER-SHENANIGANS" target="_blank">View Project</a>
-                </div>
+        <div class="clay skills">
+            <h2>Skills</h2>
+            <ul>
+                <li>Game Development</li>
+                <li>Web Development (HTML, CSS, JavaScript, Python)</li>
+                <li>UI/UX Design</li>
+                <li>Marketing & Branding</li>
+            </ul>
+        </div>
 
-                <div class="project">
-                    <img src="Images/VSA Logo.png" alt="VSA">
-                    <h4>VSA</h4>
-                    <p>Scripter - Builder - Modeller</p>
-                    <a href="https://www.roblox.com/games/17639096239/Vehicle-Showcase" target="_blank">View Project</a>
-                </div>
+        <div class="clay brands">
+            <h2>Associated Brands</h2>
+            <div class="brand-card playzero">Playzero - Game & Web Development Studio</div>
+            <div class="brand-card droogs">DROOGS - Sweets that look like controlled substances</div>
+        </div>
 
-                <div class="project">
-                    <img src="Images/TheTower.PNG" alt="The Tower">
-                    <h4>The Tower</h4>
-                    <p>Scripter - Builder</p>
-                    <a href="https://www.roblox.com/games/18708310628/The-Tower" target="_blank">View Project</a>
-                </div>
-                <!-- Repeat other projects in the same structure -->
-            </div>
-        </section>
+        <div class="clay projects">
+            <h2>Projects</h2>
+            <p>Explore the games and apps I've built.</p>
+            <a href="portfolio.html" class="button">View Portfolio</a>
+        </div>
 
-        <!-- Skills Section -->
-        <section id="skills">
-            <h3>Skills</h3>
-            <div class="project-container">
-                <div class="project">
-                    <h4>Roblox Studio</h4>
-                </div>
-                <div class="project">
-                    <h4>Lua Programming</h4>
-                </div>
-                <div class="project">
-                    <h4>3D Modeling</h4>
-                </div>
-                <div class="project">
-                    <h4>Graphic Design</h4>
-                </div>
-                <div class="project">
-                    <h4>HTML/CSS Developer</h4>
-                </div>
-                <div class="project">
-                    <h4>Javascript Programmer</h4>
-                </div>
-            </div>
-        </section>
+        <div class="clay testimonials">
+            <h2>What People Say</h2>
+            <blockquote>"Donut is a highly creative and skilled developer. Working with them has been a game-changer for our project!" - Client A</blockquote>
+        </div>
 
-        <!-- Songs Section -->
-        <section id="songs">
-            <h3>Songs</h3>
-            <div class="song-container">
-                <div class="song">
-                    <h4>Midnight Lights</h4>
-                    <audio controls>
-                        <source src="Songs/MidnightLights.mp4" type="audio/mp4">
-                        Your browser does not support the audio element.
-                    </audio>
-                </div>
-                <div class="song">
-                    <h4>Silent Frost</h4>
-                    <audio controls>
-                        <source src="Songs/Silent Frost.mp3" type="audio/mp3">
-                        Your browser does not support the audio element.
-                    </audio>
-                </div>
-                <!-- Repeat for other songs -->
-            </div>
-        </section>
-    </main>
+        <div class="social">
+            <h2>Follow Me</h2>
+            <a href="https://github.com/Donut" target="_blank">GitHub</a>
+            <a href="https://www.youtube.com/@donutgames113" target="_blank">YouTube</a>
+            <a href="https://twitter.com/DonutDev" target="_blank">Twitter</a>
+        </div>
+    </div>
 
-    <footer>
-        <p>© 2024 Donut. All rights reserved.</p>
-    </footer>
 </body>
 </html>
