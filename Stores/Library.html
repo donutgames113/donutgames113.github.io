@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Donut Stores</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    body {
+      background: #121212;
+      color: white;
+    }
+
+    header {
+      background: linear-gradient(90deg, #7f5af0, #9b7cf9);
+      padding: 50px 20px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .intro {
+      padding: 60px 20px;
+      text-align: center;
+      color: #cfcfcf;
+    }
+
+    .intro p {
+      max-width: 600px;
+      margin: auto;
+      font-size: 1rem;
+    }
+
+    .stores {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding: 40px 20px;
+    }
+
+    .store-card {
+      background: rgba(30, 30, 30, 0.8);
+      border-radius: 20px;
+      padding: 25px;
+      transition: 0.3s;
+      box-shadow: 0 10px 30px rgba(127, 90, 240, 0.2);
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      text-decoration: none;
+      color: white;
+    }
+
+    .store-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(127, 90, 240, 0.4);
+      background: rgba(50, 50, 50, 0.9);
+    }
+
+    .store-card h2 {
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+      color: #e0dfff;
+    }
+
+    .store-card p {
+      color: #b9b9b9;
+      font-size: 1rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px 10px;
+      color: #aaa;
+      background: #121212;
+      font-size: 0.9rem;
+      border-top: 2px solid #241847;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Donut Stores</h1>
+  </header>
+
+  <section class="intro">
+    <p>Explore all the stores under the Donut brand. From tech to wellness, Donut brings innovation and aesthetics together in one place.</p>
+  </section>
+
+  <section class="stores">
+    <a href="auramist" class="store-card">
+      <h2>Auramist</h2>
+      <p>Premium electric diffusers for calm, style, and scent.</p>
+    </a>
+  </section>
+
+  <footer>
+    © 2025 Donut. All rights reserved.
+  </footer>
+
+</body>
+</html>
