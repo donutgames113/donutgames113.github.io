@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Auramist by Donut</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    body {
+      background: #121212;
+      color: white;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: linear-gradient(90deg, #7f5af0, #9b7cf9);
+      padding: 50px 20px;
+      text-align: center;
+      border-bottom: 2px solid rgba(255, 140, 0, 0.3);
+      backdrop-filter: blur(10px);
+    }
+
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      color: white;
+    }
+
+    header h2 {
+      font-family: Arial, sans-serif;
+      font-size: 1.2rem;
+      color: #e0dfff;
+      font-weight: 400;
+      margin-top: 10px;
+    }
+
+    .hero h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: #e0dfff;
+      margin-bottom: 10px;
+    }
+
+    .hero {
+      padding: 80px 20px;
+      text-align: center;
+    }
+
+    .hero p {
+      max-width: 600px;
+      margin: auto;
+      font-weight: 400;
+      color: #cfcfcf;
+      line-height: 1.6;
+    }
+
+    .cta {
+      margin-top: 30px;
+    }
+
+    .cta button {
+      background: #7f5af0;
+      border: none;
+      color: white;
+      padding: 12px 30px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .cta button:hover {
+      background: #9b7cf9;
+    }
+
+    .products {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      padding: 50px 20px;
+    }
+
+    .product {
+      background: rgba(30, 30, 30, 0.8);
+      border-radius: 20px;
+      width: 300px;
+      height: 520px;
+      text-align: center;
+      padding: 20px;
+      transition: 0.3s;
+      box-shadow: 0 10px 30px #291c4f;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .product:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 40px rgba(127, 90, 240, 0.5);
+    }
+
+    .product img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+
+    .product h3 {
+      margin: 15px 0 10px;
+      font-size: 1.3rem;
+      color: #d3cfff;
+    }
+
+    .product p {
+      color: #b9b9b9;
+      font-weight: 400;
+    }
+
+    .buy-button {
+      margin-top: 10px;
+      background: #7f5af0;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .buy-button:hover {
+      background: #9b7cf9;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px 10px;
+      color: #aaa;
+      background: #121212;
+      font-size: 0.9rem;
+      border-top: 2px solid #3a2a6a;
+      backdrop-filter: blur(10px);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Auramist</h1>
+    <h2>by Donut</h2>
+  </header>
+
+  <section class="hero">
+    <h2>Elevate Your Space</h2>
+    <p>Discover a collection of modern electric diffusers designed to bring calm, style, and aroma into your everyday life.</p>
+    <div class="cta">
+      <button>Shop Now</button>
+    </div>
+  </section>
+
+  <section class="products">
+    <div class="product">
+      <img src="Images/Volcano Fire Aroma Diffuser.png" alt="Volcano Fire Aroma Diffuser">
+      <h3>Volcano Fire Aroma Diffuser</h3>
+      <p>Glows like lava. Smells like peace.</p>
+      <button class="buy-button">Buy - $19.99</button>
+    </div>
+    <div class="product">
+      <img src="Images/Ultrasonic Aroma Humidifier.png" alt="Ultrasonic Aroma Humidifier">
+      <h3>Ultrasonic Aroma Humidifier</h3>
+      <p>Clean design. Spa vibes.</p>
+      <button class="buy-button">Buy - $14.99</button>
+    </div>
+    <div class="product">
+      <img src="Images/Flame Aroma Diffuser.png" alt="Flame Aroma Diffuser">
+      <h3>Flame Aroma Diffuser</h3>
+      <p>Flickers like fire. Feels like calm.</p>
+      <button class="buy-button">Buy - £19.99</button>
+    </div>
+  </section>
+
+  <footer>
+    © 2025 Auramist by Donut. All rights reserved.
+  </footer>
+</body>
+</html>
