@@ -1,164 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/Images/donut_logo.jpg">
-    <title>Donut</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" type="image/x-icon" href="/Images/donut_logo.jpg" />
+  <title>Donut</title>
 
-        body {
-            background: linear-gradient(135deg, #1a1a2e, #301934);
-            color: #fff;
-            text-align: center;
-            padding: 50px 20px;
-        }
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
 
-        .container {
-            max-width: 900px;
-            margin: auto;
-        }
+  <style>
+    :root {
+      --primary: #a259ff;
+      --bg-dark: #121212;
+      --bg-secondary: #1e1e1e;
+      --text: #ffffff;
+      --glass: rgba(255, 255, 255, 0.06);
+      --glass-border: rgba(255, 255, 255, 0.12);
+    }
 
-        .glass {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.2);
-            margin-bottom: 30px;
-        }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        .clay {
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
+    body {
+      background: linear-gradient(135deg, #0d0d14, #1a0f2b);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-        h1 {
-            font-size: 2.5em;
-        }
+    .container {
+      max-width: 960px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
 
-        h2 {
-            margin-bottom: 10px;
-        }
+    .glass {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
 
-        .brands, .projects, .contact, .about, .skills, .testimonials, .social {
-            margin-top: 20px;
-        }
+    .clay {
+      background: var(--bg-secondary);
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 6px 6px 16px rgba(0, 0, 0, 0.4), -4px -4px 12px rgba(255, 255, 255, 0.02);
+    }
 
-        .brand-card {
-            padding: 20px;
-            border-radius: 15px;
-            margin: 10px 0;
-            font-weight: bold;
-            color: #fff;
-        }
+    h1 {
+      font-family: 'Playfair Display', serif;
+      color: var(--primary);
+      font-size: 3em;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
 
-        .playzero { background: #6200ea50; }
-        .droogs { background: #ff005550; }
+    h2 {
+      font-family: 'Montserrat', sans-serif;
+      color: var(--primary);
+      font-size: 1.6em;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
 
-        .button {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 12px 25px;
-            font-size: 1.2em;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 25px;
-            background: linear-gradient(145deg, #5a189a, #3c1361);
-            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3), -4px -4px 8px rgba(255, 255, 255, 0.05);
-            transition: 0.2s;
-        }
+    p {
+      font-family: Arial, sans-serif;
+      font-weight: 400;
+      font-size: 1.1em;
+      line-height: 1.6;
+    }
 
-        .button:hover {
-            background: linear-gradient(145deg, #6a1bb3, #4a1178);
-            transform: translateY(-2px);
-        }
+    .button {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 12px 25px;
+      font-size: 1.1em;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 25px;
+      background: linear-gradient(145deg, #7b2cbf, #5a189a);
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s ease;
+      font-weight: 600;
+      font-family: 'Montserrat', sans-serif;
+    }
 
-        .skills ul {
-            list-style: none;
-            padding: 0;
-        }
+    .button:hover {
+      background: linear-gradient(145deg, #a259ff, #6f42c1);
+      transform: scale(1.05);
+    }
 
-        .skills li {
-            font-size: 1.1em;
-            margin: 5px 0;
-        }
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
 
-        .testimonials blockquote {
-            font-style: italic;
-            margin-top: 15px;
-        }
+    li {
+      font-size: 1.1em;
+      margin: 6px 0;
+    }
 
-        .social a {
-            margin: 10px;
-            font-size: 1.5em;
-            color: #fff;
-            text-decoration: none;
-        }
-        
-        a:hover{
-            margin-top: 20px;
-            padding: 12px 25px;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 25px;
-            background: linear-gradient(145deg, #5a189a, #3c1361);
-            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3), -4px -4px 8px rgba(255, 255, 255, 0.05);
-        }
+    blockquote {
+      font-style: italic;
+      color: #ccc;
+      border-left: 3px solid var(--primary);
+      padding-left: 15px;
+      margin-top: 15px;
+    }
 
-        .social h2{
-            padding-bottom: 15px;
-        }
-    </style>
+    .social a {
+      display: inline-block;
+      margin: 10px 15px 0 0;
+      font-size: 1.2em;
+      color: var(--text);
+      text-decoration: none;
+      transition: color 0.2s ease;
+      font-weight: 600;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .social a:hover {
+      color: var(--primary);
+    }
+
+    footer {
+      margin-top: 50px;
+      font-size: 0.9em;
+      color: #888;
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 2.2em; }
+      h2 { font-size: 1.4em; }
+      .button { font-size: 1em; }
+    }
+  </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="glass">
-            <h1>Donut</h1>
-            <p>Game & Web Developer | Brand Creator</p>
-        </div>
-
-        <div class="clay about">
-            <h2>About Me</h2>
-            <p>Pretty cool game developer and marketer. I do like to dabble in music creation from time to time.</p>
-        </div>
-
-        <div class="clay skills">
-            <h2>Skills</h2>
-            <ul>
-                <li>Game Development</li>
-                <li>Web Development (HTML, CSS, JavaScript, Python)</li>
-                <li>UI/UX Design</li>
-                <li>Marketing & Branding</li>
-            </ul>
-        </div>
-
-        <div class="clay projects">
-            <h2>Projects</h2>
-            <p>Explore the games and apps I've built.</p>
-            <a href="portfolio.html" class="button">View Portfolio</a>
-        </div>
-
-        <div class="clay testimonials">
-            <h2>What People Say</h2>
-            <blockquote>"Pretty cool individual, can't lie." - Donut</blockquote>
-        </div>
-
-        <div class="social">
-            <h2>Follow Me</h2>
-            <a href="https://github.com/donutgames113" target="_blank">GitHub</a>
-            <a href="https://www.youtube.com/@donutgames113" target="_blank">YouTube</a>
-            <a href="https://www.roblox.com/users/2300704028/profile" target="_blank">Roblox</a>
-        </div>
+  <div class="container">
+    <div class="glass">
+      <h1>Donut</h1>
+      <p>Game & Web Developer | Brand Creator</p>
     </div>
+
+    <div class="clay about">
+      <h2>About Me</h2>
+      <p>Pretty cool game developer and marketer. I do like to dabble in music creation from time to time.</p>
+    </div>
+
+    <div class="clay skills">
+      <h2>Skills</h2>
+      <ul>
+        <li>Game Development</li>
+        <li>Web Development (HTML, CSS, JavaScript, Python)</li>
+        <li>UI/UX Design</li>
+        <li>Marketing & Branding</li>
+      </ul>
+    </div>
+
+    <div class="clay projects">
+      <h2>Projects</h2>
+      <p>Explore the games and apps I've built.</p>
+      <a href="portfolio.html" class="button">View Portfolio</a>
+    </div>
+
+    <div class="clay testimonials">
+      <h2>What People Say</h2>
+      <blockquote>"Pretty cool individual, can't lie." - Donut</blockquote>
+    </div>
+
+    <div class="clay social">
+      <h2>Follow Me</h2>
+      <a href="https://github.com/donutgames113" target="_blank">GitHub</a>
+      <a href="https://www.youtube.com/@donutgames113" target="_blank">YouTube</a>
+      <a href="https://www.roblox.com/users/2300704028/profile" target="_blank">Roblox</a>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 Donut. Pretty nifty site, don't you think?.
+  </footer>
 
 </body>
 </html>
