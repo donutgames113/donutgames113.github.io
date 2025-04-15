@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" type="image/x-icon" href="/Images/donut_logo.jpg" />
+  <title>404 Not Found</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #a259ff;
+      --bg-dark: #121212;
+      --bg-secondary: #1e1e1e;
+      --text: #ffffff;
+      --glass: rgba(255, 255, 255, 0.06);
+      --glass-border: rgba(255, 255, 255, 0.12);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0d0d14, #1a0f2b);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      padding: 20px;
+      background: var(--bg-secondary);
+      border-radius: 15px;
+      box-shadow: 6px 6px 18px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 4em;
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.5em;
+      font-weight: 600;
+      color: #aaa;
+      margin-bottom: 30px;
+    }
+
+    p {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 400;
+      font-size: 1.1em;
+      color: #ccc;
+      margin-bottom: 20px;
+    }
+
+    p.smaller {
+      font-size: 0.9em;
+    }
+    
+    .button {
+      display: inline-block;
+      padding: 12px 25px;
+      background: linear-gradient(145deg, #7b2cbf, #5a189a);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 25px;
+      font-size: 1.2em;
+      font-weight: 600;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .button:hover {
+      background: linear-gradient(145deg, #a259ff, #6f42c1);
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>404</h1>
+    <h2>Page Not Found</h2>
+    <p>Either you mistyped the link, or I was an idiot and didn't upload the files correctly. probably the latter</p>
+    <p class="smaller">i wish i could just disappear like this page tbh</p>
+    <a href="/" class="button">Back to Home</a>
+  </div>
+
+</body>
+</html>
