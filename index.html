@@ -114,19 +114,10 @@
         <p class="subtitle">Welcome</p>
         <h1 class="title">Donut.</h1>
         <div class="button-container">
-            <button class="button" id="mainsite">Main Website</button>
-            <button class="button" id="portfolioButton">Portfolio</button>
+            <button class="button" onclick="window.location.href='DonutSite'">Main Website</button>
+            <button class="button" onclick="window.location.href='portfolio'">Portfolio</button>
+            <button class="button" onclick="window.location.href='Stores/Library'">Stores</button>
         </div>
     </div>
-
-    <script>
-        document.getElementById('portfolioButton').addEventListener('click', function () {
-            window.location.href = 'portfolio';
-        });
-
-        document.getElementById('mainsite').addEventListener('click', function () {
-            window.location.href = 'DonutSite';
-        });
-    </script>
 </body>
 </html>
