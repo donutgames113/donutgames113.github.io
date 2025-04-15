@@ -1,248 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Donut Portfolio</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="/Images/donut_logo.jpg">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Donut Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="/Images/donut_logo.jpg">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            background: #121212;
-            color: white;
-            overflow-x: hidden;
-            position: relative;
-        }
+    html, body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e, #100f1f);
+      color: #f0f0f0;
+      overflow-x: hidden;
+    }
 
-        /* Background Spheres */
-        body::before,
-        body::after {
-            content: '';
-            position: absolute;
-            border-radius: 50%;
-            z-index: -1;
-            filter: blur(100px);
-            opacity: 0.6;
-        }
+    header {
+      text-align: center;
+      padding: 3rem 1rem;
+      backdrop-filter: blur(20px);
+      background: rgba(30, 30, 60, 0.4);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
 
-        body::before {
-            width: 400px;
-            height: 400px;
-            background: rgba(255, 165, 0, 0.5);
-            top: 10%;
-            left: -10%;
-        }
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      color: #b983ff;
+    }
 
-        body::after {
-            width: 500px;
-            height: 500px;
-            background: rgba(255, 140, 0, 0.5);
-            bottom: 15%;
-            right: -15%;
-        }
+    header h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 400;
+      margin-top: 0.5rem;
+      font-size: 1.25rem;
+      color: #cccccc;
+    }
 
-        header {
-            position: relative;
-            text-align: center;
-            padding: 50px 20px;
-            background: rgba(30, 30, 30, 0.8);
-            border-bottom: 2px solid rgba(255, 140, 0, 0.3);
-            backdrop-filter: blur(10px);
-        }
+    nav {
+      margin-top: 2rem;
+    }
 
-        header h1 {
-            font-size: 3rem;
-            font-weight: 600;
-            color: #FFA500;
-        }
+    nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
 
-        header h2 {
-            font-size: 1.5rem;
-            margin-top: 10px;
-            font-weight: 300;
-        }
+    nav ul li a {
+      text-decoration: none;
+      color: #b983ff;
+      font-family: 'Montserrat', sans-serif;
+      padding: 0.6rem 1rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      transition: 0.3s;
+    }
 
-        nav {
-            margin-top: 20px;
-        }
+    nav ul li a:hover {
+      background: #b983ff;
+      color: #1a1a2e;
+    }
 
-        nav ul {
-            list-style: none;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
+    .bio {
+      text-align: center;
+      font-size: 1.4rem;
+      margin: 2rem auto;
+      color: #d3d3d3;
+      padding: 0 1rem;
+    }
 
-        nav ul li a {
-            text-decoration: none;
-            color: #FFA500;
-            font-size: 1rem;
-            font-weight: 500;
-            padding: 10px 20px;
-            border: 2px solid transparent;
-            transition: 0.3s;
-        }
+    section {
+      padding: 3rem 1.5rem;
+      text-align: center;
+    }
 
-        nav ul li a:hover {
-            border-color: #FFA500;
-            background: #FFA500;
-            color: black;
-        }
+    section h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 2rem;
+      color: #b983ff;
+      margin-bottom: 2rem;
+    }
 
-        section {
-            padding: 50px 20px;
-            text-align: center;
-        }
+    .project-container, .song-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5rem;
+    }
 
-        section h3 {
-            font-size: 2rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: #FFA500;
-        }
+    .project, .song {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 1.5rem;
+      box-shadow: 0 8px 20px rgba(185, 131, 255, 0.2);
+      width: 280px;
+      transition: transform 0.3s, box-shadow 0.3s;
+      overflow: hidden;
+    }
 
-        .project-container, .song-container {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
+    .project:hover, .song:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 30px rgba(185, 131, 255, 0.4);
+    }
 
-        .project, .song {
-            position: relative;
-            background: rgba(30, 30, 30, 0.8);
-            border: 1px solid rgba(255, 140, 0, 0.3);
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(255, 140, 0, 0.2);
-            overflow: hidden;
-            text-align: center;
-            width: 300px;
-            user-select: none;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
+    .project img, .song img {
+      width: 100%;
+      display: block;
+    }
 
-        .project:hover, .song:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(255, 165, 0, 0.5);
-        }
+    .project h4, .song h4 {
+      font-family: 'Montserrat', sans-serif;
+      color: #b983ff;
+      margin-top: 1rem;
+    }
 
-        .project img, .song img {
-            width: 100%;
-            height: auto;
-        }
+    .project p {
+      margin: 0.5rem 1rem 1rem;
+    }
 
-        .project h4, .song h4 {
-            margin: 15px 0;
-            font-weight: 500;
-            color: #FFA500;
-        }
+    .project a {
+      display: inline-block;
+      margin: 1rem;
+      padding: 0.5rem 1rem;
+      background: #b983ff;
+      color: #1a1a2e;
+      font-weight: bold;
+      text-decoration: none;
+      border-radius: 0.5rem;
+      transition: 0.3s;
+    }
 
-        .project a {
-            display: inline-block;
-            margin: 10px 0 20px;
-            padding: 10px 20px;
-            background: #FFA500;
-            color: black;
-            text-decoration: none;
-            font-weight: 600;
-            border-radius: 5px;
-            transition: 0.3s;
-        }
+    .project a:hover {
+      background: #fff;
+      color: #b983ff;
+      border: 1px solid #b983ff;
+    }
 
-        .project a:hover {
-            background: black;
-            color: #FFA500;
-            border: 2px solid #FFA500;
-        }
+    .song audio {
+      width: 90%;
+      margin: 1rem 0;
+    }
 
-        .song audio {
-            width: 90%;
-            margin: 15px auto;
-        }
+    footer {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      background: rgba(30, 30, 60, 0.4);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+    }
 
-        footer {
-            text-align: center;
-            padding: 20px 10px;
-            background: rgba(30, 30, 30, 0.8);
-            border-top: 2px solid rgba(255, 140, 0, 0.3);
-            backdrop-filter: blur(10px);
-        }
+    footer p {
+      font-size: 1rem;
+    }
 
-        footer p {
-            font-size: 1rem;
-        }
-        
-        .bio {
-            padding-top: 15px;
-            text-align: center;
-            font-size: 25px;
-        }
-    </style>
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 2.4rem;
+      }
+      header h2 {
+        font-size: 1rem;
+      }
+    }
+    
+    .project, .song {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 1rem;
+    }
+    
+    #skills .project h4 {
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+
+  </style>
 </head>
 <body>
-    <header>
-        <h1>Donut</h1>
-        <h2>Roblox Developer | Builder | Graphics Artist</h2>
-        <nav>
-            <ul>
-                <li><a href="#projects">Projects</a></li>
-                <li><a href="#skills">Skills</a></li>
-                <li><a href="#songs">Songs</a></li>
-                <li><a href="ImagesPage.html">Graphics</a></li>
-                <li><a href="Builds.html">Builds</a></li>
-            </ul>
-        </nav>
-    </header>
-    
-    <div class='bio'>Based individual game developer</div>
+  <header>
+    <h1>Donut</h1>
+    <h2>Roblox Developer | Builder | Graphics Artist</h2>
+    <nav>
+      <ul>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#songs">Songs</a></li>
+        <li><a href="ImagesPage.html">Graphics</a></li>
+        <li><a href="Builds.html">Builds</a></li>
+      </ul>
+    </nav>
+  </header>
 
-    <main>
-        <section id="projects">
-            <h3>Projects</h3>
-            <div class="project-container">
-                <div class="project">
-                    <img src="Images/csnew.png" alt="CardSwap">
-                    <h4>Card Swap</h4>
-                    <p>Scripter - Graphics - Builder - Artist</p>
-                    <a href="https://www.roblox.com/games/14693594387/CardSwap" target="_blank">View Project</a>
-                </div>
-                <div class="project">
-                    <img src="Images/PRUN logo.png" alt="Parkour-Run">
-                    <h4>Parkour Run</h4>
-                    <p>Scripter - Graphics - Builder</p>
-                    <a href="https://www.roblox.com/games/17341244784/Parkour-run" target="_blank">View Project</a>
-                </div>
-                <div class="project">
-                    <img src="Images/Prunnew.png" alt="Parkour-Run-2">
-                    <h4>Parkour Run 2</h4>
-                    <p>Scripter - Graphics - Builder</p>
-                    <a href="https://www.roblox.com/games/131584583011393/Parkour-Run-2" target="_blank">View Project</a>
-                </div>
-            </div>
-        </section>
+  <div class="bio">Based individual game developer</div>
 
-        <section id="skills">
-            <h3>Skills</h3>
-            <div class="project-container">
-                <div class="project"><h4>Roblox Studio</h4></div>
-                <div class="project"><h4>Lua Programming</h4></div>
-                <div class="project"><h4>3D Modeling</h4></div>
-                <div class="project"><h4>Graphic Design</h4></div>
-                <div class="project"><h4>HTML/CSS Developer</h4></div>
-                <div class="project"><h4>Javascript Programmer</h4></div>
-            </div>
-        </section>
-    </main>
+  <main>
+    <section id="projects">
+      <h3>Projects</h3>
+      <div class="project-container">
+        <div class="project">
+          <img src="Images/csnew.png" alt="CardSwap">
+          <h4>Card Swap</h4>
+          <p>Scripter - Graphics - Builder - Artist</p>
+          <a href="https://www.roblox.com/games/14693594387/CardSwap" target="_blank">View Project</a>
+        </div>
+        <div class="project">
+          <img src="Images/PRUN logo.png" alt="Parkour-Run">
+          <h4>Parkour Run</h4>
+          <p>Scripter - Graphics - Builder</p>
+          <a href="https://www.roblox.com/games/17341244784/Parkour-run" target="_blank">View Project</a>
+        </div>
+        <div class="project">
+          <img src="Images/Prunnew.png" alt="Parkour-Run-2">
+          <h4>Parkour Run 2</h4>
+          <p>Scripter - Graphics - Builder</p>
+          <a href="https://www.roblox.com/games/131584583011393/Parkour-Run-2" target="_blank">View Project</a>
+        </div>
+      </div>
+    </section>
 
-    <footer>
-        <p>© 2024 Donut. All rights reserved.</p>
-    </footer>
+    <section id="skills">
+      <h3>Skills</h3>
+      <div class="skills-wrapper">
+        <div class="project-container">
+          <div class="project"><h4>Roblox Studio</h4></div>
+          <div class="project"><h4>Lua Programming</h4></div>
+          <div class="project"><h4>3D Modeling</h4></div>
+          <div class="project"><h4>Graphic Design</h4></div>
+          <div class="project"><h4>HTML/CSS Developer</h4></div>
+          <div class="project"><h4>Javascript Programmer</h4></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>© 2024 Donut. All rights reserved.</p>
+  </footer>
 </body>
 </html>
