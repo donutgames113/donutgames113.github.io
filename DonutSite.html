@@ -30,15 +30,33 @@
       color: var(--text);
       font-family: Arial, sans-serif;
       min-height: 100vh;
-      padding: 40px 20px;
+      padding: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
+    header {
+      width: 100%;
+      padding: 40px 20px 20px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.4), transparent);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      color: var(--primary);
+      font-size: 3em;
+      font-weight: 700;
+      text-align: center;
+    }
+
     .container {
       max-width: 960px;
       width: 100%;
+      padding: 20px;
       display: flex;
       flex-direction: column;
       gap: 30px;
@@ -59,14 +77,6 @@
       border-radius: 20px;
       padding: 25px;
       box-shadow: 6px 6px 16px rgba(0, 0, 0, 0.4), -4px -4px 12px rgba(255, 255, 255, 0.02);
-    }
-
-    h1 {
-      font-family: 'Playfair Display', serif;
-      color: var(--primary);
-      font-size: 3em;
-      font-weight: 700;
-      margin-bottom: 10px;
     }
 
     h2 {
@@ -143,10 +153,11 @@
       color: #888;
       text-align: center;
       font-family: Arial, sans-serif;
+      padding: 20px;
     }
 
     @media (max-width: 600px) {
-      h1 { font-size: 2.2em; }
+      header h1 { font-size: 2.2em; }
       h2 { font-size: 1.4em; }
       .button { font-size: 1em; }
     }
@@ -154,18 +165,21 @@
 </head>
 <body>
 
+  <header>
+    <h1>Donut</h1>
+  </header>
+
   <div class="container">
     <div class="glass">
-      <h1>Donut</h1>
       <p>Game & Web Developer | Brand Creator</p>
     </div>
 
-    <div class="clay about">
+    <div class="clay">
       <h2>About Me</h2>
       <p>Pretty cool game developer and marketer. I do like to dabble in music creation from time to time.</p>
     </div>
 
-    <div class="clay skills">
+    <div class="clay">
       <h2>Skills</h2>
       <ul>
         <li>Game Development</li>
@@ -175,13 +189,13 @@
       </ul>
     </div>
 
-    <div class="clay projects">
+    <div class="clay">
       <h2>Projects</h2>
       <p>Explore the games and apps I've built.</p>
       <a href="portfolio.html" class="button">View Portfolio</a>
     </div>
 
-    <div class="clay testimonials">
+    <div class="clay">
       <h2>What People Say</h2>
       <blockquote>"Pretty cool individual, can't lie." - Donut</blockquote>
     </div>
