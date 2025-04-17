@@ -104,6 +104,12 @@
       width: 280px;
       transition: transform 0.3s, box-shadow 0.3s;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 1rem;
     }
 
     .project:hover, .song:hover {
@@ -169,27 +175,74 @@
         font-size: 1rem;
       }
     }
-    
-    .project, .song {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 1rem;
-    }
-    
+
     #skills .project h4 {
       margin-top: 0.5rem;
       margin-bottom: 0.5rem;
     }
-    
+
     .Role {
       font-weight: 520;
       color: #e0cfff;
     }
 
+    #timeline {
+      padding: 3rem 1.5rem;
+      text-align: center;
+      display: none;
+    }
 
+    .timeline-container {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+      position: relative;
+      border-left: 2px solid #b983ff;
+      padding-left: 2rem;
+    }
+
+    .timeline-entry {
+      position: relative;
+      padding-left: 1rem;
+      animation: slideIn 0.8s ease forwards;
+      opacity: 0;
+    }
+
+    .timeline-entry::before {
+      content: '';
+      position: absolute;
+      left: -1.1rem;
+      top: 0.4rem;
+      width: 12px;
+      height: 12px;
+      background-color: #b983ff;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #b983ff;
+    }
+
+    .timeline-entry h4 {
+      font-size: 1.3rem;
+      color: #b983ff;
+      margin-bottom: 0.3rem;
+    }
+
+    .timeline-entry p {
+      color: #ccc;
+      font-size: 1rem;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(-30px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
   </style>
 </head>
 <body>
@@ -201,6 +254,7 @@
         <li><a href="#projects">Projects</a></li>
         <li><a href="#skills">Skills</a></li>
         <li><a href="#songs">Songs</a></li>
+        <li><a href="#timeline">Timeline</a></li>
         <li><a href="ImagesPage.html">Graphics</a></li>
         <li><a href="Builds.html">Builds</a></li>
       </ul>
@@ -237,7 +291,6 @@
       </div>
     </section>
 
-
     <section id="skills">
       <h3>Skills</h3>
       <div class="skills-wrapper">
@@ -253,10 +306,54 @@
       </div>
     </section>
 
+    <section id="timeline">
+      <h3>Timeline</h3>
+      <div class="timeline-container" id="timelineContainer"></div>
+    </section>
   </main>
 
   <footer>
     <p>© 2024 Donut. All rights reserved.</p>
   </footer>
+
+  <script>
+    const timelineData = [
+      {
+        title: "Released Skyscraper Shenanigans",
+        description: "A chaotic game with traps, sabotage, and nuclear threats.",
+        date: "March 2024"
+      },
+      {
+        title: "Launched Parkour Run",
+        description: "Fast-paced parkour race against time and players.",
+        date: "May 2024"
+      },
+      {
+        title: "Built Parkour Run 2",
+        description: "Sequel with revamped mechanics and visuals.",
+        date: "July 2024"
+      },
+      {
+        title: "Started Personal Portfolio",
+        description: "Created this stylish web showcase for all things Donut.",
+        date: "August 2024"
+      }
+    ];
+
+    const container = document.getElementById("timelineContainer");
+
+    timelineData.forEach((item, index) => {
+      const entry = document.createElement("div");
+      entry.classList.add("timeline-entry");
+      entry.style.animationDelay = `${index * 0.2}s`;
+
+      entry.innerHTML = `
+        <h4>${item.title}</h4>
+        <p><strong>${item.date}</strong> – ${item.description}</p>
+      `;
+
+      container.appendChild(entry);
+    });
+  </script>
 </body>
 </html>
