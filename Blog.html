@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" type="image/x-icon" href="/Images/donut_logo.jpg" />
+  <title>Donut Blog</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #a259ff;
+      --bg-dark: #121212;
+      --bg-secondary: #1e1e1e;
+      --text: #ffffff;
+      --glass: rgba(255, 255, 255, 0.06);
+      --glass-border: rgba(255, 255, 255, 0.12);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0d0d14, #1a0f2b);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      max-width: 1000px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      color: var(--primary);
+      font-size: 3em;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .blog-post {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .blog-post:hover {
+      transform: translateY(-5px);
+    }
+
+    .blog-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.8em;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .blog-date {
+      font-size: 0.9em;
+      color: #aaa;
+      margin-bottom: 15px;
+    }
+
+    .blog-content {
+      font-size: 1.1em;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    .blog-post a {
+      color: var(--primary);
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.2s ease;
+      margin-bottom: 15px;
+    }
+
+    .blog-post a:hover {
+      color: #d6a3ff;
+      text-decoration: underline;
+    }
+
+    .image-grid {
+      margin-top: 15px;
+      column-count: 3;
+      column-gap: 10px;
+      display: none;
+      transition: all 0.3s ease;
+    }
+
+    .image-grid.open {
+      display: block;
+    }
+
+    .image-grid img {
+      width: 100%;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      display: block;
+      break-inside: avoid;
+    }
+
+    .toggle-images {
+      margin-top: 20px;
+      padding: 10px 15px;
+      border: none;
+      background-color: var(--primary);
+      color: #fff;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1em;
+      cursor: pointer;
+      align-self: flex-start;
+      transition: background-color 0.3s ease;
+    }
+
+    .toggle-images:hover {
+      background-color: #c390ff;
+    }
+    
+    .Hidden{
+        display: none;
+    }
+
+    footer {
+      margin-top: 50px;
+      font-size: 0.9em;
+      color: #888;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Donut Blog</h1>
+    <a href="DonutSite" style="text-decoration: none; color: var(--primary); font-family: 'Montserrat', sans-serif; font-weight: 600; margin-bottom: 20px; display: inline-block;">← Back to Home</a>
+
+    <div class="blog-post">
+      <div class="blog-title">Welcome to Donut.</div>
+      <div class="blog-date">April 19, 2025</div>
+      <div class="blog-content">
+        There's a reason why Donut rhymes with pretty cool individual!
+      </div>
+      <a href="https://donutgames113.github.io/NonexistentSite" target="_blank">Here's a link to a page that doesn't exist, just for good matter.</a>
+
+      <div class="image-grid">
+        <img src="https://via.placeholder.com/300x200" alt="Example Image 1">
+        <img src="https://via.placeholder.com/300x400" alt="Example Image 2">
+        <img src="https://via.placeholder.com/300x250" alt="Example Image 3">
+        <img src="https://via.placeholder.com/300x180" alt="Example Image 4">
+        <img src="https://via.placeholder.com/300x300" alt="Example Image 5">
+      </div>
+
+      <button class="toggle-images" onclick="toggleImages(this)">
+        Show Images
+      </button>
+    </div>
+
+  </div>
+
+  <footer>
+    &copy; 2025 Donut. Blog? More like <i>blog</i> haha! Get it?
+  </footer>
+
+  <script>
+    function toggleImages(button) {
+      const grid = button.previousElementSibling;
+      grid.classList.toggle('open');
+      button.textContent = grid.classList.contains('open') ? 'Hide Images' : 'Show Images';
+    }
+  </script>
+
+</body>
+</html>
+
+<div class="Hidden">
+    <div class="blog-post">
+      <div class="blog-title">Prefab.</div>
+      <div class="blog-date">Month Day, Year</div>
+      <div class="blog-content">
+        Content <a href="https://donutgames113.github.io/NonexistentSite" target="_blank">Link inside text</a>
+      </div>
+      <a href="https://donutgames113.github.io/NonexistentSite" target="_blank">Link outside text.</a>
+
+      <div class="image-grid">
+        <img src="https://via.placeholder.com/300x200" alt="Example Image 1">
+        <img src="https://via.placeholder.com/300x400" alt="Example Image 2">
+        <img src="https://via.placeholder.com/300x250" alt="Example Image 3">
+        <img src="https://via.placeholder.com/300x180" alt="Example Image 4">
+        <img src="https://via.placeholder.com/300x300" alt="Example Image 5">
+      </div>
+
+      <button class="toggle-images" onclick="toggleImages(this)">
+        Show Images
+      </button>
+    </div>
+</div>
