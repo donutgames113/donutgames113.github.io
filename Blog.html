@@ -12,11 +12,11 @@
   <style>
     :root {
       --primary: #b983ff;
-      --bg-dark: linear-gradient(135deg, #1a1a2e, #100f1f);
-      --bg-secondary: #1e1e1e;
+      --background: linear-gradient(135deg, #1a1a2e, #100f1f);
       --text: #ffffff;
-      --glass: rgba(255, 255, 255, 0.06);
-      --glass-border: rgba(255, 255, 255, 0.12);
+      --muted: #b3b3b3;
+      --glass: rgba(255, 255, 255, 0.04);
+      --border: rgba(255, 255, 255, 0.08);
     }
 
     * {
@@ -28,13 +28,12 @@
     body {
       background: linear-gradient(135deg, #1a1a2e, #100f1f);
       color: var(--text);
-      font-family: Arial, sans-serif;
       min-height: 100vh;
-      padding: 40px 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
       user-select: none;
+      font-family: 'Montserrat', sans-serif;
     }
 
     .container {
@@ -53,6 +52,34 @@
       margin-bottom: 20px;
       text-align: center;
     }
+    
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      background: var(--glass);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      width: 100%;
+      z-index: 10;
+      margin-bottom: 2.5vh;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
 
     .blog-post {
       background: var(--glass);
@@ -65,6 +92,7 @@
       display: flex;
       flex-direction: column;
       box-shadow: 0 8px 20px rgba(185, 131, 255, 0.1);
+      margin: 0px 20px;
     }
 
     .blog-post:hover {
@@ -154,10 +182,15 @@
   </style>
 </head>
 <body>
-    <h1>Donut Blog</h1>
+    <header>
+        <div>
+            <div class="logo">Donut</div>
+            <div class="subtitle">Game & Web Developer · Brand Creator</div>
+        </div>
+    </header>
 
   <div class="container">
-    <a href="DonutSite" style="text-decoration: none; color: var(--primary); font-family: 'Montserrat', sans-serif; font-weight: 600; margin-bottom: 20px; display: inline-block;">← Back to Home</a>
+    <a href="DonutSite" style="text-decoration: none; color: var(--primary); font-family: 'Montserrat', sans-serif; font-weight: 600; margin-bottom: 3vh; display: inline-block; margin-left: 20px;">← Back to Home</a>
 
     <div class="blog-post">
       <div class="blog-title">Welcome to Donut.</div>
