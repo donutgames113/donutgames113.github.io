@@ -11,8 +11,8 @@
 
   <style>
     :root {
-      --primary: #a259ff;
-      --bg-dark: #121212;
+      --primary: #b983ff;
+      --bg-dark: linear-gradient(135deg, #1a1a2e, #100f1f);
       --bg-secondary: #1e1e1e;
       --text: #ffffff;
       --glass: rgba(255, 255, 255, 0.06);
@@ -26,7 +26,7 @@
     }
 
     body {
-      background: linear-gradient(135deg, #0d0d14, #1a0f2b);
+      background: linear-gradient(135deg, #1a1a2e, #100f1f);
       color: var(--text);
       font-family: Arial, sans-serif;
       min-height: 100vh;
@@ -64,6 +64,7 @@
       transition: transform 0.2s ease;
       display: flex;
       flex-direction: column;
+      box-shadow: 0 8px 20px rgba(185, 131, 255, 0.1);
     }
 
     .blog-post:hover {
@@ -153,9 +154,9 @@
   </style>
 </head>
 <body>
+    <h1>Donut Blog</h1>
 
   <div class="container">
-    <h1>Donut Blog</h1>
     <a href="DonutSite" style="text-decoration: none; color: var(--primary); font-family: 'Montserrat', sans-serif; font-weight: 600; margin-bottom: 20px; display: inline-block;">← Back to Home</a>
 
     <div class="blog-post">
@@ -244,26 +245,3 @@
 
 </body>
 </html>
-
-<div class="Hidden">
-    <div class="blog-post">
-      <div class="blog-title">Prefab.</div>
-      <div class="blog-date">Month Day, Year</div>
-      <div class="blog-content">
-        Content <a href="https://donutgames113.github.io/NonexistentSite" target="_blank">Link inside text</a>
-      </div>
-      <a href="https://donutgames113.github.io/NonexistentSite" target="_blank">Link outside text.</a>
-
-      <div class="image-grid">
-        <img src="https://via.placeholder.com/300x200" alt="Example Image 1">
-        <img src="https://via.placeholder.com/300x400" alt="Example Image 2">
-        <img src="https://via.placeholder.com/300x250" alt="Example Image 3">
-        <img src="https://via.placeholder.com/300x180" alt="Example Image 4">
-        <img src="https://via.placeholder.com/300x300" alt="Example Image 5">
-      </div>
-
-      <button class="toggle-images" onclick="toggleImages(this)">
-        Show Images
-      </button>
-    </div>
-</div>
