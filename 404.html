@@ -7,17 +7,16 @@
   <title>404 Not Found</title>
 
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --primary: #a259ff;
-      --bg-dark: #121212;
-      --bg-secondary: #1e1e1e;
+      --primary: #b983ff;
+      --background: linear-gradient(135deg, #1a1a2e, #100f1f);
       --text: #ffffff;
-      --glass: rgba(255, 255, 255, 0.06);
-      --glass-border: rgba(255, 255, 255, 0.12);
+      --muted: #b3b3b3;
+      --glass: rgba(255, 255, 255, 0.04);
+      --border: rgba(255, 255, 255, 0.08);
     }
 
     * {
@@ -27,67 +26,80 @@
     }
 
     body {
-      background: linear-gradient(135deg, #0d0d14, #1a0f2b);
+      background: var(--background);
       color: var(--text);
-      font-family: Arial, sans-serif;
+      font-family: 'Montserrat', sans-serif;
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       text-align: center;
+      padding: 20px;
     }
 
     .container {
+      max-width: 800px;
       width: 100%;
-      max-width: 900px;
-      padding: 20px;
-      background: var(--bg-secondary);
-      border-radius: 15px;
-      box-shadow: 6px 6px 18px rgba(0, 0, 0, 0.3);
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 60px 30px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
     }
 
     h1 {
       font-family: 'Playfair Display', serif;
-      font-size: 4em;
+      font-size: 5em;
       color: var(--primary);
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
 
     h2 {
       font-family: 'Montserrat', sans-serif;
-      font-size: 1.5em;
+      font-size: 1.8em;
       font-weight: 600;
-      color: #aaa;
-      margin-bottom: 30px;
-    }
-
-    p {
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 400;
-      font-size: 1.1em;
-      color: #ccc;
+      color: var(--muted);
       margin-bottom: 20px;
     }
 
-    p.smaller {
-      font-size: 0.9em;
+    p {
+      font-size: 1.1em;
+      color: var(--text);
+      margin-bottom: 15px;
     }
-    
+
+    p.smaller {
+      font-size: 0.95em;
+      color: var(--muted);
+    }
+
     .button {
       display: inline-block;
+      margin-top: 25px;
       padding: 12px 25px;
-      background: linear-gradient(145deg, #7b2cbf, #5a189a);
-      color: #fff;
+      font-size: 1rem;
+      border-radius: 30px;
       text-decoration: none;
-      border-radius: 25px;
-      font-size: 1.2em;
       font-weight: 600;
-      transition: background 0.3s ease, transform 0.2s ease;
+      background: var(--primary);
+      color: #fff;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     .button:hover {
-      background: linear-gradient(145deg, #a259ff, #6f42c1);
-      transform: scale(1.05);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(185, 131, 255, 0.4);
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 3.5em;
+      }
+
+      h2 {
+        font-size: 1.4em;
+      }
     }
   </style>
 </head>
@@ -96,8 +108,8 @@
   <div class="container">
     <h1>404</h1>
     <h2>Page Not Found</h2>
-    <p>Either you mistyped the link, or I was an idiot and didn't upload the files correctly.</p>
-    <p class="smaller">probably the latter</p>
+    <p>Either you mistyped the link, or I forgot to upload something important.</p>
+    <p class="smaller">probably the latter.</p>
     <a href="/" class="button">Back where you came</a>
   </div>
 
