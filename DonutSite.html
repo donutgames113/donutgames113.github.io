@@ -242,38 +242,38 @@
     }
     
     .carousel {
-  overflow: hidden;
-  width: 100%;
-  background: var(--glass);
-  border-bottom: 1px solid var(--border);
-  padding: 10px 0;
-}
-
-.carousel-track {
-  display: flex;
-  width: max-content;
-  animation: scroll-carousel 40s linear infinite;
-  gap: 20px;
-  padding: 0 20px;
-}
-
-.carousel-track img {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 12px;
-  border: 2px solid var(--border);
-  flex-shrink: 0;
-}
-
-@keyframes scroll-carousel {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
+      overflow: hidden;
+      width: 100%;
+      background: var(--glass);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 0;
+    }
+    
+    .carousel-track {
+      display: flex;
+      width: max-content;
+      animation: scroll-carousel 80s linear infinite;
+      gap: 20px;
+      padding: 0 20px;
+    }
+    
+    .carousel-track img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+    }
+    
+    @keyframes scroll-carousel {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-50%);
+      }
+    }
 
   </style>
 </head>
@@ -387,15 +387,15 @@
     });
 
     const track = document.querySelector('.carousel-track');
-const images = Array.from(track.children);
-const cloneCount = 25;
-
-for (let i = 1; i < cloneCount; i++) {
-  images.forEach(img => {
-    const clone = img.cloneNode(true);
-    track.appendChild(clone);
-  });
-}
+    const images = Array.from(track.children);
+    const cloneCount = 25;
+    
+    for (let i = 1; i < cloneCount; i++) {
+      images.forEach(img => {
+        const clone = img.cloneNode(true);
+        track.appendChild(clone);
+      });
+    }
   </script>
 
 </body>
