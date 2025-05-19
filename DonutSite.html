@@ -240,6 +240,41 @@
         padding: 30px;
       }
     }
+    
+    .carousel {
+  overflow: hidden;
+  width: 100%;
+  background: var(--glass);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 0;
+}
+
+.carousel-track {
+  display: flex;
+  width: max-content;
+  animation: scroll-carousel 40s linear infinite;
+  gap: 20px;
+  padding: 0 20px;
+}
+
+.carousel-track img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+}
+
+@keyframes scroll-carousel {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
   </style>
 </head>
 <body>
@@ -269,6 +304,25 @@
     <h3>Settings</h3>
     <button id="theme-toggle">Toggle Theme</button>
   </nav>
+  
+  <div class="carousel">
+  <div class="carousel-track">
+    <img src="Images/NewDonut.png">
+    <img src="Images/NewDonutLight.png">
+    <img src="Images/NewDonutOldColors.png">
+    <img src="Images/NewDonutTransparent.png">
+    <!-- Duplicates -->
+    <img src="Images/NewDonut.png">
+    <img src="Images/NewDonutLight.png">
+    <img src="Images/NewDonutOldColors.png">
+    <img src="Images/NewDonutTransparent.png">
+    <img src="Images/NewDonut.png">
+    <img src="Images/NewDonutLight.png">
+    <img src="Images/NewDonutOldColors.png">
+    <img src="Images/NewDonutTransparent.png">
+  </div>
+</div>
+
 
   <section class="section">
     <div class="card" id="about">
