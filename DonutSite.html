@@ -18,6 +18,15 @@
       --border: rgba(255, 255, 255, 0.08);
     }
 
+    [data-theme="light"] {
+      --primary: #8647ff;
+      --background: linear-gradient(135deg, #f2f2f2, #ffffff);
+      --text: #1a1a1a;
+      --muted: #555555;
+      --glass: rgba(0, 0, 0, 0.03);
+      --border: rgba(0, 0, 0, 0.08);
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -57,6 +66,69 @@
       font-weight: 500;
     }
 
+    .menu-toggle {
+      font-size: 1.8rem;
+      background: none;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -300px;
+      width: 260px;
+      height: 100%;
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      border-right: 1px solid var(--border);
+      padding: 30px 20px;
+      transition: left 0.3s ease;
+      z-index: 20;
+    }
+
+    .sidebar.active {
+      left: 0;
+    }
+
+    .sidebar h3 {
+      color: var(--primary);
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+      margin-top: 25px;
+    }
+
+    .sidebar a,
+    .sidebar button {
+      display: block;
+      margin: 8px 0;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 1rem;
+      background: none;
+      border: none;
+      text-align: left;
+      padding: 6px 0;
+      cursor: pointer;
+    }
+
+    .sidebar a:hover,
+    .sidebar button:hover {
+      color: var(--primary);
+    }
+
+    .close-btn {
+      font-size: 1.5rem;
+      background: none;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+
     .section {
       max-width: 900px;
       margin: 60px auto;
@@ -70,7 +142,6 @@
       padding: 40px;
       margin-bottom: 50px;
       backdrop-filter: blur(12px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
       box-shadow: 0 8px 20px rgba(185, 131, 255, 0.1);
     }
 
@@ -107,6 +178,8 @@
       background: var(--primary);
       color: #fff;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+      border: none;
     }
 
     .button:hover {
@@ -176,15 +249,34 @@
       <div class="logo">Donut</div>
       <div class="subtitle">Game & Web Developer · Brand Creator</div>
     </div>
+    <button class="menu-toggle" id="menu-btn">&#9776;</button>
   </header>
 
+  <nav class="sidebar" id="sidebar">
+    <button class="close-btn" id="close-btn">&times;</button>
+
+    <h3>Explore</h3>
+    <a href="#about">About Me</a>
+    <a href="#skills">Skills</a>
+    <a href="portfolio">Portfolio</a>
+    <a href="Blog">Blog</a>
+
+    <h3>Follow</h3>
+    <a href="https://github.com/donutgames113" target="_blank">GitHub</a>
+    <a href="https://www.youtube.com/@donutgames113" target="_blank">YouTube</a>
+    <a href="https://www.roblox.com/users/2300704028/profile" target="_blank">Roblox</a>
+
+    <h3>Settings</h3>
+    <button id="theme-toggle">Toggle Theme</button>
+  </nav>
+
   <section class="section">
-    <div class="card">
+    <div class="card" id="about">
       <h2>About Me</h2>
       <p>Pretty cool game developer and marketer. I do like to dabble in music creation from time to time.</p>
     </div>
 
-    <div class="card">
+    <div class="card" id="skills">
       <h2>Skills</h2>
       <ul>
         <li>Game Development</li>
@@ -211,20 +303,45 @@
       <blockquote>"Pretty cool individual, can't lie." – Donut</blockquote>
       <blockquote>"Charming, amazing, handsome, great roblox developer" – James Colin Forno</blockquote>
     </div>
-
-    <div class="card">
-      <h2>Follow Me</h2>
-      <div class="social">
-        <a href="https://github.com/donutgames113" target="_blank">GitHub</a>
-        <a href="https://www.youtube.com/@donutgames113" target="_blank">YouTube</a>
-        <a href="https://www.roblox.com/users/2300704028/profile" target="_blank">Roblox</a>
-      </div>
-    </div>
   </section>
 
   <footer>
     &copy; 2025 Donut. Pretty nifty site, don't you think?
   </footer>
+
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.getElementById('menu-btn');
+    const closeBtn = document.getElementById('close-btn');
+    const themeToggle = document.getElementById('theme-toggle');
+
+    // Default to dark theme unless stored preference is light
+    const storedTheme = localStorage.getItem('theme');
+    if (storedTheme === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+
+    // Toggle menu
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.add('active');
+    });
+
+    closeBtn.addEventListener('click', () => {
+      sidebar.classList.remove('active');
+    });
+
+    // Toggle theme
+    themeToggle.addEventListener('click', () => {
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      if (isLight) {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
+      }
+    });
+  </script>
 
 </body>
 </html>
