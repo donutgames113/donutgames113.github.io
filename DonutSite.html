@@ -310,16 +310,6 @@
     <img src="Images/NewDonut.png">
     <img src="Images/NewDonutLight.png">
     <img src="Images/NewDonutOldColors.png">
-    <img src="Images/NewDonutTransparent.png">
-    <!-- Duplicates -->
-    <img src="Images/NewDonut.png">
-    <img src="Images/NewDonutLight.png">
-    <img src="Images/NewDonutOldColors.png">
-    <img src="Images/NewDonutTransparent.png">
-    <img src="Images/NewDonut.png">
-    <img src="Images/NewDonutLight.png">
-    <img src="Images/NewDonutOldColors.png">
-    <img src="Images/NewDonutTransparent.png">
   </div>
 </div>
 
@@ -395,6 +385,17 @@
         localStorage.setItem('theme', 'light');
       }
     });
+
+    const track = document.querySelector('.carousel-track');
+const images = Array.from(track.children);
+const cloneCount = 3;
+
+for (let i = 1; i < cloneCount; i++) {
+  images.forEach(img => {
+    const clone = img.cloneNode(true);
+    track.appendChild(clone);
+  });
+}
   </script>
 
 </body>
