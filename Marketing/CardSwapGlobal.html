@@ -4,16 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CardSwap Global LTD</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #8ad9ca;
-      --secondary: #f9a89a;
-      --bg: #1a1f2d;
-      --glass-bg: rgba(255, 255, 255, 0.05);
-      --border: rgba(255, 255, 255, 0.1);
-      --text: #e0e0e0;
-      --text-muted: #a0a0a0;
-      --highlight: #fcb49b;
+      --bg: #0f1115;
+      --surface: #181b20;
+      --primary: #00c6a9;
+      --accent: #fca08b;
+      --muted: #a0a8b5;
+      --text: #f4f4f4;
+      --highlight: #ff7f50;
+      --border: #2a2d32;
+      --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
 
     * {
@@ -23,13 +25,12 @@
     }
 
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--bg);
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--bg);
       color: var(--text);
       display: flex;
       justify-content: center;
       padding: 4rem 1rem;
-      min-height: 100vh;
     }
 
     .container {
@@ -40,28 +41,43 @@
       gap: 3rem;
     }
 
-    .glass {
-      background: var(--glass-bg);
+    .card {
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 1rem;
-      padding: 2rem;
-      backdrop-filter: blur(14px);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      border-radius: 16px;
+      padding: 2rem 2.5rem;
+      box-shadow: var(--card-shadow);
+      transition: all 0.3s ease;
     }
 
     h1, h2 {
-      color: var(--primary);
+      font-weight: 600;
       margin-bottom: 1rem;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+
+    h1 {
+      font-size: 2.25rem;
+      color: var(--primary);
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      color: var(--accent);
     }
 
     p, li {
-      line-height: 1.6;
-      margin-bottom: 0.5rem;
+      font-size: 1rem;
+      line-height: 1.8;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+
+    ul {
+      padding-left: 1.25rem;
     }
 
     a {
-      color: var(--secondary);
+      color: var(--primary);
       text-decoration: underline;
     }
 
@@ -73,32 +89,42 @@
       color: var(--highlight);
     }
 
+    .ethics-callout {
+      font-style: italic;
+      color: var(--accent);
+      margin-top: 1rem;
+    }
+
     footer {
       text-align: center;
-      font-size: 0.9rem;
-      opacity: 0.7;
-      color: var(--text-muted);
+      font-size: 0.875rem;
+      color: var(--muted);
     }
 
     footer div {
-      font-size: 0.75rem;
-      opacity: 0.5;
       margin-top: 0.25rem;
+      font-size: 0.75rem;
     }
 
     .popup {
       position: fixed;
       bottom: 1.5rem;
       right: 1.5rem;
-      background: var(--glass-bg);
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 0.5rem;
+      border-radius: 8px;
       padding: 1rem 1.5rem;
       color: var(--text);
-      box-shadow: 0 0 12px rgba(0,0,0,0.2);
-      max-width: 280px;
+      box-shadow: var(--card-shadow);
+      max-width: 300px;
       z-index: 9999;
       animation: fadeInUp 0.3s ease-out;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+
+    .popup.fade-out {
+      opacity: 0;
     }
 
     .popup button {
@@ -108,6 +134,7 @@
       font-weight: bold;
       float: right;
       cursor: pointer;
+      font-size: 1rem;
     }
 
     @keyframes fadeInUp {
@@ -122,113 +149,194 @@
     }
 
     .testimonial {
-      padding: 1rem;
+      background: #202328;
+      padding: 1rem 1.25rem;
       border-left: 4px solid var(--primary);
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 0.5rem;
+      border-radius: 8px;
     }
 
     .testimonial span {
       display: block;
-      font-size: 0.85rem;
-      color: var(--text-muted);
+      font-size: 0.875rem;
+      color: var(--muted);
       margin-top: 0.5rem;
     }
 
-    .ethics-callout {
-      margin-top: 1rem;
-      font-style: italic;
-      color: var(--highlight);
+    .exec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+
+    .exec {
+      background: #202328;
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .exec b {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .tracker {
+      background: #202328;
+      padding: 1rem;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .tracker span {
+      font-weight: bold;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 2rem 1rem;
+      }
+
+      .card {
+        padding: 1.5rem;
+      }
+
+      h1 {
+        font-size: 1.75rem;
+      }
+
+      h2 {
+        font-size: 1.25rem;
+      }
+
+      p, li {
+        font-size: 0.95rem;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="mainContent" class="container">
-    <div class="glass">
-      <h1>Welcome to CardSwap Global LTD</h1>
-      <p>We’re passionate about rectangles and making money. At CardSwap, our motto is: <i><b>“MONEY MATTERS MOST”™</b></i></p>
+  <main class="container">
+    <div class="card">
+      <h1>CardSwap Global LTD</h1>
+      <p>At CardSwap Global LTD, we believe in progress through profit. Our mission is simple: <b>“MONEY MATTERS MOST™”</b>. Every card we produce moves us closer to a future where every transaction is wrapped in ambition.</p>
     </div>
 
-    <div class="glass">
-      <h2>Our Ethics</h2>
-      <p>At CardSwap Global LTD, we pride ourselves on corporat responsibility. We ensure all our <b>Child Labourers™</b> are ethically sourced from <i>exclusively</i> impoverished families.*</p>
-      <p>7.3% of our packaging is made of recyclable material.</p>
-      <p>We offer employees 30-second <b>micro-breaks™</b> every 6 hours.</p>
-      <div style="font-size: 0.75rem; opacity: 0.5;">We pay these families between $5-12.</div>
-      <div class="ethics-callout">Did somebody say Ethical Business Practices™?</div>
+    <div class="card">
+      <h2>Our Ethical Commitment</h2>
+      <p>Corporate social responsibility drives us to <i>source ethically</i>—all <b>Child Labourers™</b> are exclusively hired from underprivileged communities.*</p>
+      <p>We use up to <b>7.3%</b> recycled materials across our packaging lines, and provide our team with generous <b>30-second micro-breaks™</b> every 6 hours.</p>
+      <p style="font-size: 0.8rem; color: var(--muted);">*We pay these families $5-12, which is competitive in their regions.</p>
+      <div class="ethics-callout">This is what responsible business looks like™.</div>
     </div>
 
-    <div class="glass">
-      <h2>Our Initiatives</h2>
+    <div class="card">
+      <h2>Strategic Initiatives</h2>
       <ul>
-        <li><b>Project Hope™</b> – A charitable campaign to donate one misprinted card to a disadvantaged child every financial quarter.</li>
-        <li><b>Digital Futures™</b> – Turning cardboard into NFTs to triple our carbon footprint and profit margin simultaneously.</li>
-        <li><b>Local Legends™</b> – We feature community artists. Exposure is their only payment, and they’re grateful.</li>
+        <li><b>Project Hope™</b> – A quarterly donation of misprinted cards to struggling regions.</li>
+        <li><b>Digital Futures™</b> – Transforming cardboard into carbon-intensive NFTs since 2023.</li>
+        <li><b>Local Legends™</b> – Uplifting unpaid artists with the most valuable currency: exposure.</li>
       </ul>
     </div>
 
-    <div class="glass">
-      <h2>CardSwap Minifranchise™</h2>
+    <div class="card">
+      <h2>Minifranchise™ Program</h2>
+      <p>With every hire, we empower Associates to lead their own <b>Minifranchise™</b>.</p>
       <ul>
-        <li>Every Associate is gifted a FREE <b>Minifranchise™</b>!</li>
-        <li>These <b>Minifranchise™</b>s are not an optional thing, as we believe enforcing work and management stops laziness in the world.</li>
-        <li>We take 99% of the earnings of your <b>Minifranchise™</b>, leaving you with a fair amount of money to take home, and spend on <b>CardSwap Cards™</b>!</li>
-        <li>For a fair price, you can rent an employee from <b>CardSwap Global LTD™</b>, increasing your <b>Minifranchise™</b>'s earnings!</li>
+        <li>Mandatory. Motivational. Monetized.</li>
+        <li>We retain 99% of all earnings for operational excellence.</li>
+        <li>Franchise growth supported via employee rental from CardSwap’s core <b>labor hub™</b>.</li>
       </ul>
     </div>
 
-    <div class="glass">
-      <h2>BulkStore™</h2>
-      <p>BulkStore™ is your one-stop warehouse-sized opportunity to buy things you don’t need in quantities you can’t handle.</p>
+    <div class="card">
+      <h2>BulkStore™ – Scale Up</h2>
+      <p>Why buy one when you can bulk-buy ten? Welcome to the BulkStore™ economy.</p>
       <ul>
-        <li>Save more by spending more!</li>
-        <li>Expired? No. "<i>Aged</i>".</li>
+        <li>Better unit cost.</li>
+        <li>Expired? We prefer “Aged Inventory™”.</li>
       </ul>
     </div>
-    
-    <div class="glass">
-      <h2>Clearing the Waters</h2>
-      <p>People say we don't pay our employees. This is completely untrue! We do pay <i>all</i> of our employees, although the rates may not be as '<i>fair</i>' as some others. We say, this will make the cards you buy cheaper! Nothing to complain about.</p>
+
+    <div class="card">
+      <h2>Clarifying Concerns</h2>
+      <p>We want to address rumors that we don't pay our staff. Not true. We pay <i>every</i> worker something. Competitive? Not quite. Legal? Technically. But cheaper cards for you!</p>
     </div>
 
-    <div class="glass">
-      <h2>Testimonials</h2>
+    <div class="card">
+      <h2>What Our Stakeholders Say</h2>
       <div class="testimonials">
-        <div class="testimonial">"The micro-breaks changed my life."<span>– Timmy (age 7)</span></div>
-        <div class="testimonial">"I don't honestly understand how people complain about their ethics. They do plenty."<span>– PleaseSponsorMeCardSwap192</span></div>
+        <div class="testimonial">
+          "The micro-breaks changed my life."
+          <span>– Timmy, age 7</span>
+        </div>
+        <div class="testimonial">
+          "They’ve redefined what ethics can mean in business."
+          <span>– PleaseSponsorMeCardSwap192</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Meet Our Executive Team</h2>
+      <div class="exec-grid">
+        <div class="exec"><b>Chad W. Dividend</b>CEO</div>
+        <div class="exec"><b>Kara Leverage</b>VP of Synergies</div>
+        <div class="exec"><b>Brock IPO</b>Chief Hype Officer</div>
+        <div class="exec"><b>Shelly Coin</b>Blockchain Evangelist</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Annual Impact Report (2024)</h2>
+      <div class="tracker">
+        <span>CSR Budget Used:</span>
+        <span>$1,174.93</span>
       </div>
     </div>
 
     <footer>
       &copy; 2025 CardSwap Global LTD
-      <div>Website by Donut</div>
+      <div>Corporate Website by Donut</div>
     </footer>
-  </div>
+  </main>
 
   <script>
     const popupMessages = [
       "Someone near you just earned $0.07 with a Minifranchise™!",
-      "Invest in cardboard – it’s the future!"
+      "Invest in cardboard – it’s the future!",
     ];
 
     let popupActive = false;
 
     function showPopup() {
       if (popupActive) return;
-
       popupActive = true;
       const msg = popupMessages[Math.floor(Math.random() * popupMessages.length)];
       const popup = document.createElement('div');
       popup.className = 'popup';
-      popup.innerHTML = `<button onclick="this.parentElement.remove(); popupActive = false;">×</button>${msg}`;
+      popup.setAttribute('role', 'alert');
+      popup.innerHTML = `<button onclick="closePopup(this)" aria-label="Close">×</button>${msg}`;
       document.body.appendChild(popup);
+
       setTimeout(() => {
-        popup.remove();
-        popupActive = false;
+        popup.classList.add('fade-out');
+        setTimeout(() => {
+          popup.remove();
+          popupActive = false;
+        }, 500);
       }, 8000);
     }
 
-    // Random popup generator (30% chance every 10 seconds)
+    function closePopup(button) {
+      const popup = button.parentElement;
+      popup.classList.add('fade-out');
+      setTimeout(() => {
+        popup.remove();
+        popupActive = false;
+      }, 500);
+    }
+
     setInterval(() => {
       if (Math.random() < 0.3) showPopup();
     }, 10000);
