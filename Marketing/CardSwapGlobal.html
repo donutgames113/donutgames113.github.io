@@ -6,15 +6,15 @@
   <title>CardSwap Global LTD</title>
   <style>
     :root {
-      --primary: #1abc9c;          /* teal */
-      --secondary: #ff6f61;        /* coral */
-      --bg: #121d2b;               /* dark navy */
-      --glass-bg: rgba(28, 49, 73, 0.4);  /* translucent navy */
-      --border: rgba(26, 188, 156, 0.3);   /* teal translucent */
-      --text: #ecf0f1;             /* off-white */
-      --text-muted: #95a5a6;       /* grayish */
-      --highlight: #ff9b7c;        /* lighter coral */
-      --bolder: #16a085;           /* strong teal */
+      --primary: #1abc9c;
+      --secondary: #ff6f61;
+      --bg: #121d2b;
+      --glass-bg: rgba(28, 49, 73, 0.4);
+      --border: rgba(26, 188, 156, 0.3);
+      --text: #ecf0f1;
+      --text-muted: #95a5a6;
+      --highlight: #ff9b7c;
+      --bolder: #16a085;
     }
 
     * {
@@ -39,6 +39,7 @@
       display: flex;
       flex-direction: column;
       gap: 3rem;
+      transition: filter 0.3s ease, opacity 0.3s ease;
     }
 
     .glass {
@@ -72,10 +73,11 @@
       text-decoration: underline;
       transition: color 0.2s ease;
     }
+
     a:hover {
       color: var(--highlight);
     }
-    
+
     b {
       color: var(--highlight);
     }
@@ -119,11 +121,58 @@
       margin-top: 0.25rem;
       opacity: 0.5;
     }
+
+    /* Satire Popup Styles */
+    #satirePopup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(18, 29, 43, 0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    #satirePopup .popup-box {
+      background: var(--glass-bg);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 2rem 2.5rem;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      color: var(--text);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 25px rgba(26, 188, 156, 0.3);
+    }
+
+    #satirePopup button {
+      padding: 0.6rem 1.5rem;
+      background-color: var(--primary);
+      color: var(--bg);
+      border: none;
+      border-radius: 0.5rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    #satirePopup button:hover {
+      background-color: var(--bolder);
+    }
+
+    .dimmed {
+      filter: blur(6px) brightness(0.7);
+      pointer-events: none;
+      user-select: none;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-
+  <div id="mainContent" class="container dimmed">
     <div class="glass">
       <h1>Welcome to CardSwap Global LTD</h1>
       <p>We’re passionate about rectangles and making money. At CardSwap, our motto is: <i><b>“MONEY MATTERS MOST”™</b></i></p>
@@ -144,7 +193,7 @@
         <li><b>Local Legends™</b> – We feature community artists. Exposure is their only payment, and they’re grateful.</li>
       </ul>
     </div>
-    
+
     <div class="glass">
       <h2>CardSwap Minifranchise™</h2>
       <ul>
@@ -159,7 +208,22 @@
       &copy; 2025 CardSwap Global LTD
       <div>Website by Donut</div>
     </footer>
-
   </div>
+
+  <!-- Satire Popup -->
+  <div id="satirePopup">
+    <div class="popup-box">
+      <h2 style="color: var(--primary); margin-bottom: 1rem;">Notice</h2>
+      <p style="margin-bottom: 1.5rem;">This site is satire, and to promote CardSwap™ by Playzero.</p>
+      <button onclick="closePopup()">Enter</button>
+    </div>
+  </div>
+
+  <script>
+    function closePopup() {
+      document.getElementById("satirePopup").remove();
+      document.getElementById("mainContent").classList.remove("dimmed");
+    }
+  </script>
 </body>
 </html>
