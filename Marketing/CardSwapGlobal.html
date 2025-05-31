@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CardSwap Global LTD</title>
+  <style>
+    :root {
+      --primary: #1abc9c;          /* teal */
+      --secondary: #ff6f61;        /* coral */
+      --bg: #121d2b;               /* dark navy */
+      --glass-bg: rgba(28, 49, 73, 0.4);  /* translucent navy */
+      --border: rgba(26, 188, 156, 0.3);   /* teal translucent */
+      --text: #ecf0f1;             /* off-white */
+      --text-muted: #95a5a6;       /* grayish */
+      --highlight: #ff9b7c;        /* lighter coral */
+      --bolder: #16a085;           /* strong teal */
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 4rem 1rem;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
+
+    .glass {
+      background: var(--glass-bg);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 2rem;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 4px 15px rgba(26, 188, 156, 0.2);
+      transition: box-shadow 0.3s ease;
+    }
+
+    .glass:hover {
+      box-shadow: 0 8px 30px rgba(26, 188, 156, 0.4);
+    }
+
+    h1, h2, h3 {
+      color: var(--primary);
+      margin-bottom: 1rem;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    }
+
+    p {
+      line-height: 1.6;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+
+    a {
+      color: var(--secondary);
+      text-decoration: underline;
+      transition: color 0.2s ease;
+    }
+    a:hover {
+      color: var(--highlight);
+    }
+    
+    b {
+      color: var(--highlight);
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .team-card {
+      background: rgba(28, 49, 73, 0.6);
+      border: 1px solid var(--border);
+      padding: 1rem;
+      border-radius: 0.75rem;
+      text-align: center;
+      color: var(--text);
+      box-shadow: 0 2px 8px rgba(26, 188, 156, 0.1);
+    }
+
+    .team-card svg {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin-bottom: 1rem;
+      background: rgba(26, 188, 156, 0.15);
+      border: 2px solid var(--primary);
+      padding: 0.5rem;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.9rem;
+      opacity: 0.7;
+      margin-top: 2rem;
+      color: var(--text-muted);
+    }
+
+    footer div {
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="glass">
+      <h1>Welcome to CardSwap Global LTD</h1>
+      <p>We’re passionate about cardboard rectangles and making money. At CardSwap, our motto is: <i><b>“MONEY MATTERS MOST”™</b></i></p>
+    </div>
+
+    <div class="glass">
+      <h2>Our Ethics</h2>
+      <p>At CardSwap Global LTD, we pride ourselves on performative responsibility. We ensure all our <b>Child Labourers™</b> are ethically sourced from <i>exclusively</i> impoverished families.*</p>
+      <p>We recycle packaging (sometimes), offset emissions with PowerPoint slides, and offer employees 30-second <b>micro-breaks™</b> every 6 hours.</p>
+      <div style="font-size: 0.75rem; opacity: 0.5; margin-top: 0.25rem;">We pay these families between $5-12.</div>
+    </div>
+
+    <div class="glass">
+      <h2>Our Initiatives</h2>
+      <ul>
+        <li><b>Project Hope™</b> – A charitable campaign to donate one misprinted card to a disadvantaged child every financial quarter.</li>
+        <li><b>Digital Futures™</b> – Turning cardboard into NFTs to triple our carbon footprint and profit margin simultaneously.</li>
+        <li><b>Local Legends™</b> – We feature community artists. Exposure is their only payment, and they’re grateful.</li>
+      </ul>
+    </div>
+    
+    <div class="glass">
+      <h2>CardSwap Minifranchise™</h2>
+      <ul>
+        <li>Every Associate is gifted a FREE <b>Minifranchise™</b>!</li>
+        <li>These <b>Minifranchise™</b>s are not an optional thing, as we believe enforcing work and management stops laziness in the world.</li>
+        <li>We take 99% of the earnings of your <b>Minifranchise™</b>, leaving you with a fair amount of money to take home, and spend on <b>CardSwap Cards™</b>!</li>
+        <li>For a fair price, you can rent an employee from <b>CardSwap Global LTD™</b>, increasing your <b>Minifranchise™</b>'s earnings!</li>
+      </ul>
+    </div>
+
+    <footer>
+      &copy; 2025 CardSwap Global LTD
+      <div>Website by Donut</div>
+    </footer>
+
+  </div>
+</body>
+</html>
