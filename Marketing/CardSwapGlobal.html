@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CardSwap</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    /* Base */
+    body {
+      font-family: 'Inter', sans-serif;
+      background: white;
+      color: #111827; /* similar to text-gray-900 */
+      margin: 0;
+    }
+
+    /* Utility classes */
+    .container-padding {
+      padding: 2.5rem; /* 10 */
+    }
+
+    .rounded-xl {
+      border-radius: 1rem;
+    }
+
+    .shadow-md {
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .shadow {
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .shadow-xl {
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    /* Header */
+    header {
+      padding: 1.5rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e5e7eb; /* gray-200 */
+    }
+
+    header h1 {
+      font-weight: 800;
+      font-size: 1.5rem; /* text-2xl */
+      margin: 0;
+    }
+
+    nav a {
+      margin-left: 1rem;
+      text-decoration: none;
+      color: inherit;
+      font-weight: 600;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    /* Hero */
+    .hero {
+      display: grid;
+      gap: 2rem;
+      align-items: center;
+      padding: 2.5rem;
+      background: linear-gradient(135deg, #fef3c7 0%, #ffffff 50%, #ede9fe 100%);
+    }
+
+    @media (min-width: 768px) {
+      .hero {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .hero h2 {
+      font-size: 2.25rem; /* 4xl */
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .hero p {
+      margin-bottom: 1.5rem;
+      font-weight: 400;
+    }
+
+    .btn-primary {
+      background-color: #000;
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+    }
+
+    .hero img {
+      border-radius: 1.5rem; /* rounded-2xl */
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      display: block;
+    }
+
+    .hero .tagline {
+      position: absolute;
+      bottom: 1rem;
+      left: 1rem;
+      background: white;
+      padding: 1rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .hero .image-wrapper {
+      position: relative;
+    }
+
+    /* Bento Grid */
+    .bento-grid {
+      padding: 2.5rem;
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 768px) {
+      .bento-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .bento-card {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+    }
+
+    .bento-card h3 {
+      font-weight: 700;
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .bento-card p {
+      margin-bottom: 0.5rem;
+    }
+
+    .bento-card ul {
+      list-style-type: disc;
+      padding-left: 1.25rem;
+      margin: 0;
+    }
+
+    .bento-card ul li {
+      margin-bottom: 0.25rem;
+    }
+
+    /* Ethics */
+    .ethics {
+      padding: 2.5rem;
+      background: #f9fafb; /* gray-50 */
+    }
+
+    .ethics h2 {
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .ethics-grid {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 768px) {
+      .ethics-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .ethics-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .ethics-card h3 {
+      font-weight: 600;
+      font-size: 1.125rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Team */
+    .team {
+      padding: 2.5rem;
+    }
+
+    .team h2 {
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .team-grid {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 768px) {
+      .team-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .team-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .team-card h3 {
+      font-weight: 600;
+      font-size: 1.125rem;
+      margin-bottom: 0.25rem;
+    }
+
+    /* Testimonials */
+    .testimonials {
+      background: #f3f4f6; /* gray-100 */
+      padding: 2.5rem;
+    }
+
+    .testimonials h2 {
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .testimonial-block {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 1rem;
+    }
+
+    .testimonial-block footer {
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
+      color: #6b7280; /* gray-500 */
+    }
+
+    /* KPI Dashboard */
+    .kpi {
+      padding: 2.5rem;
+    }
+
+    .kpi h2 {
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .kpi-grid {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 768px) {
+      .kpi-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .kpi-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .kpi-card h3 {
+      font-size: 0.875rem;
+      color: #6b7280; /* gray-500 */
+      margin-bottom: 0.5rem;
+    }
+
+    .kpi-card p {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    /* Footer */
+    footer {
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 0.875rem;
+      color: #6b7280; /* gray-500 */
+      border-top: 1px solid #e5e7eb; /* gray-200 */
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>CardSwap</h1>
+    <nav>
+      <a href="#">Home</a>
+      <a href="#">Solutions</a>
+      <a href="#">Team</a>
+      <a href="#">Contact</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div>
+      <h2>CardSwap Global LTD. Leading the future of card trading.</h2>
+      <p>This is what responsible business looks like™</p>
+      <button class="btn-primary">Get Started</button>
+    </div>
+    <div class="image-wrapper">
+      <img src="Images/SweatShop.png" alt="Hero" />
+      <div class="tagline">#1 Card Innovation Platform</div>
+    </div>
+  </section>
+
+  <section class="bento-grid">
+    <div class="bento-card">
+      <h3>BulkStore™</h3>
+      <p>Why buy one when you can ten?</p>
+      <ul>
+        <li>Better unit cost.</li>
+        <li>Expired? We prefer “Aged Inventory™”.</li>
+      </ul>
+    </div>
+    <div class="bento-card">
+      <h3>Strategic Initiatives</h3>
+      <ul>
+        <li><b>Project Hope™</b> – A quarterly donation of misprinted cards to struggling regions.</li>
+        <li><b>Digital Futures™</b> – Transforming cardboard into carbon-intensive NFTs since 2023.</li>
+        <li><b>Local Legends™</b> – Uplifting unpaid artists with the most valuable currency: exposure.</li>
+      </ul>
+    </div>
+    <div class="bento-card">
+      <h3>Minifranchise™</h3>
+      <p>We let all Associates lead their own <b>Minifranchise™</b>.</p>
+      <ul>
+        <li><b>Minifranchise™</b>s are mandatory. This both earns more profit, and stops laziness!</li>
+        <li>We retain 99% of all earnings for operational excellence.</li>
+        <li>Franchise growth supported via employee rental from CardSwap’s <b>labor hub™</b>.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="team">
+    <h2>Executive Team</h2>
+    <div class="team-grid">
+      <div class="team-card">
+        <h3>Dr. Sandra Metrics</h3>
+        <p>Chief Synergy Officer</p>
+      </div>
+      <div class="team-card">
+        <h3>Leo Pivot</h3>
+        <p>Head of Tactical Turnarounds</p>
+      </div>
+      <div class="team-card">
+        <h3>Chad Leverage</h3>
+        <p>VP of Influencer Operations</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="testimonials">
+    <h2>Testimonials</h2>
+    <div>
+      <blockquote class="testimonial-block">
+        "The micro-breaks changed my life."
+        <footer>– Timmy, age 7</footer>
+      </blockquote>
+      <blockquote class="testimonial-block">
+        "They’ve redefined what ethics can mean in business."
+        <footer>– PleaseSponsorMeCardSwap192</footer>
+      </blockquote>
+    </div>
+  </section>
+
+  <section class="kpi">
+    <h2>Live KPI Dashboard</h2>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <h3>Synergies Created</h3>
+        <p>84K+</p>
+      </div>
+      <div class="kpi-card">
+        <h3>Buzzwords Invented</h3>
+        <p>19.2K</p>
+      </div>
+      <div class="kpi-card">
+        <h3>Cards Transacted</h3>
+        <p>1.1M</p>
+      </div>
+      <div class="kpi-card">
+        <h3>Team Building Exercises</h3>
+        <p>2</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="ethics">
+    <h2>Our Ethical Commitment</h2>
+    <p>Corporate social responsibility makes us ensure that all of our <strong>Child Labourers™</strong> are ethically sourced from underprivileged communities.*</p>
+    <p>We use up to 7.3% recycled materials across our packaging lines, and provide our team with generous 30-second micro-breaks™ every 6 hours.</p>
+    <p><em>*We pay these families $5-12, which is competitive in their regions.</em></p>
+  </section>
+
+
+  <footer>
+    © 2025 CardSwap Inc.
+  </footer>
+</body>
+</html>
