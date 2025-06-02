@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CardSwap Global LTD</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f1115;
+      --surface: #181b20;
+      --primary: #00c6a9;
+      --accent: #fca08b;
+      --muted: #a0a8b5;
+      --text: #f4f4f4;
+      --highlight: #ff7f50;
+      --border: #2a2d32;
+      --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 4rem 1rem;
+    }
+
+    .container {
+      max-width: 900px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem 2.5rem;
+      box-shadow: var(--card-shadow);
+      transition: all 0.3s ease;
+    }
+
+    h1, h2 {
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 2.25rem;
+      color: var(--primary);
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      color: var(--accent);
+    }
+
+    p, li {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+
+    ul {
+      padding-left: 1.25rem;
+    }
+
+    a {
+      color: var(--primary);
+      text-decoration: underline;
+    }
+
+    a:hover {
+      color: var(--highlight);
+    }
+
+    b {
+      color: var(--highlight);
+    }
+
+    .ethics-callout {
+      font-style: italic;
+      color: var(--accent);
+      margin-top: 1rem;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+
+    footer div {
+      margin-top: 0.25rem;
+      font-size: 0.75rem;
+    }
+
+    .popup {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      color: var(--text);
+      box-shadow: var(--card-shadow);
+      max-width: 300px;
+      z-index: 9999;
+      animation: fadeInUp 0.3s ease-out;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+
+    .popup.fade-out {
+      opacity: 0;
+    }
+
+    .popup button {
+      background: none;
+      border: none;
+      color: var(--highlight);
+      font-weight: bold;
+      float: right;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .testimonials {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .testimonial {
+      background: #202328;
+      padding: 1rem 1.25rem;
+      border-left: 4px solid var(--primary);
+      border-radius: 8px;
+    }
+
+    .testimonial span {
+      display: block;
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+    }
+
+    .exec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+
+    .exec {
+      background: #202328;
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .exec b {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .tracker {
+      background: #202328;
+      padding: 1rem;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .tracker span {
+      font-weight: bold;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 2rem 1rem;
+      }
+
+      .card {
+        padding: 1.5rem;
+      }
+
+      h1 {
+        font-size: 1.75rem;
+      }
+
+      h2 {
+        font-size: 1.25rem;
+      }
+
+      p, li {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <div class="card">
+      <h1>CardSwap Global LTD</h1>
+      <p>At CardSwap Global LTD, we believe in progress through profit. Our mission is simple: <b>“MONEY MATTERS MOST™”</b>.</p>
+    </div>
+
+    <div class="card">
+      <h2>Our Ethical Commitment</h2>
+      <p>Corporate social responsibility makes us ensure that all of our <b>Child Labourers™</b> are ethically sourced from underprivileged communities.*</p>
+      <p>We use up to <b>7.3%</b> recycled materials across our packaging lines, and provide our team with generous <b>30-second micro-breaks™</b> every 6 hours.</p>
+      <p style="font-size: 0.8rem; color: var(--muted);">*We pay these families $5-12, which is competitive in their regions.</p>
+      <div class="ethics-callout">This is what responsible business looks like™.</div>
+    </div>
+
+    <div class="card">
+      <h2>Strategic Initiatives</h2>
+      <ul>
+        <li><b>Project Hope™</b> – A quarterly donation of misprinted cards to struggling regions.</li>
+        <li><b>Digital Futures™</b> – Transforming cardboard into carbon-intensive NFTs since 2023.</li>
+        <li><b>Local Legends™</b> – Uplifting unpaid artists with the most valuable currency: exposure.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Minifranchise™</h2>
+      <p>With every hire, we let all Associates lead their own <b>Minifranchise™</b>.</p>
+      <ul>
+        <li><b>Minifranchise™</b>s are mandatory. This both earns more profit, and stops laziness!</li>
+        <li>We retain 99% of all earnings for operational excellence.</li>
+        <li>Franchise growth supported via employee rental from CardSwap’s <b>labor hub™</b>.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>BulkStore™</h2>
+      <p>Why buy one when you can ten? Welcome to BulkStore™.</p>
+      <ul>
+        <li>Better unit cost.</li>
+        <li>Expired? We prefer “Aged Inventory™”.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Clarifying Concerns</h2>
+      <p>We want to address rumors that we don't pay our staff. Not true. We pay <i>every</i> worker something. Competitive? Not quite. Legal? Technically. But cheaper cards for you!</p>
+    </div>
+
+    <div class="card">
+      <h2>What People Say</h2>
+      <div class="testimonials">
+        <div class="testimonial">
+          "The micro-breaks changed my life."
+          <span>– Timmy, age 7</span>
+        </div>
+        <div class="testimonial">
+          "They’ve redefined what ethics can mean in business."
+          <span>– PleaseSponsorMeCardSwap192</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Meet Our Executive Team</h2>
+      <div class="exec-grid">
+        <div class="exec"><b>James Anderson</b><br>Chief Executive Officer</div>
+        <div class="exec"><b>Michael Thompson</b><br>Vice President of Operations</div>
+        <div class="exec"><b>Robert Miller</b><br>Chief Financial Officer</div>
+        <div class="exec"><b>William Johnson</b><br>Chief Technology Officer</div>
+      </div>
+    </div>
+
+
+    <div class="card">
+      <h2>Annual Impact Report (2024)</h2>
+      <div class="tracker">
+        <span>CSR Budget Used:</span>
+        <span>$4.93</span>
+      </div>
+    </div>
+
+    <footer>
+      &copy; 2025 CardSwap Global LTD
+      <div>Corporate Website by Donut</div>
+    </footer>
+  </main>
+
+  <script>
+    const popupMessages = [
+      "Someone near you just earned $0.07 with a Minifranchise™!",
+      "Invest in cardboard – it’s the future!",
+    ];
+
+    let popupActive = false;
+
+    function showPopup() {
+      if (popupActive) return;
+      popupActive = true;
+      const msg = popupMessages[Math.floor(Math.random() * popupMessages.length)];
+      const popup = document.createElement('div');
+      popup.className = 'popup';
+      popup.setAttribute('role', 'alert');
+      popup.innerHTML = `<button onclick="closePopup(this)" aria-label="Close">×</button>${msg}`;
+      document.body.appendChild(popup);
+
+      setTimeout(() => {
+        popup.classList.add('fade-out');
+        setTimeout(() => {
+          popup.remove();
+          popupActive = false;
+        }, 500);
+      }, 8000);
+    }
+
+    function closePopup(button) {
+      const popup = button.parentElement;
+      popup.classList.add('fade-out');
+      setTimeout(() => {
+        popup.remove();
+        popupActive = false;
+      }, 500);
+    }
+
+    setInterval(() => {
+      if (Math.random() < 0.3) showPopup();
+    }, 10000);
+  </script>
+</body>
+</html>
