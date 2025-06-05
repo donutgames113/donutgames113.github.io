@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -15,6 +16,7 @@
       --muted: #b3b3b3;
       --glass: rgba(255, 255, 255, 0.04);
       --border: rgba(255, 255, 255, 0.08);
+      --sidebar-bg: #201f2e; /* solid dark background for sidebar */
     }
 
     [data-theme="light"] {
@@ -24,6 +26,7 @@
       --muted: #555555;
       --glass: rgba(0, 0, 0, 0.03);
       --border: rgba(0, 0, 0, 0.08);
+      --sidebar-bg: #eaeaea; /* lighter solid bg for sidebar light mode */
     }
 
     * {
@@ -37,6 +40,9 @@
       color: var(--text);
       font-family: 'Montserrat', sans-serif;
       scroll-behavior: smooth;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
     header {
@@ -47,7 +53,6 @@
       background: var(--glass);
       border-bottom: 1px solid var(--border);
       backdrop-filter: blur(12px);
-      position: sticky;
       top: 0;
       z-index: 10;
     }
@@ -73,18 +78,21 @@
       cursor: pointer;
     }
 
+    /* Sidebar with solid bg - no transparency */
     .sidebar {
       position: fixed;
       top: 0;
       left: -300px;
       width: 260px;
       height: 100%;
-      background: var(--glass);
-      backdrop-filter: blur(12px);
+      background: var(--sidebar-bg);
       border-right: 1px solid var(--border);
       padding: 30px 20px;
       transition: left 0.3s ease;
       z-index: 20;
+      /* removed backdrop-filter */
+      color: var(--text);
+      overflow-y: auto;
     }
 
     .sidebar.active {
@@ -132,6 +140,7 @@
       max-width: 900px;
       margin: 60px auto;
       padding: 0 20px;
+      flex-grow: 1;
     }
 
     .card {
@@ -213,6 +222,8 @@
       padding: 50px 20px;
       font-size: 0.9rem;
       color: #888;
+      background: transparent;
+      user-select: none;
     }
 
     @media (max-width: 600px) {
@@ -286,11 +297,10 @@
       border: 1px dashed var(--border);
       padding: 25px;
       border-radius: 16px;
-      background: var(--glass);
+      background: var(--background);
       font-family: monospace;
       font-size: 0.9rem;
       text-align: center;
-      backdrop-filter: blur(8px);
     }
     
     .testimonial-title {
@@ -307,7 +317,63 @@
       text-transform: uppercase;
     }
 
+    /* Ticker styles */
+    .ticker-container {
+      width: 100%;
+      background: var(--glass);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 0;
+      overflow: hidden;
+      font-family: monospace;
+      font-size: 0.95rem;
+      color: var(--text);
+      user-select: none;
+    }
 
+    .ticker-track {
+      display: inline-flex;
+      white-space: nowrap;
+      animation: scroll-ticker 30s linear infinite;
+      align-items: center;
+    }
+
+    .ticker-segment {
+      display: inline-flex;
+      align-items: center;
+      padding: 0 30px;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      user-select: none;
+    }
+
+    .ticker-segment:first-child {
+      border-left: none;
+    }
+
+    .ticker-segment:last-child {
+      border-right: none;
+    }
+
+    .ticker-segment .separator {
+      margin: 0 15px;
+      color: var(--text);
+      font-size: 0.9rem;
+      user-select: none;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      height: 100%;
+    }
+
+    @keyframes scroll-ticker {
+      0% {
+        transform: translateX(0%);
+      }
+      100% {
+        transform: translateX(-100%);
+      }
+    }
   </style>
 </head>
 <body>
@@ -339,21 +405,20 @@
   </nav>
   
   <div class="carousel">
-  <div class="carousel-track">
-    <img src="Images/NewDonut.png">
-    <img src="Images/LemonDonut.png">
-    <img src="Images/NewDonutLight.png">
-    <img src="Images/DonutBitten.png">
-    <img src="Images/ChocolateDonut.png">
-    <img src="Images/NewDonutOldColors.png">
-    <img src="Images/NewDonutBlue.png">
-    <img src="Images/OrangeDonut.png">
-    <img src="Images/NeonLogo.png">
-    <img src="Images/RedDonut.png">
-    <img src="Images/GreenDonut.png">
+    <div class="carousel-track" aria-label="Image carousel">
+      <img src="Images/NewDonut.png" alt="New Donut Logo">
+      <img src="Images/LemonDonut.png" alt="Lemon Donut Logo">
+      <img src="Images/NewDonutLight.png" alt="New Donut Light Logo">
+      <img src="Images/DonutBitten.png" alt="Bitten Donut Logo">
+      <img src="Images/ChocolateDonut.png" alt="Chocolate Donut Logo">
+      <img src="Images/NewDonutOldColors.png" alt="Old Colors Donut Logo">
+      <img src="Images/NewDonutBlue.png" alt="Blue Donut Logo">
+      <img src="Images/OrangeDonut.png" alt="Orange Donut Logo">
+      <img src="Images/NeonLogo.png" alt="Neon Donut Logo">
+      <img src="Images/RedDonut.png" alt="Red Donut Logo">
+      <img src="Images/GreenDonut.png" alt="Green Donut Logo">
+    </div>
   </div>
-</div>
-
 
   <section class="section">
     <div class="card" id="about">
@@ -362,23 +427,22 @@
     </div>
 
     <div class="card" id="featured-video">
-    <h2>Featured Video</h2>
-    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
-      <iframe 
-        src="https://www.youtube.com/embed/IYowoQPEX0s" 
-        frameborder="0" 
-        allowfullscreen 
-        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-      </iframe>
+      <h2>Featured Video</h2>
+      <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+        <iframe 
+          src="https://www.youtube.com/embed/IYowoQPEX0s" 
+          frameborder="0" 
+          allowfullscreen 
+          style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+        </iframe>
+      </div>
     </div>
-    </div>
-
 
     <div class="card" id="skills">
       <h2>Skills</h2>
       <ul>
         <li>Game Development</li>
-        <li>Web Development (HTML, CSS)
+        <li>Web Development (HTML, CSS)</li>
         <li>UI/UX Design</li>
         <li>Marketing & Branding</li>
       </ul>
@@ -412,6 +476,23 @@
       </div>
     </div>
   </section>
+
+  <div class="ticker-container" aria-label="Scrolling status messages">
+    <div class="ticker-track" aria-live="off" aria-atomic="true" aria-relevant="text" role="list">
+      <div class="ticker-segment" role="listitem">
+        <span>Now deploying cool stuff</span>
+      </div>
+      <div class="ticker-segment" role="listitem">
+        <span>Roblox games in progress</span>
+      </div>
+      <div class="ticker-segment" role="listitem">
+        <span>Website made with <span style='font-size: 0.5rem; font-color: var(--muted);'>(way too much)</span> care </span>
+      </div>
+      <div class="ticker-segment" role="listitem">
+        <span>More content soon</span>
+      </div>
+    </div>
+  </div>
 
   <footer>
     &copy; 2025 Donut. Pretty nifty site, don't you think?
@@ -450,6 +531,7 @@
       }
     });
 
+    // Carousel cloning for infinite scroll effect
     const track = document.querySelector('.carousel-track');
     const images = Array.from(track.children);
     const cloneCount = 25;
@@ -461,6 +543,5 @@
       });
     }
   </script>
-
 </body>
 </html>
