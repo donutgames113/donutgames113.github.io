@@ -1,637 +1,669 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="icon" type="image/x-icon" href="/Images/NewDonut.png" />
-  <title>Donut</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="/Images/NewDonut.png" />
+    <title>Donut</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap"
+      rel="stylesheet"
+    />
 
-  <style>
-    :root {
-      --primary: #b983ff;
-      --primary-rgb-values: 185, 131, 255;
-      --background: linear-gradient(135deg, #1a1a2e, #100f1f);
-      --text: #ffffff;
-      --muted: #b3b3b3;
-      --glass: rgba(255, 255, 255, 0.04);
-      --border: rgba(255, 255, 255, 0.08);
-      --sidebar-bg: #201f2e;
-    }
+    <style>
+      :root,
+      [data-theme="dark"] {
+        --primary: #b983ff;
+        --primary-rgb-values: 185, 131, 255;
+        --background: linear-gradient(135deg, #1a1a2e, #100f1f);
+        --text: #ffffff;
+        --muted: #b3b3b3;
+        --glass: rgba(255, 255, 255, 0.04);
+        --border: rgba(255, 255, 255, 0.08);
+        --sidebar-bg: #201f2e;
+      }
 
-    [data-theme="light"] {
-      --primary: #8647ff;
-      --primary-rgb-values: 134, 71, 255;
-      --background: linear-gradient(135deg, #f2f2f2, #ffffff);
-      --text: #1a1a1a;
-      --muted: #555555;
-      --glass: rgba(0, 0, 0, 0.03);
-      --border: rgba(0, 0, 0, 0.08);
-      --sidebar-bg: #eaeaea;
-    }
+      [data-theme="light"] {
+        --primary: #8647ff;
+        --primary-rgb-values: 134, 71, 255;
+        --background: linear-gradient(135deg, #f2f2f2, #ffffff);
+        --text: #1a1a1a;
+        --muted: #555555;
+        --glass: rgba(0, 0, 0, 0.03);
+        --border: rgba(0, 0, 0, 0.08);
+        --sidebar-bg: #eaeaea;
+      }
 
-    [data-theme="midnight"] {
-      --primary: #00bfff;
-      --primary-rgb-values: 0, 191, 255;
-      --background: linear-gradient(135deg, #0d0d14, #1a1a2b);
-      --text: #cfd8dc;
-      --muted: #7f8c8d;
-      --glass: rgba(255, 255, 255, 0.05);
-      --border: rgba(255, 255, 255, 0.1);
-      --sidebar-bg: #12121c;
-    }
+      [data-theme="midnight"] {
+        --primary: #00bfff;
+        --primary-rgb-values: 0, 191, 255;
+        --background: linear-gradient(135deg, #0d0d14, #1a1a2b);
+        --text: #cfd8dc;
+        --muted: #7f8c8d;
+        --glass: rgba(255, 255, 255, 0.05);
+        --border: rgba(255, 255, 255, 0.1);
+        --sidebar-bg: #12121c;
+      }
 
-    [data-theme="solarized"] {
-      --primary: #268bd2;
-      --primary-rgb-values: 38, 139, 210;
-      --background: linear-gradient(135deg, #fdf6e3, #eee8d5);
-      --text: #073642;
-      --muted: #657b83;
-      --glass: rgba(0, 0, 0, 0.03);
-      --border: rgba(0, 0, 0, 0.1);
-      --sidebar-bg: #f5f0dc;
-    }
+      [data-theme="solarized"] {
+        --primary: #268bd2;
+        --primary-rgb-values: 38, 139, 210;
+        --background: linear-gradient(135deg, #fdf6e3, #eee8d5);
+        --text: #073642;
+        --muted: #657b83;
+        --glass: rgba(0, 0, 0, 0.03);
+        --border: rgba(0, 0, 0, 0.1);
+        --sidebar-bg: #f5f0dc;
+      }
 
-    [data-theme="cyberpunk"] {
-      --primary: #ff00ff;
+      [data-theme="cyberpunk"] {
+        --primary: #ff00ff;
+        --primary-rgb-values: 255, 0, 255;
+        --background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+        --text: #f5f5f5;
+        --muted: #9999cc;
+        --glass: rgba(255, 0, 255, 0.05);
+        --border: rgba(255, 0, 255, 0.2);
+        --sidebar-bg: #1a1a2e;
+      }
+
+      [data-theme="pastel"] {
+        --primary: #ffb3c1;
+        --primary-rgb-values: 255, 179, 193;
+        --background: linear-gradient(135deg, #fff1f1, #ffe3e3);
+        --text: #5f5f5f;
+        --muted: #bfa5a5;
+        --glass: rgba(0, 0, 0, 0.03);
+        --border: rgba(0, 0, 0, 0.07);
+        --sidebar-bg: #fff7f7;
+      }
+
+    [data-theme="painful"] {
+      --primary: #ff00ff; /* Harsh magenta */
       --primary-rgb-values: 255, 0, 255;
-      --background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-      --text: #f5f5f5;
-      --muted: #9999cc;
-      --glass: rgba(255, 0, 255, 0.05);
-      --border: rgba(255, 0, 255, 0.2);
-      --sidebar-bg: #1a1a2e;
+      --background: linear-gradient(0deg, #fafa00 0%, #00ffff 100%); /* sickly yellow to cyan */
+      --text: #0000ff; /* neon blue on cyan/yellow */
+      --muted: #ff9900; /* eye-searing orange */
+      --glass: rgba(255, 0, 0, 0.1); /* barely visible bloody tint */
+      --border: #00ff00; /* radioactive green */
+      --sidebar-bg: #ffccff; /* pastel pink clashing horribly with the rest */
     }
 
-    [data-theme="pastel"] {
-      --primary: #ffb3c1;
-      --primary-rgb-values: 255, 179, 193;
-      --background: linear-gradient(135deg, #fff1f1, #ffe3e3);
-      --text: #5f5f5f;
-      --muted: #bfa5a5;
-      --glass: rgba(0, 0, 0, 0.03);
-      --border: rgba(0, 0, 0, 0.07);
-      --sidebar-bg: #fff7f7;
-    }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-    html, body {
-      background: var(--background);
-      color: var(--text);
-      font-family: 'Montserrat', sans-serif;
-      scroll-behavior: smooth;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 40px;
-      background: var(--glass);
-      border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(12px);
-      top: 0;
-      z-index: 10;
-    }
-
-    .logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    .subtitle {
-      font-size: 0.95rem;
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    .menu-toggle {
-      font-size: 1.8rem;
-      background: none;
-      border: none;
-      color: var(--text);
-      cursor: pointer;
-    }
-
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: -300px;
-      width: 260px;
-      height: 100%;
-      background: var(--sidebar-bg);
-      border-right: 1px solid var(--border);
-      padding: 30px 20px;
-      transition: left 0.3s ease;
-      z-index: 20;
-      color: var(--text);
-      overflow-y: auto;
-    }
-
-    .sidebar.active {
-      left: 0;
-    }
-
-    .sidebar h3 {
-      color: var(--primary);
-      margin-bottom: 10px;
-      font-size: 1.1rem;
-      margin-top: 25px;
-    }
-
-    .sidebar a,
-    .sidebar button {
-      display: block;
-      margin: 8px 0;
-      color: var(--text);
-      text-decoration: none;
-      font-size: 1rem;
-      background: none;
-      border: none;
-      text-align: left;
-      padding: 6px 0;
-      cursor: pointer;
-    }
-
-    .sidebar a:hover,
-    .sidebar button:hover {
-      color: var(--primary);
-    }
-
-    .close-btn {
-      font-size: 1.5rem;
-      background: none;
-      border: none;
-      color: var(--text);
-      cursor: pointer;
-      position: absolute;
-      top: 20px;
-      right: 20px;
-    }
-
-    .section {
-      max-width: 900px;
-      margin: 60px auto;
-      padding: 0 20px;
-      flex-grow: 1;
-    }
-
-    .card {
-      background: var(--glass);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 40px;
-      margin-bottom: 50px;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 8px 20px rgba(185, 131, 255, 0.1);
-    }
-
-    h2 {
-      font-size: 2rem;
-      color: var(--primary);
-      font-weight: 600;
-      margin-bottom: 15px;
-    }
-
-    p, li, blockquote {
-      font-size: 1.1rem;
-      line-height: 1.7;
-      color: var(--text);
-    }
-
-    ul {
-      list-style: none;
-      padding-left: 0;
-    }
-
-    li {
-      margin-bottom: 8px;
-    }
-
-    .button {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 12px 25px;
-      font-size: 1rem;
-      border-radius: 30px;
-      text-decoration: none;
-      font-weight: 600;
-      background: var(--primary);
-      color: #fff;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      cursor: pointer;
-      border: none;
-    }
-
-    .button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(162, 89, 255, 0.4);
-    }
-
-    blockquote {
-      border-left: 4px solid var(--primary);
-      padding-left: 15px;
-      margin-top: 10px;
-      font-style: italic;
-      color: var(--muted);
-    }
-
-    .social a {
-      display: inline-block;
-      margin-right: 15px;
-      font-weight: 600;
-      font-size: 1.1rem;
-      color: var(--text);
-      text-decoration: none;
-      transition: color 0.2s ease;
-    }
-
-    .social a:hover {
-      color: var(--primary);
-    }
-
-    footer {
-      text-align: center;
-      padding: 50px 20px;
-      font-size: 0.9rem;
-      color: #888;
-      background: transparent;
-      user-select: none;
-    }
-
-    @media (max-width: 600px) {
-      header {
+      html,
+      body {
+        background: var(--background);
+        color: var(--text);
+        font-family: "Montserrat", sans-serif;
+        scroll-behavior: smooth;
+        min-height: 100vh;
+        display: flex;
         flex-direction: column;
-        align-items: flex-start;
-        padding: 20px;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 40px;
+        background: var(--glass);
+        border-bottom: 1px solid var(--border);
+        backdrop-filter: blur(12px);
+        top: 0;
+        z-index: 10;
       }
 
       .logo {
-        font-size: 1.6rem;
+        font-family: "Playfair Display", serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary);
       }
 
       .subtitle {
-        font-size: 0.9rem;
-        margin-top: 4px;
+        font-size: 0.95rem;
+        color: var(--muted);
+        font-weight: 500;
+      }
+
+      .menu-toggle {
+        font-size: 1.8rem;
+        background: none;
+        border: none;
+        color: var(--text);
+        cursor: pointer;
+      }
+
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: -300px;
+        width: 260px;
+        height: 100%;
+        background: var(--sidebar-bg);
+        border-right: 1px solid var(--border);
+        padding: 30px 20px;
+        transition: left 0.3s ease;
+        z-index: 20;
+        color: var(--text);
+        overflow-y: auto;
+      }
+
+      .sidebar.active {
+        left: 0;
+      }
+
+      .sidebar h3 {
+        color: var(--primary);
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+        margin-top: 25px;
+      }
+
+      .sidebar a,
+      .sidebar button {
+        display: block;
+        margin: 8px 0;
+        color: var(--text);
+        text-decoration: none;
+        font-size: 1rem;
+        background: none;
+        border: none;
+        text-align: left;
+        padding: 6px 0;
+        cursor: pointer;
+      }
+
+      .sidebar a:hover,
+      .sidebar button:hover {
+        color: var(--primary);
+      }
+
+      .close-btn {
+        font-size: 1.5rem;
+        background: none;
+        border: none;
+        color: var(--text);
+        cursor: pointer;
+        position: absolute;
+        top: 20px;
+        right: 20px;
       }
 
       .section {
-        margin: 40px auto;
+        max-width: 900px;
+        margin: 60px auto;
+        padding: 0 20px;
+        flex-grow: 1;
       }
 
       .card {
-        padding: 30px;
+        background: var(--glass);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 50px;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 8px 20px rgba(185, 131, 255, 0.1);
       }
-    }
 
-    .carousel {
-      overflow: hidden;
-      width: 100%;
-      background: var(--glass);
-      border-bottom: 1px solid var(--border);
-      padding: 10px 0;
-    }
-
-    .carousel-track {
-      display: flex;
-      width: max-content;
-      animation: scroll-carousel 80s linear infinite;
-      gap: 20px;
-      padding: 0 20px;
-    }
-
-    .carousel-track img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 12px;
-      border: 2px solid var(--border);
-      flex-shrink: 0;
-      user-select: none;
-    }
-
-    @keyframes scroll-carousel {
-      0% {
-        transform: translateX(0);
+      h2 {
+        font-size: 2rem;
+        color: var(--primary);
+        font-weight: 600;
+        margin-bottom: 15px;
       }
-      100% {
-        transform: translateX(-50%);
+
+      p,
+      li,
+      blockquote {
+        font-size: 1.1rem;
+        line-height: 1.7;
+        color: var(--text);
       }
-    }
 
-    .testimonial-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-      margin-top: 30px;
-    }
-
-    .testimonial {
-      border: 1px dashed var(--border);
-      padding: 25px;
-      border-radius: 16px;
-      background: var(--background);
-      font-family: monospace;
-      font-size: 0.9rem;
-      text-align: center;
-    }
-
-    .testimonial-title {
-      font-size: 1.2rem;
-      color: var(--primary);
-      margin-bottom: 10px;
-    }
-
-    .testimonial-name {
-      margin-top: 20px;
-      color: var(--muted);
-      font-weight: 600;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-    }
-
-    .ticker-container {
-      width: 100%;
-      background: var(--glass);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      padding: 10px 0;
-      overflow: hidden;
-      font-family: monospace;
-      font-size: 0.95rem;
-      color: var(--text);
-      user-select: none;
-    }
-
-    .ticker-track {
-      display: inline-flex;
-      white-space: nowrap;
-      animation: scroll-ticker 30s linear infinite;
-      align-items: center;
-    }
-
-    .ticker-segment {
-      display: inline-flex;
-      align-items: center;
-      padding: 0 30px;
-      border-left: 1px solid var(--border);
-      border-right: 1px solid var(--border);
-      user-select: none;
-    }
-
-    .ticker-segment:first-child {
-      border-left: none;
-    }
-
-    .ticker-segment:last-child {
-      border-right: none;
-    }
-
-    .ticker-segment .separator {
-      margin: 0 15px;
-      color: var(--text);
-      font-size: 0.9rem;
-      user-select: none;
-      line-height: 1;
-      display: flex;
-      align-items: center;
-      height: 100%;
-    }
-
-    @keyframes scroll-ticker {
-      0% {
-        transform: translateX(0%);
+      ul {
+        list-style: none;
+        padding-left: 0;
       }
-      100% {
-        transform: translateX(-100%);
+
+      li {
+        margin-bottom: 8px;
       }
-    }
 
-    #theme-selector {
-      width: 100%;
-      padding: 8px 12px;
-      border-radius: 8px;
-      background: var(--background);
-      color: var(--text);
-      border: 1px solid var(--border);
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      cursor: pointer;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 1rem;
-      outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-      margin-top: 10px;
-    }
+      .button {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 12px 25px;
+        font-size: 1rem;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 600;
+        background: var(--primary);
+        color: #fff;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: pointer;
+        border: none;
+      }
 
-    #theme-selector:hover {
-      border-color: var(--primary);
-    }
+      .button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(162, 89, 255, 0.4);
+      }
 
-    #theme-selector:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(var(--primary-rgb-values), 0.3);
-    }
+      blockquote {
+        border-left: 4px solid var(--primary);
+        padding-left: 15px;
+        margin-top: 10px;
+        font-style: italic;
+        color: var(--muted);
+      }
 
-    #theme-selector option {
-      background: var(--sidebar-bg);
-      color: var(--text);
-      padding: 8px 12px;
-    }
-  </style>
-</head>
-<body>
+      .social a {
+        display: inline-block;
+        margin-right: 15px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: var(--text);
+        text-decoration: none;
+        transition: color 0.2s ease;
+      }
 
-  <header>
-    <div>
-      <div class="logo">Donut</div>
-      <div class="subtitle">Game & Web Developer · Brand Creator</div>
-    </div>
-    <button class="menu-toggle" id="menu-btn">☰</button>
-  </header>
+      .social a:hover {
+        color: var(--primary);
+      }
 
-  <nav class="sidebar" id="sidebar">
-    <button class="close-btn" id="close-btn">×</button>
+      footer {
+        text-align: center;
+        padding: 50px 20px;
+        font-size: 0.9rem;
+        color: #888;
+        background: transparent;
+        user-select: none;
+      }
 
-    <h3>Explore</h3>
-    <a href="#about">About Me</a>
-    <a href="#skills">Skills</a>
-    <a href="portfolio">Portfolio</a>
-    <a href="Blog">Blog</a>
+      @media (max-width: 600px) {
+        header {
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 20px;
+        }
 
-    <h3>Follow</h3>
-    <a href="https://github.com/donutgames113" target="_blank">GitHub</a>
-    <a href="https://www.youtube.com/@donutgames113" target="_blank">YouTube</a>
-    <a href="https://www.roblox.com/users/2300704028/profile" target="_blank">Roblox</a>
+        .logo {
+          font-size: 1.6rem;
+        }
 
-    <h3>Settings</h3>
-    <button id="theme-toggle">Toggle Theme</button>
-    
-    <h3>Theme Selector</h3>
-    <select id="theme-selector">
-      <option value="dark">Dark</option>
-      <option value="light">Light</option>
-      <option value="midnight">Midnight</option>
-      <option value="solarized">Solarized</option>
-      <option value="cyberpunk">Cyberpunk</option>
-      <option value="pastel">Pastel</option>
-    </select>
-  </nav>
-  
-  <div class="carousel">
-    <div class="carousel-track" aria-label="Image carousel">
-      <img src="Images/NewDonut.png" alt="New Donut Logo">
-      <img src="Images/LemonDonut.png" alt="Lemon Donut Logo">
-      <img src="Images/NewDonutLight.png" alt="New Donut Light Logo">
-      <img src="Images/DonutBitten.png" alt="Bitten Donut Logo">
-      <img src="Images/ChocolateDonut.png" alt="Chocolate Donut Logo">
-      <img src="Images/NewDonutOldColors.png" alt="Old Colors Donut Logo">
-      <img src="Images/NewDonutBlue.png" alt="Blue Donut Logo">
-      <img src="Images/OrangeDonut.png" alt="Orange Donut Logo">
-      <img src="Images/NeonLogo.png" alt="Neon Donut Logo">
-      <img src="Images/RedDonut.png" alt="Red Donut Logo">
-      <img src="Images/GreenDonut.png" alt="Green Donut Logo">
-    </div>
-  </div>
+        .subtitle {
+          font-size: 0.9rem;
+          margin-top: 4px;
+        }
 
-  <section class="section">
-    <div class="card" id="about">
-      <h2>About Me</h2>
-      <p>Pretty cool game developer and marketer. I do like to dabble in music creation from time to time.</p>
-    </div>
+        .section {
+          margin: 40px auto;
+        }
 
-    <div class="card" id="featured-video">
-      <h2>Featured Video</h2>
-      <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
-        <iframe 
-          src="https://www.youtube.com/embed/IYowoQPEX0s" 
-          frameborder="0" 
-          allowfullscreen 
-          style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-        </iframe>
+        .card {
+          padding: 30px;
+        }
+      }
+
+      .carousel {
+        overflow: hidden;
+        width: 100%;
+        background: var(--glass);
+        border-bottom: 1px solid var(--border);
+        padding: 10px 0;
+      }
+
+      .carousel-track {
+        display: flex;
+        width: max-content;
+        animation: scroll-carousel 80s linear infinite;
+        gap: 20px;
+        padding: 0 20px;
+      }
+
+      .carousel-track img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 2px solid var(--border);
+        flex-shrink: 0;
+        user-select: none;
+      }
+
+      @keyframes scroll-carousel {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+
+      .testimonial-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        margin-top: 30px;
+      }
+
+      .testimonial {
+        border: 1px dashed var(--border);
+        padding: 25px;
+        border-radius: 16px;
+        background: var(--background);
+        font-family: monospace;
+        font-size: 0.9rem;
+        text-align: center;
+      }
+
+      .testimonial-title {
+        font-size: 1.2rem;
+        color: var(--primary);
+        margin-bottom: 10px;
+      }
+
+      .testimonial-name {
+        margin-top: 20px;
+        color: var(--muted);
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+      }
+
+      .ticker-container {
+        width: 100%;
+        background: var(--glass);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        padding: 10px 0;
+        overflow: hidden;
+        font-family: monospace;
+        font-size: 0.95rem;
+        color: var(--text);
+        user-select: none;
+      }
+
+      .ticker-track {
+        display: inline-flex;
+        white-space: nowrap;
+        animation: scroll-ticker 30s linear infinite;
+        align-items: center;
+      }
+
+      .ticker-segment {
+        display: inline-flex;
+        align-items: center;
+        padding: 0 30px;
+        border-left: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+        user-select: none;
+      }
+
+      .ticker-segment:first-child {
+        border-left: none;
+      }
+
+      .ticker-segment:last-child {
+        border-right: none;
+      }
+
+      .ticker-segment .separator {
+        margin: 0 15px;
+        color: var(--text);
+        font-size: 0.9rem;
+        user-select: none;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        height: 100%;
+      }
+
+      @keyframes scroll-ticker {
+        0% {
+          transform: translateX(0%);
+        }
+        100% {
+          transform: translateX(-100%);
+        }
+      }
+
+      #theme-selector {
+        width: 100%;
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: var(--background);
+        color: var(--text);
+        border: 1px solid var(--border);
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        cursor: pointer;
+        font-family: "Montserrat", sans-serif;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        margin-top: 10px;
+      }
+
+      #theme-selector:hover {
+        border-color: var(--primary);
+      }
+
+      #theme-selector:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(var(--primary-rgb-values), 0.3);
+      }
+
+      #theme-selector option {
+        background: var(--sidebar-bg);
+        color: var(--text);
+        padding: 8px 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <div class="logo">Donut</div>
+        <div class="subtitle">Game & Web Developer · Brand Creator</div>
+      </div>
+      <button class="menu-toggle" id="menu-btn">☰</button>
+    </header>
+
+    <nav class="sidebar" id="sidebar">
+      <button class="close-btn" id="close-btn">×</button>
+
+      <h3>Explore</h3>
+      <a href="#about">About Me</a>
+      <a href="#skills">Skills</a>
+      <a href="portfolio">Portfolio</a>
+      <a href="Blog">Blog</a>
+
+      <h3>Follow</h3>
+      <a href="https://github.com/donutgames113" target="_blank">GitHub</a>
+      <a href="https://www.youtube.com/@donutgames113" target="_blank"
+        >YouTube</a
+      >
+      <a href="https://www.roblox.com/users/2300704028/profile" target="_blank"
+        >Roblox</a
+      >
+
+      <h3>Theme Selector</h3>
+      <select id="theme-selector">
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+        <option value="midnight">Midnight</option>
+        <option value="solarized">Solarized</option>
+        <option value="cyberpunk">Cyberpunk</option>
+        <option value="pastel">Pastel</option>
+        <option value="painful">Painful</option>
+      </select>
+    </nav>
+
+    <div class="carousel">
+      <div class="carousel-track" aria-label="Image carousel">
+        <img src="Images/NewDonut.png" alt="New Donut Logo" />
+        <img src="Images/LemonDonut.png" alt="Lemon Donut Logo" />
+        <img src="Images/NewDonutLight.png" alt="New Donut Light Logo" />
+        <img src="Images/DonutBitten.png" alt="Bitten Donut Logo" />
+        <img src="Images/ChocolateDonut.png" alt="Chocolate Donut Logo" />
+        <img src="Images/NewDonutOldColors.png" alt="Old Colors Donut Logo" />
+        <img src="Images/NewDonutBlue.png" alt="Blue Donut Logo" />
+        <img src="Images/OrangeDonut.png" alt="Orange Donut Logo" />
+        <img src="Images/NeonLogo.png" alt="Neon Donut Logo" />
+        <img src="Images/RedDonut.png" alt="Red Donut Logo" />
+        <img src="Images/GreenDonut.png" alt="Green Donut Logo" />
       </div>
     </div>
 
-    <div class="card" id="skills">
-      <h2>Skills</h2>
-      <ul>
-        <li>Game Development</li>
-        <li>Web Development (HTML, CSS)</li>
-        <li>UI/UX Design</li>
-        <li>Marketing & Branding</li>
-      </ul>
-    </div>
+    <section class="section">
+      <div class="card" id="about">
+        <h2>About Me</h2>
+        <p>
+          Pretty cool game developer and marketer. I do like to dabble in music
+          creation from time to time.
+        </p>
+      </div>
 
-    <div class="card">
-      <h2>Projects</h2>
-      <p>Explore the games and apps I've built.</p>
-      <a href="portfolio" class="button">View Portfolio</a>
-    </div>
-
-    <div class="card">
-      <h2>Blogs</h2>
-      <p>View some blogs and devlogs.</p>
-      <a href="Blog" class="button">View Blog</a>
-    </div>
-    
-    <div class="card">
-      <h2>What People Say... <span style="color: var(--muted); font-weight: normal; font-size: 1rem;">(thanks guys)</span></h2>
-      <div class="testimonial-grid">
-        <div class="testimonial">
-          <div class="testimonial-title">★★★★★</div>
-          <p>"Pretty cool individual, can't lie."</p>
-          <div class="testimonial-name">– Donut</div>
+      <div class="card" id="featured-video">
+        <h2>Featured Video</h2>
+        <div
+          style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;"
+        >
+          <iframe
+            src="https://www.youtube.com/embed/IYowoQPEX0s"
+            frameborder="0"
+            allowfullscreen
+            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+          >
+          </iframe>
         </div>
-        <div class="testimonial">
-          <div class="testimonial-title">★★★★★</div>
-          <p>"Charming, amazing, handsome, great roblox developer"</p>
-          <div class="testimonial-name">– James Colin Forno</div>
+      </div>
+
+      <div class="card" id="skills">
+        <h2>Skills</h2>
+        <ul>
+          <li>Game Development</li>
+          <li>Web Development (HTML, CSS)</li>
+          <li>UI/UX Design</li>
+          <li>Marketing & Branding</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>Projects</h2>
+        <p>Explore the games and apps I've built.</p>
+        <a href="portfolio" class="button">View Portfolio</a>
+      </div>
+
+      <div class="card">
+        <h2>Blogs</h2>
+        <p>View some blogs and devlogs.</p>
+        <a href="Blog" class="button">View Blog</a>
+      </div>
+
+      <div class="card">
+        <h2>
+          What People Say...
+          <span style="color: var(--muted); font-weight: normal; font-size: 1rem;"
+            >(thanks guys)</span
+          >
+        </h2>
+        <div class="testimonial-grid">
+          <div class="testimonial">
+            <div class="testimonial-title">★★★★★</div>
+            <p>"Pretty cool individual, can't lie."</p>
+            <div class="testimonial-name">– Donut</div>
+          </div>
+          <div class="testimonial">
+            <div class="testimonial-title">★★★★★</div>
+            <p>"Charming, amazing, handsome, great roblox developer"</p>
+            <div class="testimonial-name">– James Colin Forno</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="ticker-container" aria-label="Scrolling status messages">
+      <div
+        class="ticker-track"
+        aria-live="off"
+        aria-atomic="true"
+        aria-relevant="text"
+        role="list"
+      >
+        <div class="ticker-segment" role="listitem">
+          <span>Now deploying cool stuff</span>
+        </div>
+        <div class="ticker-segment" role="listitem">
+          <span>Roblox games in progress</span>
+        </div>
+        <div class="ticker-segment" role="listitem">
+          <span
+            >Website made with
+            <span style="font-size: 0.5rem; font-color: var(--muted);"
+              >(way too much)</span
+            >
+            care
+          </span>
+        </div>
+        <div class="ticker-segment" role="listitem">
+          <span>More content soon</span>
         </div>
       </div>
     </div>
-  </section>
 
-  <div class="ticker-container" aria-label="Scrolling status messages">
-    <div class="ticker-track" aria-live="off" aria-atomic="true" aria-relevant="text" role="list">
-      <div class="ticker-segment" role="listitem">
-        <span>Now deploying cool stuff</span>
-      </div>
-      <div class="ticker-segment" role="listitem">
-        <span>Roblox games in progress</span>
-      </div>
-      <div class="ticker-segment" role="listitem">
-        <span>Website made with <span style='font-size: 0.5rem; font-color: var(--muted);'>(way too much)</span> care </span>
-      </div>
-      <div class="ticker-segment" role="listitem">
-        <span>More content soon</span>
-      </div>
-    </div>
-  </div>
+    <footer>
+      © 2025 Donut.
+      <p style="font-size: 0.2vh; color: var(--muted);"></p>
+    </footer>
 
-  <footer>
-    © 2025 Donut.
-    <p style="font-size: 0.2vh; color: var(--muted);"></p>
-  </footer>
+    <script>
+      const sidebar = document.getElementById("sidebar");
+      const menuBtn = document.getElementById("menu-btn");
+      const closeBtn = document.getElementById("close-btn");
+      const themeSelector = document.getElementById("theme-selector");
 
-  <script>
-    const sidebar = document.getElementById('sidebar');
-    const menuBtn = document.getElementById('menu-btn');
-    const closeBtn = document.getElementById('close-btn');
-    const themeToggle = document.getElementById('theme-toggle');
-    const themeSelector = document.getElementById('theme-selector');
+      // Set initial theme based on localStorage, defaulting to 'dark'
+      const storedTheme = localStorage.getItem("theme") || "dark";
+      document.documentElement.setAttribute("data-theme", storedTheme);
+      themeSelector.value = storedTheme;
 
-    const storedTheme = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', storedTheme);
-    themeSelector.value = storedTheme;
-
-    menuBtn.addEventListener('click', () => {
-      sidebar.classList.add('active');
-    });
-
-    closeBtn.addEventListener('click', () => {
-      sidebar.classList.remove('active');
-    });
-
-    themeToggle.addEventListener('click', () => {
-      const currentTheme = document.documentElement.getAttribute('data-theme');
-      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-      document.documentElement.setAttribute('data-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
-      themeSelector.value = newTheme;
-    });
-
-    themeSelector.addEventListener('change', () => {
-      const selectedTheme = themeSelector.value;
-      if (selectedTheme === 'dark') {
-        document.documentElement.removeAttribute('data-theme');
-      } else {
-        document.documentElement.setAttribute('data-theme', selectedTheme);
-      }
-      localStorage.setItem('theme', selectedTheme);
-    });
-
-    const track = document.querySelector('.carousel-track');
-    const images = Array.from(track.children);
-    const cloneCount = 25;
-    
-    for (let i = 0; i < cloneCount; i++) {
-      images.forEach(img => {
-        const clone = img.cloneNode(true);
-        track.appendChild(clone);
+      menuBtn.addEventListener("click", () => {
+        sidebar.classList.add("active");
       });
-    }
-  </script>
-</body>
+
+      closeBtn.addEventListener("click", () => {
+        sidebar.classList.remove("active");
+      });
+
+      // Event listener for theme selector change
+      themeSelector.addEventListener("change", () => {
+        const selectedTheme = themeSelector.value;
+        document.documentElement.setAttribute("data-theme", selectedTheme);
+        localStorage.setItem("theme", selectedTheme);
+      });
+
+      const track = document.querySelector(".carousel-track");
+      const images = Array.from(track.children);
+      const cloneCount = 25;
+
+      for (let i = 0; i < cloneCount; i++) {
+        images.forEach((img) => {
+          const clone = img.cloneNode(true);
+          track.appendChild(clone);
+        });
+      }
+    </script>
+  </body>
 </html>
