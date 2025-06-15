@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Donut | Links</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
+    <style>
+      :root,
+      [data-theme="dark"] {
+        --primary: #b983ff;
+        --primary-rgb-values: 185, 131, 255;
+        --background: linear-gradient(135deg, #1a1a2e, #100f1f);
+        --text: #ffffff;
+        --muted: #b3b3b3;
+        --glass: rgba(255, 255, 255, 0.04);
+        --border: rgba(255, 255, 255, 0.08);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        background: var(--background);
+        color: var(--text);
+        font-family: "Montserrat", sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 40px 20px;
+        text-align: center;
+      }
+
+      .profile-img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 2px solid var(--primary);
+        margin-bottom: 20px;
+      }
+
+      .logo {
+        font-family: "Playfair Display", serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 5px;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        font-size: 1rem;
+        margin-bottom: 30px;
+      }
+
+      .link-button {
+        display: block;
+        width: 100%;
+        max-width: 400px;
+        padding: 14px 25px;
+        margin: 12px auto;
+        font-size: 1rem;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 600;
+        background: var(--primary);
+        color: #fff;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: none;
+      }
+
+      .link-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(var(--primary-rgb-values), 0.4);
+      }
+
+      footer {
+        margin-top: 60px;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <img src="Images/NewDonut.png" alt="Profile" class="profile-img" />
+    <div class="logo">Donut</div>
+    <div class="subtitle">Game Developer • Marketer • Music Enthusiast</div>
+
+    <a href="https://donutgames113.github.io" class="link-button">Website</a>
+    <a href="https://www.roblox.com/users/2300704028/profile" class="link-button">Roblox</a>
+    <a href="https://www.youtube.com/@donutgames113" class="link-button">YouTube</a>
+    <a href="https://github.com/donutgames113" class="link-button">GitHub</a>
+
+    <footer>&copy; 2025 Donut.</footer>
+  </body>
+</html>
