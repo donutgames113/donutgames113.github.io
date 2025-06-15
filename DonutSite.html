@@ -480,6 +480,17 @@
         color: var(--text);
         padding: 8px 12px;
       }
+      
+      .org-link {
+      color: inherit;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+    
+    .org-link:hover {
+      color: var(--primary);
+    }
     </style>
   </head>
   <body>
@@ -541,12 +552,18 @@
     <section class="section">
       <div class="card" id="about">
         <h2>About Me</h2>
-        <p style='Padding-Bottom: 20px;'>
+        <p style="padding-bottom: 20px;">
           Pretty cool game developer and marketer. I do like to dabble in music
           creation from time to time.
         </p>
-        <p>Founder and lead developer at <strong>Playzero</strong>, and a developer at <strong>Aventix Productions</strong>.</p>
+        <p>
+          Founder and lead developer at
+          <a href="https://www.roblox.com/share/g/17193820" class="org-link" target="_blank">Playzero</a>,
+          and a developer at
+          <a href="https://www.roblox.com/share/g/35276185" class="org-link" target="_blank">Aventix Productions</a>.
+        </p>
       </div>
+    </section>
 
       <div class="card" id="featured-video">
         <h2>Featured Video</h2>
