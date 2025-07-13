@@ -34,17 +34,17 @@
         --border: rgba(0, 0, 0, 0.08);
         --sidebar-bg: #eaeaea;
       }
-      
+
       [data-theme="red"] {
-          --primary: #ff4c4c;
-          --primary-rgb-values: 255, 76, 76;
-          --background: linear-gradient(135deg, #4a0000, #1a0000);
-          --text: #ffffff;
-          --muted: #e6b8b8;
-          --glass: rgba(255, 76, 76, 0.1);
-          --border: rgba(255, 76, 76, 0.2);
-          --sidebar-bg: #330000;
-    }
+        --primary: #ff4c4c;
+        --primary-rgb-values: 255, 76, 76;
+        --background: linear-gradient(135deg, #4a0000, #1a0000);
+        --text: #ffffff;
+        --muted: #e6b8b8;
+        --glass: rgba(255, 76, 76, 0.1);
+        --border: rgba(255, 76, 76, 0.2);
+        --sidebar-bg: #330000;
+      }
 
       [data-theme="midnight"] {
         --primary: #00bfff;
@@ -90,17 +90,16 @@
         --sidebar-bg: #fff7f7;
       }
 
-    [data-theme="painful"] {
-      --primary: #ff00ff; /* Harsh magenta */
-      --primary-rgb-values: 255, 0, 255;
-      --background: linear-gradient(0deg, #fafa00 0%, #00ffff 100%); /* sickly yellow to cyan */
-      --text: #0000ff; /* neon blue on cyan/yellow */
-      --muted: #ff9900; /* eye-searing orange */
-      --glass: rgba(255, 0, 0, 0.1); /* barely visible bloody tint */
-      --border: #00ff00; /* radioactive green */
-      --sidebar-bg: #ffccff; /* pastel pink clashing horribly with the rest */
-    }
-
+      [data-theme="painful"] {
+        --primary: #ff00ff;
+        --primary-rgb-values: 255, 0, 255;
+        --background: linear-gradient(0deg, #fafa00 0%, #00ffff 100%);
+        --text: #0000ff;
+        --muted: #ff9900;
+        --glass: rgba(255, 0, 0, 0.1);
+        --border: #00ff00;
+        --sidebar-bg: #ffccff;
+      }
 
       * {
         margin: 0;
@@ -180,6 +179,7 @@
 
       .sidebar a,
       .sidebar button {
+        font-family: monospace;
         display: block;
         margin: 8px 0;
         color: var(--text);
@@ -190,6 +190,13 @@
         text-align: left;
         padding: 6px 0;
         cursor: pointer;
+      }
+
+      .sidebar a::before {
+        content: "[";
+      }
+      .sidebar a::after {
+        content: "]";
       }
 
       .sidebar a:hover,
@@ -480,17 +487,17 @@
         color: var(--text);
         padding: 8px 12px;
       }
-      
+
       .org-link {
-      color: inherit;
-      text-decoration: none;
-      font-weight: 600;
-      transition: color 0.2s ease;
-    }
-    
-    .org-link:hover {
-      color: var(--primary);
-    }
+        color: inherit;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s ease;
+      }
+
+      .org-link:hover {
+        color: var(--primary);
+      }
     </style>
   </head>
   <body>
@@ -525,7 +532,7 @@
         <option value="dark">Dark</option>
         <option value="light">Light</option>
         <option value="midnight">Midnight</option>
-        <option value="red">Red</option
+        <option value="red">Red</option>
         <option value="solarized">Solarized</option>
         <option value="cyberpunk">Cyberpunk</option>
         <option value="pastel">Pastel</option>
@@ -552,31 +559,43 @@
     <section class="section">
       <div class="card" id="about">
         <h2>About Me</h2>
-        <p style="padding-bottom: 20px;">
+        <p style="padding-bottom: 20px">
           Pretty cool game developer and marketer. I do like to dabble in music
           creation from time to time.
         </p>
         <p>
           Founder and lead developer at
-          <a href="https://www.roblox.com/share/g/17193820" class="org-link" target="_blank">Playzero</a>,
-          and a developer at
-          <a href="https://www.roblox.com/share/g/35276185" class="org-link" target="_blank">Aventix Productions</a>.
+          <a
+            href="https://www.roblox.com/share/g/17193820"
+            class="org-link"
+            target="_blank"
+            >Playzero</a
+          >, and a developer at
+          <a
+            href="https://www.roblox.com/share/g/35276185"
+            class="org-link"
+            target="_blank"
+            >Aventix Productions</a
+          >.
         </p>
       </div>
-    </section>
 
       <div class="card" id="featured-video">
         <h2>Featured Video</h2>
         <div
-          style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;"
+          style="
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+          "
         >
           <iframe
             src="https://www.youtube.com/embed/IYowoQPEX0s"
             frameborder="0"
             allowfullscreen
-            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-          >
-          </iframe>
+            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%"
+          ></iframe>
         </div>
       </div>
 
@@ -605,7 +624,8 @@
       <div class="card">
         <h2>
           What People Say...
-          <span style="color: var(--muted); font-weight: normal; font-size: 1rem;"
+          <span
+            style="color: var(--muted); font-weight: normal; font-size: 1rem"
             >(thanks guys)</span
           >
         </h2>
@@ -622,7 +642,6 @@
           </div>
         </div>
       </div>
-
     </section>
 
     <div class="ticker-container" aria-label="Scrolling status messages">
@@ -642,7 +661,7 @@
         <div class="ticker-segment" role="listitem">
           <span
             >Website made with
-            <span style="font-size: 0.5rem; font-color: var(--muted);"
+            <span style="font-size: 0.5rem; font-color: var(--muted)"
               >(way too much)</span
             >
             care
@@ -656,7 +675,7 @@
 
     <footer>
       © 2025 Donut.
-      <p style="font-size: 0.2vh; color: var(--muted);"></p>
+      <p style="font-size: 0.2vh; color: var(--muted)"></p>
     </footer>
 
     <script>
@@ -665,7 +684,6 @@
       const closeBtn = document.getElementById("close-btn");
       const themeSelector = document.getElementById("theme-selector");
 
-      // Set initial theme based on localStorage, defaulting to 'dark'
       const storedTheme = localStorage.getItem("theme") || "dark";
       document.documentElement.setAttribute("data-theme", storedTheme);
       themeSelector.value = storedTheme;
@@ -678,7 +696,6 @@
         sidebar.classList.remove("active");
       });
 
-      // Event listener for theme selector change
       themeSelector.addEventListener("change", () => {
         const selectedTheme = themeSelector.value;
         document.documentElement.setAttribute("data-theme", selectedTheme);
