@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>My Minecraft Mods – Donut</title>
+    <link rel="icon" type="image/x-icon" href="/Images/NewDonut.png" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root,
+      [data-theme="dark"] {
+        --primary: #b983ff;
+        --primary-rgb-values: 185, 131, 255;
+        --background: linear-gradient(135deg, #1a1a2e, #100f1f);
+        --text: #ffffff;
+        --muted: #b3b3b3;
+        --glass: rgba(255, 255, 255, 0.04);
+        --border: rgba(255, 255, 255, 0.08);
+      }
+
+      [data-theme="light"] {
+        --primary: #8647ff;
+        --primary-rgb-values: 134, 71, 255;
+        --background: linear-gradient(135deg, #f2f2f2, #ffffff);
+        --text: #1a1a1a;
+        --muted: #555555;
+        --glass: rgba(0, 0, 0, 0.03);
+        --border: rgba(0, 0, 0, 0.08);
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0 20px 40px;
+        font-family: "Montserrat", sans-serif;
+        background: var(--background);
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      header {
+        width: 100%;
+        max-width: 900px;
+        padding: 20px 0;
+        display: flex;
+        justify-content: center;
+      }
+
+      .logo {
+        font-family: "Playfair Display", serif;
+        font-weight: 700;
+        font-size: 2.5rem;
+        color: var(--primary);
+      }
+
+      .container {
+        max-width: 900px;
+        width: 100%;
+      }
+
+      h1 {
+        font-family: "Playfair Display", serif;
+        font-weight: 700;
+        font-size: 2.8rem;
+        color: var(--primary);
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      p.description {
+        font-size: 1.2rem;
+        color: var(--muted);
+        margin-bottom: 40px;
+        text-align: center;
+        line-height: 1.5;
+      }
+
+      .mod-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 30px;
+      }
+
+      .mod-card {
+        background: var(--glass);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 30px 25px;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 8px 20px rgba(var(--primary-rgb-values), 0.1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 260px;
+      }
+
+      .mod-card h2 {
+        font-size: 1.6rem;
+        color: var(--primary);
+        margin-bottom: 12px;
+      }
+
+      .mod-card p {
+        font-size: 1.05rem;
+        line-height: 1.4;
+        color: var(--text);
+        flex-grow: 1;
+      }
+
+      .button {
+        margin-top: 20px;
+        padding: 12px 20px;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 30px;
+        border: none;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        color: #fff;
+        background: var(--primary);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        user-select: none;
+        display: inline-block;
+      }
+
+      .button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(var(--primary-rgb-values), 0.4);
+      }
+
+      a.back-link {
+        display: inline-block;
+        margin-bottom: 40px;
+        color: var(--primary);
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 1.1rem;
+      }
+
+      a.back-link:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 600px) {
+        .mod-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body data-theme="dark">
+    <header>
+      <div class="logo">Donut</div>
+    </header>
+
+    <main class="container" role="main">
+      <a href="index.html" class="back-link" aria-label="Back to homepage">← Back to Home</a>
+      <h1>Minecraft Mods</h1>
+      <p class="description">
+        Here's a collection of Minecraft mods I've created. Expect creativity, chaos, and cursed concepts.
+      </p>
+
+      <div class="mod-grid">
+        <section class="mod-card" aria-labelledby="apple-overhaul-title">
+          <h2 id="apple-overhaul-title">More Tools</h2>
+          <p>
+            Adds a load of 
+          </p>
+          <a href="/Downloads" class="button" role="button" aria-label="Download Apple Overhaul mod">Download</a>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>
