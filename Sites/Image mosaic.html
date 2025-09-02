@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Image → Bitmap Mosaic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0b0c10;--panel:#111318;--muted:#7b8191;--accent:#6ee7ff}
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:radial-gradient(1200px 1200px at 15% 10%, #151822, transparent 60%),radial-gradient(1000px 1000px at 85% 20%, #121b20, transparent 60%), var(--bg);color:#e9eef4;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+  .wrap{max-width:1200px;margin:24px auto;padding:20px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}
+  h1{font-size:clamp(22px,3.2vw,32px);margin:0;font-weight:800;letter-spacing:.2px}
+  .sub{color:var(--muted);font-size:14px}
+  .grid{display:grid;grid-template-columns:360px 1fr;gap:18px}
+  @media (max-width:980px){.grid{grid-template-columns:1fr}.controls{order:2}}
+  .panel{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.25);backdrop-filter:blur(6px);padding:16px}
+  .row{display:grid;grid-template-columns:110px 1fr 76px;gap:10px;align-items:center;margin:10px 0}
+  .row label{font-size:13px;color:#cdd6e5}
+  .row input[type=range]{-webkit-appearance:none;width:100%;height:10px;border-radius:6px;background:#444;outline:none;transition:background .3s}
+  .row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.5);transition:background .2s}
+  .row input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+  .row input[type=range]:hover::-webkit-slider-thumb{background:#41b8ff}
+  .row input[type=range]:hover::-moz-range-thumb{background:#41b8ff}
+  .value{font-variant-numeric:tabular-nums;background:#0f1217;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:6px 8px;text-align:center}
+  .filedrop{display:flex;align-items:center;justify-content:center;text-align:center;border:1.5px dashed rgba(255,255,255,.25);border-radius:14px;padding:18px;background:rgba(255,255,255,.03);cursor:pointer;transition:all .15s}
+  .filedrop:hover{border-color:var(--accent);background:rgba(110,231,255,.06)}
+  .filedrop input{display:none}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .btn{appearance:none;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg,#1b2430,#141922);color:#e9eef4;padding:10px 14px;border-radius:12px;font-weight:600;cursor:pointer;transition:transform .04s ease,background .18s,border-color .18s}
+  .btn:hover{border-color:#8df1ff}
+  .btn:active{transform:translateY(1px)}
+  .accent{background:linear-gradient(180deg,#56dbff,#41b8ff);color:#0b1220;border-color:transparent}
+  .canvasWrap{position:relative;overflow:hidden;border-radius:18px}
+  .checker{position:absolute;inset:0;background:linear-gradient(45deg,#99a1b80c 25%,transparent 25%),linear-gradient(-45deg,#99a1b80c 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#99a1b80c 75%),linear-gradient(-45deg,transparent 75%,#99a1b80c 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0;border-radius:18px}
+  canvas{display:block;width:100%;height:auto;background:transparent}
+  .footer{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-top:1px solid rgba(255,255,255,.06);color:#9fa7b7;font-size:12px;border-bottom-left-radius:18px;border-bottom-right-radius:18px}
+  .colorRow{display:grid;grid-template-columns:110px 1fr 76px;gap:10px;align-items:center;margin:10px 0}
+  .colorRow input[type=color]{width:100%;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#0e1117;padding:0}
+  .thumb{display:inline-flex;align-items:center;gap:10px;margin-top:10px;color:#aab3c8;font-size:12px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Image → Bitmap Mosaic</h1>
+        <div class="sub">Upload an image and tune the pixel size, spacing, corner radius, and background color.</div>
+      </div>
+      <div class="actions">
+        <button id="downloadBtn" class="btn accent">Download PNG</button>
+        <button id="resetBtn" class="btn">Reset</button>
+      </div>
+    </header>
+    <div class="grid">
+      <div class="controls panel">
+        <div class="section">
+          <label class="filedrop" for="fileInput" id="drop">
+            <div>
+              <div style="font-weight:700;font-size:14px">Click or drop an image</div>
+              <div class="thumb">PNG, JPG, WEBP • up to ~10–15 MB</div>
+            </div>
+            <input id="fileInput" type="file" accept="image/*" />
+          </label>
+        </div>
+        <div class="section">
+          <div class="row">
+            <label for="size">Pixel size</label>
+            <input id="size" type="range" min="2" max="120" value="18" step="1">
+            <div class="value" id="sizeVal">18 px</div>
+          </div>
+          <div class="row">
+            <label for="gap">Spacing</label>
+            <input id="gap" type="range" min="0" max="20" value="2" step="1">
+            <div class="value" id="gapVal">2 px</div>
+          </div>
+          <div class="row">
+            <label for="radius">Corner radius</label>
+            <input id="radius" type="range" min="0" max="100" value="50" step="1">
+            <div class="value" id="radiusVal">50%</div>
+          </div>
+        </div>
+        <div class="section">
+          <div class="colorRow">
+            <label for="bg">Background</label>
+            <input id="bg" type="color" value="#0b0c10">
+            <div class="value" id="bgHex">#0B0C10</div>
+          </div>
+        </div>
+      </div>
+      <div class="panel canvasWrap">
+        <div class="checker"></div>
+        <canvas id="canvas"></canvas>
+      </div>
+    </div>
+  </div>
+<script>
+const fileInput = document.getElementById('fileInput');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const sizeInput = document.getElementById('size');
+const gapInput = document.getElementById('gap');
+const radiusInput = document.getElementById('radius');
+const bgInput = document.getElementById('bg');
+const sizeVal = document.getElementById('sizeVal');
+const gapVal = document.getElementById('gapVal');
+const radiusVal = document.getElementById('radiusVal');
+const bgHex = document.getElementById('bgHex');
+const downloadBtn = document.getElementById('downloadBtn');
+let img = null;
+
+fileInput.addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const url = URL.createObjectURL(f);
+  img = new Image();
+  img.onload = () => {
+    canvas.width = img.width;
+    canvas.height = img.height;
+    draw();
+  };
+  img.src = url;
+});
+
+[sizeInput, gapInput, radiusInput, bgInput].forEach(el => el.addEventListener('input', draw));
+
+downloadBtn.addEventListener('click', () => {
+  const link = document.createElement('a');
+  link.download = 'mosaic.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+});
+
+function draw() {
+  if (!img) return;
+  const pixelSize = parseInt(sizeInput.value);
+  const gap = parseInt(gapInput.value);
+  const radius = parseInt(radiusInput.value) / 100;
+  const bg = bgInput.value;
+
+  sizeVal.textContent = `${pixelSize} px`;
+  gapVal.textContent = `${gap} px`;
+  radiusVal.textContent = `${radiusInput.value}%`;
+  bgHex.textContent = bg.toUpperCase();
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  const temp = document.createElement('canvas');
+  temp.width = canvas.width;
+  temp.height = canvas.height;
+  const tctx = temp.getContext('2d');
+  tctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  const data = tctx.getImageData(0,0,canvas.width,canvas.height).data;
+
+  for (let y = 0; y < canvas.height; y += pixelSize + gap) {
+    for (let x = 0; x < canvas.width; x += pixelSize + gap) {
+      const i = ((y * canvas.width) + x) * 4;
+      const r = data[i];
+      const g = data[i+1];
+      const b = data[i+2];
+      const a = data[i+3] / 255;
+      ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
+      const cr = pixelSize * 0.5 * radius;
+      roundRect(ctx, x, y, pixelSize, pixelSize, cr);
+      ctx.fill();
+    }
+  }
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y);
+  ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r);
+  ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h);
+  ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r);
+  ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
+}
+</script>
+</body>
+</html>

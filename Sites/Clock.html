@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Opal Clock</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&family=Segoe+UI&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e0e0e0;
+      overflow: hidden;
+      transition: background 1s ease;
+      cursor: pointer;
+    }
+
+    .panel {
+      background: rgba(20, 20, 30, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 60px 80px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 0 80px rgba(0, 0, 0, 0.9);
+      text-align: center;
+      max-width: 90%;
+    }
+
+    .greeting {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: #d6d6d6;
+    }
+
+    .time {
+      font-family: 'Playfair Display', serif;
+      font-size: 6rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+      color: #ffffff;
+      text-shadow: 0 0 12px rgba(0, 255, 255, 0.15);
+    }
+
+    .date {
+      font-size: 1.3rem;
+      color: #aaa;
+      letter-spacing: 0.03em;
+    }
+
+    .cycle {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      padding: 20px;
+      gap: 5px;
+      box-sizing: border-box;
+    }
+
+    .time-box {
+      border-radius: 14px;
+      padding: 20px 30px;
+      margin: 10px auto;
+      max-width: 750px;
+      color: #fff;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+      width: 100%;
+    }
+
+    .label {
+      font-size: 1.1rem;
+      color: #eee;
+      margin-bottom: 6px;
+    }
+
+    .time-phase {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 500;
+    }
+
+    /* Gradients for each phase */
+    .sunrise   { background: linear-gradient(135deg, #1a1a2b, #6f4c6f, #ffb07c); }
+    .dawnEnd   { background: linear-gradient(135deg, #cce5ff, #a0c4ff, #ffd6a5); }
+    .noon      { background: linear-gradient(135deg, #a0c4ff, #90e0ef, #b5e48c); }
+    .afternoon { background: linear-gradient(135deg, #a0c4ff, #90e0ef, #b5e48c); }
+    .sunset    { background: linear-gradient(135deg, #1a1a2b, #6f4c6f, #ff8fa3); }
+    .night     { background: linear-gradient(135deg, #0c0c0f, #1a1a2b, #2b2b40); }
+  </style>
+</head>
+<body>
+  <!-- Clock screen -->
+  <div class="panel" id="clockScreen">
+    <div class="greeting" id="greeting">Loading...</div>
+    <div class="time" id="time">--:--:--</div>
+    <div class="date" id="date">Loading date...</div>
+  </div>
+
+  <!-- Cycle times screen -->
+  <div class="cycle" id="cycleScreen">
+    <div class="time-box sunrise">
+      <div class="label">🌅 Sunrise</div>
+      <div class="time-phase" id="sunrise">--:--</div>
+    </div>
+
+    <div class="time-box dawnEnd">
+      <div class="label">🌞 Dawn Ends (≈1h after sunrise)</div>
+      <div class="time-phase" id="dawnEnd">--:--</div>
+    </div>
+
+    <div class="time-box noon">
+      <div class="label">☀️ Noon</div>
+      <div class="time-phase" id="noon">--:--</div>
+    </div>
+
+    <div class="time-box afternoon">
+      <div class="label">🌤 Afternoon Ends (≈2h before sunset)</div>
+      <div class="time-phase" id="afternoonEnd">--:--</div>
+    </div>
+
+    <div class="time-box sunset">
+      <div class="label">🌇 Sunset</div>
+      <div class="time-phase" id="sunset">--:--</div>
+    </div>
+
+    <div class="time-box night">
+      <div class="label">🌌 Night Starts (≈1h after sunset)</div>
+      <div class="time-phase" id="nightStart">--:--</div>
+    </div>
+  </div>
+
+  <script>
+    let sunrise, sunset;
+    let showingClock = true;
+
+    async function fetchSunTimes() {
+      const res = await fetch(`https://api.sunrise-sunset.org/json?lat=51.3168&lng=-0.5599&formatted=0`);
+      const data = await res.json();
+      sunrise = new Date(data.results.sunrise);
+      sunset = new Date(data.results.sunset);
+
+      const oneHour = 1000 * 60 * 60;
+      const dawnEnd = new Date(sunrise.getTime() + oneHour);
+      const noon = new Date();
+      noon.setHours(12,0,0,0);
+      const afternoonEnd = new Date(sunset.getTime() - (2 * oneHour));
+      const nightStart = new Date(sunset.getTime() + oneHour);
+
+      function formatTime(date) {
+        return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      }
+
+      document.getElementById('sunrise').textContent = formatTime(sunrise);
+      document.getElementById('dawnEnd').textContent = formatTime(dawnEnd);
+      document.getElementById('noon').textContent = formatTime(noon);
+      document.getElementById('afternoonEnd').textContent = formatTime(afternoonEnd);
+      document.getElementById('sunset').textContent = formatTime(sunset);
+      document.getElementById('nightStart').textContent = formatTime(nightStart);
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const time = now.toLocaleTimeString('en-GB', { hour12: false });
+      const date = now.toLocaleDateString('en-GB', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+
+      document.getElementById('time').textContent = time;
+      document.getElementById('date').textContent = date;
+
+      if (sunrise && sunset) updateBackground(now);
+    }
+
+    function updateBackground(now) {
+      let gradient = '';
+      let greeting = '';
+
+      const oneHour = 1000 * 60 * 60;
+      const dawnEnd = new Date(sunrise.getTime() + oneHour);
+      const morningEnd = new Date(now);
+      morningEnd.setHours(12,0,0,0);
+      const afternoonEnd = new Date(sunset.getTime() - (2 * oneHour));
+      const sunsetEnd = new Date(sunset.getTime() + oneHour);
+
+      if (now < sunrise) {
+        gradient = 'linear-gradient(135deg, #0f0f1a, #1a1a2b, #2c2c44)';
+        greeting = "Good night";
+      } else if (now >= sunrise && now < dawnEnd) {
+        gradient = 'linear-gradient(135deg, #1a1a2b, #6f4c6f, #ffb07c)';
+        greeting = "Good dawn";
+      } else if (now >= dawnEnd && now < morningEnd) {
+        gradient = 'linear-gradient(135deg, #cce5ff, #a0c4ff, #ffd6a5)';
+        greeting = "Good morning";
+      } else if (now >= morningEnd && now < afternoonEnd) {
+        gradient = 'linear-gradient(135deg, #a0c4ff, #90e0ef, #b5e48c)';
+        greeting = "Good afternoon";
+      } else if (now >= afternoonEnd && now < sunsetEnd) {
+        gradient = 'linear-gradient(135deg, #1a1a2b, #6f4c6f, #ff8fa3)';
+        greeting = "Good evening";
+      } else {
+        gradient = 'linear-gradient(135deg, #0c0c0f, #1a1a2b, #2b2b40)';
+        greeting = "Good night";
+      }
+
+      document.body.style.background = gradient;
+      document.getElementById('greeting').textContent = greeting;
+    }
+
+    // Toggle screens
+    document.body.addEventListener('click', () => {
+      showingClock = !showingClock;
+      document.getElementById('clockScreen').style.display = showingClock ? 'block' : 'none';
+      document.getElementById('cycleScreen').style.display = showingClock ? 'none' : 'flex';
+    });
+
+    (async () => {
+      await fetchSunTimes();
+      setInterval(updateClock, 1000);
+      updateClock();
+    })();
+  </script>
+</body>
+</html>
