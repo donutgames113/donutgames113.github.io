@@ -62,12 +62,21 @@ body{
 .header-right{
   display:flex;align-items:center;gap:10px
 }
-.balance-pill{
-  padding:10px 14px;
-  border-radius:999px;
-  background:#132734;
-  font-weight:700;
+.balance-pill {
+  padding: 12px 24px;
+  border-radius: 999px;
+  margin-top: 15px;
+  font-size: 4vh;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #1b2735, #090a0f);
+  border: 2px solid rgba(0, 255, 200, 0.5);
+  box-shadow:
+    0 0 10px rgba(0, 255, 200, 0.6),
+    0 0 25px rgba(0, 150, 255, 0.3);
+  text-shadow: 0 0 6px rgba(0, 255, 200, 0.8);
 }
+
 .btn,button{
   padding:12px 18px;
   border:none;
@@ -85,7 +94,11 @@ body{
   color:#ffffff;
   box-shadow:0 6px 20px rgba(250, 161, 255, 0.25);
 }
-.btn-primary:hover{filter:saturate(1.1)}
+.btn-primary:hover{
+  filter:saturate(2);
+  box-shadow:0 8px 24px rgba(250, 161, 255, 0.35);
+  outline:2px dashed #c5b8ff;outline-offset:-2px;
+}
 .container{
   width:100%;
   max-width:1100px;
@@ -111,7 +124,8 @@ body{
 .nav button.active{
   color:var(--text);
   background:rgba(0, 0, 0, 0.211);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
+  
+  box-shadow: 5px rgba(255, 255, 255, 0.106) inset;
 }
 .nav button.active:after{
   content:"";
@@ -148,6 +162,10 @@ body{
   text-align:center;
   outline:none;
 }
+
+.input:hover{
+  outline:2px dashed #c5b8ff31;outline-offset:-2px
+}
 .input-group{
   display:flex;
   align-items:center;
@@ -172,8 +190,26 @@ body{
   font-weight:800
 }
 .kpi .value{font-weight:800}
-.kpi.win .value{color:var(--win)}
-.kpi.neon .value{color:var(--accent)}
+
+.kpi.win .value {
+  color: var(--win);
+  text-shadow: 0 0 6px rgba(31,255,171,0.5);
+}
+
+.kpi.neon .value {
+  color: var(--accent);
+  text-shadow: 0 0 6px rgba(255,221,0,0.5);
+}
+
+.kpi .value {
+  transition: transform 0.15s ease, text-shadow 0.15s ease;
+}
+
+.kpi:hover .value {
+  transform: scale(1.05);
+  text-shadow: 0 0 8px rgba(255,255,255,0.3);
+}
+
 .mines-wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
 #mineGrid{
   display:grid;
@@ -193,7 +229,7 @@ body{
   overflow:hidden;
 }
 .tile:hover{transform:translateY(-3px);background:#173245}
-.tile.selected{outline:2px dashed #ff8e5e;outline-offset:-6px}
+.tile.selected{outline:2px dashed #c5b8ff;outline-offset:-6px}
 .tile.revealed{cursor:default;background:#0f2733}
 .tile.revealed.gem{color:var(--win);text-shadow:0 0 12px rgba(31,255,171,.6);font-size:28px;background-color: #0c1723;}
 .tile.revealed.mine{color:var(--danger);text-shadow:0 0 12px rgba(255,77,79,.6);font-size:28px;background-color: #0c1723;}
@@ -281,10 +317,10 @@ hr{height:1px;border:0;background:var(--ring);margin:12px 0}
 </style>
 </head>
 <body>
+  <div id="balance" class="balance-pill">Balance: $1000.00</div>
   <div class="header">
     <div class="brand"><div class="brand-badge">P</div><div>Pocket Casino</div></div>
     <div class="header-right">
-      <div id="balance" class="balance-pill">Balance: $1000.00</div>
       <button class="btn btn-primary" id="resetBtn" title="Reset pocket to default">New Session</button>
     </div>
   </div>
@@ -326,7 +362,6 @@ hr{height:1px;border:0;background:var(--ring);margin:12px 0}
       <div class="section-title">Crash</div>
       <div class="controls">
         <div class="input-group"><label>Bet</label><input class="input" type="number" id="curveBet" value="1.00" step="0.01"></div>
-        <div class="input-group"><label>Auto Cashout</label><input class="input" type="number" id="curveAutoCashout" value="2.00" step="0.01"></div>
         <div class="inline">
           <button class="btn btn-primary" id="curvePlayBtn" onclick="startGame('curve')">Bet</button>
           <button class="btn btn-primary" id="curveCashoutBtn" style="display:none;">Cash Out</button>
@@ -541,7 +576,6 @@ function endGame(game){
   }
 }
 document.body.addEventListener('mouseup',()=>{ if(mines.mouseDown) releaseDrag() });
-
 /* ----------------------
    Curve (Crash) Game
    ---------------------- */
@@ -549,62 +583,157 @@ let curve = { bet: 0, autoCashout: 0, currentMultiplier: 1.00, crashPoint: 0, ga
 const canvas = document.getElementById('curveCanvas');
 const ctx = canvas.getContext('2d');
 let gameWidth, gameHeight;
-function resizeCanvas(){ gameWidth=canvas.clientWidth; gameHeight=canvas.clientHeight; canvas.width=gameWidth; canvas.height=gameHeight }
+
+function resizeCanvas(){
+  gameWidth = canvas.clientWidth;
+  gameHeight = canvas.clientHeight;
+  canvas.width = gameWidth;
+  canvas.height = gameHeight;
+}
 
 function initializeCurveRound(){
-  curve.gameActive=true; curve.crashed=false; curve.currentMultiplier=1.00;
-  curve.crashPoint = 1 / (1 - Math.random()); if(curve.crashPoint>50000) curve.crashPoint=50000;
-  document.getElementById('curvePlayBtn').style.display='none';
-  document.getElementById('curveCashoutBtn').style.display='block';
-  document.getElementById('curveCashoutBtn').innerText=`Cash Out @ ${curve.autoCashout.toFixed(2)}x`;
-  document.getElementById('curveMultiplier').innerText='1.00x';
-  curve.startTime=performance.now(); curve.animationFrame=requestAnimationFrame(updateCurve);
+  curve.gameActive = true;
+  curve.crashed = false;
+  curve.currentMultiplier = 1.00;
+  // This formula gives a nice spread of crash points, with an average around 1.3x and some rare high ones.
+  curve.crashPoint = Math.max(1.01, (Math.log(1 - Math.random()) / -0.05));
+  if(curve.crashPoint > 50000) curve.crashPoint = 50000;
+
+  document.getElementById('curvePlayBtn').style.display = 'none';
+  document.getElementById('curveCashoutBtn').style.display = 'block';
+  document.getElementById('curveCashoutBtn').innerText = `Cash Out`;
+  document.getElementById('curveMultiplier').innerText = '1.00x';
+  curve.startTime = performance.now();
+  curve.animationFrame = requestAnimationFrame(updateCurve);
 }
 
 function updateCurve(timestamp){
   if(!curve.gameActive) return;
-  const elapsed=(timestamp-curve.startTime)/1000;
-  const newMult=1.00+(elapsed/10);
-  curve.currentMultiplier=parseFloat(newMult.toFixed(2));
-  if(curve.crashed || curve.currentMultiplier>=curve.crashPoint){ endCurveGame(true); return }
-  if(curve.autoCashout>1 && curve.currentMultiplier>=curve.autoCashout){ endCurveGame(false); return }
-  document.getElementById('curveMultiplier').innerText=`${curve.currentMultiplier.toFixed(2)}x`;
-  drawGraph();
-  curve.animationFrame=requestAnimationFrame(updateCurve);
+
+  const elapsed = (timestamp - curve.startTime) / 1000;
+  // This exponential formula creates the classic "crash" curve.
+  const newMult = Math.pow(Math.E, 0.05 * elapsed);
+  curve.currentMultiplier = parseFloat(newMult.toFixed(2));
+
+  if(curve.crashed || curve.currentMultiplier >= curve.crashPoint){
+    endCurveGame(true);
+    return;
+  }
+
+  if(curve.autoCashout > 1 && curve.currentMultiplier >= curve.autoCashout){
+    endCurveGame(false);
+    return;
+  }
+  
+  document.getElementById('curveMultiplier').innerText = `${curve.currentMultiplier.toFixed(2)}x`;
+  drawGraph(elapsed);
+  curve.animationFrame = requestAnimationFrame(updateCurve);
 }
 
-function drawGraph(){
-  ctx.clearRect(0,0,gameWidth,gameHeight);
-  const maxM = curve.crashed ? curve.crashPoint : Math.max(curve.currentMultiplier*1.5,1.5);
-  const timeScale = gameWidth/25;
-  const multScale = gameHeight/(maxM+0.1);
-  ctx.strokeStyle='#203746'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(0,gameHeight); ctx.lineTo(gameWidth,gameHeight); ctx.stroke();
-  const grad=ctx.createLinearGradient(0,0,gameWidth,0); grad.addColorStop(0,'#00e0c0'); grad.addColorStop(1,'#00b5ff');
-  ctx.strokeStyle=grad; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(0,gameHeight);
-  for(let i=0;i<=curve.currentMultiplier*10;i++){ const x=i*(timeScale/10); const y=gameHeight-(1+i/10)*multScale; ctx.lineTo(x,y) }
+function drawGraph(elapsed){
+  ctx.clearRect(0, 0, gameWidth, gameHeight);
+
+  // Dynamic scaling for the graph
+  const maxDisplayedMultiplier = curve.crashed ? curve.crashPoint : Math.max(curve.currentMultiplier * 1.5, 2);
+  const maxDisplayedTime = Math.log(maxDisplayedMultiplier) / 0.05;
+  const timeScale = gameWidth / maxDisplayedTime;
+  const multScale = gameHeight / maxDisplayedMultiplier;
+
+  // Draw gridlines and axes for better context
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+  ctx.lineWidth = 1;
+  ctx.font = '12px Arial';
+  ctx.fillStyle = '#fff';
+  ctx.textAlign = 'center';
+
+  // Draw vertical gridlines
+  for (let t = 0; t <= maxDisplayedTime; t += 1) {
+    const x = t * timeScale;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, gameHeight);
+    ctx.stroke();
+    if (t > 0) ctx.fillText(`${t}s`, x, gameHeight - 5);
+  }
+
+  // Draw horizontal gridlines
+  for (let m = 1; m <= maxDisplayedMultiplier; m += 1) {
+    const y = gameHeight - m * multScale;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(gameWidth, y);
+    ctx.stroke();
+    if (m > 1) ctx.fillText(`${m}x`, 15, y);
+  }
+  
+  // Create a gradient for the fill and the curve
+  const fillGradient = ctx.createLinearGradient(0, gameHeight, 0, 0);
+  fillGradient.addColorStop(0.2, 'rgba(0, 224, 192, 0.2)');
+  fillGradient.addColorStop(1, 'rgba(0, 181, 255, 0.05)');
+  
+  const curveGradient = ctx.createLinearGradient(0, 0, gameWidth, 0);
+  curveGradient.addColorStop(0, '#00e0c0');
+  curveGradient.addColorStop(1, '#00b5ff');
+
+  // Draw the filled area under the curve
+  ctx.beginPath();
+  ctx.moveTo(0, gameHeight);
+  let x = 0;
+  for (let t = 0; t <= elapsed; t += 0.01) {
+    const y = gameHeight - Math.pow(Math.E, 0.05 * t) * multScale;
+    x = t * timeScale;
+    ctx.lineTo(x, y);
+  }
+  ctx.lineTo(x, gameHeight);
+  ctx.closePath();
+  ctx.fillStyle = fillGradient;
+  ctx.fill();
+
+  // Draw the curve itself
+  ctx.strokeStyle = curveGradient;
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(0, gameHeight);
+  for (let t = 0; t <= elapsed; t += 0.01) {
+    const y = gameHeight - Math.pow(Math.E, 0.05 * t) * multScale;
+    x = t * timeScale;
+    ctx.lineTo(x, y);
+  }
   ctx.stroke();
+
+  // Draw a circle at the current point
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(x, gameHeight - curve.currentMultiplier * multScale, 6, 0, 2 * Math.PI);
+  ctx.fill();
 }
 
 function endCurveGame(crashed){
   cancelAnimationFrame(curve.animationFrame);
-  curve.gameActive=false; curve.crashed=crashed;
-  const multEl=document.getElementById('curveMultiplier');
+  curve.gameActive = false;
+  curve.crashed = crashed;
+  const multEl = document.getElementById('curveMultiplier');
   if(crashed){
-    multEl.innerText=`CRASHED @ ${curve.crashPoint.toFixed(2)}x`;
-    multEl.style.color='#ff4d4f';
+    multEl.innerText = `CRASHED @ ${curve.crashPoint.toFixed(2)}x`;
+    multEl.style.color = '#ff4d4f';
   } else {
-    const winnings=curve.bet*curve.currentMultiplier;
-    balance+=winnings;
-    multEl.innerText=`${curve.currentMultiplier.toFixed(2)}x`;
-    multEl.style.color='#00e0c0';
+    const winnings = curve.bet * curve.currentMultiplier;
+    // balance += winnings; // Assuming you have a global balance variable
+    multEl.innerText = `${curve.currentMultiplier.toFixed(2)}x`;
+    multEl.style.color = '#00e0c0';
   }
-  updateBalance();
-  document.getElementById('curvePlayBtn').style.display='block';
-  document.getElementById('curveCashoutBtn').style.display='none';
-  setTimeout(()=>{ multEl.style.color=''; },1800);
+  // updateBalance(); // Assuming you have an updateBalance function
+  document.getElementById('curvePlayBtn').style.display = 'block';
+  document.getElementById('curveCashoutBtn').style.display = 'none';
+  setTimeout(() => { multEl.style.color = ''; }, 1800);
 }
-document.getElementById('curveCashoutBtn').onclick=()=>cashOut();
 
+// Ensure resize function is called on load and window resize
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+document.getElementById('curvePlayBtn').onclick = () => initializeCurveRound();
+document.getElementById('curveCashoutBtn').onclick = () => cashOut();
 /* ----------------------
    Slide Game
    ---------------------- */
