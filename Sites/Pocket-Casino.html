@@ -22,7 +22,6 @@
   --ring-2: #8c5fff;     /* Lighter violet for hover/glow effects */
   --shadow: 0 12px 40px rgba(0,0,0,0.5); /* Depth and pop */
   --radius: 16px;        /* Rounded, premium feel */
-}
 
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -52,10 +51,11 @@ body{
   box-shadow: var(--shadow);
 }
 .brand{
-  display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.3px
+  display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.3px; font-size:1.15rem;
 }
 .brand-badge{
   width:30px;height:30px;border-radius:10px;
+  font-size: 1rem;
   background:linear-gradient(135deg, #562da6, #3a1c69);
   display:grid;place-items:center;color:#ffffff;font-weight:900
 }
@@ -65,8 +65,7 @@ body{
 .balance-pill {
   padding: 12px 24px;
   border-radius: 999px;
-  margin-top: 15px;
-  font-size: 4vh;
+  font-size: 1.3rem;
   font-weight: 700;
   color: #fff;
   background: linear-gradient(135deg, #1b2735, #090a0f);
@@ -149,7 +148,7 @@ body{
 .nav button.active:after{
   content:"";
   position:absolute;left:8px;right:8px;bottom:6px;height:3px;border-radius:3px;
-  background:linear-gradient(90deg, #3a1c69, #562da6);
+  background:linear-gradient(90deg, #a0f2ff, #e7dcff);
   opacity:.9;
 }
 .panel{
@@ -336,40 +335,55 @@ hr{height:1px;border:0;background:var(--ring);margin:12px 0}
 </style>
 </head>
 <body>
-  <div id="balance" class="balance-pill">Balance: $1000.00</div>
   <div class="header">
     <div class="brand"><div class="brand-badge">P</div><div>Pocket Casino</div></div>
     <div class="header-right">
-      <button class="btn btn-primary" id="resetBtn" title="Reset pocket to default">New Session</button>
+      <div id="balance" class="balance-pill">Balance: $1000.00</div>
+      <h1 style="
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #e63946;
+        background: linear-gradient(135deg, #1d1f27, #2a2d3a);
+        padding: 12px 24px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        letter-spacing: 1px;">
+        🔞 18+ Account
+      </h1>
+      <button class="btn btn-primary" style="display: none;" id="resetBtn" title="Reset pocket to default">New Session</button>
     </div>
   </div>
 
   <div class="container">
     <div class="nav">
       <button id="minesBtn" class="active" onclick="showGame('mines')">
-        <img src="Images/Mines.jpeg" alt="Mines">
+        <img src="Images/Mines.png" alt="Mines">
       </button>
       
       <button id="curveBtn" class="active" onclick="showGame('curve')">
-        <img src="Images/Crash.jpeg" alt="Crash">
+        <img src="Images/Crash.png" alt="Crash">
       </button>
 
       <button id="slideBtn" class="active" onclick="showGame('slide')">
-        <img src="Images/Dice.jpeg" alt="Dice">
+        <img src="Images/Dice.png" alt="Dice">
       </button>
 
       <button id="hiloBtn" class="active" onclick="showGame('hilo')">
-        <img src="Images/Hilo.jpeg" alt="Hilo">
+        <img src="Images/Hilo.png" alt="Hilo">
       </button>
 
-      <button id="blackjackBtn" style="background:linear-gradient(45deg, #2ea5f8, #3069e4); font-family:Arial, Helvetica, sans-serif; font-size: xx-large;" onclick="showGame('blackjack')">Blackjack</button>
+      <button id="blackjackBtn" class="active" onclick="showGame('blackjack')">
+        <img src="Images/Blackjack.png" alt="Blackjack">
+      </button>
     </div>
 
     <!-- Mines -->
     <div id="minesGame" class="game active panel">
       <div class="section-title">Mines</div>
       <div class="controls">
-        <div class="input-group"><label>Bet</label><input class="input" type="number" id="minesBet" value="1.00" step="0.5"></div>
+        <div class="input-group"><label>Bet</label><input class="input" type="number" id="minesBet" value="1.00" step="1"></div>
         <div class="input-group"><label>Mines</label><input class="input" type="number" id="numMines" value="3" min="1" max="24"></div>
         <button class="btn btn-primary" id="minesStartBtn" onclick="startGame('mines')">Start</button>
       </div>
@@ -392,7 +406,7 @@ hr{height:1px;border:0;background:var(--ring);margin:12px 0}
     <div id="curveGame" class="game panel">
       <div class="section-title">Crash</div>
       <div class="controls">
-        <div class="input-group"><label>Bet</label><input class="input" type="number" id="curveBet" value="1.00" step="0.5"></div>
+        <div class="input-group"><label>Bet</label><input class="input" type="number" id="curveBet" value="1.00" step="1"></div>
         <div class="inline">
           <button class="btn btn-primary" id="curvePlayBtn" onclick="startGame('curve')">Bet</button>
           <button class="btn btn-primary" id="curveCashoutBtn" style="display:none;">Cash Out</button>
@@ -406,7 +420,7 @@ hr{height:1px;border:0;background:var(--ring);margin:12px 0}
     <div id="slideGame" class="game panel">
       <div class="section-title">Dice</div>
       <div class="controls">
-        <div class="input-group"><label>Bet</label><input class="input" type="number" id="slideBet" value="1.00" step="0.5"></div>
+        <div class="input-group"><label>Bet</label><input class="input" type="number" id="slideBet" value="1.00" step="1"></div>
       </div>
       <div class="slider-container">
         <label class="subtle">Target Multiplier: <span id="slideTargetValue" style="font-weight:800;color:var(--text)">2.00</span></label>
@@ -450,7 +464,7 @@ hr{height:1px;border:0;background:var(--ring);margin:12px 0}
     <div id="hiloGame" class="game panel">
       <div class="section-title">HiLo</div>
       <div class="controls">
-        <div class="input-group"><label>Bet</label><input class="input" type="number" id="hiloBet" value="1.00" step="0.5" min="0.01"></div>
+        <div class="input-group"><label>Bet</label><input class="input" type="number" id="hiloBet" value="1.00" step="1" min="0.01"></div>
         <button class="btn btn-primary" id="hiloStartBtn" onclick="startHilo()">Start</button>
         <button class="btn" id="hiloEndBtn" style="display:none" onclick="endHilo()">End HiLo</button>
       </div>
@@ -475,6 +489,30 @@ hr{height:1px;border:0;background:var(--ring);margin:12px 0}
 /* ----------------------
    Persistence + Setup
    ---------------------- */
+
+document.querySelectorAll('input[type="number"]').forEach(input => {
+  input.addEventListener("wheel", e => {
+    // block page zoom if we're over the input
+    e.preventDefault();
+
+    const baseStep = parseFloat(input.step) || 1;
+    const step = e.ctrlKey ? baseStep * 2 : baseStep;
+    let value = parseFloat(input.value) || 0;
+
+    if (e.deltaY < 0) {
+      value += step; // scroll up
+    } else {
+      value -= step; // scroll down
+    }
+
+    if (input.min !== "") value = Math.max(value, parseFloat(input.min));
+    if (input.max !== "") value = Math.min(value, parseFloat(input.max));
+
+    input.value = value;
+    input.dispatchEvent(new Event("input"));
+  }, { passive: false }); // <- important so preventDefault works
+});
+
    
 const STORAGE_KEY = 'pocket_balance';
 const DEFAULT_BALANCE = 1000.00;
