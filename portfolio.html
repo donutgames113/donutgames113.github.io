@@ -263,6 +263,14 @@
     </nav>
   </header>
 
+  
+  <div id="totalVisitsTop" style="text-align:center; margin:2rem auto; font-size:1.9rem; font-weight:650; color:#eedaff; padding:1rem 2rem; border-radius:1rem; backdrop-filter:blur(12px); background:rgba(185,131,255,0.12); box-shadow:0 0 20px rgba(185,131,255,0.25); width:fit-content;">
+    Total Visits Contributed: <span id="visitSum">0</span>
+  </div>
+
+  
+  
+
   <div class="bio">Fairly decent game developer</div>
 
   <main>
@@ -311,11 +319,38 @@
           <div class="project"><h4>HTML/CSS Developer</h4></div>
           <div class="project"><h4>Javascript Programmer</h4></div>
           <div class="project"><h4>Marketing</h4></div>
+          <div class="project"><h4>Vector Graphics</h4></div>
         </div>
       </div>
     </section>
 
-    <section id="timeline">
+  
+  <section id="studios" style="text-align:center; padding:3rem 1.5rem; margin-top:4rem; opacity:0.95;">
+    
+
+    <h3 style="margin-bottom:2rem;">Studios & Contributions</h3>
+    <div class="project-container" style="gap:1.2rem;">
+      <div class="project" style="opacity:0.9;">
+        <h4>Playzero</h4>
+        <p class="Role">Co-Founder & Developer</p>
+        <p>23 Members</p>
+        <a href="https://www.roblox.com/communities/35276185/Playzero#!/about" target="_blank">Visit Studio</a>
+      </div>
+      <div class="project" style="opacity:0.9;">
+        <h4>Aventix Productions</h4>
+        <p class="Role">Developer</p>
+        <p>33.7k Members</p>
+        <a href="https://www.roblox.com/communities/35276185/Aventix-Productions#!/about" target="_blank">Visit Studio</a>
+      </div>
+      <div class="project" style="opacity:0.9;">
+        <h4>Coral Grill</h4>
+        <p class="Role">Contributor</p>
+        <a href="https://www.roblox.com/games/16257113416/Coral-Grill" target="_blank">View Game</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="timeline"">
       <h3>Timeline</h3>
       <div class="timeline-container" id="timelineContainer"></div>
     </section>
@@ -326,6 +361,15 @@
   </footer>
 
   <script>
+    // Visit calculator
+    const playzero = 600;
+    const aventix = 8962;
+    const coral = 3365;
+    const totalVisits = playzero + aventix + coral;
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('visitSum').textContent = totalVisits.toLocaleString();
+    });
+
     const timelineData = [
       {
         title: "Founded Playzero with @Imagination",
