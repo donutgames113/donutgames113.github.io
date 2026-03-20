@@ -31,7 +31,16 @@
     </style>
 </head>
 <body>
-    <script src="/under-construction.html"></script>
+    <div id="uc-container"></div>
+
+<script>
+  fetch('/under-construction.html')
+    .then(res => res.text())
+    .then(html => {
+      document.body.insertAdjacentHTML('afterbegin', html);
+    });
+</script>
+    
     <div class="masonry" id="masonry">
         <div class="graphics-item">
             <img src="Images/PR2.png" alt="Parkour-Run-2">
