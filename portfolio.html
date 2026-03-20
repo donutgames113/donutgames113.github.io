@@ -248,7 +248,16 @@
   </style>
 </head>
 <body>
-  <script src="/under-construction.html"></script>
+  <div id="uc-container"></div>
+
+<script>
+  fetch('/under-construction.html')
+    .then(res => res.text())
+    .then(html => {
+      document.body.insertAdjacentHTML('afterbegin', html);
+    });
+</script>
+  
   <header>
     <h1>Donut</h1>
     <h2>Roblox Developer | Builder | Graphics Artist</h2>
