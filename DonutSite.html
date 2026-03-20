@@ -501,6 +501,16 @@
     </style>
   </head>
   <body>
+    <div id="uc-container"></div>
+
+<script>
+  fetch('/under-construction.html')
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById('uc-container').innerHTML = data;
+    });
+</script>
+    
     <header>
       <div>
         <div class="logo">Donut</div>
