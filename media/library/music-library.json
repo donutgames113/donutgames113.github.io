@@ -1,0 +1,219 @@
+{
+  "generatedAt": "2026-03-20T20:28:06.757Z",
+  "sourceFolder": "media/music",
+  "totals": {
+    "albums": 2,
+    "tracks": 8,
+    "durationSeconds": 1042
+  },
+  "warnings": [],
+  "albums": [
+    {
+      "id": "donut-monolith-wip-release",
+      "title": "Monolith WIP",
+      "artistLine": "Donut",
+      "year": null,
+      "cover": "library/covers/a7b926d043cc8d62b6d098ebbb519bfb05d58e43.jpg",
+      "genres": [
+        "Ethereal",
+        "Downtempo",
+        "Cinematic",
+        "Industrial",
+        "Chill-Hop",
+        "Experimental"
+      ],
+      "genreLine": "Ethereal, Downtempo, Cinematic, Industrial, Chill-Hop, Experimental",
+      "durationSeconds": 853,
+      "trackCount": 6,
+      "latestModifiedAt": "2026-03-20T20:27:49.624Z",
+      "tracks": [
+        {
+          "id": "d6f6f6097535c8",
+          "title": "Falling",
+          "artists": [
+            "Donut"
+          ],
+          "artistLine": "Donut",
+          "album": "Monolith WIP",
+          "albumArtist": "Donut",
+          "trackNumber": null,
+          "diskNumber": null,
+          "year": null,
+          "genres": [
+            "Ethereal"
+          ],
+          "genreLine": "Ethereal",
+          "durationSeconds": 151,
+          "path": "music/Monolith WIP/Falling.m4a",
+          "cover": "library/covers/a7b926d043cc8d62b6d098ebbb519bfb05d58e43.jpg",
+          "fileName": "Falling.m4a",
+          "modifiedAt": "2026-03-20T20:27:49.624Z"
+        },
+        {
+          "id": "9fd19d29ba6d5c",
+          "title": "Intro",
+          "artists": [
+            "Donut"
+          ],
+          "artistLine": "Donut",
+          "album": "Monolith WIP",
+          "albumArtist": "Donut",
+          "trackNumber": null,
+          "diskNumber": null,
+          "year": null,
+          "genres": [
+            "Downtempo"
+          ],
+          "genreLine": "Downtempo",
+          "durationSeconds": 157,
+          "path": "music/Monolith WIP/Intro.m4a",
+          "cover": "library/covers/a7b926d043cc8d62b6d098ebbb519bfb05d58e43.jpg",
+          "fileName": "Intro.m4a",
+          "modifiedAt": "2026-03-20T20:27:49.616Z"
+        },
+        {
+          "id": "e94cc04a21f0c4",
+          "title": "MDR",
+          "artists": [
+            "Donut"
+          ],
+          "artistLine": "Donut",
+          "album": "Monolith WIP",
+          "albumArtist": "Donut",
+          "trackNumber": null,
+          "diskNumber": null,
+          "year": null,
+          "genres": [
+            "Cinematic"
+          ],
+          "genreLine": "Cinematic",
+          "durationSeconds": 159,
+          "path": "music/Monolith WIP/MDR.m4a",
+          "cover": "library/covers/a7b926d043cc8d62b6d098ebbb519bfb05d58e43.jpg",
+          "fileName": "MDR.m4a",
+          "modifiedAt": "2026-03-20T20:27:49.608Z"
+        },
+        {
+          "id": "daa54da837716f",
+          "title": "Monolith",
+          "artists": [
+            "Donut"
+          ],
+          "artistLine": "Donut",
+          "album": "Monolith WIP",
+          "albumArtist": "Donut",
+          "trackNumber": null,
+          "diskNumber": null,
+          "year": null,
+          "genres": [
+            "Industrial"
+          ],
+          "genreLine": "Industrial",
+          "durationSeconds": 152,
+          "path": "music/Monolith WIP/Monolith.m4a",
+          "cover": "library/covers/a7b926d043cc8d62b6d098ebbb519bfb05d58e43.jpg",
+          "fileName": "Monolith.m4a",
+          "modifiedAt": "2026-03-20T20:27:49.599Z"
+        },
+        {
+          "id": "7bc7864ff76cea",
+          "title": "Peak",
+          "artists": [
+            "Donut"
+          ],
+          "artistLine": "Donut",
+          "album": "Monolith WIP",
+          "albumArtist": "Donut",
+          "trackNumber": null,
+          "diskNumber": null,
+          "year": null,
+          "genres": [
+            "Chill-Hop"
+          ],
+          "genreLine": "Chill-Hop",
+          "durationSeconds": 96,
+          "path": "music/Monolith WIP/Peak.m4a",
+          "cover": "library/covers/a7b926d043cc8d62b6d098ebbb519bfb05d58e43.jpg",
+          "fileName": "Peak.m4a",
+          "modifiedAt": "2026-03-20T20:27:49.591Z"
+        },
+        {
+          "id": "5ec32e40cbab3c",
+          "title": "Pinball",
+          "artists": [
+            "Donut"
+          ],
+          "artistLine": "Donut",
+          "album": "Monolith WIP",
+          "albumArtist": "Donut",
+          "trackNumber": null,
+          "diskNumber": null,
+          "year": null,
+          "genres": [
+            "Experimental"
+          ],
+          "genreLine": "Experimental",
+          "durationSeconds": 138,
+          "path": "music/Monolith WIP/Pinball.m4a",
+          "cover": "library/covers/a7b926d043cc8d62b6d098ebbb519bfb05d58e43.jpg",
+          "fileName": "Pinball.m4a",
+          "modifiedAt": "2026-03-20T20:27:49.582Z"
+        }
+      ]
+    },
+    {
+      "id": "donut-pretty-cool-album-by-a-pretty-cool-individual-wip-release",
+      "title": "Pretty Cool Album by a Pretty Cool Individual (WIP)",
+      "artistLine": "Donut",
+      "year": null,
+      "cover": "library/covers/1afec1b653e817f205d9f6ab33de02640b928bc2.jpg",
+      "genres": [],
+      "genreLine": "",
+      "durationSeconds": 189,
+      "trackCount": 2,
+      "latestModifiedAt": "2026-03-20T20:27:26.806Z",
+      "tracks": [
+        {
+          "id": "32ff6a9be86218",
+          "title": "Could be a good song if I develop it",
+          "artists": [
+            "Donut"
+          ],
+          "artistLine": "Donut",
+          "album": "Pretty Cool Album by a Pretty Cool Individual (WIP)",
+          "albumArtist": "Donut",
+          "trackNumber": null,
+          "diskNumber": null,
+          "year": null,
+          "genres": [],
+          "genreLine": "",
+          "durationSeconds": 98,
+          "path": "music/PCABAPCAI/Could_be_a_good_song_if_I_develop_it.m4a",
+          "cover": "library/covers/1afec1b653e817f205d9f6ab33de02640b928bc2.jpg",
+          "fileName": "Could_be_a_good_song_if_I_develop_it.m4a",
+          "modifiedAt": "2026-03-20T20:27:26.806Z"
+        },
+        {
+          "id": "f8ebd41ffd3c44",
+          "title": "I was going to call this song a horrific slur, but decidded not to.",
+          "artists": [
+            "Donut"
+          ],
+          "artistLine": "Donut",
+          "album": "Pretty Cool Album by a Pretty Cool Individual (WIP)",
+          "albumArtist": "Donut",
+          "trackNumber": null,
+          "diskNumber": null,
+          "year": null,
+          "genres": [],
+          "genreLine": "",
+          "durationSeconds": 91,
+          "path": "music/PCABAPCAI/I_was_going_to_call_this_song_a_horrific_slur_but_decided_not_to.m4a",
+          "cover": "library/covers/1afec1b653e817f205d9f6ab33de02640b928bc2.jpg",
+          "fileName": "I_was_going_to_call_this_song_a_horrific_slur_but_decided_not_to.m4a",
+          "modifiedAt": "2026-03-20T20:27:26.797Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "scripts": {
+    "build:music": "node assets/scripts/build-music-library.mjs",
+    "watch:music": "node assets/scripts/build-music-library.mjs --watch"
+  },
+  "dependencies": {
+    "music-metadata": "^11.12.3"
+  }
+}
