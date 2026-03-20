@@ -1,37 +1,29 @@
-<div id="under-construction-banner">
-  <div class="uc-content">
-    <h1>🚧 Work in Progress</h1>
-    <p>This site is currently under construction.</p>
-  </div>
+<div id="uc-bar">
+  🚧 This site is a work in progress
 </div>
 
 <style>
-  #under-construction-banner {
+  #uc-bar {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
 
-    background: rgba(0, 0, 0, 0.85);
-    color: white;
+    background: #111;
+    color: #fff;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    text-align: center;
+    padding: 8px 12px;
+
+    font-family: Arial, sans-serif;
+    font-size: 14px;
 
     z-index: 999999;
-    font-family: Arial, sans-serif;
-    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
   }
 
-  .uc-content h1 {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-  }
-
-  .uc-content p {
-    font-size: 1.2rem;
-    opacity: 0.8;
+  /* Optional: push page content down so it’s not hidden */
+  body.uc-active {
+    padding-top: 40px;
   }
 </style>
