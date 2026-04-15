@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Donut</title>
+    <link rel="icon" type="image/png" href="Images/icons/Favicon.png" />
+    <link rel="icon" type="image/x-icon" href="Images/icons/favicon.ico" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:wght@600&family=Space+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="logo">Donut</div>
+      <nav aria-label="Primary">
+        <ul class="site-nav">
+          <li><a href="index.html" class="active">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="portfolio.html">Portfolio</a></li>
+          <li><a href="journal.html">Journal</a></li>
+          <li><a href="media/index.html">Music</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="structures.html">Structures</a></li>
+        </ul>
+      </nav>
+      <div class="header-controls">
+        <button class="settings-button" type="button" id="settings-button">Settings</button>
+      </div>
+    </header>
+    <main>
+      <section class="hero">
+        <h1>Donut builds peak.</h1>
+        <p>Designing public Roblox experiences, websites, graphics, and music with a strong point of view.</p>
+        <div class="actions">
+          <a class="button" href="about.html">Explore Site</a>
+          <a class="button secondary" href="portfolio.html">See Work</a>
+          <a class="button secondary" href="media/index.html">Open Music Shelf</a>
+        </div>
+      </section>
+      <section class="section">
+        <h2 class="section-title">Currently building</h2>
+        <p class="section-subtitle">The projects getting the most attention right now.</p>
+        <div class="card-list">
+          <article class="card">
+            <p class="card-kicker">Game systems</p>
+            <h3>Parkour Run beta polish</h3>
+            <p>Continuing the Parkour Run beta with racing systems, dynamic environments, and sharper moment-to-moment feedback.</p>
+            <a class="button secondary" href="portfolio.html">See the project</a>
+          </article>
+          <article class="card">
+            <p class="card-kicker">Environment work</p>
+            <h3>Cardswap redesign passes</h3>
+            <p>Refreshing spaces like the beach, plaza, and VIP store with stronger composition, atmosphere, and readability.</p>
+            <a class="button secondary" href="journal.html">Read the logbook</a>
+          </article>
+          <article class="card">
+            <p class="card-kicker">Music shelf</p>
+            <h3>Donut Player catalog</h3>
+            <p>Organizing cover art, releases, and track data so the music side of Donut feels as considered as the visuals.</p>
+            <a class="button secondary" href="media/index.html">Open the player</a>
+          </article>
+        </div>
+      </section>
+      <section class="section">
+        <h2 class="section-title">What you'll find</h2>
+        <div class="card-list">
+          <article class="card">
+            <h3>About Donut</h3>
+            <p>Learn the background of the Donut brand, the games it ships, and the creative direction behind every pixel.</p>
+            <a class="button secondary" href="about.html">Read more</a>
+          </article>
+          <article class="card">
+            <h3>Live portfolio</h3>
+            <p>View public Roblox releases, brand work, and the showcases that illustrate new visual systems.</p>
+            <a class="button secondary" href="portfolio.html">View work</a>
+          </article>
+          <article class="card">
+            <h3>Blog & devlogs</h3>
+            <p>Stay updated on builds, music experiments, and creative failures that teach new lessons.</p>
+            <a class="button secondary" href="journal.html">Visit journal</a>
+          </article>
+          <article class="card">
+            <h3>Music shelf</h3>
+            <p>Browse albums, artwork, and experiments in a calmer listening space built right into the site.</p>
+            <a class="button secondary" href="media/index.html">Listen now</a>
+          </article>
+        </div>
+      </section>
+    </main>
+    <footer>
+      &copy; 2026 Donut. <a class="footer-link" href="media-kit.html">Media kit</a>. <a class="footer-link" href="media/index.html">Music</a>. <a class="footer-link" href="https://x.com/RealDonutDev" target="_blank" rel="noopener noreferrer">@RealDonutDev on X</a>.
+    </footer>
+    <div class="settings-overlay" id="settings-modal" aria-hidden="true">
+      <div class="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <div class="settings-header">
+          <h2 id="settings-title">Settings &amp; Preferences</h2>
+          <button class="settings-close" type="button" aria-label="Close settings">Close</button>
+        </div>
+        <div class="settings-grid">
+          <div class="settings-block">
+            <h3>Appearance</h3>
+            <label class="settings-label" for="theme-selector">Color theme</label>
+            <select id="theme-selector" class="theme-selector">
+              <option value="dark">Dark</option>
+              <option value="light">Light</option>
+              <option value="mediterranean">Mediterranean</option>
+              <option value="nordic">Nordic</option>
+              <option value="desert-bloom">Desert Bloom</option>
+            </select>
+          </div>
+          <div class="settings-block">
+            <h3>Comfort</h3>
+            <label class="toggle">
+              <input type="checkbox" id="setting-reduce-motion" />
+              <span>Reduce motion</span>
+            </label>
+            <p class="settings-help">Cuts back on animation and scrolling effects.</p>
+            <label class="toggle">
+              <input type="checkbox" id="setting-compact" />
+              <span>Compact spacing</span>
+            </label>
+            <p class="settings-help">Tightens padding and layout rhythm.</p>
+          </div>
+          <div class="settings-block">
+            <h3>Preferences</h3>
+            <label class="toggle">
+              <input type="checkbox" id="setting-contrast" />
+              <span>High contrast mode</span>
+            </label>
+            <p class="settings-help">Boosts borders and text contrast.</p>
+            <button class="button secondary settings-reset" type="button" id="settings-reset">Reset preferences</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="assets/js/theme.js" defer></script>
+  </body>
+</html>
