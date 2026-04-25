@@ -3,281 +3,451 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PLAYZERO — Roblox Experiences</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css">
+  <title>PLAYZERO</title>
+  <meta
+    name="description"
+    content="Playzero is an independent Roblox studio building competitive, polished experiences like Parkour Run, Skyscraper Shenanigans, and The Tower."
+  />
+  <meta name="theme-color" content="#080a10" />
+  <meta name="color-scheme" content="dark" />
+  <link rel="icon" type="image/png" href="images/playzero-logo.png" />
+  <link rel="apple-touch-icon" href="images/playzero-logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
+<body id="top">
+  <a class="skip-link" href="#main-content">Skip to content</a>
 
-<!-- ── Header ──────────────────────────────────────────────── -->
-<header class="site-header">
-  <div class="logo">
-    <span class="logo-bracket">[</span>PLAYZERO<span class="logo-bracket">]</span>
-    <span class="logo-cursor"></span>
-  </div>
-  <nav>
-    <ul class="site-nav">
-      <li><a href="#" class="active">Home</a></li>
-      <li><a href="#games">Games</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="#log">Devlog</a></li>
-      <li><a href="https://www.roblox.com/communities/17193820/Play-Zero#!/about" target="_blank">Roblox ↗</a></li>
-    </ul>
-  </nav>
-  <div class="nav-status">
-    <span class="status-dot"></span>
-    <span>Live</span>
-  </div>
-</header>
+  <header class="site-header">
+    <a class="logo" href="#top" aria-label="Playzero home">
+      <img class="logo-mark" src="images/playzero-logo.png" alt="" aria-hidden="true" />
+      <span class="logo-text">
+        <span class="logo-bracket">[</span>PLAYZERO<span class="logo-bracket">]</span>
+      </span>
+      <span class="logo-cursor" aria-hidden="true"></span>
+    </a>
 
-<!-- ── Main ────────────────────────────────────────────────── -->
-<main>
+    <nav aria-label="Primary">
+      <ul class="site-nav">
+        <li><a href="#top" class="active" aria-current="page">Home</a></li>
+        <li><a href="#games">Games</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#log">Devlog</a></li>
+        <li>
+          <a
+            href="https://www.roblox.com/communities/17193820/Play-Zero#!/about"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Roblox &rarr;
+          </a>
+        </li>
+      </ul>
+    </nav>
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-copy">
-      <p class="hero-kicker">Independent Roblox Studio</p>
-      <h1>
-        Games<br>
-        <span class="dim">built to</span><br>
-        <span class="accent">push limits.</span>
-      </h1>
-      <p class="hero-desc">
-        Playzero crafts competitive Roblox games — Refined to perfection, with the community in mind.
-      </p>
-      <div class="hero-actions">
-        <a class="btn" href="#games">View games</a>
-        <a class="btn ghost" href="#log">Devlog →</a>
-      </div>
+    <div class="nav-status" aria-label="Studio status live">
+      <span class="status-dot"></span>
+      <span>Live</span>
     </div>
+  </header>
 
-    <!-- Terminal card -->
-    <div class="hero-sidebar">
-      <div class="terminal-bar">
-        <span class="t-dot"></span>
-        <span class="t-dot"></span>
-        <span class="t-dot"></span>
-        <span class="terminal-label">sys/status.sh</span>
-      </div>
-      <div class="terminal-body">
-        <div class="t-line"><span class="prompt">$ </span><span class="cmd">playzero --status</span></div>
-        <div class="t-line"><span class="out">Studio   <span class="ok">● ONLINE</span></span></div>
-        <div class="t-line"><span class="out">Games    <span class="num">3</span> active</span></div>
-        <div class="t-line"><span class="out">Visits   <span class="num">900</span></span></div>
-        <div class="t-line"><br></div>
-        <div class="t-line"><span class="prompt">$ </span><span class="cmd">latest --release</span></div>
-        <div class="t-line"><span class="out">Parkour Run <span class="ok">v0.8.4</span></span></div>
-        <div class="t-line"><span class="out">Parkour Run's Revamp  <span class="num">scheduled</span></span></div>
-        <div class="t-line"><br></div>
-        <div class="t-line"><span class="prompt">$ </span><span class="cmd">next --milestone</span></div>
-        <div class="t-line"><span class="out">Ranked mode <span class="num">ETA: soon</span></span></div>
-      </div>
-    </div>
-  </section>
+  <main id="main-content">
+    <section class="hero">
+      <div class="hero-bg"></div>
 
-  <!-- Ticker -->
-  <div class="ticker-wrap">
-    <div class="ticker-track">
-      <span class="ticker-item"><span>↗</span> Parkour Run — ELO ranking live</span>
-      <span class="ticker-item"><span>//</span> Skyscraper Shenanigans Update in the Works</span>
-      <span class="ticker-item"><span>↗</span> The Tower — multiplayer</span>
-      <span class="ticker-item"><span>//</span> Parkour Run's Revamp Scheduled</span>
-      <span class="ticker-item"><span>↗</span> New shop system</span>
-      <!-- dupe for seamless loop -->
-      <span class="ticker-item"><span>↗</span> Parkour Run — ELO ranking live</span>
-      <span class="ticker-item"><span>//</span> Skyscraper Shenanigans Update in the Works</span>
-      <span class="ticker-item"><span>↗</span> The Tower — multiplayer</span>
-      <span class="ticker-item"><span>//</span> Parkour Run's Revamp Scheduled</span>
-      <span class="ticker-item"><span>↗</span> New shop system</span>
-      <span class="ticker-item"><span>↗</span> Parkour Run — ELO ranking live</span>
-      <span class="ticker-item"><span>//</span> Skyscraper Shenanigans Update in the Works</span>
-      <span class="ticker-item"><span>↗</span> The Tower — multiplayer</span>
-      <span class="ticker-item"><span>//</span> Parkour Run's Revamp Scheduled</span>
-      <span class="ticker-item"><span>↗</span> New shop system</span>
-    </div>
-  </div>
-
-  <!-- Games -->
-  <section class="section" id="games">
-    <div class="section-head">
-      <span class="section-label">Games</span>
-      <span class="section-idx">01 / 04</span>
-    </div>
-    <div class="game-grid">
-
-      <article class="game-card">
-        <span class="game-num">001</span>
-        <span class="game-tag">Parkour · Racing · ELO</span>
-        <h3 class="game-title">Parkour Run</h3>
-        <p class="game-desc">Procedurally generated parkour race with dynamic colors, competitive ELO rankings, and a cosmetics shop. No two runs are the same.</p>
-        <div class="game-meta">
-          <div class="game-stat">
-            <strong>Prerelease</strong>
-            <span>Status</span>
-          </div>
-          <a href="https://www.roblox.com/games/17341244784/Parkour-run" target="_blank" class="game-arrow">↗</a>
+      <div class="hero-copy">
+        <p class="hero-kicker">Independent Roblox Studio</p>
+        <h1>
+          Games<br />
+          <span class="dim">built to</span><br />
+          <span class="accent">push limits.</span>
+        </h1>
+        <p class="hero-desc">
+          We are an independent game studio, producing quality games with feedback and the community at the center.
+        </p>
+        <div class="hero-actions">
+          <a class="btn" href="#games">View games</a>
+          <a class="btn ghost" href="#log">Devlog &rarr;</a>
         </div>
+      </div>
+
+      <aside class="hero-sidebar" aria-label="Studio snapshot">
+        <div class="terminal-bar">
+          <span class="t-dot"></span>
+          <span class="t-dot"></span>
+          <span class="t-dot"></span>
+          <span class="terminal-label">sys/status.sh</span>
+        </div>
+        <div class="terminal-body">
+          <div class="t-line"><span class="prompt">$ </span><span class="cmd">playzero --status</span></div>
+          <div class="t-line"><span class="out">Studio   <span class="ok">ONLINE</span></span></div>
+          <div class="t-line"><span class="out">Games    <span class="num">3</span> active</span></div>
+          <div class="t-line"><span class="out">Visits   <span class="num">1100+</span></span></div>
+          <div class="t-line"><br /></div>
+          <div class="t-line"><span class="prompt">$ </span><span class="cmd">latest --release</span></div>
+          <div class="t-line"><span class="out">Parkour Run <span class="ok">v1.0.4</span></span></div>
+          <div class="t-line"><span class="out">Parkour Run revamp <span class="ok">released!</span></span></div>
+          <div class="t-line"><br /></div>
+          <div class="t-line"><span class="prompt">$ </span><span class="cmd">next --milestone</span></div>
+          <div class="t-line"><span class="out">Shenanigans Revamp <span class="num">ETA: far away</span></span></div>
+        </div>
+      </aside>
+    </section>
+
+    <div class="ticker-wrap" aria-hidden="true">
+      <div class="ticker-track">
+        <div class="ticker-group">
+          <span class="ticker-item"><span>&rarr;</span> Parkour Run - ELO ranking live</span>
+          <span class="ticker-item"><span>//</span> Skyscraper Shenanigans update in the works</span>
+          <span class="ticker-item"><span>&rarr;</span> The Tower - multiplayer</span>
+          <span class="ticker-item"><span>//</span> Parkour Run revamp scheduled</span>
+          <span class="ticker-item"><span>&rarr;</span> New shop system</span>
+        </div>
+        <div class="ticker-group">
+          <span class="ticker-item"><span>&rarr;</span> Parkour Run - ELO ranking live</span>
+          <span class="ticker-item"><span>//</span> Skyscraper Shenanigans update in the works</span>
+          <span class="ticker-item"><span>&rarr;</span> The Tower - multiplayer</span>
+          <span class="ticker-item"><span>//</span> Parkour Run revamp scheduled</span>
+          <span class="ticker-item"><span>&rarr;</span> New shop system</span>
+        </div>
+      </div>
+    </div>
+
+    <section class="section" id="games">
+      <div class="section-head">
+        <span class="section-label">Games</span>
+        <span class="section-idx">01 / 04</span>
+      </div>
+
+      <article class="featured-game" aria-labelledby="featured-game-title" style="margin-bottom: 15px;">
+        <div class="featured-copy">
+          <p class="featured-kicker">Featured Game</p>
+
+          <div class="featured-head">
+            <div>
+              <p class="featured-id">001 / STUDIO PICK</p>
+              <h3 id="featured-game-title">Parkour Run</h3>
+            </div>
+            <span class="featured-badge">Live</span>
+          </div>
+
+          <p class="featured-desc">
+            The current flagship project: a competitive parkour racer built around
+            procedural maps and dynamic movement.
+          </p>
+
+          <div class="featured-tags" aria-label="Parkour Run highlights">
+            <span class="featured-tag">Procedural maps</span>
+            <span class="featured-tag">Competitive ELO</span>
+            <span class="featured-tag">High-Speed Racing</span>
+            <span class="featured-tag">Cosmetics shop</span>
+          </div>
+
+          <div class="featured-actions">
+            <a
+              class="btn"
+              href="https://www.roblox.com/games/17341244784/Parkour-run"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Play Parkour Run
+            </a>
+            <a class="btn ghost" href="#log">See latest updates</a>
+          </div>
+        </div>
+
+        <aside class="featured-panel" aria-label="Parkour Run status">
+          <div class="featured-panel-head">
+            <span class="featured-panel-label">run/status</span>
+            <span class="featured-panel-state">active build</span>
+          </div>
+
+          <div class="featured-stats">
+            <div class="featured-stat">
+              <span class="featured-stat-label">Latest Build</span>
+              <strong>v0.8.4</strong>
+            </div>
+            <div class="featured-stat">
+              <span class="featured-stat-label">Focus</span>
+              <strong>Building Engagement</strong>
+            </div>
+            <div class="featured-stat">
+              <span class="featured-stat-label">Next Milestone</span>
+              <strong>Develop the Game's Visuals</strong>
+            </div>
+          </div>
+
+          <ul class="featured-list">
+            <li>Seed-based layouts keep runs fresh.</li>
+            <li>ELO ranking gives repeat play a clear competitive goal.</li>
+            <li>Controller-ready UI and shop systems are already in place.</li>
+          </ul>
+        </aside>
       </article>
 
-      <article class="game-card">
-        <span class="game-num">002</span>
-        <span class="game-tag">Vertical · Race · Survival</span>
-        <h3 class="game-title">Skyscraper<br>Shenanigans</h3>
-        <p class="game-desc">A high-rise scramble against time, other players, and rising water or lava. Fast-paced chaos.</p>
-        <div class="game-meta">
-          <div class="game-stat">
-            <strong>Beta</strong>
-            <span>Status</span>
+      <div class="game-grid">
+        <article class="game-card">
+          <span class="game-num">001</span>
+          <span class="game-tag">Parkour &middot; Racing &middot; ELO</span>
+          <h3 class="game-title">Parkour Run</h3>
+          <p class="game-desc">
+            Procedurally generated parkour racing with competitive ELO rankings,
+            a cosmetics shop, and a custom dynamic movement engine. No two runs are the same.
+          </p>
+          <div class="game-meta">
+            <div class="game-stat">
+              <strong>Live</strong>
+              <span>Status</span>
+            </div>
+            <a
+              href="https://www.roblox.com/games/17341244784/Parkour-run"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="game-arrow"
+              aria-label="Open Parkour Run on Roblox"
+            >
+              &rarr;
+            </a>
           </div>
-          <a href="https://www.roblox.com/games/16981397555/SKYSCRAPER-SHENANIGANS" target="_blank" class="game-arrow">↗</a>
-        </div>
-      </article>
+        </article>
 
-      <article class="game-card">
-        <span class="game-num">003</span>
-        <span class="game-tag">Tower · Multiplayer · PvP</span>
-        <h3 class="game-title">The Tower</h3>
-        <p class="game-desc">A tall tower with multiple gamemodes. Explore alone or compete with friends through a challenging 5000+ stud tower.</p>
-        <div class="game-meta">
-          <div class="game-stat">
-            <strong>Live</strong>
-            <span>Status</span>
+        <article class="game-card">
+          <span class="game-num">002</span>
+          <span class="game-tag">Vertical &middot; Race &middot; Survival</span>
+          <h3 class="game-title">Skyscraper<br />Shenanigans</h3>
+          <p class="game-desc">
+            A high-rise scramble against time, other players, and rising water or lava.
+            Fast-paced chaos with a competitive edge.
+          </p>
+          <div class="game-meta">
+            <div class="game-stat">
+              <strong>Beta</strong>
+              <span>Status</span>
+            </div>
+            <a
+              href="https://www.roblox.com/games/16981397555/SKYSCRAPER-SHENANIGANS"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="game-arrow"
+              aria-label="Open Skyscraper Shenanigans on Roblox"
+            >
+              &rarr;
+            </a>
           </div>
-          <a href="https://www.roblox.com/games/refer?PlaceId=18708310628" target="_blank" class="game-arrow">↗</a>
-        </div>
-      </article>
+        </article>
 
-      <article class="game-card" style="background: var(--panel-hi); opacity: 0.7;">
-        <span class="game-num">004</span>
-        <span class="game-tag" style="color: var(--muted);">Unannounced</span>
-        <h3 class="game-title" style="color: var(--muted);">Project ████</h3>
-        <p class="game-desc">Something new is in development. Watch the devlog.</p>
-        <div class="game-meta">
-          <div class="game-stat">
-            <strong style="color:var(--muted)">WIP</strong>
-            <span>Status</span>
+        <article class="game-card">
+          <span class="game-num">003</span>
+          <span class="game-tag">Tower &middot; Multiplayer &middot; PvP</span>
+          <h3 class="game-title">The Tower</h3>
+          <p class="game-desc">
+            A 5000+ stud tower packed with multiple game modes. Explore solo or compete
+            with friends through long-form vertical challenges.
+          </p>
+          <div class="game-meta">
+            <div class="game-stat">
+              <strong>Beta</strong>
+              <span>Status</span>
+            </div>
+            <a
+              href="https://www.roblox.com/games/refer?PlaceId=18708310628"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="game-arrow"
+              aria-label="Open The Tower on Roblox"
+            >
+              &rarr;
+            </a>
           </div>
-          <span class="game-arrow" style="cursor:default">—</span>
+        </article>
+
+        <article class="game-card is-coming-soon">
+          <span class="game-num">004</span>
+          <span class="game-tag muted">Unannounced</span>
+          <h3 class="game-title muted">Project ???</h3>
+          <p class="game-desc">Something new is in development. Watch the devlog.</p>
+          <div class="game-meta">
+            <div class="game-stat">
+              <strong class="muted">WIP</strong>
+              <span>Status</span>
+            </div>
+            <span class="game-arrow placeholder" aria-hidden="true">-</span>
+          </div>
+        </article>
+      </div>
+
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <span class="section-label">Reach</span>
+        <span class="section-idx">02 / 04</span>
+      </div>
+
+      <div class="stats-strip">
+        <div class="stat-cell">
+          <p class="stat-label">Combined Visits</p>
+          <p class="stat-value">1100<span class="unit">+</span></p>
         </div>
-      </article>
+        <div class="stat-cell">
+          <p class="stat-label">Active Games</p>
+          <p class="stat-value">3</p>
+        </div>
+        <div class="stat-cell">
+          <p class="stat-label">Developers</p>
+          <p class="stat-value">2</p>
+        </div>
+        <div class="stat-cell">
+          <p class="stat-label">Games in the works</p>
+          <p class="stat-value">2</p>
+        </div>
+      </div>
+    </section>
 
-    </div>
-  </section>
+    <section class="section" id="about">
+      <div class="section-head">
+        <span class="section-label">About</span>
+        <span class="section-idx">03 / 04</span>
+      </div>
 
-  <!-- Stats -->
-  <section class="section">
-    <div class="section-head">
-      <span class="section-label">Reach</span>
-      <span class="section-idx">02 / 04</span>
-    </div>
-    <div class="stats-strip">
-      <div class="stat-cell">
-        <p class="stat-label">Combined Visits</p>
-        <p class="stat-value">900<span class="unit">+</span></p>
-      </div>
-      <div class="stat-cell">
-        <p class="stat-label">Active Games</p>
-        <p class="stat-value">3<span class="unit"></span></p>
-      </div>
-      <div class="stat-cell">
-        <p class="stat-label">Developers</p>
-        <p class="stat-value">2<span class="unit"></span></p>
-      </div>
-      <div class="stat-cell">
-        <p class="stat-label">Games in the works...</p>
-        <p class="stat-value">2<span class="unit"></span></p>
-      </div>
-    </div>
-  </section>
+      <div class="about-grid">
+        <div class="about-left">
+          <h2>Built <em>different.</em><br />Played hard.</h2>
+          <p>
+            Playzero is an independent Roblox studio focused on competitive systems,
+            tight gameplay loops, and inventive ideas with the community at heart.
+            Every project is built from scratch with no shortcuts.
+          </p>
+        </div>
 
-  <!-- About -->
-  <section class="section" id="about">
-    <div class="section-head">
-      <span class="section-label">About</span>
-      <span class="section-idx">03 / 04</span>
-    </div>
-    <div class="about-grid">
-      <div class="about-left">
-        <h2>Built <em>different.</em><br>Played hard.</h2>
-        <p>Playzero is an independent Roblox studio focused on competitive systems, tight systems, and innovative gameplay with community at heart. Every project is built from scratch, no shortcuts.<br></p>
-      </div>
-      <div class="about-right">
-        <div class="feature-item">
-          <span class="feature-icon">GEN</span>
-          <div class="feature-copy">
-            <h4>Procedural Generation</h4>
-            <p>Seed-based room generation with weighted variants, biome colorization, and dynamic environment rules.</p>
+        <div class="about-right">
+          <div class="feature-item">
+            <span class="feature-icon">GEN</span>
+            <div class="feature-copy">
+              <h4>Procedural Generation</h4>
+              <p>
+                Seed-based room generation with weighted variants, biome colorization,
+                and dynamic environment rules.
+              </p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <span class="feature-icon">ELO</span>
+            <div class="feature-copy">
+              <h4>Competitive Ranking</h4>
+              <p>
+                A full ELO system with DataStore persistence, placement scoring, and
+                per-season resets.
+              </p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <span class="feature-icon">UX</span>
+            <div class="feature-copy">
+              <h4>Polished UI Systems</h4>
+              <p>
+                Custom shop, settings menu, leaderboards, and controller-native
+                navigation built in-engine.
+              </p>
+            </div>
           </div>
         </div>
-        <div class="feature-item">
-          <span class="feature-icon">ELO</span>
-          <div class="feature-copy">
-            <h4>Competitive Ranking</h4>
-            <p>A full ELO system with DataStore persistence, placement scoring, and per-season resets.</p>
+      </div>
+
+      <div class="credits-block" aria-labelledby="credits-title">
+        <div class="credits-brand">
+          <img
+            class="credits-logo"
+            src="images/FullLogo.png"
+            alt="Full Playzero logo artwork"
+          />
+        </div>
+
+        <div class="credits-copy">
+          <p class="credits-kicker">Credits</p>
+          <h3 id="credits-title">Small team. Massive potential.</h3>
+          <p class="credits-desc">
+            A duo of developers working hard to produce quality, engaging games across several genres,
+            primarily on Roblox.
+          </p>
+
+          <div class="credits-grid">
+            <article class="credit-card">
+              <span class="credit-name">Donut</span>
+              <p class="credit-role">Web and Game Dev</p>
+              <p class="credit-text">
+                Built the website and made Parkour Run, Skyscraper Shenanigans,
+                and The Tower.
+              </p>
+            </article>
+
+            <article class="credit-card">
+              <span class="credit-name">Imagination</span>
+              <p class="credit-role">Game Dev</p>
+              <p class="credit-text">
+                Working on larger projects alongside Donut. (Stay tuned!)
+              </p>
+            </article>
           </div>
         </div>
-        <div class="feature-item">
-          <span class="feature-icon">UX</span>
-          <div class="feature-copy">
-            <h4>Polished UI Systems</h4>
-            <p>Custom shop, settings menu, leaderboards, and controller-native navigation built in-engine.</p>
-          </div>
+      </div>
+
+    </section>
+
+    <section class="section" id="log">
+      <div class="section-head">
+        <span class="section-label">Devlog</span>
+        <span class="section-idx">04 / 04</span>
+      </div>
+
+      <div class="log-list">
+        <div class="log-entry">
+          <span class="log-date">2026-04-12 (PR)</span>
+          <span class="log-title">ELO system refactored - fairer, cleaner, and more rewarding.</span>
+          <span class="log-badge update">Update</span>
+        </div>
+        <div class="log-entry">
+          <span class="log-date">2026-04-08 (PR)</span>
+          <span class="log-title">Biome colorizer created - fresh palettes with smooth interpolation.</span>
+          <span class="log-badge update">Update</span>
+        </div>
+        <div class="log-entry">
+          <span class="log-date">2026-04-02 (PR)</span>
+          <span class="log-title">New shop system released with tabs, controller nav, and persistence.</span>
+          <span class="log-badge release">Release</span>
+        </div>
+        <div class="log-entry">
+          <span class="log-date">2026-03-28 (PR)</span>
+          <span class="log-title">Checkpoint system added - deaths no longer reset your whole run.</span>
+          <span class="log-badge update">Update</span>
+        </div>
+        <div class="log-entry">
+          <span class="log-date">2026-03-15 (PR)</span>
+          <span class="log-title">Parkour Run enters beta inside the main experience.</span>
+          <span class="log-badge release">Release</span>
+        </div>
+        <div class="log-entry">
+          <span class="log-date">2026-03-01 (PR)</span>
+          <span class="log-title">ELO leaderboard added to the start room for lobby-side comparison.</span>
+          <span class="log-badge wip">WIP</span>
         </div>
       </div>
+    </section>
+  </main>
+
+  <footer>
+    <span class="footer-logo">[PLAYZERO]</span>
+    <div class="footer-links">
+      <a href="https://x.com/RealDonutDev" target="_blank" rel="noopener noreferrer">@RealDonutDev</a>
     </div>
-  </section>
-
-  <!-- Devlog -->
-  <section class="section" id="log">
-    <div class="section-head">
-      <span class="section-label">Devlog</span>
-      <span class="section-idx">04 / 04</span>
-    </div>
-    <div class="log-list">
-      <div class="log-entry">
-        <span class="log-date">2026-04-12 (PR)</span>
-        <span class="log-title">ELO system refactored — Made to be fairer, and more rewarding.</span>
-        <span class="log-badge update">Update</span>
-      </div>
-      <div class="log-entry">
-        <span class="log-date">2026-04-08 (PR)</span>
-        <span class="log-title">Biome colorizer created — Fresh color palettes, smoothstep interpolation</span>
-        <span class="log-badge update">Update</span>
-      </div>
-      <div class="log-entry">
-        <span class="log-date">2026-04-02 (PR)</span>
-        <span class="log-title">New shop system — complete with tabs, controller nav, and DataStore persistence</span>
-        <span class="log-badge release">Release</span>
-      </div>
-      <div class="log-entry">
-        <span class="log-date">2026-03-28 (PR)</span>
-        <span class="log-title">Checkpoint system added — Now dying doesn't reset your progress!</span>
-        <span class="log-badge update">Update</span>
-      </div>
-      <div class="log-entry">
-        <span class="log-date">2026-03-15 (PR)</span>
-        <span class="log-title">Parkour Run enters Beta — live within the main experience</span>
-        <span class="log-badge release">Release</span>
-      </div>
-      <div class="log-entry">
-        <span class="log-date">2026-03-01 (PR)</span>
-        <span class="log-title">ELO leaderboard added to Start Room — View your ELO compared to others in the lobby.</span>
-        <span class="log-badge wip">WIP</span>
-      </div>
-    </div>
-  </section>
-
-</main>
-
-<!-- ── Footer ──────────────────────────────────────────────── -->
-<footer>
-  <span class="footer-logo">[PLAYZERO]</span>
-  <div class="footer-links">
-    <a href="https://x.com/RealDonutDev" target="_blank" rel="noopener">@RealDonutDev</a>
-  </div>
-  <span class="footer-copy">&copy; 2026 Playzero / Donut</span>
-</footer>
-
+    <span class="footer-copy">&copy; 2026 Playzero / Donut</span>
+  </footer>
 </body>
 </html>
