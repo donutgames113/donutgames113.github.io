@@ -34,25 +34,39 @@
 
     <nav aria-label="Primary">
       <ul class="site-nav">
-        <li><a href="#top" class="active" aria-current="page">Home</a></li>
         <li><a href="#games">Games</a></li>
+        <li><a href="#signal">Updates</a></li>
+        <li><a href="#roadmap">Roadmap</a></li>
         <li><a href="#about">About</a></li>
         <li><a href="#log">Devlog</a></li>
-        <li>
-          <a
-            href="https://www.roblox.com/communities/17193820/Play-Zero#!/about"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Roblox &rarr;
-          </a>
-        </li>
       </ul>
     </nav>
 
-    <div class="nav-status" aria-label="Studio status live">
-      <span class="status-dot"></span>
-      <span>Live</span>
+    <div class="header-actions">
+      <div class="nav-status" aria-label="Studio status live">
+        <span class="status-dot"></span>
+        <span data-text="header.statusText">3 games live</span>
+      </div>
+
+      <a
+        class="header-link"
+        href="https://discord.gg/SZDeGtEZrn"
+        data-href="community.discord"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Community
+      </a>
+
+      <a
+        class="header-cta"
+        href="https://www.roblox.com/communities/17193820/Play-Zero#!/about"
+        data-href="community.robloxGroup"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Join Group
+      </a>
     </div>
   </header>
 
@@ -86,15 +100,15 @@
         <div class="terminal-body">
           <div class="t-line"><span class="prompt">$ </span><span class="cmd">playzero --status</span></div>
           <div class="t-line"><span class="out">Studio   <span class="ok">ONLINE</span></span></div>
-          <div class="t-line"><span class="out">Games    <span class="num">3</span> active</span></div>
-          <div class="t-line"><span class="out">Visits   <span class="num">1200+</span></span></div>
+          <div class="t-line"><span class="out">Games    <span class="num" data-text="stats.activeGames">3</span> active</span></div>
+          <div class="t-line"><span class="out">Visits   <span class="num" data-text="stats.combinedVisits">1200+</span></span></div>
           <div class="t-line"><br /></div>
           <div class="t-line"><span class="prompt">$ </span><span class="cmd">latest --release</span></div>
-          <div class="t-line"><span class="out">Parkour Run <span class="ok">v1.0.4</span></span></div>
-          <div class="t-line"><span class="out">Parkour Run revamp <span class="ok">released!</span></span></div>
+          <div class="t-line"><span class="out"><span data-text="games.parkourRun.name">Parkour Run</span> <span class="ok" data-text="games.parkourRun.version">v1.0.4</span></span></div>
+          <div class="t-line"><span class="out"><span data-text="hero.latestReleaseLabel">Parkour Run revamp</span> <span class="ok" data-text="hero.latestReleaseState">released!</span></span></div>
           <div class="t-line"><br /></div>
           <div class="t-line"><span class="prompt">$ </span><span class="cmd">next --milestone</span></div>
-          <div class="t-line"><span class="out">Shenanigans Revamp <span class="num">ETA: far away</span></span></div>
+          <div class="t-line"><span class="out"><span data-text="hero.nextMilestone">Shenanigans Revamp</span> <span class="num">ETA: <span data-text="hero.nextMilestoneEta">far away</span></span></span></div>
         </div>
       </aside>
     </section>
@@ -118,6 +132,48 @@
       </div>
     </div>
 
+    <section class="section signal" id="signal" aria-labelledby="signal-title">
+      <div class="section-head">
+        <span class="section-label">Signal</span>
+        <span class="section-idx">00 / 04</span>
+      </div>
+
+      <div class="signal-grid">
+        <article class="signal-card signal-primary">
+          <p class="signal-kicker">Latest Update</p>
+          <h2 id="signal-title" data-text="signal.latestUpdateTitle">Parkour Run revamp is live.</h2>
+          <p class="signal-copy">
+            The current push is all about stronger first impressions: better visual identity,
+            cleaner progression, and a more rewarding loop for repeat players.
+          </p>
+          <ul class="signal-list">
+            <li>Competitive ELO ranking is already active.</li>
+            <li>Shop, checkpoints, and controller-friendly UI are in place.</li>
+            <li>Visual upgrades are the next major polish pass.</li>
+          </ul>
+        </article>
+
+        <article class="signal-card">
+          <p class="signal-kicker">Current Focus</p>
+          <h3>What the studio is pushing next</h3>
+          <div class="signal-stack">
+            <div class="signal-pill">
+              <span>01</span>
+              <strong>Parkour Run visuals</strong>
+            </div>
+            <div class="signal-pill">
+              <span>02</span>
+              <strong>Shenanigans revamp planning</strong>
+            </div>
+            <div class="signal-pill">
+              <span>03</span>
+              <strong>Unannounced project prototyping</strong>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
     <section class="section" id="games">
       <div class="section-head">
         <span class="section-label">Games</span>
@@ -131,7 +187,7 @@
           <div class="featured-head">
             <div>
               <p class="featured-id">001 / STUDIO PICK</p>
-              <h3 id="featured-game-title">Parkour Run</h3>
+              <h3 id="featured-game-title" data-text="games.parkourRun.name">Parkour Run</h3>
             </div>
             <span class="featured-badge">Live</span>
           </div>
@@ -152,10 +208,11 @@
             <a
               class="btn"
               href="https://www.roblox.com/games/17341244784/Parkour-run"
+              data-href="games.parkourRun.url"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Play Parkour Run
+              Play <span data-text="games.parkourRun.name">Parkour Run</span>
             </a>
             <a class="btn ghost" href="#log">See latest updates</a>
           </div>
@@ -170,7 +227,7 @@
           <div class="featured-stats">
             <div class="featured-stat">
               <span class="featured-stat-label">Latest Build</span>
-              <strong>v0.8.4</strong>
+              <strong data-text="games.parkourRun.version">v1.0.4</strong>
             </div>
             <div class="featured-stat">
               <span class="featured-stat-label">Focus</span>
@@ -194,7 +251,7 @@
         <article class="game-card">
           <span class="game-num">001</span>
           <span class="game-tag">Parkour &middot; Racing &middot; ELO</span>
-          <h3 class="game-title">Parkour Run</h3>
+          <h3 class="game-title" data-text="games.parkourRun.name">Parkour Run</h3>
           <p class="game-desc">
             Procedurally generated parkour racing with competitive ELO rankings,
             a cosmetics shop, and a custom dynamic movement engine. No two runs are the same.
@@ -206,6 +263,7 @@
             </div>
             <a
               href="https://www.roblox.com/games/17341244784/Parkour-run"
+              data-href="games.parkourRun.url"
               target="_blank"
               rel="noopener noreferrer"
               class="game-arrow"
@@ -219,7 +277,7 @@
         <article class="game-card">
           <span class="game-num">002</span>
           <span class="game-tag">Vertical &middot; Race &middot; Survival</span>
-          <h3 class="game-title">Skyscraper<br />Shenanigans</h3>
+          <h3 class="game-title" data-text="games.skyscraperShenanigans.name">Skyscraper Shenanigans</h3>
           <p class="game-desc">
             A high-rise scramble against time, other players, and rising water or lava.
             Fast-paced chaos with a competitive edge.
@@ -231,6 +289,7 @@
             </div>
             <a
               href="https://www.roblox.com/games/16981397555/SKYSCRAPER-SHENANIGANS"
+              data-href="games.skyscraperShenanigans.url"
               target="_blank"
               rel="noopener noreferrer"
               class="game-arrow"
@@ -244,7 +303,7 @@
         <article class="game-card">
           <span class="game-num">003</span>
           <span class="game-tag">Tower &middot; Multiplayer &middot; PvP</span>
-          <h3 class="game-title">The Tower</h3>
+          <h3 class="game-title" data-text="games.theTower.name">The Tower</h3>
           <p class="game-desc">
             A 5000+ stud tower packed with multiple game modes. Explore solo or compete
             with friends through long-form vertical challenges.
@@ -256,6 +315,7 @@
             </div>
             <a
               href="https://www.roblox.com/games/refer?PlaceId=18708310628"
+              data-href="games.theTower.url"
               target="_blank"
               rel="noopener noreferrer"
               class="game-arrow"
@@ -292,20 +352,56 @@
       <div class="stats-strip">
         <div class="stat-cell">
           <p class="stat-label">Combined Visits</p>
-          <p class="stat-value">1200<span class="unit">+</span></p>
+          <p class="stat-value"><span data-text="stats.combinedVisitsBase">1200</span><span class="unit" data-text="stats.combinedVisitsUnit">+</span></p>
         </div>
         <div class="stat-cell">
           <p class="stat-label">Active Games</p>
-          <p class="stat-value">3</p>
+          <p class="stat-value" data-text="stats.activeGames">3</p>
         </div>
         <div class="stat-cell">
           <p class="stat-label">Developers</p>
-          <p class="stat-value">2</p>
+          <p class="stat-value" data-text="stats.developers">2</p>
         </div>
         <div class="stat-cell">
           <p class="stat-label">Games in the works</p>
-          <p class="stat-value">2</p>
+          <p class="stat-value" data-text="stats.gamesInTheWorks">2</p>
         </div>
+      </div>
+    </section>
+
+    <section class="section" id="roadmap">
+      <div class="section-head">
+        <span class="section-label">Roadmap</span>
+        <span class="section-idx">02.5 / 04</span>
+      </div>
+
+      <div class="roadmap-grid">
+        <article class="roadmap-card">
+          <span class="roadmap-phase">Now</span>
+          <h3>Sharpen the flagship</h3>
+          <p>
+            Keep building Parkour Run into the easiest recommendation for new players:
+            faster readability, stronger visuals, and better retention.
+          </p>
+        </article>
+
+        <article class="roadmap-card">
+          <span class="roadmap-phase">Next</span>
+          <h3>Bring back Shenanigans louder</h3>
+          <p>
+            Revisit Skyscraper Shenanigans with a clearer identity, cleaner chaos,
+            and a bigger reason to replay with friends.
+          </p>
+        </article>
+
+        <article class="roadmap-card">
+          <span class="roadmap-phase">Later</span>
+          <h3>Reveal project four</h3>
+          <p>
+            The unannounced slot becomes more exciting when the audience can see
+            that something real is being incubated behind it.
+          </p>
+        </article>
       </div>
     </section>
 
@@ -314,6 +410,8 @@
         <span class="section-label">About</span>
         <span class="section-idx">03 / 04</span>
       </div>
+
+      <div class="about-stack">
 
       <div class="about-grid">
         <div class="about-left">
@@ -386,6 +484,17 @@
                 Built the website and made Parkour Run, Skyscraper Shenanigans,
                 and The Tower.
               </p>
+              <div class="credit-links" aria-label="Donut social links">
+                <a
+                  class="credit-link"
+                  href="https://x.com/RealDonutDev"
+                  data-href="community.x"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span data-text="community.xLabel">X / @RealDonutDev</span>
+                </a>
+              </div>
             </article>
 
             <article class="credit-card">
@@ -394,11 +503,66 @@
               <p class="credit-text">
                 Working on larger projects alongside Donut. (Stay tuned!)
               </p>
+              <div class="credit-links" aria-label="Imagination social links">
+                <span class="credit-link is-static">Public socials coming soon</span>
+              </div>
             </article>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="community-links-shell">
+        <div class="community-links-block">
+          <div class="community-links-head">
+            <p class="credits-kicker">Community</p>
+            <h4 id="community-links-title">Join playzero outside the site.</h4>
+            <p class="community-links-desc">
+              Follow releases, hop into the group, and stay close to the next playzero updates.
+            </p>
+          </div>
+
+          <div class="community-links-grid">
+            <a
+              class="community-link-card"
+              href="https://discord.gg/SZDeGtEZrn"
+              data-href="community.discord"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="community-link-label">Discord</span>
+              <span class="community-link-text">Join the community server</span>
+              <span class="community-link-arrow">&rarr;</span>
+            </a>
+
+            <a
+              class="community-link-card"
+              href="https://whatsapp.com/channel/0029VaJgMmuEVccLCWZSmS0e"
+              data-href="community.whatsapp"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="community-link-label">WhatsApp</span>
+              <span class="community-link-text">Follow the playzero channel</span>
+              <span class="community-link-arrow">&rarr;</span>
+            </a>
+
+            <a
+              class="community-link-card"
+              href="https://www.roblox.com/communities/17193820/Play-Zero#!/about"
+              data-href="community.robloxGroup"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="community-link-label">Roblox</span>
+              <span class="community-link-text">Visit the playzero group</span>
+              <span class="community-link-arrow">&rarr;</span>
+            </a>
           </div>
         </div>
       </div>
 
+      </div>
     </section>
 
     <section class="section" id="log">
@@ -445,9 +609,11 @@
   <footer>
     <span class="footer-logo">[PLAYZERO]</span>
     <div class="footer-links">
-      <a href="https://x.com/RealDonutDev" target="_blank" rel="noopener noreferrer">@RealDonutDev</a>
+      <a href="https://x.com/RealDonutDev" data-href="community.x" target="_blank" rel="noopener noreferrer" data-text="community.footerHandle">@RealDonutDev</a>
     </div>
     <span class="footer-copy">&copy; 2026 Playzero / Donut</span>
   </footer>
+  <script src="site-data.js"></script>
+  <script src="site.js"></script>
 </body>
 </html>
