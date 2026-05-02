@@ -8,11 +8,12 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a; scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a; }
         .drop-zone.active { border-color: #000; background: #fafafa; }
-        .category-chip.active { background: #000; color: #fff; border-color: #000; }
-        .item-card img { filter: grayscale(100%); transition: filter 0.4s ease; }
+        .item-card img { filter: grayscale(100%); transition: all 0.4s ease; }
         .item-card:hover img { filter: grayscale(0%); }
+        .delete-btn { opacity: 0; transition: opacity 0.2s; }
+        .item-card:hover .delete-btn { opacity: 1; }
     </style>
 </head>
 <body class="p-6 md:p-12">
@@ -21,7 +22,7 @@
             <h1 class="text-3xl font-extralight tracking-tighter uppercase">Curato</h1>
             <p class="text-[10px] tracking-[0.3em] text-neutral-400 mt-2">PERSONAL CURATION ENGINE</p>
         </div>
-        <button id="auth-btn" class="text-[10px] border border-neutral-200 px-5 py-2 rounded-full hover:bg-black hover:text-white transition tracking-widest">CONNECT DISCORD</button>
+        <button id="auth-btn" class="text-[10px] border border-neutral-200 px-5 py-2 rounded-full hover:bg-black hover:text-white transition tracking-widest uppercase">Connect Discord</button>
     </header>
 
     <main class="max-w-6xl mx-auto">
@@ -37,8 +38,8 @@
 
         <!-- INPUT SECTION -->
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20 border-t border-neutral-100 pt-12">
-            <div id="drop-zone" class="border border-dashed border-neutral-200 aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-black transition relative overflow-hidden">
-                <p id="drop-text" class="text-[10px] uppercase tracking-widest text-neutral-400">Drag Image or Click</p>
+            <div id="drop-zone" class="border border-dashed border-neutral-200 aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-black transition relative overflow-hidden bg-neutral-50">
+                <p id="drop-text" class="text-[10px] uppercase tracking-widest text-neutral-400 text-center px-4">Drag Image or Click to Upload</p>
                 <img id="preview-img" class="absolute inset-0 w-full h-full object-cover hidden">
                 <input type="file" id="file-input" class="hidden" accept="image/*">
             </div>
@@ -47,21 +48,21 @@
                 <div>
                     <label class="text-[10px] uppercase tracking-widest text-neutral-400">Category</label>
                     <div class="flex flex-wrap gap-2 mt-2">
-                        <button class="cat-opt border px-3 py-1 text-[10px] uppercase tracking-wider rounded-full" data-val="Watch">Watches</button>
-                        <button class="cat-opt border px-3 py-1 text-[10px] uppercase tracking-wider rounded-full" data-val="Fragrance">Fragrances</button>
-                        <button class="cat-opt border px-3 py-1 text-[10px] uppercase tracking-wider rounded-full" data-val="Apparel">Apparel</button>
-                        <button class="cat-opt border px-3 py-1 text-[10px] uppercase tracking-wider rounded-full" data-val="Other">Other</button>
+                        <button class="cat-opt border px-3 py-1 text-[10px] uppercase tracking-wider rounded-full border-neutral-200" data-val="Watch">Watches</button>
+                        <button class="cat-opt border px-3 py-1 text-[10px] uppercase tracking-wider rounded-full border-neutral-200" data-val="Fragrance">Fragrances</button>
+                        <button class="cat-opt border px-3 py-1 text-[10px] uppercase tracking-wider rounded-full border-neutral-200" data-val="Apparel">Apparel</button>
+                        <button class="cat-opt border px-3 py-1 text-[10px] uppercase tracking-wider rounded-full border-neutral-200" data-val="Other">Other</button>
                     </div>
                 </div>
-                <input type="text" id="item-name" placeholder="Item Name (e.g. Submariner)" class="border-b border-neutral-100 py-2 focus:outline-none focus:border-black">
-                <input type="text" id="item-brand" placeholder="Brand (e.g. Rolex)" class="border-b border-neutral-100 py-2 focus:outline-none focus:border-black">
-                <button id="save-btn" class="bg-black text-white text-[10px] tracking-widest uppercase py-4 mt-4 disabled:bg-neutral-200">Save to Archive</button>
+                <input type="text" id="item-name" placeholder="Item Name" class="border-b border-neutral-100 py-2 focus:outline-none focus:border-black text-sm">
+                <input type="text" id="item-brand" placeholder="Brand" class="border-b border-neutral-100 py-2 focus:outline-none focus:border-black text-sm">
+                <button id="save-btn" class="bg-black text-white text-[10px] tracking-widest uppercase py-4 mt-4 disabled:bg-neutral-200 transition">Save to Archive</button>
             </div>
         </section>
 
-        <!-- CATALOG FILTER -->
+        <!-- CATALOG -->
         <div class="flex gap-8 border-b border-neutral-100 mb-10 pb-4 text-[10px] uppercase tracking-[0.2em] text-neutral-400">
-            <button class="filter-btn active text-black" data-filter="all">All</button>
+            <button class="filter-btn active text-black" data-filter="all">All Items</button>
             <button class="filter-btn" data-filter="Watch">Watches</button>
             <button class="filter-btn" data-filter="Fragrance">Fragrances</button>
         </div>

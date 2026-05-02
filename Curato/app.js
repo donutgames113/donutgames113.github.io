@@ -1,4 +1,4 @@
-// --- CONFIGURATION ---
+// --- CONFIG & INITIALIZATION ---
 const SUPABASE_URL = 'https://wyvliczohxpyptwxnvfi.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5';
 const GEMINI_KEY = 'AIzaSyBn7Quib6q9UaMm-Ro8Kmv0l825t8tn98k';
@@ -6,47 +6,35 @@ const REDIRECT_URL = 'https://donutgames113.github.io/Curato/index.html';
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// --- STATE MANAGEMENT ---
 let selectedCategory = "Other";
 let currentImageData = null;
 
-// --- DOM ELEMENTS ---
 const authBtn = document.getElementById('auth-btn');
 const dropZone = document.getElementById('drop-zone');
 const previewImg = document.getElementById('preview-img');
-const dropText = document.getElementById('drop-text');
 const nameInput = document.getElementById('item-name');
 const brandInput = document.getElementById('item-brand');
 const saveBtn = document.getElementById('save-btn');
 const catalogGrid = document.getElementById('catalog-grid');
-const aiSuggestion = document.getElementById('ai-suggestion');
 
 // --- AUTHENTICATION ---
 authBtn.onclick = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-        await supabase.auth.signOut();
-        window.location.reload();
-    } else {
-        await supabase.auth.signInWithOAuth({
-            provider: 'discord',
-            options: { redirectTo: REDIRECT_URL }
-        });
-    }
+    if (session) { await supabase.auth.signOut(); window.location.reload(); }
+    else { await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: REDIRECT_URL } }); }
 };
 
-// Check session on load
 supabase.auth.onAuthStateChange((_, session) => {
-    if (session) {
-        authBtn.innerText = `DISCONNECT (${session.user.user_metadata.full_name || 'USER'})`;
-        fetchItems();
+    if (session) { 
+        authBtn.innerText = `Sign Out (${session.user.user_metadata.full_name || 'User'})`;
+        fetchItems(); 
     } else {
-        authBtn.innerText = "CONNECT DISCORD";
-        catalogGrid.innerHTML = '<p class="text-neutral-400 text-[10px] uppercase tracking-widest">Login to view archive</p>';
+        authBtn.innerText = "Connect Discord";
+        catalogGrid.innerHTML = '<p class="text-neutral-400 text-[10px] uppercase">Login to view archive.</p>';
     }
 });
 
-// --- UI LOGIC (CATEGORIES) ---
+// --- CATEGORY HANDLING ---
 document.querySelectorAll('.cat-opt').forEach(btn => {
     btn.onclick = () => {
         document.querySelectorAll('.cat-opt').forEach(b => b.classList.remove('bg-black', 'text-white'));
@@ -55,133 +43,101 @@ document.querySelectorAll('.cat-opt').forEach(btn => {
     };
 });
 
-// --- IMAGE UPLOAD & PREVIEW ---
+// --- UPLOAD & AI ---
 dropZone.onclick = () => document.getElementById('file-input').click();
-
 document.getElementById('file-input').onchange = (e) => handleFile(e.target.files[0]);
 
 async function handleFile(file) {
     if (!file) return;
-
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = async () => {
         currentImageData = reader.result;
         previewImg.src = reader.result;
         previewImg.classList.remove('hidden');
-        dropText.classList.add('hidden');
+        document.getElementById('drop-text').classList.add('hidden');
         
-        // Start Gemini identification
-        saveBtn.innerText = "IDENTIFYING...";
+        saveBtn.innerText = "AI IDENTIFYING...";
         saveBtn.disabled = true;
         
         try {
             const base64 = reader.result.split(',')[1];
             const guess = await getGeminiGuess(base64, file.type);
-            
             if (guess) {
                 nameInput.value = guess.name || "";
                 brandInput.value = guess.brand || "";
-                const catBtn = Array.from(document.querySelectorAll('.cat-opt')).find(b => b.dataset.val === guess.category);
-                if (catBtn) catBtn.click();
+                const btn = Array.from(document.querySelectorAll('.cat-opt')).find(b => b.dataset.val === guess.category);
+                if (btn) btn.click();
             }
-        } catch (err) {
-            console.error("Gemini Error:", err);
-            // Don't alert user; just let them type manually if AI fails
-        } finally {
-            saveBtn.innerText = "SAVE TO ARCHIVE";
-            saveBtn.disabled = false;
-        }
+        } catch (e) { console.warn("Gemini offline, manual entry enabled."); }
+        
+        saveBtn.innerText = "Save to Archive";
+        saveBtn.disabled = false;
     };
 }
 
-// --- GEMINI API CALL ---
 async function getGeminiGuess(base64, mimeType) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
-    
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [
-                        { text: "Identify this item. Return ONLY JSON: { \"name\": \"string\", \"brand\": \"string\", \"category\": \"Watch|Fragrance|Apparel|Other\", \"vibe\": \"1 sentence\" }" },
-                        { inline_data: { mime_type: mimeType, data: base64 } }
-                    ]
-                }]
-            })
-        });
-
-        const res = await response.json();
-
-        if (!response.ok) {
-            console.error("Gemini API Error Response:", res);
-            throw new Error(res.error?.message || "API Error");
-        }
-
-        if (!res.candidates?.[0]?.content?.parts?.[0]?.text) {
-            throw new Error("Gemini returned empty content");
-        }
-
-        const cleanText = res.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
-        return JSON.parse(cleanText);
-    } catch (e) {
-        console.error("Gemini Failure Details:", e);
-        // Important: Return a default object so the app doesn't crash
-        return { name: "Unknown Item", brand: "Unknown Brand", category: "Other" };
-    }
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            contents: [{ parts: [
+                { text: "Identify this item. Return JSON: { \"name\": \"string\", \"brand\": \"string\", \"category\": \"Watch|Fragrance|Apparel|Other\" }" },
+                { inline_data: { mime_type: mimeType, data: base64 } }
+            ] }]
+        })
+    });
+    const res = await response.json();
+    return JSON.parse(res.candidates[0].content.parts[0].text.replace(/```json|```/g, ''));
 }
 
-// --- DATABASE OPERATIONS ---
+// --- DB OPERATIONS ---
 saveBtn.onclick = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return alert("Login required to save.");
-    if (!currentImageData || !nameInput.value) return alert("Image and name required.");
-
-    saveBtn.innerText = "SAVING...";
+    if (!currentImageData || !nameInput.value) return alert("Please add an image and name.");
+    saveBtn.innerText = "Saving...";
     
     const { error } = await supabase.from('items').insert([{
         name: nameInput.value,
         image_url: currentImageData,
-        tags: { 
-            brand: brandInput.value, 
-            category: selectedCategory, 
-            vibe: `A ${selectedCategory} by ${brandInput.value}` 
-        }
+        tags: { brand: brandInput.value, category: selectedCategory }
     }]);
 
-    if (error) {
-        console.error("Supabase Error:", error);
-        alert("Error saving. Check console.");
-    } else {
-        // Reset Form
+    if (!error) {
         nameInput.value = ""; brandInput.value = "";
-        previewImg.classList.add('hidden'); dropText.classList.remove('hidden');
-        currentImageData = null;
+        previewImg.classList.add('hidden');
+        document.getElementById('drop-text').classList.remove('hidden');
         fetchItems();
-    }
-    saveBtn.innerText = "SAVE TO ARCHIVE";
+    } else { alert("Save failed. Check console."); }
+    saveBtn.innerText = "Save to Archive";
 };
 
 async function fetchItems(filter = "all") {
-    let { data, error } = await supabase.from('items').select('*').order('id', { ascending: false });
-    if (error) return console.error(error);
+    const { data, error } = await supabase.from('items').select('*').order('id', { ascending: false });
+    if (error) return;
+
+    const filtered = filter === "all" ? data : data.filter(i => i.tags.category === filter);
     
-    const filteredData = filter === "all" ? data : data.filter(i => i.tags?.category === filter);
-    
-    catalogGrid.innerHTML = filteredData.map(item => `
-        <div class="item-card group">
+    catalogGrid.innerHTML = filtered.map(item => `
+        <div class="item-card group relative">
+            <button onclick="deleteItem(${item.id})" class="delete-btn absolute top-2 right-2 z-10 bg-white/80 backdrop-blur px-2 py-1 text-[8px] uppercase tracking-tighter border border-neutral-200 hover:bg-black hover:text-white transition">Delete</button>
             <div class="aspect-[3/4] bg-neutral-50 mb-3 overflow-hidden border border-neutral-100">
                 <img src="${item.image_url}" class="w-full h-full object-cover">
             </div>
             <p class="text-[9px] font-bold uppercase tracking-widest">${item.name}</p>
-            <p class="text-[8px] text-neutral-400 uppercase tracking-tighter">${item.tags?.brand || ''}</p>
+            <p class="text-[8px] text-neutral-400 uppercase tracking-tighter">${item.tags.brand || ''}</p>
         </div>
     `).join('');
 }
 
-// --- FILTERS & AI RECOMMENDATION ---
+// Global Delete Function
+window.deleteItem = async (id) => {
+    if (!confirm("Remove from archive?")) return;
+    const { error } = await supabase.from('items').delete().eq('id', id);
+    if (!error) fetchItems();
+};
+
+// --- FILTERS & RECOMMENDATION ---
 document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.onclick = () => {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('text-black'));
@@ -193,27 +149,18 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 document.getElementById('ask-btn').onclick = async () => {
     const occasion = document.getElementById('occasion-input').value;
     if (!occasion) return;
-
     const { data: items } = await supabase.from('items').select('*');
-    if (!items?.length) return alert("Archive some items first.");
+    if (!items?.length) return;
 
-    aiSuggestion.classList.remove('hidden');
-    aiSuggestion.innerText = "CONSULTING ARCHIVE...";
+    const sug = document.getElementById('ai-suggestion');
+    sug.classList.remove('hidden');
+    sug.innerText = "CONSULTING...";
 
-    const itemContext = items.map(i => `${i.name} (${i.tags?.category || 'Item'})`).join(', ');
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
-    
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: `From this list: [${itemContext}], which is best for "${occasion}"? Answer in one short, elegant sentence.` }] }]
-            })
-        });
-        const res = await response.json();
-        aiSuggestion.innerText = res.candidates[0].content.parts[0].text;
-    } catch (e) {
-        aiSuggestion.innerText = "AI consultation failed.";
-    }
+    const context = items.map(i => `${i.name} (${i.tags.category})`).join(', ');
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
+        method: 'POST',
+        body: JSON.stringify({ contents: [{ parts: [{ text: `Out of [${context}], what is best for ${occasion}? 1 short sentence.` }] }] })
+    });
+    const json = await res.json();
+    sug.innerText = json.candidates[0].content.parts[0].text;
 };
