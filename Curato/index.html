@@ -9,36 +9,48 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a; }
-        .drop-zone.active { border-color: #000; background: #fafafa; }
-        .item-card img { filter: grayscale(100%); transition: all 0.4s ease; }
+        
+        /* Layout & Hover Effects */
+        .item-card { position: relative; transition: transform 0.2s ease; }
+        .item-card:hover { transform: translateY(-2px); }
+        .item-card img { filter: grayscale(100%); transition: all 0.4s ease; display: block; width: 100%; }
         .item-card:hover img { filter: grayscale(0%); }
-        /* Always visible delete button for reliability */
+
+        /* THE FIX: Forced Visibility for Delete Button */
         .delete-btn { 
             position: absolute; 
-            top: 8px; 
-            right: 8px; 
-            z-index: 20; 
-            background: rgba(255, 255, 255, 0.9); 
-            padding: 4px 8px; 
-            font-size: 8px; 
+            top: 10px; 
+            right: 10px; 
+            z-index: 999 !important; /* Force to front */
+            background-color: white; 
+            color: #ff4444; 
+            padding: 4px 10px; 
+            font-size: 10px; 
+            font-weight: bold;
             text-transform: uppercase; 
             border: 1px solid #eee;
-            letter-spacing: 0.1em;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            visibility: visible !important;
+            opacity: 1 !important;
         }
-        .delete-btn:hover { background: #000; color: #fff; border-color: #000; }
+        .delete-btn:hover { background-color: #ff4444; color: white; border-color: #ff4444; }
+
+        .drop-zone.active { border-color: #000; background: #fafafa; }
+        .cat-opt.active { background: #000; color: #fff; border-color: #000; }
     </style>
 </head>
 <body class="p-6 md:p-12">
     <header class="max-w-6xl mx-auto flex justify-between items-end mb-16">
         <div>
-            <h1 class="text-3xl font-extralight tracking-tighter uppercase text-black">Curato</h1>
-            <p class="text-[10px] tracking-[0.3em] text-neutral-400 mt-2 font-light">PERSONAL CURATION ENGINE</p>
+            <h1 class="text-3xl font-extralight tracking-tighter uppercase">Curato</h1>
+            <p class="text-[10px] tracking-[0.3em] text-neutral-400 mt-2">PERSONAL CURATION ENGINE</p>
         </div>
         <button id="auth-btn" class="text-[10px] border border-neutral-200 px-5 py-2 rounded-full hover:bg-black hover:text-white transition tracking-widest uppercase">Connect Discord</button>
     </header>
 
     <main class="max-w-6xl mx-auto">
-        <!-- AI RECOMMENDATION -->
+        <!-- CONSULTATION -->
         <section class="mb-20">
             <div class="flex gap-4 items-center mb-6">
                 <input type="text" id="occasion-input" placeholder="What's the occasion?" 
@@ -48,7 +60,7 @@
             <div id="ai-suggestion" class="hidden text-sm text-neutral-500 italic font-light p-4 bg-neutral-50 border-l border-black"></div>
         </section>
 
-        <!-- INPUT SECTION -->
+        <!-- INPUT -->
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20 border-t border-neutral-100 pt-12">
             <div id="drop-zone" class="border border-dashed border-neutral-200 aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-black transition relative overflow-hidden bg-neutral-50">
                 <p id="drop-text" class="text-[10px] uppercase tracking-widest text-neutral-400 text-center px-4">Drag Image or Click</p>
@@ -79,7 +91,6 @@
             <button class="filter-btn" data-filter="Fragrance">Fragrances</button>
         </div>
 
-        <!-- GRID -->
         <div id="catalog-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8"></div>
     </main>
 
