@@ -95,26 +95,19 @@
             background: transparent;
         }
 
-        .chip:hover, .cat-opt.active, .chip.active {
+        .chip:hover, .cat-opt.active {
             border-color: var(--accent);
             color: white;
             background: rgba(212, 255, 106, 0.05);
         }
 
-        .tag-pill {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--stroke);
-            color: var(--muted);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .action-btn {
+        .delete-btn {
             position: absolute;
             top: 10px;
+            right: 10px;
+            background: rgba(255, 50, 50, 0.1);
+            color: #ff5f5f;
+            border: 1px solid rgba(255, 50, 50, 0.2);
             padding: 4px 8px;
             border-radius: 6px;
             font-size: 8px;
@@ -122,35 +115,9 @@
             opacity: 0;
             transition: .3s;
             backdrop-filter: blur(4px);
-            z-index: 10;
         }
 
-        .item-card:hover .action-btn { opacity: 1; }
-
-        .edit-trigger { 
-            right: 65px; 
-            background: rgba(255, 255, 255, 0.1); 
-            color: white; 
-            border: 1px solid var(--stroke); 
-        }
-
-        .delete-trigger { 
-            right: 10px; 
-            background: rgba(255, 50, 50, 0.1); 
-            color: #ff5f5f; 
-            border: 1px solid rgba(255, 50, 50, 0.2); 
-        }
-
-        #edit-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 100;
-            background: rgba(0,0,0,0.8);
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(8px);
-        }
+        .item-card:hover .delete-btn { opacity: 1; }
 
         #occasion-input {
             font-size: 32px;
@@ -252,32 +219,6 @@
 
     </div>
 </main>
-
-<!-- EDIT MODAL -->
-<div id="edit-modal">
-    <div class="glass p-8 rounded-[2rem] w-full max-w-md mx-6">
-        <h2 class="text-[10px] tracking-[0.3em] uppercase text-white/30 mb-6">Edit Archive Item</h2>
-        <div class="space-y-6">
-            <div>
-                <label class="text-[8px] uppercase tracking-widest text-white/20 mb-2 block">Quick Tags</label>
-                <div class="flex flex-wrap gap-2">
-                    <button class="prefab-tag chip" onclick="toggleTag(this)">Formal</button>
-                    <button class="prefab-tag chip" onclick="toggleTag(this)">Casual</button>
-                    <button class="prefab-tag chip" onclick="toggleTag(this)">Streetwear</button>
-                    <button class="prefab-tag chip" onclick="toggleTag(this)">Minimalist</button>
-                </div>
-            </div>
-            <div>
-                <label class="text-[8px] uppercase tracking-widest text-white/20 mb-2 block">Custom Tags (Comma Separated)</label>
-                <input id="custom-tags" placeholder="vintage, handmade, archive..." class="w-full bg-transparent border-b border-white/5 py-2 text-sm focus:outline-none" />
-            </div>
-            <div class="flex gap-4 mt-8">
-                <button onclick="closeEdit()" class="flex-1 text-[9px] tracking-widest uppercase py-4 border border-white/10 rounded-xl text-white/50">Cancel</button>
-                <button id="update-btn" class="flex-1 bg-white text-black text-[9px] tracking-widest uppercase py-4 rounded-xl font-medium">Save Changes</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script type="module" src="app.js"></script>
 
