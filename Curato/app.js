@@ -34,7 +34,7 @@ authBtn.onclick = async () => {
     }
 };
 
-// API Key Storage
+// API Key Logic: Save to Supabase profile when user finishes typing
 keyInput.onblur = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session && keyInput.value) {
@@ -57,7 +57,7 @@ supabase.auth.onAuthStateChange((_, session) => {
     }
 });
 
-// Category Selection
+// Category Toggles
 document.querySelectorAll('.cat-opt').forEach(btn => {
     btn.onclick = () => {
         document.querySelectorAll('.cat-opt').forEach(b => b.classList.remove('bg-black', 'text-white'));
@@ -66,7 +66,7 @@ document.querySelectorAll('.cat-opt').forEach(btn => {
     };
 });
 
-// Image Upload & Analysis
+// Image Handling
 dropZone.onclick = () => document.getElementById('file-input').click();
 document.getElementById('file-input').onchange = (e) => handleFile(e.target.files[0]);
 
@@ -103,7 +103,7 @@ async function handleFile(file) {
     };
 }
 
-// THE CRITICAL API CALL FIX
+// THE FIXED API CALL[cite: 1]
 async function callGeminiAPI(base64, mimeType, promptText) {
     const { data: { session } } = await supabase.auth.getSession();
     const activeKey = keyInput.value.trim() || session?.user?.user_metadata?.gemini_api_key;
@@ -113,7 +113,7 @@ async function callGeminiAPI(base64, mimeType, promptText) {
         throw new Error("Missing API Key");
     }
 
-    // UPDATED MODEL STRING FROM YOUR LISTMODELS OUTPUT[cite: 1]
+    // Using the 2.5 Flash model specifically found in your listModels output[cite: 1]
     const model = "gemini-2.5-flash"; 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeKey}`;
     
@@ -129,28 +129,33 @@ async function callGeminiAPI(base64, mimeType, promptText) {
         });
     }
 
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-    });
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
 
-    if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error?.message || "Google API Error");
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Google API Error (${response.status}): ${errorText}`);
+        }
+        
+        const res = await response.json();
+        const resultText = res.candidates[0].content.parts[0].text;
+        
+        if (promptText.includes("JSON")) {
+            const cleanedText = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
+            return JSON.parse(cleanedText);
+        }
+        return resultText;
+    } catch (err) {
+        console.error("Gemini API Request failed:", err);
+        throw err;
     }
-    
-    const res = await response.json();
-    const resultText = res.candidates[0].content.parts[0].text;
-    
-    if (promptText.includes("JSON")) {
-        const cleanedText = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
-        return JSON.parse(cleanedText);
-    }
-    return resultText;
 }
 
-// Database Persistence
+// Database Actions
 saveBtn.onclick = async () => {
     if (!currentImageData || !nameInput.value) return alert("Upload an image and name it first.");
     saveBtn.innerText = "SAVING...";
@@ -188,24 +193,25 @@ async function fetchItems() {
 }
 
 window.deleteItem = async (id) => {
-    if (!confirm("Remove this item?")) return;
-    await supabase.from('items').delete().eq(id);
+    if (!confirm("Are you sure?")) return;
+    const { error } = await supabase.from('items').delete().eq('id', id);
+    if (error) alert("Delete failed: " + error.message);
     fetchItems();
 };
 
-// AI Suggestion Logic
+// Consult Logic
 askBtn.onclick = async () => {
     const occasion = document.getElementById('occasion-input').value;
     const { data: items } = await supabase.from('items').select('*');
     
-    if (!items?.length) return alert("Your archive is empty.");
-    if (!occasion) return alert("What's the occasion?");
+    if (!items?.length) return alert("Archive is empty.");
+    if (!occasion) return alert("Occasion is required.");
 
     suggestionBox.classList.remove('hidden');
-    suggestionBox.innerText = "CONSULTING ARCHIVE...";
+    suggestionBox.innerText = "CONSULTING...";
 
     const inventory = items.map(i => `${i.name} (${i.tags?.category})`).join(', ');
-    const prompt = `Based on this inventory: [${inventory}], what should I wear/use for "${occasion}"? One elegant sentence.`;
+    const prompt = `Inventory: [${inventory}]. Recommend one specific item for "${occasion}". Be brief and sophisticated.`;
 
     try {
         const advice = await callGeminiAPI(null, null, prompt);
