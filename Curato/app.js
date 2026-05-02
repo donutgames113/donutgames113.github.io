@@ -97,7 +97,6 @@ async function callGeminiAPI(base64, mimeType, promptText) {
         throw new Error("No API Key provided.");
     }
 
-    // FIX APPLIED HERE
     const model = "gemini-1.5-flash"; 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${userKey}`;
     
