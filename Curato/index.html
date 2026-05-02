@@ -12,15 +12,27 @@
         .drop-zone.active { border-color: #000; background: #fafafa; }
         .item-card img { filter: grayscale(100%); transition: all 0.4s ease; }
         .item-card:hover img { filter: grayscale(0%); }
-        .delete-btn { opacity: 0; transition: opacity 0.2s; }
-        .item-card:hover .delete-btn { opacity: 1; }
+        /* Always visible delete button for reliability */
+        .delete-btn { 
+            position: absolute; 
+            top: 8px; 
+            right: 8px; 
+            z-index: 20; 
+            background: rgba(255, 255, 255, 0.9); 
+            padding: 4px 8px; 
+            font-size: 8px; 
+            text-transform: uppercase; 
+            border: 1px solid #eee;
+            letter-spacing: 0.1em;
+        }
+        .delete-btn:hover { background: #000; color: #fff; border-color: #000; }
     </style>
 </head>
 <body class="p-6 md:p-12">
     <header class="max-w-6xl mx-auto flex justify-between items-end mb-16">
         <div>
-            <h1 class="text-3xl font-extralight tracking-tighter uppercase">Curato</h1>
-            <p class="text-[10px] tracking-[0.3em] text-neutral-400 mt-2">PERSONAL CURATION ENGINE</p>
+            <h1 class="text-3xl font-extralight tracking-tighter uppercase text-black">Curato</h1>
+            <p class="text-[10px] tracking-[0.3em] text-neutral-400 mt-2 font-light">PERSONAL CURATION ENGINE</p>
         </div>
         <button id="auth-btn" class="text-[10px] border border-neutral-200 px-5 py-2 rounded-full hover:bg-black hover:text-white transition tracking-widest uppercase">Connect Discord</button>
     </header>
@@ -39,7 +51,7 @@
         <!-- INPUT SECTION -->
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20 border-t border-neutral-100 pt-12">
             <div id="drop-zone" class="border border-dashed border-neutral-200 aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-black transition relative overflow-hidden bg-neutral-50">
-                <p id="drop-text" class="text-[10px] uppercase tracking-widest text-neutral-400 text-center px-4">Drag Image or Click to Upload</p>
+                <p id="drop-text" class="text-[10px] uppercase tracking-widest text-neutral-400 text-center px-4">Drag Image or Click</p>
                 <img id="preview-img" class="absolute inset-0 w-full h-full object-cover hidden">
                 <input type="file" id="file-input" class="hidden" accept="image/*">
             </div>
@@ -60,13 +72,14 @@
             </div>
         </section>
 
-        <!-- CATALOG -->
+        <!-- FILTERS -->
         <div class="flex gap-8 border-b border-neutral-100 mb-10 pb-4 text-[10px] uppercase tracking-[0.2em] text-neutral-400">
             <button class="filter-btn active text-black" data-filter="all">All Items</button>
             <button class="filter-btn" data-filter="Watch">Watches</button>
             <button class="filter-btn" data-filter="Fragrance">Fragrances</button>
         </div>
 
+        <!-- GRID -->
         <div id="catalog-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8"></div>
     </main>
 
