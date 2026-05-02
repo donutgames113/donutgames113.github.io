@@ -8,35 +8,22 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a; }
+        body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a; overflow-x: hidden; }
         
-        /* Layout & Hover Effects */
-        .item-card { position: relative; transition: transform 0.2s ease; }
-        .item-card:hover { transform: translateY(-2px); }
-        .item-card img { filter: grayscale(100%); transition: all 0.4s ease; display: block; width: 100%; }
+        /* Image Hover & Card Styles */
+        .item-card { position: relative; }
+        .item-card img { filter: grayscale(100%); transition: all 0.4s ease; display: block; width: 100%; height: 100%; object-fit: cover; }
         .item-card:hover img { filter: grayscale(0%); }
 
-        /* THE FIX: Forced Visibility for Delete Button */
+        /* Permanent Delete Button */
         .delete-btn { 
-            position: absolute; 
-            top: 10px; 
-            right: 10px; 
-            z-index: 999 !important; /* Force to front */
-            background-color: white; 
-            color: #ff4444; 
-            padding: 4px 10px; 
-            font-size: 10px; 
-            font-weight: bold;
-            text-transform: uppercase; 
-            border: 1px solid #eee;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            visibility: visible !important;
-            opacity: 1 !important;
+            position: absolute; top: 10px; right: 10px; z-index: 50;
+            background-color: white; color: #ff4444; padding: 4px 10px; 
+            font-size: 10px; font-weight: bold; text-transform: uppercase; 
+            border: 1px solid #eee; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .delete-btn:hover { background-color: #ff4444; color: white; border-color: #ff4444; }
 
-        .drop-zone.active { border-color: #000; background: #fafafa; }
         .cat-opt.active { background: #000; color: #fff; border-color: #000; }
     </style>
 </head>
@@ -50,7 +37,7 @@
     </header>
 
     <main class="max-w-6xl mx-auto">
-        <!-- CONSULTATION -->
+        <!-- AI RECOMMENDATION -->
         <section class="mb-20">
             <div class="flex gap-4 items-center mb-6">
                 <input type="text" id="occasion-input" placeholder="What's the occasion?" 
@@ -60,7 +47,7 @@
             <div id="ai-suggestion" class="hidden text-sm text-neutral-500 italic font-light p-4 bg-neutral-50 border-l border-black"></div>
         </section>
 
-        <!-- INPUT -->
+        <!-- INPUT SECTION -->
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20 border-t border-neutral-100 pt-12">
             <div id="drop-zone" class="border border-dashed border-neutral-200 aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-black transition relative overflow-hidden bg-neutral-50">
                 <p id="drop-text" class="text-[10px] uppercase tracking-widest text-neutral-400 text-center px-4">Drag Image or Click</p>
@@ -71,7 +58,7 @@
             <div class="flex flex-col gap-6">
                 <div>
                     <label class="text-[10px] uppercase tracking-widest text-neutral-400">Category</label>
-                    <div class="flex flex-wrap gap-2 mt-2">
+                    <div class="flex flex-wrap gap-2 mt-2" id="category-wrap">
                         <button class="cat-opt border px-3 py-1 text-[10px] uppercase tracking-wider rounded-full border-neutral-200" data-val="Watch">Watches</button>
                         <button class="cat-opt border px-3 py-1 text-[10px] uppercase tracking-wider rounded-full border-neutral-200" data-val="Fragrance">Fragrances</button>
                         <button class="cat-opt border px-3 py-1 text-[10px] uppercase tracking-wider rounded-full border-neutral-200" data-val="Apparel">Apparel</button>
@@ -84,13 +71,7 @@
             </div>
         </section>
 
-        <!-- FILTERS -->
-        <div class="flex gap-8 border-b border-neutral-100 mb-10 pb-4 text-[10px] uppercase tracking-[0.2em] text-neutral-400">
-            <button class="filter-btn active text-black" data-filter="all">All Items</button>
-            <button class="filter-btn" data-filter="Watch">Watches</button>
-            <button class="filter-btn" data-filter="Fragrance">Fragrances</button>
-        </div>
-
+        <!-- GRID -->
         <div id="catalog-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8"></div>
     </main>
 
