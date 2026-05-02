@@ -35,7 +35,6 @@ authBtn.onclick = async () => {
     }
 };
 
-// Sync API Key to Supabase User Metadata
 keyInput.onblur = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session && keyInput.value) {
@@ -121,7 +120,6 @@ async function callGeminiAPI(base64, mimeType, promptText) {
         throw new Error("Missing API Key");
     }
 
-    // Fixed model based on your 2026 model list[cite: 1]
     const model = "gemini-2.5-flash"; 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeKey}`;
     
@@ -197,7 +195,6 @@ async function fetchItems() {
 
     catalogGrid.innerHTML = data.map(item => `
         <div class="item-card group">
-            <button onclick="window.deleteItem(${item.id})" class="delete-btn">Remove</button>
             <div class="img-container">
                 <img src="${item.image_url}" loading="lazy">
             </div>
@@ -208,13 +205,6 @@ async function fetchItems() {
         </div>
     `).join('');
 }
-
-window.deleteItem = async (id) => {
-    if (!confirm("Permanently remove this item from your collection?")) return;
-    const { error } = await supabase.from('items').delete().eq('id', id);
-    if (error) console.error("Delete failed:", error.message);
-    fetchItems();
-};
 
 // --- CONSULTATION LOGIC ---
 
