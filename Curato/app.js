@@ -34,7 +34,7 @@ authBtn.onclick = async () => {
     }
 };
 
-// API Key Storage (Sync with Supabase User Data)
+// API Key Storage
 keyInput.onblur = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session && keyInput.value) {
@@ -103,7 +103,7 @@ async function handleFile(file) {
     };
 }
 
-// THE UPDATED API CALL
+// THE CRITICAL API CALL FIX
 async function callGeminiAPI(base64, mimeType, promptText) {
     const { data: { session } } = await supabase.auth.getSession();
     const activeKey = keyInput.value.trim() || session?.user?.user_metadata?.gemini_api_key;
@@ -113,7 +113,7 @@ async function callGeminiAPI(base64, mimeType, promptText) {
         throw new Error("Missing API Key");
     }
 
-    // Using the model confirmed by your listModels call
+    // UPDATED MODEL STRING FROM YOUR LISTMODELS OUTPUT[cite: 1]
     const model = "gemini-2.5-flash"; 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeKey}`;
     
@@ -143,7 +143,6 @@ async function callGeminiAPI(base64, mimeType, promptText) {
     const res = await response.json();
     const resultText = res.candidates[0].content.parts[0].text;
     
-    // JSON cleaning logic
     if (promptText.includes("JSON")) {
         const cleanedText = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
         return JSON.parse(cleanedText);
@@ -189,8 +188,8 @@ async function fetchItems() {
 }
 
 window.deleteItem = async (id) => {
-    if (!confirm("Remove this item from your archive?")) return;
-    await supabase.from('items').delete().eq('id', id);
+    if (!confirm("Remove this item?")) return;
+    await supabase.from('items').delete().eq(id);
     fetchItems();
 };
 
@@ -206,7 +205,7 @@ askBtn.onclick = async () => {
     suggestionBox.innerText = "CONSULTING ARCHIVE...";
 
     const inventory = items.map(i => `${i.name} (${i.tags?.category})`).join(', ');
-    const prompt = `Based on this inventory: [${inventory}], what should I wear/use for "${occasion}"? Give me one elegant, concise recommendation.`;
+    const prompt = `Based on this inventory: [${inventory}], what should I wear/use for "${occasion}"? One elegant sentence.`;
 
     try {
         const advice = await callGeminiAPI(null, null, prompt);
