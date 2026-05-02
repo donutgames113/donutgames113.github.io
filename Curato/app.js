@@ -7,7 +7,6 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let selectedCategory = "Other";
 let currentImageData = null;
 
-// Selectors
 const authBtn = document.getElementById('auth-btn');
 const keyInput = document.getElementById('user-api-key');
 const dropZone = document.getElementById('drop-zone');
@@ -20,7 +19,6 @@ const catalogGrid = document.getElementById('catalog-grid');
 const askBtn = document.getElementById('ask-btn');
 const suggestionBox = document.getElementById('ai-suggestion');
 
-// --- AUTH & KEY MANAGEMENT ---
 authBtn.onclick = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session) { 
@@ -31,7 +29,6 @@ authBtn.onclick = async () => {
     }
 };
 
-// Auto-save API key to user metadata when they stop typing
 keyInput.onblur = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session && keyInput.value) {
@@ -44,7 +41,6 @@ keyInput.onblur = async () => {
 supabase.auth.onAuthStateChange((_, session) => {
     if (session) {
         authBtn.innerText = `SIGN OUT (${session.user.user_metadata.full_name || 'USER'})`;
-        // Load existing key if available
         if (session.user.user_metadata.gemini_api_key) {
             keyInput.value = session.user.user_metadata.gemini_api_key;
         }
@@ -55,7 +51,6 @@ supabase.auth.onAuthStateChange((_, session) => {
     }
 });
 
-// --- CATEGORIES ---
 document.querySelectorAll('.cat-opt').forEach(btn => {
     btn.onclick = () => {
         document.querySelectorAll('.cat-opt').forEach(b => b.classList.remove('bg-black', 'text-white'));
@@ -64,7 +59,6 @@ document.querySelectorAll('.cat-opt').forEach(btn => {
     };
 });
 
-// --- IMAGE HANDLING ---
 dropZone.onclick = () => document.getElementById('file-input').click();
 document.getElementById('file-input').onchange = (e) => handleFile(e.target.files[0]);
 
@@ -94,7 +88,6 @@ async function handleFile(file) {
     };
 }
 
-// --- DYNAMIC API CALL ---
 async function callGeminiAPI(base64, mimeType, promptText) {
     const { data: { session } } = await supabase.auth.getSession();
     const userKey = session?.user?.user_metadata?.gemini_api_key || keyInput.value.trim();
@@ -104,7 +97,8 @@ async function callGeminiAPI(base64, mimeType, promptText) {
         throw new Error("No API Key provided.");
     }
 
-    const model = "gemini-1.5-flash-latest"; 
+    // FIX APPLIED HERE
+    const model = "gemini-1.5-flash"; 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${userKey}`;
     
     const body = {
@@ -141,7 +135,6 @@ async function callGeminiAPI(base64, mimeType, promptText) {
     return resultText;
 }
 
-// --- DB OPS ---
 saveBtn.onclick = async () => {
     if (!currentImageData || !nameInput.value) return alert("Missing image or name.");
     saveBtn.innerText = "SAVING...";
@@ -179,7 +172,6 @@ window.deleteItem = async (id) => {
     fetchItems();
 };
 
-// --- CONSULTATION ---
 askBtn.onclick = async () => {
     const occasion = document.getElementById('occasion-input').value;
     const { data: items } = await supabase.from('items').select('*');
