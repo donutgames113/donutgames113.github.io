@@ -1,27 +1,43 @@
+// CONFIGURATION
 const SUPABASE_URL = 'https://wyvliczohxpyptwxnvfi.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5';
-const GEMINI_KEY = 'AIzaSyBn7Quib6q9UaMm-Ro8Kmv0l825t8tn98k';
 const REDIRECT_URL = 'https://donutgames113.github.io/Curato/index.html';
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// State Management
+// STATE
+let userKey = null;
 let selectedCategory = "Other";
 let currentImageData = null;
 
-// UI Selectors
+// UI ELEMENTS
 const authBtn = document.getElementById('auth-btn');
-const dropZone = document.getElementById('drop-zone');
+const keySection = document.getElementById('key-section');
+const keyInput = document.getElementById('user-api-key');
+const saveKeyBtn = document.getElementById('save-key-btn');
+const catalogGrid = document.getElementById('catalog-grid');
+const askBtn = document.getElementById('ask-btn');
+const suggestionBox = document.getElementById('ai-suggestion');
 const previewImg = document.getElementById('preview-img');
 const dropText = document.getElementById('drop-text');
 const nameInput = document.getElementById('item-name');
 const brandInput = document.getElementById('item-brand');
 const saveBtn = document.getElementById('save-btn');
-const catalogGrid = document.getElementById('catalog-grid');
-const askBtn = document.getElementById('ask-btn');
-const suggestionBox = document.getElementById('ai-suggestion');
 
-// --- 1. AUTHENTICATION ---
+// --- 1. SESSION MANAGEMENT ---
+supabase.auth.onAuthStateChange(async (event, session) => {
+    if (session) {
+        authBtn.innerText = "SIGN OUT";
+        keySection.classList.remove('hidden');
+        await fetchUserKey(session.user.id);
+        fetchItems();
+    } else {
+        authBtn.innerText = "CONNECT DISCORD";
+        keySection.classList.add('hidden');
+        catalogGrid.innerHTML = '<p class="text-[10px] uppercase text-neutral-700">Connect account to view archive.</p>';
+    }
+});
+
 authBtn.onclick = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
@@ -29,84 +45,84 @@ authBtn.onclick = async () => {
         window.location.reload();
     } else {
         await supabase.auth.signInWithOAuth({ 
-            provider: 'discord',
-            options: { redirectTo: REDIRECT_URL }
+            provider: 'discord', 
+            options: { redirectTo: REDIRECT_URL } 
         });
     }
 };
 
-supabase.auth.onAuthStateChange((_, session) => {
-    if (session) {
-        authBtn.innerText = `SIGN OUT (${session.user.user_metadata.full_name || 'USER'})`;
-        fetchItems();
-    } else {
-        authBtn.innerText = "CONNECT DISCORD";
-        catalogGrid.innerHTML = '<p class="text-neutral-400 text-[10px] uppercase tracking-widest">Connect to view archive.</p>';
-    }
-});
-
-// --- 2. CATEGORY SELECTION ---
-document.querySelectorAll('.cat-opt').forEach(btn => {
-    btn.onclick = () => {
-        document.querySelectorAll('.cat-opt').forEach(b => b.classList.remove('bg-black', 'text-white'));
-        btn.classList.add('bg-black', 'text-white');
-        selectedCategory = btn.dataset.val;
-    };
-});
-
-// --- 3. THE REBUILT GEMINI CORE ---
-async function callGeminiAPI(base64, mimeType, promptText) {
-    // Explicitly using the v1beta endpoint as required for Project ID: gen-lang-client-0998346807
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
+async function fetchUserKey(userId) {
+    const { data, error } = await supabase
+        .from('user_settings')
+        .select('gemini_key')
+        .eq('id', userId)
+        .maybeSingle();
     
-    const payload = {
-        contents: [{
-            parts: [{ text: promptText }]
-        }]
+    if (data?.gemini_key) {
+        userKey = data.gemini_key;
+        keyInput.placeholder = "API Key Active ••••••••";
+    }
+}
+
+saveKeyBtn.onclick = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    const newKey = keyInput.value.trim();
+    
+    if (!newKey.startsWith("AIza")) return alert("Invalid format. Key usually starts with AIza...");
+
+    const { error } = await supabase
+        .from('user_settings')
+        .upsert({ id: user.id, gemini_key: newKey });
+
+    if (!error) {
+        userKey = newKey;
+        keyInput.value = "";
+        alert("Settings Updated.");
+    }
+};
+
+// --- 2. AI LOGIC (GEMINI) ---
+async function callGemini(base64, mimeType, prompt) {
+    if (!userKey) {
+        alert("Please provide your Gemini API key in settings first.");
+        return null;
+    }
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${userKey}`;
+    const body = {
+        contents: [{ parts: [{ text: prompt }] }]
     };
 
     if (base64) {
-        payload.contents[0].parts.push({
+        body.contents[0].parts.push({
             inline_data: { mime_type: mimeType, data: base64 }
         });
     }
 
     try {
-        const response = await fetch(API_URL, {
+        const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(body)
         });
+        const data = await response.json();
+        const result = data.candidates[0].content.parts[0].text;
 
-        const result = await response.json();
-
-        if (!response.ok) {
-            console.error("CRITICAL GOOGLE API ERROR:", result);
-            const errorReason = result.error?.message || "Check Project Permissions in AI Studio";
-            throw new Error(`Google Error ${response.status}: ${errorReason}`);
+        if (prompt.includes("JSON")) {
+            return JSON.parse(result.replace(/```json|```/g, '').trim());
         }
-        
-        const output = result.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!output) throw new Error("Empty response from AI");
-
-        // Handle JSON parsing for Auto-Scan
-        if (promptText.includes("JSON")) {
-            const cleaned = output.replace(/```json/g, '').replace(/```/g, '').trim();
-            return JSON.parse(cleaned);
-        }
-        return output;
-
-    } catch (err) {
-        console.error("NETWORK OR API FAILURE:", err);
-        throw err;
+        return result;
+    } catch (e) {
+        console.error("AI Error:", e);
+        return null;
     }
 }
 
-// --- 4. IMAGE HANDLING ---
-dropZone.onclick = () => document.getElementById('file-input').click();
-document.getElementById('file-input').onchange = (e) => handleFile(e.target.files[0]);
+// --- 3. ARCHIVE ACTIONS ---
+document.getElementById('drop-zone').onclick = () => document.getElementById('file-input').click();
+document.getElementById('file-input').onchange = (e) => handleUpload(e.target.files[0]);
 
-async function handleFile(file) {
+async function handleUpload(file) {
     if (!file) return;
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -116,89 +132,77 @@ async function handleFile(file) {
         previewImg.classList.remove('hidden');
         dropText.classList.add('hidden');
         
-        saveBtn.innerText = "AI IDENTIFYING...";
-        saveBtn.disabled = true;
-        
-        try {
-            const base64 = reader.result.split(',')[1];
-            const prompt = "Identify item. Return ONLY JSON: {\"name\":\"string\",\"brand\":\"string\",\"category\":\"Watch|Fragrance|Apparel|Other\"}";
-            const guess = await callGeminiAPI(base64, file.type, prompt);
-            
-            if (guess) {
-                nameInput.value = guess.name || "";
-                brandInput.value = guess.brand || "";
-                const btn = Array.from(document.querySelectorAll('.cat-opt')).find(b => b.dataset.val === guess.category);
-                if (btn) btn.click();
+        if (userKey) {
+            saveBtn.innerText = "SCANNING...";
+            const b64 = reader.result.split(',')[1];
+            const info = await callGemini(b64, file.type, "Analyze image. Return ONLY JSON: {\"name\":\"\",\"brand\":\"\",\"category\":\"Watch|Fragrance|Apparel|Other\"}");
+            if (info) {
+                nameInput.value = info.name || "";
+                brandInput.value = info.brand || "";
+                document.querySelector(`[data-val="${info.category}"]`)?.click();
             }
-        } catch (e) {
-            console.warn("Auto-scan failed, manual entry allowed.");
-        } finally {
-            saveBtn.innerText = "SAVE TO ARCHIVE";
-            saveBtn.disabled = false;
+            saveBtn.innerText = "ADD TO ARCHIVE";
         }
     };
 }
 
-// --- 5. DATABASE OPERATIONS ---
 saveBtn.onclick = async () => {
-    if (!currentImageData || !nameInput.value) return alert("Missing image or item name.");
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user || !currentImageData || !nameInput.value) return alert("Missing info.");
+
     saveBtn.innerText = "SAVING...";
-    
-    const { error } = await supabase.from('items').insert([{
+    await supabase.from('items').insert([{
+        user_id: user.id,
         name: nameInput.value,
         image_url: currentImageData,
         tags: { brand: brandInput.value, category: selectedCategory }
     }]);
 
-    if (!error) {
-        nameInput.value = ""; 
-        brandInput.value = "";
-        previewImg.classList.add('hidden'); 
-        dropText.classList.remove('hidden');
-        fetchItems();
-    }
-    saveBtn.innerText = "SAVE TO ARCHIVE";
+    nameInput.value = ""; brandInput.value = "";
+    previewImg.classList.add('hidden'); dropText.classList.remove('hidden');
+    saveBtn.innerText = "ADD TO ARCHIVE";
+    fetchItems();
 };
 
 async function fetchItems() {
-    const { data, error } = await supabase.from('items').select('*').order('id', { ascending: false });
-    if (error) return;
-    
-    catalogGrid.innerHTML = data.map(item => `
-        <div class="item-card relative group">
-            <button onclick="window.deleteItem(${item.id})" class="delete-btn">Delete</button>
-            <div class="aspect-[3/4] bg-neutral-50 mb-3 border border-neutral-100 overflow-hidden">
-                <img src="${item.image_url}" class="w-full h-full object-cover">
+    const { data } = await supabase.from('items').select('*').order('id', { ascending: false });
+    if (!data) return;
+    catalogGrid.innerHTML = data.map(i => `
+        <div class="item-card relative group animate-fade-in">
+            <button onclick="deleteItem(${i.id})" class="delete-btn">Remove</button>
+            <div class="aspect-[3/4] bg-neutral-900 border border-neutral-800 overflow-hidden mb-3">
+                <img src="${i.image_url}" class="w-full h-full object-cover grayscale hover:grayscale-0 transition duration-500">
             </div>
-            <p class="text-[9px] font-bold uppercase tracking-widest">${item.name}</p>
-            <p class="text-[8px] text-neutral-400 uppercase tracking-tighter">${item.tags?.brand || ''}</p>
+            <p class="text-[9px] font-bold uppercase tracking-widest">${i.name}</p>
+            <p class="text-[8px] text-neutral-500 uppercase tracking-tighter">${i.tags?.brand || 'Unknown'}</p>
         </div>
     `).join('');
 }
 
 window.deleteItem = async (id) => {
-    if (!confirm("Remove from archive?")) return;
-    await supabase.from('items').delete().eq('id', id);
-    fetchItems();
-};
-
-// --- 6. CONSULTATION ---
-askBtn.onclick = async () => {
-    const occasion = document.getElementById('occasion-input').value;
-    const { data: items } = await supabase.from('items').select('*');
-    
-    if (!items?.length || !occasion) return alert("Archive some items and enter an occasion.");
-
-    suggestionBox.classList.remove('hidden');
-    suggestionBox.innerText = "CURATING SELECTION...";
-
-    const context = items.map(i => `${i.name} (${i.tags?.category || 'Item'})`).join(', ');
-    const prompt = `Stylist persona. Archive: [${context}]. Recommend ONE item for "${occasion}". One short sentence.`;
-
-    try {
-        const advice = await callGeminiAPI(null, null, prompt);
-        suggestionBox.innerText = advice;
-    } catch (e) {
-        suggestionBox.innerText = "Consultation unavailable. Check browser console for Google API error.";
+    if (confirm("Remove from archive?")) {
+        await supabase.from('items').delete().eq('id', id);
+        fetchItems();
     }
 };
+
+askBtn.onclick = async () => {
+    const occasion = document.getElementById('occasion-input').value;
+    const { data: items } = await supabase.from('items').select('name');
+    if (!items?.length || !occasion) return alert("Archive is empty or occasion missing.");
+
+    suggestionBox.classList.remove('hidden');
+    suggestionBox.innerText = "CONSULTING...";
+    
+    const names = items.map(i => i.name).join(', ');
+    const advice = await callGemini(null, null, `I have: [${names}]. What should I wear for ${occasion}? One short, elegant sentence.`);
+    suggestionBox.innerText = advice || "Unable to consult at this time.";
+};
+
+document.querySelectorAll('.cat-opt').forEach(btn => {
+    btn.onclick = () => {
+        document.querySelectorAll('.cat-opt').forEach(b => b.classList.remove('bg-white', 'text-black'));
+        btn.classList.add('bg-white', 'text-black');
+        selectedCategory = btn.dataset.val;
+    };
+});
