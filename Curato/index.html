@@ -28,14 +28,13 @@
             <h1 class="text-3xl font-extralight tracking-tighter uppercase">Curato</h1>
             <p class="text-[10px] tracking-[0.3em] text-neutral-400 mt-2">PERSONAL CURATION ENGINE</p>
         </div>
-        <div class="flex gap-4">
-            <input type="password" id="user-api-key" placeholder="GEMINI API KEY" class="text-[10px] border-b border-neutral-200 focus:outline-none focus:border-black px-2 py-1 w-32 md:w-48">
+        <div class="flex flex-col items-end gap-2">
+            <input type="password" id="user-api-key" placeholder="PASTE GEMINI API KEY" class="text-[9px] border border-neutral-200 px-3 py-1 rounded-full w-40 focus:outline-none focus:border-black transition uppercase tracking-widest">
             <button id="auth-btn" class="text-[10px] border border-neutral-200 px-5 py-2 rounded-full hover:bg-black hover:text-white transition tracking-widest uppercase">Connect Discord</button>
         </div>
     </header>
 
     <main class="max-w-6xl mx-auto">
-        <!-- AI RECOMMENDATION -->
         <section class="mb-20">
             <div class="flex gap-4 items-center mb-6">
                 <input type="text" id="occasion-input" placeholder="What's the occasion?" 
@@ -45,7 +44,6 @@
             <div id="ai-suggestion" class="hidden text-sm text-neutral-500 italic font-light p-4 bg-neutral-50 border-l border-black"></div>
         </section>
 
-        <!-- INPUT SECTION -->
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20 border-t border-neutral-100 pt-12">
             <div id="drop-zone" class="border border-dashed border-neutral-200 aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-black transition relative overflow-hidden bg-neutral-50">
                 <p id="drop-text" class="text-[10px] uppercase tracking-widest text-neutral-400 text-center px-4">Drag Image or Click</p>
