@@ -13,13 +13,17 @@ const aiSuggestion = document.getElementById('ai-suggestion');
 // --- 1. Authentication ---
 async function handleAuth() {
     const { data: { session } } = await supabase.auth.getSession();
+    
     if (session) {
         await supabase.auth.signOut();
-        window.location.reload();
+        window.location.href = "https://donutgames113.github.io/Curato/index.html"; 
     } else {
         await supabase.auth.signInWithOAuth({
             provider: 'discord',
-            options: { redirectTo: window.location.origin }
+            options: { 
+                // Ensure this is exactly your GitHub Pages URL
+                redirectTo: "https://donutgames113.github.io/Curato/index.html" 
+            }
         });
     }
 }
