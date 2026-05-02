@@ -7,70 +7,141 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a; overflow-x: hidden; }
-        .item-card { position: relative; }
-        .item-card img { filter: grayscale(100%); transition: all 0.4s ease; display: block; width: 100%; height: 100%; object-fit: cover; }
-        .item-card:hover img { filter: grayscale(0%); }
-        .delete-btn { 
-            position: absolute; top: 10px; right: 10px; z-index: 50;
-            background-color: white; color: #ff4444; padding: 4px 10px; 
-            font-size: 10px; font-weight: bold; text-transform: uppercase; 
-            border: 1px solid #eee; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600&display=swap');
+        
+        :root { --accent: #000; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #fafafa; 
+            color: #1a1a1a; 
+            letter-spacing: -0.01em;
         }
-        .delete-btn:hover { background-color: #ff4444; color: white; border-color: #ff4444; }
-        .cat-opt.active { background: #000; color: #fff; border-color: #000; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #fafafa; }
+        ::-webkit-scrollbar-thumb { background: #eee; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #ddd; }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .item-card { 
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .item-card:hover { transform: translateY(-4px); }
+
+        .img-container {
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 3/4;
+            background: #f0f0f0;
+        }
+
+        .item-card img { 
+            filter: grayscale(100%); 
+            transition: filter 0.6s ease, transform 0.6s ease;
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+        }
+
+        .item-card:hover img { 
+            filter: grayscale(0%); 
+            transform: scale(1.05);
+        }
+
+        .delete-btn { 
+            position: absolute; top: 12px; right: 12px; z-index: 10;
+            opacity: 0; transform: translateY(5px);
+            transition: all 0.3s ease;
+            background: white; color: #ff4444; padding: 5px 10px; 
+            font-size: 9px; font-weight: 600; text-transform: uppercase; 
+            border-radius: 2px;
+        }
+
+        .item-card:hover .delete-btn { opacity: 1; transform: translateY(0); }
+
+        input::placeholder { color: #ccc; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; }
+        
+        .nav-link { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #999; transition: color 0.3s; }
+        .nav-link:hover { color: #000; }
     </style>
 </head>
-<body class="p-6 md:p-12">
-    <header class="max-w-6xl mx-auto flex justify-between items-end mb-16">
-        <div>
-            <h1 class="text-3xl font-extralight tracking-tighter uppercase">Curato</h1>
-            <p class="text-[10px] tracking-[0.3em] text-neutral-400 mt-2">PERSONAL CURATION ENGINE</p>
-        </div>
-        <div class="flex flex-col items-end gap-2">
-            <input type="password" id="user-api-key" placeholder="PASTE GEMINI API KEY" class="text-[9px] border border-neutral-200 px-3 py-1 rounded-full w-40 focus:outline-none focus:border-black transition uppercase tracking-widest">
-            <button id="auth-btn" class="text-[10px] border border-neutral-200 px-5 py-2 rounded-full hover:bg-black hover:text-white transition tracking-widest uppercase">Connect Discord</button>
-        </div>
-    </header>
+<body class="selection:bg-black selection:text-white">
 
-    <main class="max-w-6xl mx-auto">
-        <!-- AI Consulting -->
-        <section class="mb-20">
-            <div class="flex gap-4 items-center mb-6">
-                <input type="text" id="occasion-input" placeholder="What's the occasion?" 
-                       class="flex-grow bg-transparent border-b border-neutral-200 py-3 text-lg focus:outline-none focus:border-black transition">
-                <button id="ask-btn" class="text-[10px] font-bold tracking-widest uppercase py-4 px-8 border border-black hover:bg-black hover:text-white transition">Consult</button>
+    <nav class="fixed top-0 w-full z-50 glass border-b border-neutral-100">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
+            <div class="flex flex-col">
+                <span class="text-xl font-semibold tracking-tighter uppercase">Curato</span>
+                <span class="text-[8px] tracking-[0.4em] text-neutral-400 -mt-1 uppercase">Personal Curation</span>
             </div>
-            <div id="ai-suggestion" class="hidden text-sm text-neutral-500 italic font-light p-4 bg-neutral-50 border-l border-black"></div>
+            <div class="flex items-center gap-8">
+                <input type="password" id="user-api-key" placeholder="Gemini Key" class="hidden md:block bg-transparent text-[10px] border-b border-neutral-200 focus:outline-none focus:border-black w-32 transition-all">
+                <button id="auth-btn" class="nav-link">Connect</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 pt-32 pb-20">
+        
+        <!-- Consultation Section -->
+        <section class="max-w-3xl mx-auto mb-24 text-center">
+            <h2 class="text-[10px] uppercase tracking-[0.3em] text-neutral-400 mb-8">AI Style Consultant</h2>
+            <div class="relative group">
+                <input type="text" id="occasion-input" placeholder="Going to a summer wedding in Tuscany..." 
+                       class="w-full bg-transparent border-b border-neutral-200 py-4 text-2xl font-light focus:outline-none focus:border-black transition-all text-center">
+                <button id="ask-btn" class="mt-8 px-10 py-3 bg-black text-white text-[10px] uppercase tracking-[0.2em] hover:bg-neutral-800 transition-all rounded-full">Consult Archive</button>
+            </div>
+            <div id="ai-suggestion" class="hidden mt-12 p-8 glass rounded-2xl text-sm leading-relaxed text-neutral-600 font-light italic animate-in fade-in slide-in-from-bottom-4 duration-700"></div>
         </section>
 
-        <!-- Entry Section -->
-        <section class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20 border-t border-neutral-100 pt-12">
-            <div id="drop-zone" class="border border-dashed border-neutral-200 aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-black transition relative overflow-hidden bg-neutral-50">
-                <p id="drop-text" class="text-[10px] uppercase tracking-widest text-neutral-400 text-center px-4">Drag Image or Click</p>
-                <img id="preview-img" class="absolute inset-0 w-full h-full object-cover hidden">
-                <input type="file" id="file-input" class="hidden" accept="image/*">
-            </div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+            
+            <!-- Entry Side -->
+            <div class="lg:col-span-4 lg:sticky lg:top-32">
+                <div class="glass p-8 rounded-3xl">
+                    <h3 class="text-[10px] uppercase tracking-[0.2em] font-semibold mb-8">New Addition</h3>
+                    
+                    <div id="drop-zone" class="group relative aspect-square mb-8 rounded-2xl border-2 border-dashed border-neutral-100 flex flex-col items-center justify-center cursor-pointer hover:border-black transition-all overflow-hidden bg-white/50">
+                        <div class="text-center group-hover:scale-105 transition-transform">
+                            <span class="text-2xl font-extralight text-neutral-300">+</span>
+                            <p id="drop-text" class="text-[9px] uppercase tracking-widest text-neutral-400 mt-2">Upload Visual</p>
+                        </div>
+                        <img id="preview-img" class="absolute inset-0 w-full h-full object-cover hidden">
+                        <input type="file" id="file-input" class="hidden" accept="image/*">
+                    </div>
 
-            <div class="flex flex-col gap-6">
-                <div>
-                    <label class="text-[10px] uppercase tracking-widest text-neutral-400">Category</label>
-                    <div class="flex flex-wrap gap-2 mt-2" id="category-wrap">
-                        <button class="cat-opt border px-3 py-1 text-[10px] uppercase tracking-wider rounded-full border-neutral-200" data-val="Watch">Watches</button>
-                        <button class="cat-opt border px-3 py-1 text-[10px] uppercase tracking-wider rounded-full border-neutral-200" data-val="Fragrance">Fragrances</button>
-                        <button class="cat-opt border px-3 py-1 text-[10px] uppercase tracking-wider rounded-full border-neutral-200" data-val="Apparel">Apparel</button>
-                        <button class="cat-opt border px-3 py-1 text-[10px] uppercase tracking-wider rounded-full border-neutral-200" data-val="Other">Other</button>
+                    <div class="space-y-6">
+                        <div id="category-wrap" class="flex flex-wrap gap-2">
+                            <button class="cat-opt px-4 py-1.5 text-[9px] uppercase tracking-wider rounded-full border border-neutral-100 hover:border-black transition" data-val="Watch">Watches</button>
+                            <button class="cat-opt px-4 py-1.5 text-[9px] uppercase tracking-wider rounded-full border border-neutral-100 hover:border-black transition" data-val="Fragrance">Scent</button>
+                            <button class="cat-opt px-4 py-1.5 text-[9px] uppercase tracking-wider rounded-full border border-neutral-100 hover:border-black transition" data-val="Apparel">Apparel</button>
+                            <button class="cat-opt px-4 py-1.5 text-[9px] uppercase tracking-wider rounded-full border border-neutral-100 hover:border-black transition" data-val="Other">Misc</button>
+                        </div>
+                        <input type="text" id="item-name" placeholder="Item Name" class="w-full bg-transparent border-b border-neutral-100 py-2 focus:outline-none focus:border-black text-sm">
+                        <input type="text" id="item-brand" placeholder="Designer / Brand" class="w-full bg-transparent border-b border-neutral-100 py-2 focus:outline-none focus:border-black text-sm">
+                        <button id="save-btn" class="w-full bg-black text-white text-[10px] tracking-[0.2em] uppercase py-5 rounded-xl disabled:bg-neutral-200 transition-all mt-4">Archive Item</button>
                     </div>
                 </div>
-                <input type="text" id="item-name" placeholder="Item Name" class="border-b border-neutral-100 py-2 focus:outline-none focus:border-black text-sm">
-                <input type="text" id="item-brand" placeholder="Brand" class="border-b border-neutral-100 py-2 focus:outline-none focus:border-black text-sm">
-                <button id="save-btn" class="bg-black text-white text-[10px] tracking-widest uppercase py-4 mt-4 disabled:bg-neutral-200 transition">Save to Archive</button>
             </div>
-        </section>
 
-        <!-- Catalog Grid -->
-        <div id="catalog-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8"></div>
+            <!-- Grid Side -->
+            <div class="lg:col-span-8">
+                <div class="flex justify-between items-end mb-12">
+                    <h3 class="text-[10px] uppercase tracking-[0.2em] font-semibold">The Collection</h3>
+                    <span id="item-count" class="text-[10px] text-neutral-400 tabular-nums">00 Items</span>
+                </div>
+                <div id="catalog-grid" class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-12">
+                    <!-- Items inject here -->
+                </div>
+            </div>
+
+        </div>
     </main>
 
     <script type="module" src="app.js"></script>

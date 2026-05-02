@@ -20,7 +20,8 @@ const catalogGrid = document.getElementById('catalog-grid');
 const askBtn = document.getElementById('ask-btn');
 const suggestionBox = document.getElementById('ai-suggestion');
 
-// Auth Logic
+// --- AUTHENTICATION ---
+
 authBtn.onclick = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session) { 
@@ -34,7 +35,7 @@ authBtn.onclick = async () => {
     }
 };
 
-// API Key Logic: Save to Supabase profile when user finishes typing
+// Sync API Key to Supabase User Metadata
 keyInput.onblur = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session && keyInput.value) {
@@ -46,27 +47,33 @@ keyInput.onblur = async () => {
 
 supabase.auth.onAuthStateChange((_, session) => {
     if (session) {
-        authBtn.innerText = `SIGN OUT (${session.user.user_metadata.full_name || 'USER'})`;
+        authBtn.innerText = `LOGOUT (${session.user.user_metadata.full_name || 'USER'})`;
         if (session.user.user_metadata.gemini_api_key) {
             keyInput.value = session.user.user_metadata.gemini_api_key;
         }
         fetchItems();
     } else {
-        authBtn.innerText = "CONNECT DISCORD";
-        catalogGrid.innerHTML = '<p class="text-neutral-400 text-[10px] uppercase">Login to view archive.</p>';
+        authBtn.innerText = "CONNECT";
+        catalogGrid.innerHTML = '<p class="text-neutral-400 text-[10px] uppercase tracking-widest col-span-full text-center py-20">Archive Locked. Please Connect.</p>';
     }
 });
 
-// Category Toggles
+// --- CATEGORY SELECTION ---
+
 document.querySelectorAll('.cat-opt').forEach(btn => {
     btn.onclick = () => {
-        document.querySelectorAll('.cat-opt').forEach(b => b.classList.remove('bg-black', 'text-white'));
-        btn.classList.add('bg-black', 'text-white');
+        document.querySelectorAll('.cat-opt').forEach(b => {
+            b.classList.remove('bg-black', 'text-white', 'border-black');
+            b.classList.add('border-neutral-100');
+        });
+        btn.classList.add('bg-black', 'text-white', 'border-black');
+        btn.classList.remove('border-neutral-100');
         selectedCategory = btn.dataset.val;
     };
 });
 
-// Image Handling
+// --- IMAGE HANDLING & AI SCAN ---
+
 dropZone.onclick = () => document.getElementById('file-input').click();
 document.getElementById('file-input').onchange = (e) => handleFile(e.target.files[0]);
 
@@ -80,7 +87,7 @@ async function handleFile(file) {
         previewImg.classList.remove('hidden');
         dropText.classList.add('hidden');
         
-        saveBtn.innerText = "SCANNING...";
+        saveBtn.innerText = "IDENTIFYING...";
         saveBtn.disabled = true;
 
         try {
@@ -95,25 +102,26 @@ async function handleFile(file) {
                 if (btn) btn.click();
             }
         } catch (e) { 
-            console.error("AI Analysis failed:", e); 
+            console.error("AI Scan failed:", e); 
         } finally {
-            saveBtn.innerText = "SAVE TO ARCHIVE";
+            saveBtn.innerText = "ARCHIVE ITEM";
             saveBtn.disabled = false;
         }
     };
 }
 
-// THE FIXED API CALL[cite: 1]
+// --- GEMINI API INTEGRATION ---
+
 async function callGeminiAPI(base64, mimeType, promptText) {
     const { data: { session } } = await supabase.auth.getSession();
     const activeKey = keyInput.value.trim() || session?.user?.user_metadata?.gemini_api_key;
 
     if (!activeKey) {
-        alert("Please paste your Gemini API Key in the top right box.");
+        alert("Please provide a Gemini API Key.");
         throw new Error("Missing API Key");
     }
 
-    // Using the 2.5 Flash model specifically found in your listModels output[cite: 1]
+    // Fixed model based on your 2026 model list[cite: 1]
     const model = "gemini-2.5-flash"; 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeKey}`;
     
@@ -137,8 +145,8 @@ async function callGeminiAPI(base64, mimeType, promptText) {
         });
 
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Google API Error (${response.status}): ${errorText}`);
+            const err = await response.json();
+            throw new Error(err.error?.message || "Google API Error");
         }
         
         const res = await response.json();
@@ -150,15 +158,16 @@ async function callGeminiAPI(base64, mimeType, promptText) {
         }
         return resultText;
     } catch (err) {
-        console.error("Gemini API Request failed:", err);
+        console.error("Gemini failed:", err);
         throw err;
     }
 }
 
-// Database Actions
+// --- DATABASE OPERATIONS ---
+
 saveBtn.onclick = async () => {
-    if (!currentImageData || !nameInput.value) return alert("Upload an image and name it first.");
-    saveBtn.innerText = "SAVING...";
+    if (!currentImageData || !nameInput.value) return alert("Details required.");
+    saveBtn.innerText = "ARCHIVING...";
     
     const { error } = await supabase.from('items').insert([{
         name: nameInput.value,
@@ -167,56 +176,66 @@ saveBtn.onclick = async () => {
     }]);
 
     if (!error) {
-        nameInput.value = ""; brandInput.value = "";
-        previewImg.classList.add('hidden'); dropText.classList.remove('hidden');
+        nameInput.value = ""; 
+        brandInput.value = "";
+        previewImg.classList.add('hidden'); 
+        dropText.classList.remove('hidden');
+        currentImageData = null;
         fetchItems();
     } else {
-        alert("Save failed: " + error.message);
+        alert("Archive failed: " + error.message);
     }
-    saveBtn.innerText = "SAVE TO ARCHIVE";
+    saveBtn.innerText = "ARCHIVE ITEM";
 };
 
 async function fetchItems() {
     const { data, error } = await supabase.from('items').select('*').order('id', { ascending: false });
     if (error) return;
     
+    // Update Item Counter
+    const countEl = document.getElementById('item-count');
+    if (countEl) countEl.innerText = data.length.toString().padStart(2, '0') + " ITEMS";
+
     catalogGrid.innerHTML = data.map(item => `
         <div class="item-card group">
-            <button onclick="window.deleteItem(${item.id})" class="delete-btn">Delete</button>
-            <div class="aspect-[3/4] bg-neutral-50 mb-3 border border-neutral-100 overflow-hidden">
-                <img src="${item.image_url}" class="w-full h-full object-cover">
+            <div class="img-container rounded-xl border border-neutral-100">
+                <button onclick="window.deleteItem(${item.id})" class="delete-btn">Delete</button>
+                <img src="${item.image_url}" loading="lazy">
             </div>
-            <p class="text-[9px] font-bold uppercase tracking-widest">${item.name}</p>
-            <p class="text-[8px] text-neutral-400 uppercase tracking-tighter">${item.tags?.brand || ''}</p>
+            <div class="mt-4 px-1">
+                <p class="text-[10px] font-semibold uppercase tracking-widest">${item.name}</p>
+                <p class="text-[9px] text-neutral-400 uppercase tracking-tighter mt-0.5">${item.tags?.brand || 'Unbranded'}</p>
+            </div>
         </div>
     `).join('');
 }
 
 window.deleteItem = async (id) => {
-    if (!confirm("Are you sure?")) return;
+    if (!confirm("Permanently remove this item from your collection?")) return;
     const { error } = await supabase.from('items').delete().eq('id', id);
-    if (error) alert("Delete failed: " + error.message);
+    if (error) console.error("Delete failed:", error.message);
     fetchItems();
 };
 
-// Consult Logic
+// --- CONSULTATION LOGIC ---
+
 askBtn.onclick = async () => {
     const occasion = document.getElementById('occasion-input').value;
     const { data: items } = await supabase.from('items').select('*');
     
     if (!items?.length) return alert("Archive is empty.");
-    if (!occasion) return alert("Occasion is required.");
+    if (!occasion) return alert("Please specify an occasion.");
 
     suggestionBox.classList.remove('hidden');
-    suggestionBox.innerText = "CONSULTING...";
+    suggestionBox.innerHTML = `<span class="animate-pulse">Analyzing collection for ${occasion}...</span>`;
 
-    const inventory = items.map(i => `${i.name} (${i.tags?.category})`).join(', ');
-    const prompt = `Inventory: [${inventory}]. Recommend one specific item for "${occasion}". Be brief and sophisticated.`;
+    const inventory = items.map(i => `${i.name} by ${i.tags?.brand || 'Unknown'} (${i.tags?.category})`).join(', ');
+    const prompt = `You are a high-end personal stylist. Given this inventory: [${inventory}], what should I wear/use for "${occasion}"? Provide one sophisticated, concise recommendation.`;
 
     try {
         const advice = await callGeminiAPI(null, null, prompt);
         suggestionBox.innerText = advice;
     } catch (e) {
-        suggestionBox.innerText = "Consultation failed: " + e.message;
+        suggestionBox.innerText = "Stylist is unavailable: " + e.message;
     }
 };
