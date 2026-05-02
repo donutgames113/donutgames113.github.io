@@ -192,19 +192,18 @@ async function fetchItems() {
     const { data, error } = await supabase.from('items').select('*').order('id', { ascending: false });
     if (error) return;
     
-    // Update Item Counter
     const countEl = document.getElementById('item-count');
     if (countEl) countEl.innerText = data.length.toString().padStart(2, '0') + " ITEMS";
 
     catalogGrid.innerHTML = data.map(item => `
         <div class="item-card group">
-            <div class="img-container rounded-xl border border-neutral-100">
-                <button onclick="window.deleteItem(${item.id})" class="delete-btn">Delete</button>
+            <button onclick="window.deleteItem(${item.id})" class="delete-btn">Remove</button>
+            <div class="img-container">
                 <img src="${item.image_url}" loading="lazy">
             </div>
-            <div class="mt-4 px-1">
-                <p class="text-[10px] font-semibold uppercase tracking-widest">${item.name}</p>
-                <p class="text-[9px] text-neutral-400 uppercase tracking-tighter mt-0.5">${item.tags?.brand || 'Unbranded'}</p>
+            <div class="mt-5">
+                <p class="text-[11px] font-medium uppercase tracking-widest text-white/90">${item.name}</p>
+                <p class="text-[9px] text-white/30 uppercase tracking-[0.15em] mt-1">${item.tags?.brand || 'Independent'}</p>
             </div>
         </div>
     `).join('');
