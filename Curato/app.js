@@ -20,18 +20,11 @@ const catalogGrid = document.getElementById('catalog-grid');
 const askBtn = document.getElementById('ask-btn');
 const suggestionBox = document.getElementById('ai-suggestion');
 
-// --- AUTHENTICATION ---
+// --- AUTH ---
 authBtn.onclick = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-        await supabase.auth.signOut();
-        window.location.reload();
-    } else {
-        await supabase.auth.signInWithOAuth({ 
-            provider: 'discord',
-            options: { redirectTo: REDIRECT_URL }
-        });
-    }
+    if (session) { await supabase.auth.signOut(); window.location.reload(); }
+    else { await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: REDIRECT_URL } }); }
 };
 
 supabase.auth.onAuthStateChange((_, session) => {
@@ -44,7 +37,7 @@ supabase.auth.onAuthStateChange((_, session) => {
     }
 });
 
-// --- CATEGORY SELECTION ---
+// --- CATEGORIES ---
 document.querySelectorAll('.cat-opt').forEach(btn => {
     btn.onclick = () => {
         document.querySelectorAll('.cat-opt').forEach(b => b.classList.remove('bg-black', 'text-white'));
@@ -53,7 +46,7 @@ document.querySelectorAll('.cat-opt').forEach(btn => {
     };
 });
 
-// --- IMAGE UPLOAD & AUTO-SCAN ---
+// --- IMAGE HANDLING ---
 dropZone.onclick = () => document.getElementById('file-input').click();
 document.getElementById('file-input').onchange = (e) => handleFile(e.target.files[0]);
 
@@ -66,10 +59,8 @@ async function handleFile(file) {
         previewImg.src = reader.result;
         previewImg.classList.remove('hidden');
         dropText.classList.add('hidden');
-        
         saveBtn.innerText = "SCANNING...";
         saveBtn.disabled = true;
-        
         try {
             const base64 = reader.result.split(',')[1];
             const guess = await callGeminiAPI(base64, file.type, "Identify item. Return ONLY JSON: {\"name\":\"string\",\"brand\":\"string\",\"category\":\"Watch|Fragrance|Apparel|Other\"}");
@@ -80,23 +71,29 @@ async function handleFile(file) {
                 if (btn) btn.click();
             }
         } catch (e) { console.error("Scan error", e); }
-        
         saveBtn.innerText = "SAVE TO ARCHIVE";
         saveBtn.disabled = false;
     };
 }
 
-// --- SHARED GEMINI FETCH FUNCTION ---
+// --- THE CRITICAL FIX FOR 404 ---
 async function callGeminiAPI(base64, mimeType, promptText) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
+    // Switching to the most explicit model name version
+    const model = "gemini-1.5-flash-latest"; 
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_KEY}`;
     
     const body = {
         contents: [{
             parts: [{ text: promptText }]
-        }]
+        }],
+        generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 1024,
+        }
     };
 
-    // Add image data if provided (for scanning)
     if (base64) {
         body.contents[0].parts.push({
             inline_data: { mime_type: mimeType, data: base64 }
@@ -109,29 +106,32 @@ async function callGeminiAPI(base64, mimeType, promptText) {
         body: JSON.stringify(body)
     });
 
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Gemini Error Details:", errorData);
+        throw new Error(`HTTP ${response.status}`);
+    }
     
     const res = await response.json();
     const resultText = res.candidates[0].content.parts[0].text;
     
-    // If we expect JSON (for scanning), parse it. Otherwise return raw text (for consultation).
     if (promptText.includes("JSON")) {
-        return JSON.parse(resultText.replace(/```json|```/g, '').trim());
+        // More aggressive cleaning of Gemini's markdown
+        const cleanedText = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
+        return JSON.parse(cleanedText);
     }
     return resultText;
 }
 
-// --- DATABASE SAVING ---
+// --- DB OPS ---
 saveBtn.onclick = async () => {
     if (!currentImageData || !nameInput.value) return alert("Missing image or name.");
     saveBtn.innerText = "SAVING...";
-    
     const { error } = await supabase.from('items').insert([{
         name: nameInput.value,
         image_url: currentImageData,
         tags: { brand: brandInput.value, category: selectedCategory }
     }]);
-
     if (!error) {
         nameInput.value = ""; brandInput.value = "";
         previewImg.classList.add('hidden'); dropText.classList.remove('hidden');
@@ -140,11 +140,9 @@ saveBtn.onclick = async () => {
     saveBtn.innerText = "SAVE TO ARCHIVE";
 };
 
-// --- FETCH & DELETE ---
 async function fetchItems() {
     const { data, error } = await supabase.from('items').select('*').order('id', { ascending: false });
     if (error) return;
-    
     catalogGrid.innerHTML = data.map(item => `
         <div class="item-card group">
             <button onclick="window.deleteItem(${item.id})" class="delete-btn">Delete</button>
@@ -163,27 +161,22 @@ window.deleteItem = async (id) => {
     fetchItems();
 };
 
-// --- CONSULTATION FEATURE ---
+// --- CONSULTATION ---
 askBtn.onclick = async () => {
     const occasion = document.getElementById('occasion-input').value;
     const { data: items } = await supabase.from('items').select('*');
-    
-    if (!items?.length || !occasion) {
-        alert("Please add items to your archive and enter an occasion.");
-        return;
-    }
+    if (!items?.length || !occasion) return alert("Need items and an occasion.");
 
     suggestionBox.classList.remove('hidden');
-    suggestionBox.innerText = "CURATING YOUR SELECTION...";
+    suggestionBox.innerText = "CURATING...";
 
     const inventory = items.map(i => `${i.name} (${i.tags?.category})`).join(', ');
-    const prompt = `I have these items in my archive: [${inventory}]. Based on these, what should I wear or use for "${occasion}"? Provide one specific, stylish recommendation in a short sentence.`;
+    const prompt = `Inventory: [${inventory}]. Recommend ONE item for "${occasion}" in one short, elegant sentence.`;
 
     try {
         const advice = await callGeminiAPI(null, null, prompt);
         suggestionBox.innerText = advice;
     } catch (e) {
-        console.error(e);
-        suggestionBox.innerText = "Consultation unavailable. Check console for 404/API errors.";
+        suggestionBox.innerText = "Consultation unavailable. Check console.";
     }
 };
