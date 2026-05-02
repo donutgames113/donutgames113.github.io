@@ -1,29 +1,29 @@
+// Configuration
 const SUPABASE_URL = 'https://wyvliczohxpyptwxnvfi.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5';
 const GEMINI_KEY = 'AIzaSyBn7Quib6q9UaMm-Ro8Kmv0l825t8tn98k';
+const REDIRECT_URL = 'https://donutgames113.github.io/Curato/index.html';
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// Elements
 const dropZone = document.getElementById('drop-zone');
 const fileInput = document.getElementById('file-input');
 const authBtn = document.getElementById('auth-btn');
 const catalogGrid = document.getElementById('catalog-grid');
 const aiSuggestion = document.getElementById('ai-suggestion');
+const askBtn = document.getElementById('ask-btn');
 
 // --- 1. Authentication ---
 async function handleAuth() {
     const { data: { session } } = await supabase.auth.getSession();
-    
     if (session) {
         await supabase.auth.signOut();
-        window.location.href = "https://donutgames113.github.io/Curato/index.html"; 
+        window.location.href = REDIRECT_URL;
     } else {
         await supabase.auth.signInWithOAuth({
             provider: 'discord',
-            options: { 
-                // Ensure this is exactly your GitHub Pages URL
-                redirectTo: "https://donutgames113.github.io/Curato/index.html" 
-            }
+            options: { redirectTo: REDIRECT_URL }
         });
     }
 }
@@ -32,20 +32,32 @@ authBtn.onclick = handleAuth;
 
 supabase.auth.onAuthStateChange((event, session) => {
     if (session) {
-        authBtn.innerText = "DISCONNECT";
+        authBtn.innerText = `DISCONNECT (${session.user.user_metadata.full_name || 'User'})`;
         fetchItems();
     } else {
         authBtn.innerText = "CONNECT DISCORD";
-        catalogGrid.innerHTML = '<p class="text-neutral-400 text-xs">Connect Discord to view your archive.</p>';
+        catalogGrid.innerHTML = '<p class="text-neutral-400 text-xs uppercase tracking-widest">Connect Discord to view archive.</p>';
     }
 });
 
 // --- 2. Image Processing & Gemini ---
 dropZone.onclick = () => fileInput.click();
+
+dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('active'); };
+dropZone.ondragleave = () => dropZone.classList.remove('active');
+dropZone.ondrop = (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('active');
+    processFile(e.dataTransfer.files[0]);
+};
+
 fileInput.onchange = (e) => processFile(e.target.files[0]);
 
 async function processFile(file) {
     if (!file) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return alert("Please login first.");
+
     dropZone.innerHTML = '<p class="text-xs uppercase animate-pulse">Analyzing with Gemini...</p>';
 
     const reader = new FileReader();
@@ -65,7 +77,7 @@ async function processFile(file) {
             fetchItems();
         } catch (err) {
             console.error(err);
-            alert("Archive failed. Check console.");
+            alert("Archive failed. Check if table 'items' exists in Supabase.");
         } finally {
             dropZone.innerHTML = '<p class="text-xs uppercase tracking-widest text-neutral-400">Drag to Archive +</p>';
         }
@@ -79,53 +91,59 @@ async function getGeminiTags(base64, mimeType) {
         body: JSON.stringify({
             contents: [{
                 parts: [
-                    { text: "Identify this item (fragrance, watch, or luxury good). Provide JSON: { 'name': 'string', 'brand': 'string', 'tags': ['array of 4 moods/occasions'], 'vibe': 'short description' }" },
+                    { text: "Identify this item. Return ONLY valid JSON: { \"name\": \"item name\", \"brand\": \"brand name\", \"vibe\": \"1 sentence description\" }" },
                     { inline_data: { mime_type: mimeType, data: base64 } }
                 ]
             }]
         })
     });
     const res = await response.json();
-    const cleanText = res.candidates[0].content.parts[0].text.replace(/```json|```/g, '');
+    const cleanText = res.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
     return JSON.parse(cleanText);
 }
 
 // --- 3. UI Display ---
 async function fetchItems() {
-    const { data } = await supabase.from('items').select('*').order('id', { ascending: false });
+    const { data, error } = await supabase.from('items').select('*').order('id', { ascending: false });
+    if (error) return console.error(error);
+    
     catalogGrid.innerHTML = data.map(item => `
-        <div class="item-card group">
-            <div class="aspect-[3/4] overflow-hidden bg-neutral-50 mb-4">
+        <div class="item-card group cursor-crosshair">
+            <div class="aspect-[3/4] overflow-hidden bg-neutral-50 mb-4 border border-neutral-100">
                 <img src="${item.image_url}" class="w-full h-full object-cover">
             </div>
-            <h3 class="text-xs font-bold uppercase tracking-widest">${item.name}</h3>
-            <p class="text-[10px] text-neutral-400 uppercase mt-1">${item.tags.brand}</p>
+            <h3 class="text-[10px] font-bold uppercase tracking-widest">${item.name}</h3>
+            <p class="text-[9px] text-neutral-400 uppercase mt-1 tracking-tighter">${item.tags.brand || 'Personal Archive'}</p>
         </div>
     `).join('');
 }
 
 // --- 4. The Recommendation Logic ---
-document.getElementById('ask-btn').onclick = async () => {
+askBtn.onclick = async () => {
     const occasion = document.getElementById('occasion-input').value;
+    if (!occasion) return;
+
     const { data: items } = await supabase.from('items').select('*');
-    
     if (!items || items.length === 0) return alert("Archive some items first.");
 
     aiSuggestion.classList.remove('hidden');
-    aiSuggestion.innerText = "Thinking...";
+    aiSuggestion.innerText = "Consulting archive...";
 
-    const itemContext = items.map(i => `${i.name} (${i.tags.vibe})`).join(', ');
+    const itemContext = items.map(i => `${i.name}: ${i.tags.vibe}`).join(' | ');
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
     
-    const response = await fetch(url, {
-        method: 'POST',
-        body: JSON.stringify({
-            contents: [{
-                parts: [{ text: `Out of these items: [${itemContext}], which is best for: "${occasion}"? Explain briefly why in 1 sentence.` }]
-            }]
-        })
-    });
-    
-    const res = await response.json();
-    aiSuggestion.innerText = res.candidates[0].content.parts[0].text;
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{ text: `From this list: [${itemContext}]. Which ONE is best for "${occasion}"? Answer in 1 short, stylish sentence.` }]
+                }]
+            })
+        });
+        const res = await response.json();
+        aiSuggestion.innerText = res.candidates[0].content.parts[0].text;
+    } catch (e) {
+        aiSuggestion.innerText = "The AI is currently unavailable.";
+    }
 };
