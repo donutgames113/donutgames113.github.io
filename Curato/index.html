@@ -3,69 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CURATO / ARCHIVE</title>
+    <title>Curato | Archive</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #000; color: #fff; }
-        .item-card:hover .delete-btn { opacity: 1; }
-        .delete-btn { opacity: 0; position: absolute; top: 5px; right: 5px; background: red; color: white; font-size: 8px; padding: 2px 5px; text-transform: uppercase; transition: 0.2s; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #fff; color: #1a1a1a; overflow-x: hidden; }
+        
+        /* Image Hover & Card Styles */
+        .item-card { position: relative; }
+        .item-card img { filter: grayscale(100%); transition: all 0.4s ease; display: block; width: 100%; height: 100%; object-fit: cover; }
+        .item-card:hover img { filter: grayscale(0%); }
+
+        /* Permanent Delete Button */
+        .delete-btn { 
+            position: absolute; top: 10px; right: 10px; z-index: 50;
+            background-color: white; color: #ff4444; padding: 4px 10px; 
+            font-size: 10px; font-weight: bold; text-transform: uppercase; 
+            border: 1px solid #eee; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .delete-btn:hover { background-color: #ff4444; color: white; border-color: #ff4444; }
+
+        .cat-opt.active { background: #000; color: #fff; border-color: #000; }
     </style>
 </head>
-<body class="p-6 max-w-2xl mx-auto">
-
-    <header class="flex justify-between items-end mb-12 border-b border-neutral-800 pb-4">
+<body class="p-6 md:p-12">
+    <header class="max-w-6xl mx-auto flex justify-between items-end mb-16">
         <div>
-            <h1 class="text-2xl font-bold tracking-tighter">CURATO</h1>
-            <p class="text-[10px] text-neutral-500 uppercase tracking-[0.2em]">Personal Style Archive</p>
+            <h1 class="text-3xl font-extralight tracking-tighter uppercase">Curato</h1>
+            <p class="text-[10px] tracking-[0.3em] text-neutral-400 mt-2">PERSONAL CURATION ENGINE</p>
         </div>
-        <button id="auth-btn" class="text-[10px] border border-white px-4 py-2 hover:bg-white hover:text-black transition uppercase font-bold">
-            Connect Discord
-        </button>
+        <button id="auth-btn" class="text-[10px] border border-neutral-200 px-5 py-2 rounded-full hover:bg-black hover:text-white transition tracking-widest uppercase">Connect Discord</button>
     </header>
 
-    <!-- Key Input (Hidden until login) -->
-    <div id="key-mgr" class="hidden mb-8 space-y-2">
-        <p class="text-[9px] text-neutral-500 uppercase">Input Gemini API Key to enable AI features:</p>
-        <div class="flex gap-2">
-            <input id="user-api-key" type="password" placeholder="AIza..." class="bg-transparent border border-neutral-800 p-2 text-xs flex-1 outline-none focus:border-white">
-            <button id="save-key-btn" class="bg-white text-black text-[10px] px-4 font-bold uppercase">Save Key</button>
-        </div>
-    </div>
+    <main class="max-w-6xl mx-auto">
+        <!-- AI RECOMMENDATION -->
+        <section class="mb-20">
+            <div class="flex gap-4 items-center mb-6">
+                <input type="text" id="occasion-input" placeholder="What's the occasion?" 
+                       class="flex-grow bg-transparent border-b border-neutral-200 py-3 text-lg focus:outline-none focus:border-black transition">
+                <button id="ask-btn" class="text-[10px] font-bold tracking-widest uppercase py-4 px-8 border border-black hover:bg-black hover:text-white transition">Consult</button>
+            </div>
+            <div id="ai-suggestion" class="hidden text-sm text-neutral-500 italic font-light p-4 bg-neutral-50 border-l border-black"></div>
+        </section>
 
-    <main class="grid grid-cols-1 md:grid-cols-2 gap-12">
-        <section>
-            <div id="drop-zone" class="aspect-[3/4] border-2 border-dashed border-neutral-800 flex flex-col items-center justify-center cursor-pointer hover:border-neutral-500 transition mb-4 overflow-hidden relative">
-                <p id="drop-text" class="text-[10px] text-neutral-500 uppercase">Drop image or click</p>
-                <img id="preview-img" class="hidden absolute inset-0 w-full h-full object-cover">
+        <!-- INPUT SECTION -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20 border-t border-neutral-100 pt-12">
+            <div id="drop-zone" class="border border-dashed border-neutral-200 aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-black transition relative overflow-hidden bg-neutral-50">
+                <p id="drop-text" class="text-[10px] uppercase tracking-widest text-neutral-400 text-center px-4">Drag Image or Click</p>
+                <img id="preview-img" class="absolute inset-0 w-full h-full object-cover hidden">
                 <input type="file" id="file-input" class="hidden" accept="image/*">
             </div>
 
-            <div class="space-y-4">
-                <input id="item-name" type="text" placeholder="ITEM NAME" class="w-full bg-transparent border-b border-neutral-800 p-2 text-xs outline-none focus:border-white">
-                <input id="item-brand" type="text" placeholder="BRAND" class="w-full bg-transparent border-b border-neutral-800 p-2 text-xs outline-none focus:border-white">
-                <div class="flex gap-2" id="cat-group">
-                    <button class="cat-opt text-[9px] border border-neutral-800 px-3 py-1 uppercase" data-val="Watch">Watch</button>
-                    <button class="cat-opt text-[9px] border border-neutral-800 px-3 py-1 uppercase" data-val="Fragrance">Fragrance</button>
-                    <button class="cat-opt text-[9px] border border-neutral-800 px-3 py-1 uppercase" data-val="Apparel">Apparel</button>
-                    <button class="cat-opt text-[9px] border border-neutral-800 px-3 py-1 uppercase bg-white text-black" data-val="Other">Other</button>
+            <div class="flex flex-col gap-6">
+                <div>
+                    <label class="text-[10px] uppercase tracking-widest text-neutral-400">Category</label>
+                    <div class="flex flex-wrap gap-2 mt-2" id="category-wrap">
+                        <button class="cat-opt border px-3 py-1 text-[10px] uppercase tracking-wider rounded-full border-neutral-200" data-val="Watch">Watches</button>
+                        <button class="cat-opt border px-3 py-1 text-[10px] uppercase tracking-wider rounded-full border-neutral-200" data-val="Fragrance">Fragrances</button>
+                        <button class="cat-opt border px-3 py-1 text-[10px] uppercase tracking-wider rounded-full border-neutral-200" data-val="Apparel">Apparel</button>
+                        <button class="cat-opt border px-3 py-1 text-[10px] uppercase tracking-wider rounded-full border-neutral-200" data-val="Other">Other</button>
+                    </div>
                 </div>
-                <button id="save-btn" class="w-full bg-white text-black py-3 text-[10px] font-bold uppercase tracking-widest">Save to Archive</button>
+                <input type="text" id="item-name" placeholder="Item Name" class="border-b border-neutral-100 py-2 focus:outline-none focus:border-black text-sm">
+                <input type="text" id="item-brand" placeholder="Brand" class="border-b border-neutral-100 py-2 focus:outline-none focus:border-black text-sm">
+                <button id="save-btn" class="bg-black text-white text-[10px] tracking-widest uppercase py-4 mt-4 disabled:bg-neutral-200 transition">Save to Archive</button>
             </div>
         </section>
 
-        <section>
-            <div class="mb-8 p-4 border border-neutral-800">
-                <p class="text-[9px] text-neutral-500 uppercase mb-2 italic">Stylist Consultation</p>
-                <input id="occasion-input" type="text" placeholder="The Occasion..." class="w-full bg-transparent border-b border-neutral-800 p-2 text-xs outline-none mb-4">
-                <button id="ask-btn" class="text-[9px] uppercase border border-white px-4 py-2 w-full">Ask Curato</button>
-                <p id="ai-suggestion" class="hidden mt-4 text-[11px] text-neutral-300 italic"></p>
-            </div>
-            <div id="catalog-grid" class="grid grid-cols-2 gap-4"></div>
-        </section>
+        <!-- GRID -->
+        <div id="catalog-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8"></div>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="app.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
