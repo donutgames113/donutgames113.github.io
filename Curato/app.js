@@ -1,6 +1,5 @@
 const SUPABASE_URL = 'https://wyvliczohxpyptwxnvfi.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5';
-const GEMINI_KEY = 'AIzaSyBn7Quib6q9UaMm-Ro8Kmv0l825t8tn98k';
 const REDIRECT_URL = 'https://donutgames113.github.io/Curato/index.html';
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -10,6 +9,7 @@ let currentImageData = null;
 
 // Selectors
 const authBtn = document.getElementById('auth-btn');
+const keyInput = document.getElementById('user-api-key');
 const dropZone = document.getElementById('drop-zone');
 const previewImg = document.getElementById('preview-img');
 const dropText = document.getElementById('drop-text');
@@ -20,16 +20,34 @@ const catalogGrid = document.getElementById('catalog-grid');
 const askBtn = document.getElementById('ask-btn');
 const suggestionBox = document.getElementById('ai-suggestion');
 
-// --- AUTH ---
+// --- AUTH & KEY MANAGEMENT ---
 authBtn.onclick = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (session) { await supabase.auth.signOut(); window.location.reload(); }
-    else { await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: REDIRECT_URL } }); }
+    if (session) { 
+        await supabase.auth.signOut(); 
+        window.location.reload(); 
+    } else { 
+        await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: REDIRECT_URL } }); 
+    }
+};
+
+// Auto-save API key to user metadata when they stop typing
+keyInput.onblur = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session && keyInput.value) {
+        await supabase.auth.updateUser({
+            data: { gemini_api_key: keyInput.value.trim() }
+        });
+    }
 };
 
 supabase.auth.onAuthStateChange((_, session) => {
     if (session) {
         authBtn.innerText = `SIGN OUT (${session.user.user_metadata.full_name || 'USER'})`;
+        // Load existing key if available
+        if (session.user.user_metadata.gemini_api_key) {
+            keyInput.value = session.user.user_metadata.gemini_api_key;
+        }
         fetchItems();
     } else {
         authBtn.innerText = "CONNECT DISCORD";
@@ -76,22 +94,24 @@ async function handleFile(file) {
     };
 }
 
-// --- THE CRITICAL FIX FOR 404 ---
+// --- DYNAMIC API CALL ---
 async function callGeminiAPI(base64, mimeType, promptText) {
-    // Switching to the most explicit model name version
+    const { data: { session } } = await supabase.auth.getSession();
+    const userKey = session?.user?.user_metadata?.gemini_api_key || keyInput.value.trim();
+
+    if (!userKey) {
+        alert("Please enter a valid Gemini API Key in the top bar.");
+        throw new Error("No API Key provided.");
+    }
+
     const model = "gemini-1.5-flash-latest"; 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${userKey}`;
     
     const body = {
         contents: [{
             parts: [{ text: promptText }]
         }],
-        generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 1024,
-        }
+        generationConfig: { temperature: 0.7, maxOutputTokens: 1024 }
     };
 
     if (base64) {
@@ -108,15 +128,13 @@ async function callGeminiAPI(base64, mimeType, promptText) {
 
     if (!response.ok) {
         const errorData = await response.json();
-        console.error("Gemini Error Details:", errorData);
-        throw new Error(`HTTP ${response.status}`);
+        throw new Error(errorData.error?.message || "API Failure");
     }
     
     const res = await response.json();
     const resultText = res.candidates[0].content.parts[0].text;
     
     if (promptText.includes("JSON")) {
-        // More aggressive cleaning of Gemini's markdown
         const cleanedText = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
         return JSON.parse(cleanedText);
     }
@@ -177,6 +195,6 @@ askBtn.onclick = async () => {
         const advice = await callGeminiAPI(null, null, prompt);
         suggestionBox.innerText = advice;
     } catch (e) {
-        suggestionBox.innerText = "Consultation unavailable. Check console.";
+        suggestionBox.innerText = "Error: " + e.message;
     }
 };
