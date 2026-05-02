@@ -1,13 +1,15 @@
 const SUPABASE_URL = 'https://wyvliczohxpyptwxnvfi.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5';
 const GEMINI_KEY = 'AIzaSyBn7Quib6q9UaMm-Ro8Kmv0l825t8tn98k';
+const REDIRECT_URL = 'https://donutgames113.github.io/Curato/index.html';
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// State
 let selectedCategory = "Other";
 let currentImageData = null;
 
-// UI Selectors
+// Selectors
 const authBtn = document.getElementById('auth-btn');
 const dropZone = document.getElementById('drop-zone');
 const previewImg = document.getElementById('preview-img');
@@ -24,7 +26,10 @@ authBtn.onclick = async () => {
         await supabase.auth.signOut();
         window.location.reload();
     } else {
-        await supabase.auth.signInWithOAuth({ provider: 'discord' });
+        await supabase.auth.signInWithOAuth({ 
+            provider: 'discord',
+            options: { redirectTo: REDIRECT_URL }
+        });
     }
 };
 
@@ -34,11 +39,11 @@ supabase.auth.onAuthStateChange((_, session) => {
         fetchItems();
     } else {
         authBtn.innerText = "CONNECT DISCORD";
-        catalogGrid.innerHTML = '<p class="text-neutral-400 text-[10px] uppercase">Login to view archive.</p>';
+        catalogGrid.innerHTML = '<p class="text-neutral-400 text-[10px] uppercase tracking-widest">Connect to view archive.</p>';
     }
 });
 
-// --- 2. Category Selection ---
+// --- 2. Category Handling ---
 document.querySelectorAll('.cat-opt').forEach(btn => {
     btn.onclick = () => {
         document.querySelectorAll('.cat-opt').forEach(b => b.classList.remove('bg-black', 'text-white'));
@@ -47,7 +52,7 @@ document.querySelectorAll('.cat-opt').forEach(btn => {
     };
 });
 
-// --- 3. Image Scanning & Gemini Identify ---
+// --- 3. Image Scanning (Gemini) ---
 dropZone.onclick = () => document.getElementById('file-input').click();
 document.getElementById('file-input').onchange = (e) => handleFile(e.target.files[0]);
 
@@ -61,45 +66,55 @@ async function handleFile(file) {
         previewImg.classList.remove('hidden');
         dropText.classList.add('hidden');
         
-        saveBtn.innerText = "GEMINI SCANNING...";
+        saveBtn.innerText = "IDENTIFYING...";
         saveBtn.disabled = true;
         
         try {
             const base64 = reader.result.split(',')[1];
-            const guess = await getGeminiIdentify(base64, file.type);
+            const guess = await getGeminiIdentity(base64, file.type);
             if (guess) {
                 nameInput.value = guess.name || "";
                 brandInput.value = guess.brand || "";
                 const btn = Array.from(document.querySelectorAll('.cat-opt')).find(b => b.dataset.val === guess.category);
                 if (btn) btn.click();
             }
-        } catch (e) { console.warn("Auto-fill failed."); }
-        
-        saveBtn.innerText = "SAVE TO ARCHIVE";
-        saveBtn.disabled = false;
+        } catch (e) {
+            console.error("AI Identify failed:", e);
+        } finally {
+            saveBtn.innerText = "SAVE TO ARCHIVE";
+            saveBtn.disabled = false;
+        }
     };
 }
 
-async function getGeminiIdentify(base64, mimeType) {
+async function getGeminiIdentity(base64, mimeType) {
+    // Corrected v1beta URL to prevent 404
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
+    
     const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            contents: [{ parts: [
-                { text: "Identify this item. Return ONLY JSON: { \"name\": \"string\", \"brand\": \"string\", \"category\": \"Watch|Fragrance|Apparel|Other\" }" },
-                { inline_data: { mime_type: mimeType, data: base64 } }
-            ] }]
+            contents: [{
+                parts: [
+                    { text: "Identify this item. Return ONLY JSON: { \"name\": \"string\", \"brand\": \"string\", \"category\": \"Watch|Fragrance|Apparel|Other\" }" },
+                    { inline_data: { mime_type: mimeType, data: base64 } }
+                ]
+            }]
         })
     });
+
+    if (!response.ok) throw new Error(`API Error: ${response.status}`);
+    
     const res = await response.json();
     const text = res.candidates[0].content.parts[0].text;
-    return JSON.parse(text.replace(/```json|```/g, ''));
+    // Clean JSON response from Gemini
+    return JSON.parse(text.replace(/```json|```/g, '').trim());
 }
 
 // --- 4. Database Operations ---
 saveBtn.onclick = async () => {
-    if (!currentImageData || !nameInput.value) return alert("Missing data.");
+    if (!currentImageData || !nameInput.value) return alert("Image and name are required.");
     saveBtn.innerText = "SAVING...";
     
     const { error } = await supabase.from('items').insert([{
@@ -109,9 +124,13 @@ saveBtn.onclick = async () => {
     }]);
 
     if (!error) {
-        nameInput.value = ""; brandInput.value = "";
-        previewImg.classList.add('hidden'); dropText.classList.remove('hidden');
+        nameInput.value = ""; 
+        brandInput.value = "";
+        previewImg.classList.add('hidden'); 
+        dropText.classList.remove('hidden');
         fetchItems();
+    } else {
+        console.error("Supabase error:", error);
     }
     saveBtn.innerText = "SAVE TO ARCHIVE";
 };
@@ -119,47 +138,49 @@ saveBtn.onclick = async () => {
 async function fetchItems() {
     const { data, error } = await supabase.from('items').select('*').order('id', { ascending: false });
     if (error) return;
-    
+
     catalogGrid.innerHTML = data.map(item => `
-        <div class="item-card">
+        <div class="item-card group relative">
             <button onclick="window.deleteItem(${item.id})" class="delete-btn">Delete</button>
-            <div class="aspect-[3/4] bg-neutral-50 mb-3 border border-neutral-100 overflow-hidden">
-                <img src="${item.image_url}">
+            <div class="aspect-[3/4] bg-neutral-50 mb-3 overflow-hidden border border-neutral-100">
+                <img src="${item.image_url}" class="w-full h-full object-cover">
             </div>
             <p class="text-[9px] font-bold uppercase tracking-widest">${item.name}</p>
-            <p class="text-[8px] text-neutral-400 uppercase">${item.tags?.brand || ''}</p>
+            <p class="text-[8px] text-neutral-400 uppercase tracking-tighter">${item.tags?.brand || ''}</p>
         </div>
     `).join('');
 }
 
 window.deleteItem = async (id) => {
-    if (confirm("Delete this?")) {
-        await supabase.from('items').delete().eq('id', id);
-        fetchItems();
-    }
+    if (!confirm("Delete this from your archive?")) return;
+    const { error } = await supabase.from('items').delete().eq('id', id);
+    if (!error) fetchItems();
 };
 
-// --- 5. AI Consultation ---
+// --- 5. Consultation ---
 document.getElementById('ask-btn').onclick = async () => {
     const occasion = document.getElementById('occasion-input').value;
     const { data: items } = await supabase.from('items').select('*');
-    if (!items?.length || !occasion) return alert("Archive some items first.");
+    if (!items?.length || !occasion) return alert("Need items and an occasion.");
 
     const sug = document.getElementById('ai-suggestion');
     sug.classList.remove('hidden');
     sug.innerText = "CURATING...";
 
     const context = items.map(i => `${i.name} (${i.tags?.category})`).join(', ');
-    
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
+
     try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
+        const res = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{ parts: [{ text: `From these: ${context}, what is best for ${occasion}? 1 short sentence.` }] }]
+                contents: [{ parts: [{ text: `From this archive: [${context}], pick one item for ${occasion}. Respond in one short, elegant sentence.` }] }]
             })
         });
         const json = await res.json();
         sug.innerText = json.candidates[0].content.parts[0].text;
-    } catch (e) { sug.innerText = "Consultation unavailable."; }
+    } catch (e) {
+        sug.innerText = "Consultation unavailable.";
+    }
 };
