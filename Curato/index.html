@@ -9,10 +9,10 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #000; color: #fff; }
         .item-card:hover .delete-btn { opacity: 1; }
-        .delete-btn { opacity: 0; position: absolute; top: 5px; right: 5px; background: #ff4444; color: white; font-size: 8px; padding: 2px 6px; text-transform: uppercase; transition: 0.2s; cursor: pointer; }
+        .delete-btn { opacity: 0; position: absolute; top: 5px; right: 5px; background: red; color: white; font-size: 8px; padding: 2px 5px; text-transform: uppercase; transition: 0.2s; }
     </style>
 </head>
-<body class="p-6 max-w-4xl mx-auto">
+<body class="p-6 max-w-2xl mx-auto">
 
     <header class="flex justify-between items-end mb-12 border-b border-neutral-800 pb-4">
         <div>
@@ -24,66 +24,44 @@
         </button>
     </header>
 
-    <!-- SETTINGS PANEL -->
-    <section id="key-section" class="hidden mb-10 p-5 border border-neutral-800 bg-neutral-950 rounded-sm">
-        <h3 class="text-[10px] font-bold uppercase mb-3 text-neutral-400">Settings / Gemini API Configuration</h3>
-        <div class="flex flex-col md:flex-row gap-3">
-            <input id="user-api-key" type="password" placeholder="Enter your Gemini API Key (starts with AIza...)" 
-                   class="bg-black border border-neutral-700 p-3 text-xs flex-1 focus:border-white outline-none transition">
-            <button id="save-key-btn" class="bg-white text-black text-[10px] px-6 py-3 font-bold uppercase hover:bg-neutral-200 transition">
-                Save & Activate
-            </button>
+    <!-- Key Input (Hidden until login) -->
+    <div id="key-mgr" class="hidden mb-8 space-y-2">
+        <p class="text-[9px] text-neutral-500 uppercase">Input Gemini API Key to enable AI features:</p>
+        <div class="flex gap-2">
+            <input id="user-api-key" type="password" placeholder="AIza..." class="bg-transparent border border-neutral-800 p-2 text-xs flex-1 outline-none focus:border-white">
+            <button id="save-key-btn" class="bg-white text-black text-[10px] px-4 font-bold uppercase">Save Key</button>
         </div>
-        <p class="text-[9px] text-neutral-600 mt-3 uppercase tracking-tighter">Get a free key at <a href="https://aistudio.google.com/" target="_blank" class="underline hover:text-white">Google AI Studio</a></p>
-    </section>
+    </div>
 
-    <main class="grid grid-cols-1 lg:grid-cols-2 gap-16">
-        <!-- LEFT: INPUT SECTION -->
-        <section class="space-y-6">
-            <div id="drop-zone" class="aspect-[4/5] border border-neutral-800 flex flex-col items-center justify-center cursor-pointer hover:border-neutral-500 transition relative overflow-hidden group">
-                <div id="drop-text" class="text-center">
-                    <p class="text-[10px] text-neutral-500 uppercase tracking-widest">Select Item Image</p>
-                    <p class="text-[8px] text-neutral-700 mt-1 uppercase">JPG / PNG / WEBP</p>
-                </div>
+    <main class="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <section>
+            <div id="drop-zone" class="aspect-[3/4] border-2 border-dashed border-neutral-800 flex flex-col items-center justify-center cursor-pointer hover:border-neutral-500 transition mb-4 overflow-hidden relative">
+                <p id="drop-text" class="text-[10px] text-neutral-500 uppercase">Drop image or click</p>
                 <img id="preview-img" class="hidden absolute inset-0 w-full h-full object-cover">
                 <input type="file" id="file-input" class="hidden" accept="image/*">
             </div>
 
             <div class="space-y-4">
-                <div class="space-y-1">
-                    <label class="text-[8px] text-neutral-500 uppercase">Item Name</label>
-                    <input id="item-name" type="text" placeholder="e.g. Santos de Cartier" class="w-full bg-transparent border-b border-neutral-800 p-2 text-xs outline-none focus:border-white">
+                <input id="item-name" type="text" placeholder="ITEM NAME" class="w-full bg-transparent border-b border-neutral-800 p-2 text-xs outline-none focus:border-white">
+                <input id="item-brand" type="text" placeholder="BRAND" class="w-full bg-transparent border-b border-neutral-800 p-2 text-xs outline-none focus:border-white">
+                <div class="flex gap-2" id="cat-group">
+                    <button class="cat-opt text-[9px] border border-neutral-800 px-3 py-1 uppercase" data-val="Watch">Watch</button>
+                    <button class="cat-opt text-[9px] border border-neutral-800 px-3 py-1 uppercase" data-val="Fragrance">Fragrance</button>
+                    <button class="cat-opt text-[9px] border border-neutral-800 px-3 py-1 uppercase" data-val="Apparel">Apparel</button>
+                    <button class="cat-opt text-[9px] border border-neutral-800 px-3 py-1 uppercase bg-white text-black" data-val="Other">Other</button>
                 </div>
-                <div class="space-y-1">
-                    <label class="text-[8px] text-neutral-500 uppercase">Brand</label>
-                    <input id="item-brand" type="text" placeholder="e.g. Cartier" class="w-full bg-transparent border-b border-neutral-800 p-2 text-xs outline-none focus:border-white">
-                </div>
-                
-                <div class="flex flex-wrap gap-2 pt-2" id="cat-group">
-                    <button class="cat-opt text-[9px] border border-neutral-800 px-4 py-2 uppercase" data-val="Watch">Watch</button>
-                    <button class="cat-opt text-[9px] border border-neutral-800 px-4 py-2 uppercase" data-val="Fragrance">Fragrance</button>
-                    <button class="cat-opt text-[9px] border border-neutral-800 px-4 py-2 uppercase" data-val="Apparel">Apparel</button>
-                    <button class="cat-opt text-[9px] border border-neutral-800 px-4 py-2 uppercase bg-white text-black" data-val="Other">Other</button>
-                </div>
-
-                <button id="save-btn" class="w-full bg-white text-black py-4 text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-neutral-200 transition">
-                    Add to Archive
-                </button>
+                <button id="save-btn" class="w-full bg-white text-black py-3 text-[10px] font-bold uppercase tracking-widest">Save to Archive</button>
             </div>
         </section>
 
-        <!-- RIGHT: ARCHIVE SECTION -->
-        <section class="space-y-10">
-            <div class="p-6 border border-neutral-800 bg-neutral-950/30">
-                <p class="text-[9px] text-neutral-500 uppercase mb-4 italic tracking-widest">AI Stylist</p>
-                <input id="occasion-input" type="text" placeholder="Where are you going?" class="w-full bg-transparent border-b border-neutral-800 p-2 text-xs outline-none focus:border-white mb-6">
-                <button id="ask-btn" class="text-[10px] uppercase tracking-[0.2em] border border-white px-4 py-3 hover:bg-white hover:text-black transition w-full font-bold">Request Advice</button>
-                <div id="ai-suggestion" class="hidden mt-6 text-xs leading-relaxed text-neutral-400 italic border-l-2 border-neutral-800 pl-4"></div>
+        <section>
+            <div class="mb-8 p-4 border border-neutral-800">
+                <p class="text-[9px] text-neutral-500 uppercase mb-2 italic">Stylist Consultation</p>
+                <input id="occasion-input" type="text" placeholder="The Occasion..." class="w-full bg-transparent border-b border-neutral-800 p-2 text-xs outline-none mb-4">
+                <button id="ask-btn" class="text-[9px] uppercase border border-white px-4 py-2 w-full">Ask Curato</button>
+                <p id="ai-suggestion" class="hidden mt-4 text-[11px] text-neutral-300 italic"></p>
             </div>
-
-            <div id="catalog-grid" class="grid grid-cols-2 gap-6">
-                <!-- Data populated via JS -->
-            </div>
+            <div id="catalog-grid" class="grid grid-cols-2 gap-4"></div>
         </section>
     </main>
 
