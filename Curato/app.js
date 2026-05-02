@@ -7,7 +7,6 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let selectedCategory = "Other";
 let currentImageData = null;
 
-// Selectors
 const authBtn = document.getElementById('auth-btn');
 const keyInput = document.getElementById('user-api-key');
 const dropZone = document.getElementById('drop-zone');
@@ -20,14 +19,13 @@ const catalogGrid = document.getElementById('catalog-grid');
 const askBtn = document.getElementById('ask-btn');
 const suggestionBox = document.getElementById('ai-suggestion');
 
-// --- AUTH ---
 authBtn.onclick = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session) { await supabase.auth.signOut(); window.location.reload(); }
     else { await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: REDIRECT_URL } }); }
 };
 
-// Save key to user account when they finish typing
+// Save key to user account when they stop typing
 keyInput.onblur = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session && keyInput.value) {
@@ -50,7 +48,6 @@ supabase.auth.onAuthStateChange((_, session) => {
     }
 });
 
-// --- CATEGORIES ---
 document.querySelectorAll('.cat-opt').forEach(btn => {
     btn.onclick = () => {
         document.querySelectorAll('.cat-opt').forEach(b => b.classList.remove('bg-black', 'text-white'));
@@ -59,7 +56,6 @@ document.querySelectorAll('.cat-opt').forEach(btn => {
     };
 });
 
-// --- IMAGE HANDLING ---
 dropZone.onclick = () => document.getElementById('file-input').click();
 document.getElementById('file-input').onchange = (e) => handleFile(e.target.files[0]);
 
@@ -89,7 +85,6 @@ async function handleFile(file) {
     };
 }
 
-// --- API FIX ---
 async function callGeminiAPI(base64, mimeType, promptText) {
     const { data: { session } } = await supabase.auth.getSession();
     const activeKey = keyInput.value.trim() || session?.user?.user_metadata?.gemini_api_key;
@@ -99,7 +94,7 @@ async function callGeminiAPI(base64, mimeType, promptText) {
         throw new Error("Missing API Key");
     }
 
-    // FIXED: Using "gemini-1.5-flash" instead of "-latest" for the v1beta endpoint
+    // THE CRITICAL FIX: "gemini-1.5-flash" instead of "gemini-1.5-flash-latest"
     const model = "gemini-1.5-flash"; 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeKey}`;
     
@@ -124,7 +119,6 @@ async function callGeminiAPI(base64, mimeType, promptText) {
 
     if (!response.ok) {
         const errorData = await response.json();
-        console.error("Critical Google Error:", errorData);
         throw new Error(`Google Error: ${errorData.error?.message || response.status}`);
     }
     
@@ -138,7 +132,6 @@ async function callGeminiAPI(base64, mimeType, promptText) {
     return resultText;
 }
 
-// --- DB OPS ---
 saveBtn.onclick = async () => {
     if (!currentImageData || !nameInput.value) return alert("Missing image or name.");
     saveBtn.innerText = "SAVING...";
@@ -176,7 +169,6 @@ window.deleteItem = async (id) => {
     fetchItems();
 };
 
-// --- CONSULTATION ---
 askBtn.onclick = async () => {
     const occasion = document.getElementById('occasion-input').value;
     const { data: items } = await supabase.from('items').select('*');
