@@ -113,19 +113,23 @@ async function getGeminiGuess(base64, mimeType) {
             })
         });
 
-        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-
         const res = await response.json();
-        
-        if (!res.candidates || !res.candidates[0]?.content?.parts?.[0]?.text) {
-            throw new Error("Invalid API Response");
+
+        if (!response.ok) {
+            console.error("Gemini API Error Response:", res);
+            throw new Error(res.error?.message || "API Error");
+        }
+
+        if (!res.candidates?.[0]?.content?.parts?.[0]?.text) {
+            throw new Error("Gemini returned empty content");
         }
 
         const cleanText = res.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
         return JSON.parse(cleanText);
     } catch (e) {
-        console.error("Failed to parse Gemini response:", e);
-        return null;
+        console.error("Gemini Failure Details:", e);
+        // Important: Return a default object so the app doesn't crash
+        return { name: "Unknown Item", brand: "Unknown Brand", category: "Other" };
     }
 }
 
