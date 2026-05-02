@@ -7,6 +7,7 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let selectedCategory = "Other";
 let currentImageData = null;
 
+// DOM Elements
 const authBtn = document.getElementById('auth-btn');
 const keyInput = document.getElementById('user-api-key');
 const dropZone = document.getElementById('drop-zone');
@@ -19,13 +20,21 @@ const catalogGrid = document.getElementById('catalog-grid');
 const askBtn = document.getElementById('ask-btn');
 const suggestionBox = document.getElementById('ai-suggestion');
 
+// Auth Logic
 authBtn.onclick = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (session) { await supabase.auth.signOut(); window.location.reload(); }
-    else { await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: REDIRECT_URL } }); }
+    if (session) { 
+        await supabase.auth.signOut(); 
+        window.location.reload(); 
+    } else { 
+        await supabase.auth.signInWithOAuth({ 
+            provider: 'discord', 
+            options: { redirectTo: REDIRECT_URL } 
+        }); 
+    }
 };
 
-// Save key to user account when they stop typing
+// API Key Storage (Sync with Supabase User Data)
 keyInput.onblur = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session && keyInput.value) {
@@ -48,6 +57,7 @@ supabase.auth.onAuthStateChange((_, session) => {
     }
 });
 
+// Category Selection
 document.querySelectorAll('.cat-opt').forEach(btn => {
     btn.onclick = () => {
         document.querySelectorAll('.cat-opt').forEach(b => b.classList.remove('bg-black', 'text-white'));
@@ -56,6 +66,7 @@ document.querySelectorAll('.cat-opt').forEach(btn => {
     };
 });
 
+// Image Upload & Analysis
 dropZone.onclick = () => document.getElementById('file-input').click();
 document.getElementById('file-input').onchange = (e) => handleFile(e.target.files[0]);
 
@@ -68,23 +79,31 @@ async function handleFile(file) {
         previewImg.src = reader.result;
         previewImg.classList.remove('hidden');
         dropText.classList.add('hidden');
+        
         saveBtn.innerText = "SCANNING...";
         saveBtn.disabled = true;
+
         try {
             const base64 = reader.result.split(',')[1];
-            const guess = await callGeminiAPI(base64, file.type, "Identify item. Return ONLY JSON: {\"name\":\"string\",\"brand\":\"string\",\"category\":\"Watch|Fragrance|Apparel|Other\"}");
+            const prompt = "Identify this item. Return ONLY valid JSON: {\"name\":\"string\",\"brand\":\"string\",\"category\":\"Watch|Fragrance|Apparel|Other\"}";
+            const guess = await callGeminiAPI(base64, file.type, prompt);
+            
             if (guess) {
                 nameInput.value = guess.name || "";
                 brandInput.value = guess.brand || "";
                 const btn = Array.from(document.querySelectorAll('.cat-opt')).find(b => b.dataset.val === guess.category);
                 if (btn) btn.click();
             }
-        } catch (e) { console.error("Scan error", e); }
-        saveBtn.innerText = "SAVE TO ARCHIVE";
-        saveBtn.disabled = false;
+        } catch (e) { 
+            console.error("AI Analysis failed:", e); 
+        } finally {
+            saveBtn.innerText = "SAVE TO ARCHIVE";
+            saveBtn.disabled = false;
+        }
     };
 }
 
+// THE UPDATED API CALL
 async function callGeminiAPI(base64, mimeType, promptText) {
     const { data: { session } } = await supabase.auth.getSession();
     const activeKey = keyInput.value.trim() || session?.user?.user_metadata?.gemini_api_key;
@@ -94,15 +113,14 @@ async function callGeminiAPI(base64, mimeType, promptText) {
         throw new Error("Missing API Key");
     }
 
-    // THE CRITICAL FIX: "gemini-1.5-flash" instead of "gemini-1.5-flash-latest"
-    const model = "gemini-1.5-flash"; 
+    // Using the model confirmed by your listModels call
+    const model = "gemini-2.5-flash"; 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeKey}`;
     
     const body = {
         contents: [{
             parts: [{ text: promptText }]
-        }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 1024 }
+        }]
     };
 
     if (base64) {
@@ -118,13 +136,14 @@ async function callGeminiAPI(base64, mimeType, promptText) {
     });
 
     if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Google Error: ${errorData.error?.message || response.status}`);
+        const err = await response.json();
+        throw new Error(err.error?.message || "Google API Error");
     }
     
     const res = await response.json();
     const resultText = res.candidates[0].content.parts[0].text;
     
+    // JSON cleaning logic
     if (promptText.includes("JSON")) {
         const cleanedText = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
         return JSON.parse(cleanedText);
@@ -132,18 +151,23 @@ async function callGeminiAPI(base64, mimeType, promptText) {
     return resultText;
 }
 
+// Database Persistence
 saveBtn.onclick = async () => {
-    if (!currentImageData || !nameInput.value) return alert("Missing image or name.");
+    if (!currentImageData || !nameInput.value) return alert("Upload an image and name it first.");
     saveBtn.innerText = "SAVING...";
+    
     const { error } = await supabase.from('items').insert([{
         name: nameInput.value,
         image_url: currentImageData,
         tags: { brand: brandInput.value, category: selectedCategory }
     }]);
+
     if (!error) {
         nameInput.value = ""; brandInput.value = "";
         previewImg.classList.add('hidden'); dropText.classList.remove('hidden');
         fetchItems();
+    } else {
+        alert("Save failed: " + error.message);
     }
     saveBtn.innerText = "SAVE TO ARCHIVE";
 };
@@ -151,6 +175,7 @@ saveBtn.onclick = async () => {
 async function fetchItems() {
     const { data, error } = await supabase.from('items').select('*').order('id', { ascending: false });
     if (error) return;
+    
     catalogGrid.innerHTML = data.map(item => `
         <div class="item-card group">
             <button onclick="window.deleteItem(${item.id})" class="delete-btn">Delete</button>
@@ -164,26 +189,29 @@ async function fetchItems() {
 }
 
 window.deleteItem = async (id) => {
-    if (!confirm("Delete?")) return;
+    if (!confirm("Remove this item from your archive?")) return;
     await supabase.from('items').delete().eq('id', id);
     fetchItems();
 };
 
+// AI Suggestion Logic
 askBtn.onclick = async () => {
     const occasion = document.getElementById('occasion-input').value;
     const { data: items } = await supabase.from('items').select('*');
-    if (!items?.length || !occasion) return alert("Need items and an occasion.");
+    
+    if (!items?.length) return alert("Your archive is empty.");
+    if (!occasion) return alert("What's the occasion?");
 
     suggestionBox.classList.remove('hidden');
-    suggestionBox.innerText = "CURATING...";
+    suggestionBox.innerText = "CONSULTING ARCHIVE...";
 
     const inventory = items.map(i => `${i.name} (${i.tags?.category})`).join(', ');
-    const prompt = `Inventory: [${inventory}]. Recommend ONE item for "${occasion}" in one short, elegant sentence.`;
+    const prompt = `Based on this inventory: [${inventory}], what should I wear/use for "${occasion}"? Give me one elegant, concise recommendation.`;
 
     try {
         const advice = await callGeminiAPI(null, null, prompt);
         suggestionBox.innerText = advice;
     } catch (e) {
-        suggestionBox.innerText = "Error: " + e.message;
+        suggestionBox.innerText = "Consultation failed: " + e.message;
     }
 };
