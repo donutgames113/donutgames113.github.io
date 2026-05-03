@@ -18,7 +18,7 @@ async function callGeminiAPI(base64, mimeType, promptText) {
         throw new Error("Missing API Key");
     }
 
-    const model = "gemini-1.5-latest"; // Fixed model name to a standard stable version
+    const model = "gemini-1.5-flash-latest"; // Fixed model name to a standard stable version
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeKey}`;
     
     const body = {
