@@ -7,7 +7,8 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let selectedCategory = "Other";
 let currentImageData = null;
 
-// GEMINI API INTEGRATION
+// --- UPDATED GEMINI API INTEGRATION WITH STABLE MODEL ALIASING ---
+
 async function callGeminiAPI(base64, mimeType, promptText) {
     const keyInput = document.getElementById('user-api-key');
     const { data: { session } } = await supabase.auth.getSession();
@@ -18,8 +19,9 @@ async function callGeminiAPI(base64, mimeType, promptText) {
         throw new Error("Missing API Key");
     }
 
-    const model = "gemini-1.5-flash-latest"; // Fixed model name to a standard stable version
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeKey}`;
+    // Using -latest suffix is the standard for stable routing in v1beta
+    let model = "gemini-1.5-flash-latest"; 
+    let url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeKey}`;
     
     const body = {
         contents: [{
@@ -34,11 +36,23 @@ async function callGeminiAPI(base64, mimeType, promptText) {
     }
 
     try {
-        const response = await fetch(url, {
+        let response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
         });
+
+        // Fallback Logic: If Flash latest isn't found, try the universal 'gemini-pro' alias
+        if (response.status === 404) {
+            console.warn("Flash latest not found, falling back to gemini-pro...");
+            model = "gemini-pro";
+            url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeKey}`;
+            response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+        }
 
         if (!response.ok) {
             const err = await response.json();
@@ -49,6 +63,7 @@ async function callGeminiAPI(base64, mimeType, promptText) {
         const resultText = res.candidates[0].content.parts[0].text;
         
         if (promptText.includes("JSON")) {
+            // Clean markdown formatting if AI includes it
             const cleanedText = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
             return JSON.parse(cleanedText);
         }
