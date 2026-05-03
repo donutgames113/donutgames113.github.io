@@ -4,14 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Curato | Archive</title>
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
-
     <style>
         :root {
             --bg: #0b0b0c;
@@ -21,7 +18,6 @@
             --muted: rgba(255,255,255,0.5);
             --accent: #d4ff6a;
         }
-
         body {
             font-family: Inter, sans-serif;
             background: radial-gradient(1200px 800px at 20% 0%, #1a1a1f 0%, #0b0b0c 60%);
@@ -29,7 +25,6 @@
             letter-spacing: -0.02em;
             min-height: 100vh;
         }
-
         body::before {
             content: "";
             position: fixed;
@@ -39,28 +34,23 @@
             pointer-events: none;
             z-index: 50;
         }
-
         .glass {
             background: var(--card);
             border: 1px solid var(--stroke);
             backdrop-filter: blur(24px);
         }
-
         .nav-blur {
             background: rgba(10,10,12,0.7);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--stroke);
         }
-
         .item-card {
             transition: all .4s cubic-bezier(.2,.8,.2,1);
             position: relative;
         }
-
         .item-card:hover {
             transform: translateY(-6px);
         }
-
         .img-container {
             aspect-ratio: 4/5;
             overflow: hidden;
@@ -68,7 +58,6 @@
             border: 1px solid var(--stroke);
             background: #121214;
         }
-
         .item-card img {
             filter: saturate(0.6) brightness(0.9);
             transition: .6s ease;
@@ -76,12 +65,10 @@
             height: 100%;
             object-fit: cover;
         }
-
         .item-card:hover img {
             filter: saturate(1) brightness(1);
             transform: scale(1.04);
         }
-
         .chip {
             border: 1px solid var(--stroke);
             padding: 6px 14px;
@@ -94,72 +81,55 @@
             cursor: pointer;
             background: transparent;
         }
-
         .chip:hover, .cat-opt.active {
             border-color: var(--accent);
             color: white;
             background: rgba(212, 255, 106, 0.05);
         }
-
         #occasion-input {
             font-size: 32px;
             font-weight: 200;
         }
-
         .glow-btn {
             background: white;
             color: black;
             box-shadow: 0 0 20px rgba(255,255,255,0.1);
         }
-
         input::placeholder { color: rgba(255,255,255,0.2); }
         input:focus { border-color: var(--accent) !important; }
     </style>
 </head>
-
 <body>
-
 <nav class="fixed top-0 w-full z-50 nav-blur">
     <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
         <div class="leading-tight">
             <div class="text-lg font-semibold tracking-tighter uppercase">Curato</div>
             <div class="text-[9px] tracking-[0.4em] text-white/30 uppercase">Personal Archive</div>
         </div>
-
         <div class="flex items-center gap-6">
             <input id="user-api-key" type="password" placeholder="Gemini Key" class="hidden md:block bg-transparent border-b border-white/10 text-[10px] w-40 pb-1 focus:outline-none transition-all" />
             <button id="auth-btn" class="text-[10px] tracking-[0.2em] uppercase text-white/50 hover:text-white transition">Connect</button>
         </div>
     </div>
 </nav>
-
 <main class="max-w-7xl mx-auto px-6 pt-32 pb-24">
-
-    <!-- CONSULTANT SECTION -->
     <section class="max-w-4xl mx-auto text-center mb-32">
         <div class="text-[10px] tracking-[0.4em] uppercase text-white/30 mb-8">AI Style Consultant</div>
         <input id="occasion-input" class="w-full bg-transparent border-b border-white/5 py-8 text-center focus:outline-none transition-all" placeholder="Where are we going?" />
-        
         <div class="flex flex-wrap justify-center gap-2 mt-8">
             <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip">Tokyo solo trip</button>
             <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip">Meeting the family, 30°C</button>
             <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip">Late night in Soho</button>
         </div>
-
         <button id="ask-btn" class="mt-12 px-12 py-4 rounded-full glow-btn text-[10px] tracking-[0.3em] uppercase hover:scale-[1.02] active:scale-95 transition-all">
             Consult Archive
         </button>
-
         <div id="ai-suggestion" class="hidden mt-12 glass p-10 rounded-3xl text-sm text-white/70 italic leading-relaxed max-w-2xl mx-auto"></div>
     </section>
-
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
-        
-        <!-- UPLOAD PANEL -->
         <div class="lg:col-span-4 lg:sticky lg:top-28 h-fit">
             <div class="glass p-8 rounded-[2rem]">
                 <div class="text-[10px] tracking-[0.3em] uppercase text-white/30 mb-8">New Addition</div>
-
                 <div id="drop-zone" class="aspect-square border border-white/5 rounded-2xl flex items-center justify-center cursor-pointer relative overflow-hidden group hover:border-white/20 transition-all bg-white/[0.02]">
                     <div class="text-center group-hover:scale-110 transition-transform duration-500">
                         <div class="text-2xl font-light text-white/20">+</div>
@@ -168,41 +138,30 @@
                     <img id="preview-img" class="absolute inset-0 w-full h-full object-cover hidden" />
                     <input id="file-input" type="file" class="hidden" accept="image/*" />
                 </div>
-
                 <div id="category-wrap" class="flex flex-wrap gap-2 mt-8">
                     <button class="cat-opt chip" data-val="Watch">Watches</button>
                     <button class="cat-opt chip" data-val="Fragrance">Scent</button>
                     <button class="cat-opt chip" data-val="Apparel">Apparel</button>
                     <button class="cat-opt chip" data-val="Other">Misc</button>
                 </div>
-
                 <div class="space-y-4 mt-8">
                     <input id="item-name" placeholder="Item Name" class="w-full bg-transparent border-b border-white/5 py-3 text-sm focus:outline-none" />
                     <input id="item-brand" placeholder="Brand / Designer" class="w-full bg-transparent border-b border-white/5 py-3 text-sm focus:outline-none" />
                 </div>
-
                 <button id="save-btn" class="w-full mt-10 bg-white text-black text-[10px] tracking-[0.3em] uppercase py-5 rounded-2xl hover:bg-[#efefef] transition-colors font-medium">
                     Archive Item
                 </button>
             </div>
         </div>
-
-        <!-- CATALOG PANEL -->
         <div class="lg:col-span-8">
             <div class="flex justify-between items-end mb-12">
                 <div class="text-[10px] tracking-[0.3em] uppercase text-white/30">The Collection</div>
                 <div id="item-count" class="text-[10px] tracking-[0.1em] text-white/20 tabular-nums">00 ITEMS</div>
             </div>
-
-            <div id="catalog-grid" class="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-12">
-                <!-- Data-driven items -->
-            </div>
+            <div id="catalog-grid" class="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-12"></div>
         </div>
-
     </div>
 </main>
-
 <script type="module" src="app.js"></script>
-
 </body>
 </html>
