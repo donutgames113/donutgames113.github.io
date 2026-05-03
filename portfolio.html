@@ -30,9 +30,9 @@
     <main>
       <section class="hero">
         <p class="subtitle">Roblox Developer | Builder | Brand Designer</p>
-        <h1>Public Roblox releases and brand work presented with polish.</h1>
+        <h1>Pretty cool game dev.</h1>
         <p>
-          This portfolio brings together live experiences, environment design, graphics, and presentation systems, including work connected to Aventix Productions.
+          This portfolio showcases my work in game development, environment design, and brand identity. It's a WIP, so don't expect much!
         </p>
         <div class="actions">
           <a class="button" href="about.html">About</a>
@@ -75,9 +75,12 @@
       <section class="section" id="skills">
         <h2 class="section-title">Capabilities</h2>
         <div class="card-list">
-          <article class="card"><h3>UI/UX</h3><p>Glassmorphism, gradients, and purposeful typography.</p></article>
-          <article class="card"><h3>Graphics</h3><p>Neon logos, banners, and texture-ready art assets.</p></article>
-          <article class="card"><h3>Marketing</h3><p>Campaign pages, updates, and release snippets.</p></article>
+          <article class="card"><h3>UI/UX</h3><p>Versatility across several styles.</p></article>
+          <article class="card"><h3>Graphics</h3><p>Visual design and asset creation.</p></article>
+          <article class="card"><h3>Building</h3><p>Able to create immersive environments.</p></article>
+          <article class="card"><h3>Scripting</h3><p>Able to script at an intermediate level with 3+ years of experience.</p></article>
+          <article class="card"><h3>Programming</h3><p>Able to write efficient and maintainable code.</p></article>
+          <article class="card"><h3>API Work</h3><p>Able to integrate and utilize various APIs effectively. See: donutgames113.github.io/Curato/</p></article>
         </div>
       </section>
       <section class="section">
@@ -99,8 +102,17 @@
       const aventix = 8962;
       const coral = 3365;
       const totalVisits = playzero + aventix + coral;
+
+      function to3SF(num) {
+        if (num === 0) return "0";
+        const digits = Math.floor(Math.log10(num)) + 1;
+        const scale = Math.pow(10, digits - 3);
+        const rounded = Math.round(num / scale) * scale;
+        return rounded.toLocaleString();
+      }
+
       document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("visitSum").textContent = totalVisits.toLocaleString();
+        document.getElementById("visitSum").textContent = to3SF(totalVisits) + "+";
       });
     </script>
             <div class="settings-overlay" id="settings-modal" aria-hidden="true">
@@ -149,14 +161,3 @@
 <script src="assets/js/theme.js" defer></script>
   </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
