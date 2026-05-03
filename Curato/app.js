@@ -1,8 +1,12 @@
+/* global supabase */
+
+// Configuration
 const SUPABASE_URL = 'https://wyvliczohxpyptwxnvfi.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5';
 const REDIRECT_URL = 'https://donutgames113.github.io/Curato/index.html';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Initialize Client
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let selectedCategory = "Other";
 let currentImageData = null;
@@ -19,34 +23,45 @@ const saveBtn = document.getElementById('save-btn');
 const catalogGrid = document.getElementById('catalog-grid');
 const askBtn = document.getElementById('ask-btn');
 const suggestionBox = document.getElementById('ai-suggestion');
+const suggestionText = document.getElementById('suggestion-text');
+const suggestionLoader = document.getElementById('suggestion-loader');
+const progressBar = document.getElementById('global-loader');
+
+// Progress Bar Logic
+const updateProgress = (width) => {
+    if (!progressBar) return;
+    progressBar.style.width = width + "%";
+    if (width === 100) {
+        setTimeout(() => { progressBar.style.width = "0%"; }, 500);
+    }
+};
 
 // --- AUTHENTICATION ---
-
 authBtn.onclick = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) { 
-        await supabase.auth.signOut(); 
-        window.location.reload(); 
+        await supabaseClient.auth.signOut();
+        window.location.reload();
     } else { 
-        await supabase.auth.signInWithOAuth({ 
+        await supabaseClient.auth.signInWithOAuth({ 
             provider: 'discord', 
             options: { redirectTo: REDIRECT_URL } 
-        }); 
+        });
     }
 };
 
 keyInput.onblur = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await supabaseClient.auth.getSession();
     if (session && keyInput.value) {
-        await supabase.auth.updateUser({
+        await supabaseClient.auth.updateUser({
             data: { gemini_api_key: keyInput.value.trim() }
         });
     }
 };
 
-supabase.auth.onAuthStateChange((_, session) => {
+supabaseClient.auth.onAuthStateChange((_, session) => {
     if (session) {
-        authBtn.innerText = `LOGOUT (${session.user.user_metadata.full_name || 'USER'})`;
+        authBtn.innerText = "LOGOUT (" + (session.user.user_metadata.full_name || "USER") + ")";
         if (session.user.user_metadata.gemini_api_key) {
             keyInput.value = session.user.user_metadata.gemini_api_key;
         }
@@ -58,7 +73,6 @@ supabase.auth.onAuthStateChange((_, session) => {
 });
 
 // --- CATEGORY SELECTION ---
-
 document.querySelectorAll('.cat-opt').forEach(btn => {
     btn.onclick = () => {
         document.querySelectorAll('.cat-opt').forEach(b => {
@@ -71,8 +85,7 @@ document.querySelectorAll('.cat-opt').forEach(btn => {
     };
 });
 
-// --- IMAGE HANDLING & AI SCAN ---
-
+// --- IMAGE HANDLING ---
 dropZone.onclick = () => document.getElementById('file-input').click();
 document.getElementById('file-input').onchange = (e) => handleFile(e.target.files[0]);
 
@@ -81,6 +94,7 @@ async function handleFile(file) {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = async () => {
+        updateProgress(30);
         currentImageData = reader.result;
         previewImg.src = reader.result;
         previewImg.classList.remove('hidden');
@@ -92,6 +106,7 @@ async function handleFile(file) {
         try {
             const base64 = reader.result.split(',')[1];
             const prompt = "Identify this item. Return ONLY valid JSON: {\"name\":\"string\",\"brand\":\"string\",\"category\":\"Watch|Fragrance|Apparel|Other\"}";
+            updateProgress(60);
             const guess = await callGeminiAPI(base64, file.type, prompt);
             
             if (guess) {
@@ -101,18 +116,18 @@ async function handleFile(file) {
                 if (btn) btn.click();
             }
         } catch (e) { 
-            console.error("AI Scan failed:", e); 
+            console.error("AI Scan failed:", e);
         } finally {
             saveBtn.innerText = "ARCHIVE ITEM";
             saveBtn.disabled = false;
+            updateProgress(100);
         }
     };
 }
 
-// --- GEMINI API INTEGRATION ---
-
+// --- GEMINI API ---
 async function callGeminiAPI(base64, mimeType, promptText) {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await supabaseClient.auth.getSession();
     const activeKey = keyInput.value.trim() || session?.user?.user_metadata?.gemini_api_key;
 
     if (!activeKey) {
@@ -120,13 +135,11 @@ async function callGeminiAPI(base64, mimeType, promptText) {
         throw new Error("Missing API Key");
     }
 
-    const model = "gemini-2.5-flash"; 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeKey}`;
+    const model = "gemini-1.5-flash";
+    const url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + activeKey;
     
     const body = {
-        contents: [{
-            parts: [{ text: promptText }]
-        }]
+        contents: [{ parts: [{ text: promptText }] }]
     };
 
     if (base64) {
@@ -142,11 +155,6 @@ async function callGeminiAPI(base64, mimeType, promptText) {
             body: JSON.stringify(body)
         });
 
-        if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.error?.message || "Google API Error");
-        }
-        
         const res = await response.json();
         const resultText = res.candidates[0].content.parts[0].text;
         
@@ -161,33 +169,37 @@ async function callGeminiAPI(base64, mimeType, promptText) {
     }
 }
 
-// --- DATABASE OPERATIONS ---
-
+// --- DB OPERATIONS ---
 saveBtn.onclick = async () => {
     if (!currentImageData || !nameInput.value) return alert("Details required.");
     saveBtn.innerText = "ARCHIVING...";
+    updateProgress(40);
     
-    const { error } = await supabase.from('items').insert([{
+    const { error } = await supabaseClient.from('items').insert([{
         name: nameInput.value,
         image_url: currentImageData,
         tags: { brand: brandInput.value, category: selectedCategory }
     }]);
 
     if (!error) {
-        nameInput.value = ""; 
+        nameInput.value = "";
         brandInput.value = "";
-        previewImg.classList.add('hidden'); 
+        previewImg.classList.add('hidden');
         dropText.classList.remove('hidden');
         currentImageData = null;
+        updateProgress(100);
         fetchItems();
     } else {
         alert("Archive failed: " + error.message);
+        updateProgress(0);
     }
     saveBtn.innerText = "ARCHIVE ITEM";
 };
 
 async function fetchItems() {
-    const { data, error } = await supabase.from('items').select('*').order('id', { ascending: false });
+    updateProgress(20);
+    const { data, error } = await supabaseClient.from('items').select('*').order('id', { ascending: false });
+    updateProgress(100);
     if (error) return;
     
     const countEl = document.getElementById('item-count');
@@ -195,9 +207,7 @@ async function fetchItems() {
 
     catalogGrid.innerHTML = data.map(item => `
         <div class="item-card group">
-            <div class="img-container">
-                <img src="${item.image_url}" loading="lazy">
-            </div>
+            <div class="img-container"><img src="${item.image_url}" loading="lazy"></div>
             <div class="mt-5">
                 <p class="text-[11px] font-medium uppercase tracking-widest text-white/90">${item.name}</p>
                 <p class="text-[9px] text-white/30 uppercase tracking-[0.15em] mt-1">${item.tags?.brand || 'Independent'}</p>
@@ -206,25 +216,26 @@ async function fetchItems() {
     `).join('');
 }
 
-// --- CONSULTATION LOGIC ---
-
+// --- CONSULTATION ---
 askBtn.onclick = async () => {
     const occasion = document.getElementById('occasion-input').value;
-    const { data: items } = await supabase.from('items').select('*');
+    const { data: items } = await supabaseClient.from('items').select('*');
     
-    if (!items?.length) return alert("Archive is empty.");
-    if (!occasion) return alert("Please specify an occasion.");
+    if (!items?.length || !occasion) return alert("Archive empty or no occasion set.");
 
     suggestionBox.classList.remove('hidden');
-    suggestionBox.innerHTML = `<span class="animate-pulse">Analyzing collection for ${occasion}...</span>`;
+    suggestionText.innerText = "";
+    suggestionLoader.classList.remove('hidden');
 
-    const inventory = items.map(i => `${i.name} by ${i.tags?.brand || 'Unknown'} (${i.tags?.category})`).join(', ');
-    const prompt = `You are a high-end personal stylist. Given this inventory: [${inventory}], what should I wear/use for "${occasion}"? Provide one sophisticated, concise recommendation.`;
+    const inventory = items.map(i => i.name + " by " + (i.tags?.brand || "Unknown") + " (" + i.tags?.category + ")").join(', ');
+    const prompt = "You are a high-end personal stylist. Given this inventory: [" + inventory + "], what should I wear/use for \"" + occasion + "\"? Provide one sophisticated, concise recommendation.";
 
     try {
         const advice = await callGeminiAPI(null, null, prompt);
-        suggestionBox.innerText = advice;
+        suggestionLoader.classList.add('hidden');
+        suggestionText.innerText = advice;
     } catch (e) {
-        suggestionBox.innerText = "Stylist is unavailable: " + e.message;
+        suggestionLoader.classList.add('hidden');
+        suggestionText.innerText = "Stylist is unavailable: " + e.message;
     }
 };
