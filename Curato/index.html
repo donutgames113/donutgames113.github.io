@@ -57,7 +57,9 @@
             position: relative;
         }
 
-        .item-card:hover { transform: translateY(-6px); }
+        .item-card:hover {
+            transform: translateY(-6px);
+        }
 
         .img-container {
             aspect-ratio: 4/5;
@@ -112,17 +114,10 @@
 
         input::placeholder { color: rgba(255,255,255,0.2); }
         input:focus { border-color: var(--accent) !important; }
-
-        #global-loader {
-            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
     </style>
 </head>
 
 <body>
-
-<!-- Progress Bar -->
-<div id="global-loader" class="fixed top-0 left-0 h-[2px] bg-[#d4ff6a] z-[100] shadow-[0_0_10px_#d4ff6a]" style="width: 0%"></div>
 
 <nav class="fixed top-0 w-full z-50 nav-blur">
     <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
@@ -140,6 +135,7 @@
 
 <main class="max-w-7xl mx-auto px-6 pt-32 pb-24">
 
+    <!-- CONSULTANT SECTION -->
     <section class="max-w-4xl mx-auto text-center mb-32">
         <div class="text-[10px] tracking-[0.4em] uppercase text-white/30 mb-8">AI Style Consultant</div>
         <input id="occasion-input" class="w-full bg-transparent border-b border-white/5 py-8 text-center focus:outline-none transition-all" placeholder="Where are we going?" />
@@ -154,18 +150,12 @@
             Consult Archive
         </button>
 
-        <div id="ai-suggestion" class="hidden mt-12 glass p-10 rounded-3xl text-sm text-white/70 italic leading-relaxed max-w-2xl mx-auto relative overflow-hidden">
-            <div id="suggestion-loader" class="hidden flex items-center justify-center gap-2 py-2">
-                <div class="w-1.5 h-1.5 bg-[#d4ff6a] rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                <div class="w-1.5 h-1.5 bg-[#d4ff6a] rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                <div class="w-1.5 h-1.5 bg-[#d4ff6a] rounded-full animate-bounce"></div>
-            </div>
-            <div id="suggestion-text"></div>
-        </div>
+        <div id="ai-suggestion" class="hidden mt-12 glass p-10 rounded-3xl text-sm text-white/70 italic leading-relaxed max-w-2xl mx-auto"></div>
     </section>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
         
+        <!-- UPLOAD PANEL -->
         <div class="lg:col-span-4 lg:sticky lg:top-28 h-fit">
             <div class="glass p-8 rounded-[2rem]">
                 <div class="text-[10px] tracking-[0.3em] uppercase text-white/30 mb-8">New Addition</div>
@@ -197,13 +187,18 @@
             </div>
         </div>
 
+        <!-- CATALOG PANEL -->
         <div class="lg:col-span-8">
             <div class="flex justify-between items-end mb-12">
                 <div class="text-[10px] tracking-[0.3em] uppercase text-white/30">The Collection</div>
                 <div id="item-count" class="text-[10px] tracking-[0.1em] text-white/20 tabular-nums">00 ITEMS</div>
             </div>
-            <div id="catalog-grid" class="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-12"></div>
+
+            <div id="catalog-grid" class="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-12">
+                <!-- Data-driven items -->
+            </div>
         </div>
+
     </div>
 </main>
 
