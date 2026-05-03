@@ -97,6 +97,9 @@
         }
         input::placeholder { color: rgba(255,255,255,0.2); }
         input:focus { border-color: var(--accent) !important; }
+        
+        /* Dropdown Styling */
+        select option { background: #1a1a1f; color: white; }
     </style>
 </head>
 <body>
@@ -106,8 +109,14 @@
             <div class="text-lg font-semibold tracking-tighter uppercase">Curato</div>
             <div class="text-[9px] tracking-[0.4em] text-white/30 uppercase">Personal Archive</div>
         </div>
-        <div class="flex items-center gap-6">
-            <input id="user-api-key" type="password" placeholder="Gemini Key" class="hidden md:block bg-transparent border-b border-white/10 text-[10px] w-40 pb-1 focus:outline-none transition-all" />
+        <div class="flex items-center gap-4">
+            <select id="model-select" class="hidden md:block bg-transparent border-b border-white/10 text-[9px] uppercase tracking-widest pb-1 focus:outline-none transition-all cursor-pointer text-white/50">
+                <option value="gemini-3.1-flash-lite-preview">3.1 Flash Lite</option>
+                <option value="gemini-3.1-pro-preview">3.1 Pro</option>
+                <option value="gemini-2.5-flash">2.5 Flash</option>
+                <option value="gemini-2.0-flash-001">2.0 Flash (Stable)</option>
+            </select>
+            <input id="user-api-key" type="password" placeholder="Gemini Key" class="hidden md:block bg-transparent border-b border-white/10 text-[10px] w-32 pb-1 focus:outline-none transition-all" />
             <button id="auth-btn" class="text-[10px] tracking-[0.2em] uppercase text-white/50 hover:text-white transition">Connect</button>
         </div>
     </div>

@@ -7,21 +7,23 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let selectedCategory = "Other";
 let currentImageData = null;
 
-// --- UPDATED GEMINI API INTEGRATION WITH STABLE MODEL ALIASING ---
-
+// GEMINI API INTEGRATION
 async function callGeminiAPI(base64, mimeType, promptText) {
     const keyInput = document.getElementById('user-api-key');
+    const modelSelect = document.getElementById('model-select');
     const { data: { session } } = await supabase.auth.getSession();
+    
+    // Auth & Model Resolution[cite: 1]
     const activeKey = keyInput?.value.trim() || session?.user?.user_metadata?.gemini_api_key;
+    const activeModel = modelSelect?.value || session?.user?.user_metadata?.preferred_model || "gemini-3.1-flash-lite-preview";
 
     if (!activeKey) {
         alert("Please provide a Gemini API Key.");
         throw new Error("Missing API Key");
     }
 
-    // Using -latest suffix is the standard for stable routing in v1beta
-    let model = "gemini-1.5-flash-latest"; 
-    let url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeKey}`;
+    // Dynamic URL based on selected model[cite: 1]
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${activeModel}:generateContent?key=${activeKey}`;
     
     const body = {
         contents: [{
@@ -36,23 +38,11 @@ async function callGeminiAPI(base64, mimeType, promptText) {
     }
 
     try {
-        let response = await fetch(url, {
+        const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
         });
-
-        // Fallback Logic: If Flash latest isn't found, try the universal 'gemini-pro' alias
-        if (response.status === 404) {
-            console.warn("Flash latest not found, falling back to gemini-pro...");
-            model = "gemini-pro";
-            url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeKey}`;
-            response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
-        }
 
         if (!response.ok) {
             const err = await response.json();
@@ -63,7 +53,6 @@ async function callGeminiAPI(base64, mimeType, promptText) {
         const resultText = res.candidates[0].content.parts[0].text;
         
         if (promptText.includes("JSON")) {
-            // Clean markdown formatting if AI includes it
             const cleanedText = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
             return JSON.parse(cleanedText);
         }
@@ -101,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const authBtn = document.getElementById('auth-btn');
     const keyInput = document.getElementById('user-api-key');
+    const modelSelect = document.getElementById('model-select');
     const dropZone = document.getElementById('drop-zone');
     const previewImg = document.getElementById('preview-img');
     const dropText = document.getElementById('drop-text');
@@ -111,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const askBtn = document.getElementById('ask-btn');
     const suggestionBox = document.getElementById('ai-suggestion');
 
-    // AUTHENTICATION
+    // AUTHENTICATION & SETTINGS PERSISTENCE[cite: 1]
     if (authBtn) {
         authBtn.onclick = async () => {
             const { data: { session } } = await supabase.auth.getSession();
@@ -127,6 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    // Save API Key on blur[cite: 1]
     if (keyInput) {
         keyInput.onblur = async () => {
             const { data: { session } } = await supabase.auth.getSession();
@@ -138,12 +129,30 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    // Save Model Selection on change[cite: 1]
+    if (modelSelect) {
+        modelSelect.onchange = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                await supabase.auth.updateUser({
+                    data: { preferred_model: modelSelect.value }
+                });
+            }
+        };
+    }
+
     supabase.auth.onAuthStateChange((_, session) => {
         if (session) {
             if (authBtn) authBtn.innerText = `LOGOUT (${session.user.user_metadata.full_name || 'USER'})`;
+            
+            // Load saved settings[cite: 1]
             if (session.user.user_metadata.gemini_api_key && keyInput) {
                 keyInput.value = session.user.user_metadata.gemini_api_key;
             }
+            if (session.user.user_metadata.preferred_model && modelSelect) {
+                modelSelect.value = session.user.user_metadata.preferred_model;
+            }
+            
             fetchItems();
         } else {
             if (authBtn) authBtn.innerText = "CONNECT";
@@ -236,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // CONSULTATION LOGIC (Fixing the reported error)
+    // CONSULTATION LOGIC
     if (askBtn) {
         askBtn.onclick = async () => {
             const occasionInput = document.getElementById('occasion-input');
