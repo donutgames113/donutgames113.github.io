@@ -206,34 +206,49 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const fileInput = document.getElementById('file-input');
     if (fileInput) {
-        fileInput.onchange = (e) => {
+        fileInput.onchange = async (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = async () => {
-                currentImageData = reader.result;
-                if (previewImg) { previewImg.src = reader.result; previewImg.classList.remove('hidden'); }
-                if (dropText) dropText.classList.add('hidden');
-                if (saveBtn) { saveBtn.innerText = "IDENTIFYING..."; saveBtn.disabled = true; }
+            const compressedDataUrl = await compressImage(file, 900, 0.75);
+            currentImageData = compressedDataUrl;
 
-                try {
-                    const base64 = reader.result.split(',')[1];
-                    const prompt = "Identify this item. Return ONLY valid JSON: {\"name\":\"string\",\"brand\":\"string\",\"category\":\"Watch|Fragrance|Other\",\"subcategory\":\"Top|Bottom|null\"}";
-                    const guess = await callGeminiAPI(base64, file.type, prompt);
-                    if (guess) {
-                        if (nameInput) nameInput.value = guess.name || "";
-                        if (brandInput) brandInput.value = guess.brand || "";
-                        const matchingBtn = Array.from(catButtons).find(b => b.dataset.val === guess.category && (b.dataset.sub || null) === (guess.subcategory || null));
-                        if (matchingBtn) matchingBtn.click();
-                    }
-                } catch (err) {
-                    console.error("Auto-ID error:", err);
-                } finally {
-                    if (saveBtn) { saveBtn.innerText = "ARCHIVE ITEM"; saveBtn.disabled = false; }
+            if (previewImg) {
+                previewImg.src = compressedDataUrl;
+                previewImg.classList.remove('hidden');
+            }
+            if (dropText) dropText.classList.add('hidden');
+
+            if (saveBtn) {
+                saveBtn.innerText = "IDENTIFYING...";
+                saveBtn.disabled = true;
+            }
+
+            try {
+                const base64 = compressedDataUrl.split(',')[1];
+                const prompt = "Identify this item. Return ONLY valid JSON: {\"name\":\"string\",\"brand\":\"string\",\"category\":\"Watch|Fragrance|Other\",\"subcategory\":\"Top|Bottom|null\"}";
+
+                const guess = await callGeminiAPI(base64, file.type, prompt);
+
+                if (guess) {
+                    if (nameInput) nameInput.value = guess.name || "";
+                    if (brandInput) brandInput.value = guess.brand || "";
+
+                    const matchingBtn = Array.from(catButtons).find(
+                        b => b.dataset.val === guess.category &&
+                        (b.dataset.sub || null) === (guess.subcategory || null)
+                    );
+
+                    if (matchingBtn) matchingBtn.click();
                 }
-            };
+            } catch (err) {
+                console.error("Auto-ID error:", err);
+            } finally {
+                if (saveBtn) {
+                    saveBtn.innerText = "ARCHIVE ITEM";
+                    saveBtn.disabled = false;
+                }
+            }
         };
     }
 
@@ -266,13 +281,47 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    async function compressImage(file, maxWidth = 900, quality = 0.75) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                img.src = e.target.result;
+            };
+
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+
+                const scale = Math.min(1, maxWidth / img.width);
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                canvas.toBlob(
+                    (blob) => {
+                        const reader2 = new FileReader();
+                        reader2.onloadend = () => resolve(reader2.result); // base64
+                        reader2.readAsDataURL(blob);
+                    },
+                    'image/jpeg',
+                    quality
+                );
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
+
     // CONSULT BUTTON LOGIC
     if (askBtn) {
         askBtn.onclick = async () => {
             const occasion = document.getElementById('occasion-input')?.value;
             const { data: items } = await supabase.from('items').select('*');
             
-            if (!items?.length) return alert("Archive is empty.");
+            if (!items?.length) return alert("Archive is empty. Likely Supabase limit hit");
             if (!occasion) return alert("Please specify an occasion.");
 
             if (suggestionBox) {
