@@ -148,10 +148,13 @@
                     <input id="file-input" type="file" class="hidden" accept="image/*" />
                 </div>
                 <div id="category-wrap" class="flex flex-wrap gap-2 mt-8">
-                    <button class="cat-opt chip" data-val="Watch">Watches</button>
-                    <button class="cat-opt chip" data-val="Fragrance">Scent</button>
-                    <button class="cat-opt chip" data-val="Apparel">Apparel</button>
-                    <button class="cat-opt chip" data-val="Other">Misc</button>
+                    <div class="flex gap-2 mb-6">
+                        <button class="chip sort-opt active" data-sort="ALL">All</button>
+                        <button class="chip sort-opt" data-sort="TOPS">Tops</button>
+                        <button class="chip sort-opt" data-sort="BOTTOMS">Bottoms</button>
+                        <button class="chip sort-opt" data-sort="Watch">Watches</button>
+                        <button class="chip sort-opt" data-sort="Fragrance">Scent</button>
+                    </div>
                 </div>
                 <div class="space-y-4 mt-8">
                     <input id="item-name" placeholder="Item Name" class="w-full bg-transparent border-b border-white/5 py-3 text-sm focus:outline-none" />
