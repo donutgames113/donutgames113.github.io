@@ -252,6 +252,59 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    async function recompressAllImages() {
+        const { data: items, error } = await supabase.from('items').select('*');
+        if (error) return console.error(error);
+
+        for (const item of items) {
+            if (!item.image_url) continue;
+
+            try {
+                // skip if already small-ish
+                if (item.image_url.length < 300000) continue;
+
+                const img = new Image();
+                img.crossOrigin = "anonymous";
+
+                await new Promise((resolve) => {
+                    img.onload = resolve;
+                    img.src = item.image_url;
+                });
+
+                const canvas = document.createElement('canvas');
+                const maxWidth = 900;
+                const scale = Math.min(1, maxWidth / img.width);
+
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                const blob = await new Promise((resolve) =>
+                    canvas.toBlob(resolve, 'image/jpeg', 0.75)
+                );
+
+                const newBase64 = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(blob);
+                });
+
+                await supabase
+                    .from('items')
+                    .update({ image_url: newBase64 })
+                    .eq('id', item.id);
+
+                console.log("Compressed:", item.id);
+            } catch (err) {
+                console.error("Failed:", item.id, err);
+            }
+        }
+
+        console.log("Done recompressing all images");
+    }
+
     // SAVE BUTTON LOGIC
     if (saveBtn) {
         saveBtn.onclick = async () => {
