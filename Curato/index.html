@@ -48,9 +48,7 @@
             transition: all .4s cubic-bezier(.2,.8,.2,1);
             position: relative;
         }
-        .item-card:hover {
-            transform: translateY(-6px);
-        }
+        .item-card:hover { transform: translateY(-6px); }
         .img-container {
             aspect-ratio: 4/5;
             overflow: hidden;
@@ -81,7 +79,7 @@
             cursor: pointer;
             background: transparent;
         }
-        .chip:hover, .cat-opt.active {
+        .chip:hover, .cat-opt.active, .sort-opt.active {
             border-color: var(--accent);
             color: white;
             background: rgba(212, 255, 106, 0.05);
@@ -97,9 +95,16 @@
         }
         input::placeholder { color: rgba(255,255,255,0.2); }
         input:focus { border-color: var(--accent) !important; }
-        
-        /* Dropdown Styling */
         select option { background: #1a1a1f; color: white; }
+
+        /* AI SUGGESTION RENDERING */
+        .ai-render-area { text-align: left; line-height: 1.8; }
+        .ai-render-area h2 { font-size: 26px; font-weight: 200; color: var(--accent); margin-bottom: 1.5rem; letter-spacing: -0.02em; }
+        .ai-render-area h3 { font-size: 11px; font-weight: 700; color: white; text-transform: uppercase; letter-spacing: 0.2em; margin-top: 2rem; border-bottom: 1px solid var(--stroke); padding-bottom: 0.5rem; }
+        .ai-render-area ul { margin-top: 1rem; list-style: none; padding-left: 0; }
+        .ai-render-area li { margin-bottom: 1.25rem; font-size: 14px; color: rgba(255,255,255,0.7); }
+        .ai-render-area li strong { display: block; color: white; font-size: 15px; margin-bottom: 2px; }
+        .ai-render-area blockquote { margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.02); border-left: 2px solid var(--accent); font-size: 13px; color: var(--muted); font-style: italic; }
     </style>
 </head>
 <body>
@@ -113,7 +118,6 @@
             <select id="model-select" class="hidden md:block bg-transparent border-b border-white/10 text-[9px] uppercase tracking-widest pb-1 focus:outline-none transition-all cursor-pointer text-white/50">
                 <option value="gemini-3.1-flash-lite-preview">3.1 Flash Lite</option>
                 <option value="gemini-3.1-pro-preview">3.1 Pro</option>
-                <option value="gemini-2.5-flash">2.5 Flash</option>
                 <option value="gemini-2.0-flash-001">2.0 Flash (Stable)</option>
             </select>
             <input id="user-api-key" type="password" placeholder="Gemini Key" class="hidden md:block bg-transparent border-b border-white/10 text-[10px] w-32 pb-1 focus:outline-none transition-all" />
@@ -133,7 +137,7 @@
         <button id="ask-btn" class="mt-12 px-12 py-4 rounded-full glow-btn text-[10px] tracking-[0.3em] uppercase hover:scale-[1.02] active:scale-95 transition-all">
             Consult Archive
         </button>
-        <div id="ai-suggestion" class="hidden mt-12 glass p-10 rounded-3xl text-sm text-white/70 italic leading-relaxed max-w-2xl mx-auto"></div>
+        <div id="ai-suggestion" class="hidden mt-12 glass p-10 rounded-3xl max-w-2xl mx-auto ai-render-area"></div>
     </section>
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
         <div class="lg:col-span-4 lg:sticky lg:top-28 h-fit">
@@ -149,13 +153,17 @@
                 </div>
                 <div id="category-wrap" class="mt-8">
                     <div class="flex flex-wrap gap-2 justify-center md:justify-start p-2 rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-sm">
-                        
                         <button class="chip sort-opt active" data-sort="ALL">All</button>
                         <button class="chip sort-opt" data-sort="TOPS">Tops</button>
                         <button class="chip sort-opt" data-sort="BOTTOMS">Bottoms</button>
                         <button class="chip sort-opt" data-sort="Watch">Watches</button>
                         <button class="chip sort-opt" data-sort="Fragrance">Scent</button>
-
+                    </div>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <button class="chip cat-opt" data-val="Watch">Watch</button>
+                        <button class="chip cat-opt" data-val="Fragrance">Scent</button>
+                        <button class="chip cat-opt" data-val="Other" data-sub="Top">Top</button>
+                        <button class="chip cat-opt" data-val="Other" data-sub="Bottom">Bottom</button>
                     </div>
                 </div>
                 <div class="space-y-4 mt-8">
