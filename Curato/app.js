@@ -112,6 +112,30 @@ async function fetchItems() {
     }
 }
 
+async function migrateData() {
+    const { data: items } = await supabase.from('items').select('*');
+    
+    for (const item of items) {
+        // Only migrate if it's still stored as a giant Base64 string
+        if (item.image_url.startsWith('data:image')) {
+            const blob = await (await fetch(item.image_url)).blob();
+            const fileName = `migration/${item.id}.jpg`;
+
+            // Upload to Storage
+            await supabase.storage.from('wardrobe-images').upload(fileName, blob);
+
+            // Get the new URL
+            const { data: { publicUrl } } = supabase.storage
+                .from('wardrobe-images')
+                .getPublicUrl(fileName);
+
+            // Update the row to use the URL instead of the giant string
+            await supabase.from('items').update({ image_url: publicUrl }).eq('id', item.id);
+            console.log(`Migrated: ${item.name}`);
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const authBtn = document.getElementById('auth-btn');
     const keyInput = document.getElementById('user-api-key');
