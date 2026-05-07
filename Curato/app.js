@@ -730,52 +730,79 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // ========================================
+// ========================================
     // SAVE ITEM
     // ========================================
 
     if (saveBtn) {
-            saveBtn.onclick = async () => {
-                // 1. GET THE SESSION FIRST
-                const { data: { session } } = await supabase.auth.getSession();
 
-                if (!currentImageData || !nameInput?.value) {
-                    alert("Details required.");
-                    return;
-                }
+        saveBtn.onclick = async () => {
 
-                saveBtn.innerText = "ARCHIVING...";
-                saveBtn.disabled = true;
+            // 1. Fetch the session at the moment of the click
+            const { data: { session } } = await supabase.auth.getSession();
 
-                try {
-                    const imageUrl = await uploadImageToStorage(currentImageData);
+            if (
+                !currentImageData ||
+                !nameInput?.value
+            ) {
+                alert("Details required.");
+                return;
+            }
 
-                    const { error } = await supabase
+            saveBtn.innerText = "ARCHIVING...";
+            saveBtn.disabled = true;
+
+            try {
+                const imageUrl =
+                    await uploadImageToStorage(
+                        currentImageData
+                    );
+
+                const { error } =
+                    await supabase
                         .from('items')
                         .insert([{
-                            // 2. USE THE SESSION ID
-                            user_id: session?.user?.id || null, 
-                            name: nameInput.value,
-                            image_url: imageUrl,
+                            // 2. Use the ID from the session we just fetched
+                            user_id: session?.user?.id || null,
+
+                            name:
+                                nameInput.value,
+
+                            image_url:
+                                imageUrl,
+
                             tags: {
-                                brand: brandInput?.value || "",
-                                category: selectedCategory,
-                                subcategory: selectedSubCategory,
-                                layerable: selectedSubCategory === "Top"
+                                brand:
+                                    brandInput?.value || "",
+
+                                category:
+                                    selectedCategory,
+
+                                subcategory:
+                                    selectedSubCategory,
+
+                                layerable:
+                                    selectedSubCategory === "Top"
                             }
                         }]);
 
-                    if (error) throw error;
-                    location.reload();
-
-                } catch (err) {
-                    console.error(err);
-                    alert("Archive failed: " + err.message);
-                    saveBtn.innerText = "ARCHIVE ITEM";
-                    saveBtn.disabled = false;
+                if (error) {
+                    throw error;
                 }
-            };
-        }
+
+                location.reload();
+
+            } catch (err) {
+                console.error(err);
+                alert(
+                    "Archive failed: "
+                    + err.message
+                );
+                saveBtn.innerText = "ARCHIVE ITEM";
+                saveBtn.disabled = false;
+            }
+        };
+    }
 
     // ========================================
     // AI CONSULT
