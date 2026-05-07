@@ -735,80 +735,47 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
 
     if (saveBtn) {
+            saveBtn.onclick = async () => {
+                // 1. GET THE SESSION FIRST
+                const { data: { session } } = await supabase.auth.getSession();
 
-        saveBtn.onclick = async () => {
+                if (!currentImageData || !nameInput?.value) {
+                    alert("Details required.");
+                    return;
+                }
 
-            if (
-                !currentImageData ||
-                !nameInput?.value
-            ) {
+                saveBtn.innerText = "ARCHIVING...";
+                saveBtn.disabled = true;
 
-                alert("Details required.");
+                try {
+                    const imageUrl = await uploadImageToStorage(currentImageData);
 
-                return;
-            }
-
-            saveBtn.innerText =
-                "ARCHIVING...";
-
-            saveBtn.disabled = true;
-
-            try {
-
-                const imageUrl =
-                    await uploadImageToStorage(
-                        currentImageData
-                    );
-
-                const { error } =
-                    await supabase
+                    const { error } = await supabase
                         .from('items')
                         .insert([{
-                            user_id: session?.user?.id,
-                            name:
-                                nameInput.value,
-
-                            image_url:
-                                imageUrl,
-
+                            // 2. USE THE SESSION ID
+                            user_id: session?.user?.id || null, 
+                            name: nameInput.value,
+                            image_url: imageUrl,
                             tags: {
-
-                                brand:
-                                    brandInput?.value || "",
-
-                                category:
-                                    selectedCategory,
-
-                                subcategory:
-                                    selectedSubCategory,
-
-                                layerable:
-                                    selectedSubCategory === "Top"
+                                brand: brandInput?.value || "",
+                                category: selectedCategory,
+                                subcategory: selectedSubCategory,
+                                layerable: selectedSubCategory === "Top"
                             }
                         }]);
 
-                if (error) {
-                    throw error;
+                    if (error) throw error;
+                    location.reload();
+
+                } catch (err) {
+                    console.error(err);
+                    alert("Archive failed: " + err.message);
+                    saveBtn.innerText = "ARCHIVE ITEM";
+                    saveBtn.disabled = false;
                 }
-
-                location.reload();
-
-            } catch (err) {
-
-                console.error(err);
-
-                alert(
-                    "Archive failed: "
-                    + err.message
-                );
-
-                saveBtn.innerText =
-                    "ARCHIVE ITEM";
-
-                saveBtn.disabled = false;
-            }
-        };
-    }
+            };
+        }
 
     // ========================================
     // AI CONSULT
