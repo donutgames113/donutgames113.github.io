@@ -811,7 +811,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (askBtn) {
         askBtn.onclick = async () => {
             const inputEl = document.getElementById('occasion-input');
-            const userPrompt = (inputEl?.value || inputEl?.innerText || "").trim();
+            const userPrompt = promptInput?.value?.trim();
             
             if (!userPrompt) {
                 alert("Please enter a question for the consultant.");
