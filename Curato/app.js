@@ -2,36 +2,47 @@ const SUPABASE_URL = 'https://wyvliczohxpyptwxnvfi.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5';
 const REDIRECT_URL = 'https://donutgames113.github.io/Curato/index.html';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
 
 let selectedCategory = "Other";
 let selectedSubCategory = null;
 let currentImageData = null;
 let currentSortClass = "ALL";
 
-// ===============================
-// AI RENDERER
-// ===============================
+// ========================================
+// AI RESPONSE RENDERER
+// ========================================
 
 function renderAIResponse(text) {
+
     return text
         .replace(/^## (.*$)/gim, '<h2>$1</h2>')
         .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-        .replace(/^\* \*\*(.*?)\*\*(.*$)/gim, '<li><strong>$1</strong>$2</li>')
+        .replace(
+            /^\* \*\*(.*?)\*\*(.*$)/gim,
+            '<li><strong>$1</strong>$2</li>'
+        )
         .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
         .replace(/\n/g, '<br>');
 }
 
-// ===============================
-// GEMINI API
-// ===============================
+// ========================================
+// GEMINI
+// ========================================
 
 async function callGeminiAPI(base64, mimeType, promptText) {
 
-    const keyInput = document.getElementById('user-api-key');
-    const modelSelect = document.getElementById('model-select');
+    const keyInput =
+        document.getElementById('user-api-key');
 
-    const { data: { session } } = await supabase.auth.getSession();
+    const modelSelect =
+        document.getElementById('model-select');
+
+    const { data: { session } } =
+        await supabase.auth.getSession();
 
     const activeKey =
         keyInput?.value.trim() ||
@@ -43,8 +54,8 @@ async function callGeminiAPI(base64, mimeType, promptText) {
         "gemini-1.5-flash";
 
     if (!activeKey) {
-        alert("Please provide a Gemini API Key.");
-        throw new Error("Missing API Key");
+        alert("Missing Gemini API key.");
+        throw new Error("Missing Gemini API key.");
     }
 
     const url =
@@ -57,6 +68,7 @@ async function callGeminiAPI(base64, mimeType, promptText) {
     };
 
     if (base64) {
+
         body.contents[0].parts.push({
             inline_data: {
                 mime_type: mimeType,
@@ -67,13 +79,19 @@ async function callGeminiAPI(base64, mimeType, promptText) {
 
     const response = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json'
+        },
         body: JSON.stringify(body)
     });
 
     if (!response.ok) {
+
         const err = await response.json();
-        throw new Error(err.error?.message || "Google API Error");
+
+        throw new Error(
+            err.error?.message || "Gemini API error"
+        );
     }
 
     const res = await response.json();
@@ -82,6 +100,7 @@ async function callGeminiAPI(base64, mimeType, promptText) {
         res.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
     if (promptText.includes("JSON")) {
+
         const cleaned =
             resultText
                 .replace(/```json/g, '')
@@ -94,13 +113,15 @@ async function callGeminiAPI(base64, mimeType, promptText) {
     return resultText;
 }
 
-// ===============================
+// ========================================
 // SORTING
-// ===============================
+// ========================================
 
 function sortItems(items) {
 
-    if (currentSortClass === "ALL") return items;
+    if (currentSortClass === "ALL") {
+        return items;
+    }
 
     return items.filter(i => {
 
@@ -116,15 +137,15 @@ function sortItems(items) {
     });
 }
 
-// ===============================
+// ========================================
 // FETCH ITEMS
-// ===============================
+// ========================================
 
 async function fetchItems() {
 
     const { data, error } = await supabase
         .from('items')
-        .select('*')
+        .select('id,name,image_url,tags')
         .order('id', { ascending: false });
 
     if (error) {
@@ -134,24 +155,36 @@ async function fetchItems() {
 
     const filtered = sortItems(data);
 
-    const countEl = document.getElementById('item-count');
+    const countEl =
+        document.getElementById('item-count');
 
     if (countEl) {
+
         countEl.innerText =
-            filtered.length.toString().padStart(2, '0') + " ITEMS";
+            filtered.length.toString().padStart(2, '0')
+            + " ITEMS";
     }
 
-    const catalogGrid = document.getElementById('catalog-grid');
+    const catalogGrid =
+        document.getElementById('catalog-grid');
 
     if (!catalogGrid) return;
 
     catalogGrid.innerHTML = filtered.map(item => `
+
         <div class="item-card group">
+
             <div class="img-container">
-                <img src="${item.image_url}" loading="lazy">
+
+                <img
+                    src="${item.image_url}"
+                    loading="lazy"
+                >
+
             </div>
 
             <div class="mt-5">
+
                 <p class="text-[11px] font-medium uppercase tracking-widest text-white/90">
                     ${item.name}
                 </p>
@@ -161,16 +194,23 @@ async function fetchItems() {
                     •
                     ${item.tags?.subcategory || item.tags?.category}
                 </p>
+
             </div>
+
         </div>
+
     `).join('');
 }
 
-// ===============================
-// IMAGE COMPRESSION
-// ===============================
+// ========================================
+// COMPRESS IMAGE
+// ========================================
 
-async function compressImage(file, maxWidth = 900, quality = 0.75) {
+async function compressImage(
+    file,
+    maxWidth = 900,
+    quality = 0.75
+) {
 
     return new Promise((resolve) => {
 
@@ -183,7 +223,8 @@ async function compressImage(file, maxWidth = 900, quality = 0.75) {
 
         img.onload = () => {
 
-            const canvas = document.createElement('canvas');
+            const canvas =
+                document.createElement('canvas');
 
             const scale =
                 Math.min(1, maxWidth / img.width);
@@ -191,7 +232,8 @@ async function compressImage(file, maxWidth = 900, quality = 0.75) {
             canvas.width = img.width * scale;
             canvas.height = img.height * scale;
 
-            const ctx = canvas.getContext('2d');
+            const ctx =
+                canvas.getContext('2d');
 
             ctx.drawImage(
                 img,
@@ -202,9 +244,11 @@ async function compressImage(file, maxWidth = 900, quality = 0.75) {
             );
 
             canvas.toBlob(
+
                 (blob) => {
 
-                    const reader2 = new FileReader();
+                    const reader2 =
+                        new FileReader();
 
                     reader2.onloadend = () => {
                         resolve(reader2.result);
@@ -213,6 +257,7 @@ async function compressImage(file, maxWidth = 900, quality = 0.75) {
                     reader2.readAsDataURL(blob);
 
                 },
+
                 'image/jpeg',
                 quality
             );
@@ -222,121 +267,200 @@ async function compressImage(file, maxWidth = 900, quality = 0.75) {
     });
 }
 
-// ===============================
-// UPLOAD IMAGE TO STORAGE
-// ===============================
+// ========================================
+// UPLOAD TO STORAGE
+// ========================================
 
 async function uploadImageToStorage(base64Data) {
 
-    const response = await fetch(base64Data);
+    const response =
+        await fetch(base64Data);
 
-    const blob = await response.blob();
+    const blob =
+        await response.blob();
 
     const fileName =
-        `wardrobe-${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
+        `wardrobe-${Date.now()}-${Math.random()
+            .toString(36)
+            .slice(2)}.jpg`;
 
-    const { error: uploadError } = await supabase
-        .storage
-        .from('wardrobe-images')
-        .upload(fileName, blob, {
-            contentType: 'image/jpeg',
-            upsert: false
-        });
+    const { error: uploadError } =
+        await supabase
+            .storage
+            .from('wardrobe-images')
+            .upload(fileName, blob, {
+                contentType: 'image/jpeg',
+                upsert: false
+            });
 
     if (uploadError) {
         throw uploadError;
     }
 
-    const { data } = supabase
-        .storage
-        .from('wardrobe-images')
-        .getPublicUrl(fileName);
+    const { data } =
+        supabase
+            .storage
+            .from('wardrobe-images')
+            .getPublicUrl(fileName);
 
     return data.publicUrl;
 }
 
-// ===============================
-// MIGRATION
-// ===============================
+// ========================================
+// MIGRATE ALL IMAGES
+// ========================================
 
 async function migrateImagesToStorage() {
 
-    console.log("Starting migration...");
+    console.log("================================");
+    console.log("STARTING FULL MIGRATION");
+    console.log("================================");
 
-    const { data: items, error } = await supabase
-        .from('items')
-        .select('*');
+    const { data: items, error } =
+        await supabase
+            .from('items')
+            .select('id,image_url');
 
     if (error) {
-        console.error(error);
+
+        console.error(
+            "FAILED TO FETCH ITEMS:",
+            error
+        );
+
         return;
     }
+
+    console.log(
+        `FOUND ${items.length} ITEMS`
+    );
+
+    let migrated = 0;
+    let skipped = 0;
+    let failed = 0;
 
     for (const item of items) {
 
         try {
 
-            if (!item.image_url) continue;
+            if (!item.image_url) {
 
-            // already migrated
-            if (item.image_url.startsWith('http')) {
-                console.log("Already migrated:", item.id);
+                skipped++;
                 continue;
             }
 
-            console.log("Migrating:", item.id);
+            if (item.image_url.startsWith('http')) {
+
+                console.log(
+                    `SKIPPED ${item.id} (already migrated)`
+                );
+
+                skipped++;
+                continue;
+            }
+
+            console.log(
+                `MIGRATING ${item.id}...`
+            );
 
             const publicUrl =
-                await uploadImageToStorage(item.image_url);
+                await uploadImageToStorage(
+                    item.image_url
+                );
 
-            const { error: updateError } = await supabase
-                .from('items')
-                .update({
-                    image_url: publicUrl
-                })
-                .eq('id', item.id);
+            const { error: updateError } =
+                await supabase
+                    .from('items')
+                    .update({
+                        image_url: publicUrl
+                    })
+                    .eq('id', item.id);
 
             if (updateError) {
-                console.error(updateError);
+
+                console.error(
+                    `FAILED UPDATE ${item.id}`,
+                    updateError
+                );
+
+                failed++;
                 continue;
             }
 
-            console.log("Migrated:", item.id);
+            migrated++;
+
+            console.log(
+                `SUCCESS ${item.id}`
+            );
 
         } catch (err) {
 
             console.error(
-                "Failed migration:",
-                item.id,
+                `FAILED ${item.id}`,
                 err
             );
+
+            failed++;
         }
     }
 
-    console.log("Migration complete.");
+    console.log("================================");
+    console.log("MIGRATION COMPLETE");
+    console.log("================================");
+    console.log("Migrated:", migrated);
+    console.log("Skipped:", skipped);
+    console.log("Failed:", failed);
+    console.log("================================");
+
+    alert(
+        `Migration complete.\n\nMigrated: ${migrated}\nSkipped: ${skipped}\nFailed: ${failed}`
+    );
+
+    location.reload();
 }
 
-// ===============================
+// ========================================
 // DOM READY
-// ===============================
+// ========================================
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    const authBtn = document.getElementById('auth-btn');
-    const keyInput = document.getElementById('user-api-key');
-    const modelSelect = document.getElementById('model-select');
-    const dropZone = document.getElementById('drop-zone');
-    const previewImg = document.getElementById('preview-img');
-    const dropText = document.getElementById('drop-text');
-    const nameInput = document.getElementById('item-name');
-    const brandInput = document.getElementById('item-brand');
-    const saveBtn = document.getElementById('save-btn');
-    const askBtn = document.getElementById('ask-btn');
-    const suggestionBox = document.getElementById('ai-suggestion');
+    const authBtn =
+        document.getElementById('auth-btn');
 
-    // ===============================
+    const keyInput =
+        document.getElementById('user-api-key');
+
+    const modelSelect =
+        document.getElementById('model-select');
+
+    const dropZone =
+        document.getElementById('drop-zone');
+
+    const previewImg =
+        document.getElementById('preview-img');
+
+    const dropText =
+        document.getElementById('drop-text');
+
+    const nameInput =
+        document.getElementById('item-name');
+
+    const brandInput =
+        document.getElementById('item-brand');
+
+    const saveBtn =
+        document.getElementById('save-btn');
+
+    const askBtn =
+        document.getElementById('ask-btn');
+
+    const suggestionBox =
+        document.getElementById('ai-suggestion');
+
+    // ========================================
     // AUTH
-    // ===============================
+    // ========================================
 
     if (authBtn) {
 
@@ -348,12 +472,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (session) {
 
                 await supabase.auth.signOut();
+
                 window.location.reload();
 
             } else {
 
                 await supabase.auth.signInWithOAuth({
+
                     provider: 'discord',
+
                     options: {
                         redirectTo: REDIRECT_URL
                     }
@@ -362,9 +489,9 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // ===============================
-    // SETTINGS SYNC
-    // ===============================
+    // ========================================
+    // SETTINGS
+    // ========================================
 
     if (keyInput) {
 
@@ -376,8 +503,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (session && keyInput.value) {
 
                 await supabase.auth.updateUser({
+
                     data: {
-                        gemini_api_key: keyInput.value.trim()
+                        gemini_api_key:
+                            keyInput.value.trim()
                     }
                 });
             }
@@ -394,40 +523,30 @@ document.addEventListener('DOMContentLoaded', () => {
             if (session) {
 
                 await supabase.auth.updateUser({
+
                     data: {
-                        preferred_model: modelSelect.value
+                        preferred_model:
+                            modelSelect.value
                     }
                 });
             }
         };
     }
 
+    // ========================================
+    // IMPORTANT:
+    // DO NOT FETCH ITEMS YET
+    // ========================================
+
     supabase.auth.onAuthStateChange((_, session) => {
 
         if (session) {
 
             if (authBtn) {
+
                 authBtn.innerText =
                     `LOGOUT (${session.user.user_metadata.full_name || 'USER'})`;
             }
-
-            if (
-                session.user.user_metadata.gemini_api_key &&
-                keyInput
-            ) {
-                keyInput.value =
-                    session.user.user_metadata.gemini_api_key;
-            }
-
-            if (
-                session.user.user_metadata.preferred_model &&
-                modelSelect
-            ) {
-                modelSelect.value =
-                    session.user.user_metadata.preferred_model;
-            }
-
-            fetchItems();
 
         } else {
 
@@ -437,9 +556,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ===============================
+    // ========================================
     // CATEGORY BUTTONS
-    // ===============================
+    // ========================================
 
     const catButtons =
         document.querySelectorAll('.cat-opt');
@@ -454,14 +573,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             btn.classList.add('active');
 
-            selectedCategory = btn.dataset.val;
-            selectedSubCategory = btn.dataset.sub || null;
+            selectedCategory =
+                btn.dataset.val;
+
+            selectedSubCategory =
+                btn.dataset.sub || null;
         };
     });
 
-    // ===============================
+    // ========================================
     // SORT BUTTONS
-    // ===============================
+    // ========================================
 
     const sortButtons =
         document.querySelectorAll('.sort-opt');
@@ -476,19 +598,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
             btn.classList.add('active');
 
-            currentSortClass = btn.dataset.sort;
-
-            fetchItems();
+            currentSortClass =
+                btn.dataset.sort;
         };
     });
 
-    // ===============================
+    // ========================================
     // FILE INPUT
-    // ===============================
+    // ========================================
 
     if (dropZone) {
-        dropZone.onclick = () =>
-            document.getElementById('file-input').click();
+
+        dropZone.onclick = () => {
+
+            document
+                .getElementById('file-input')
+                .click();
+        };
     }
 
     const fileInput =
@@ -498,34 +624,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
         fileInput.onchange = async (e) => {
 
-            const file = e.target.files[0];
+            const file =
+                e.target.files[0];
 
             if (!file) return;
 
             const compressedDataUrl =
-                await compressImage(file, 900, 0.75);
+                await compressImage(
+                    file,
+                    900,
+                    0.75
+                );
 
-            currentImageData = compressedDataUrl;
+            currentImageData =
+                compressedDataUrl;
 
             if (previewImg) {
 
-                previewImg.src = compressedDataUrl;
-                previewImg.classList.remove('hidden');
+                previewImg.src =
+                    compressedDataUrl;
+
+                previewImg.classList
+                    .remove('hidden');
             }
 
             if (dropText) {
-                dropText.classList.add('hidden');
+
+                dropText.classList
+                    .add('hidden');
             }
 
             if (saveBtn) {
-                saveBtn.innerText = "IDENTIFYING...";
+
+                saveBtn.innerText =
+                    "IDENTIFYING...";
+
                 saveBtn.disabled = true;
             }
 
             try {
 
                 const base64 =
-                    compressedDataUrl.split(',')[1];
+                    compressedDataUrl
+                        .split(',')[1];
 
                 const prompt =
                     'Identify this item. Return ONLY valid JSON: {"name":"string","brand":"string","category":"Watch|Fragrance|Other","subcategory":"Top|Bottom|null"}';
@@ -540,20 +681,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (guess) {
 
                     if (nameInput) {
-                        nameInput.value = guess.name || "";
+                        nameInput.value =
+                            guess.name || "";
                     }
 
                     if (brandInput) {
-                        brandInput.value = guess.brand || "";
+                        brandInput.value =
+                            guess.brand || "";
                     }
 
                     const matchingBtn =
-                        Array.from(catButtons).find(
-                            b =>
-                                b.dataset.val === guess.category &&
-                                (b.dataset.sub || null) ===
-                                (guess.subcategory || null)
-                        );
+                        Array.from(catButtons)
+                            .find(
+
+                                b =>
+
+                                    b.dataset.val ===
+                                    guess.category
+
+                                    &&
+
+                                    (b.dataset.sub || null)
+                                    ===
+                                    (guess.subcategory || null)
+                            );
 
                     if (matchingBtn) {
                         matchingBtn.click();
@@ -567,48 +718,72 @@ document.addEventListener('DOMContentLoaded', () => {
             } finally {
 
                 if (saveBtn) {
-                    saveBtn.innerText = "ARCHIVE ITEM";
+
+                    saveBtn.innerText =
+                        "ARCHIVE ITEM";
+
                     saveBtn.disabled = false;
                 }
             }
         };
     }
 
-    // ===============================
+    // ========================================
     // SAVE ITEM
-    // ===============================
+    // ========================================
 
     if (saveBtn) {
 
         saveBtn.onclick = async () => {
 
-            if (!currentImageData || !nameInput?.value) {
+            if (
+                !currentImageData ||
+                !nameInput?.value
+            ) {
 
                 alert("Details required.");
+
                 return;
             }
 
-            saveBtn.innerText = "ARCHIVING...";
+            saveBtn.innerText =
+                "ARCHIVING...";
+
             saveBtn.disabled = true;
 
             try {
 
                 const imageUrl =
-                    await uploadImageToStorage(currentImageData);
+                    await uploadImageToStorage(
+                        currentImageData
+                    );
 
-                const { error } = await supabase
-                    .from('items')
-                    .insert([{
-                        name: nameInput.value,
-                        image_url: imageUrl,
-                        tags: {
-                            brand: brandInput?.value || "",
-                            category: selectedCategory,
-                            subcategory: selectedSubCategory,
-                            layerable:
-                                selectedSubCategory === "Top"
-                        }
-                    }]);
+                const { error } =
+                    await supabase
+                        .from('items')
+                        .insert([{
+
+                            name:
+                                nameInput.value,
+
+                            image_url:
+                                imageUrl,
+
+                            tags: {
+
+                                brand:
+                                    brandInput?.value || "",
+
+                                category:
+                                    selectedCategory,
+
+                                subcategory:
+                                    selectedSubCategory,
+
+                                layerable:
+                                    selectedSubCategory === "Top"
+                            }
+                        }]);
 
                 if (error) {
                     throw error;
@@ -621,110 +796,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error(err);
 
                 alert(
-                    "Archive failed: " + err.message
+                    "Archive failed: "
+                    + err.message
                 );
 
-                saveBtn.innerText = "ARCHIVE ITEM";
+                saveBtn.innerText =
+                    "ARCHIVE ITEM";
+
                 saveBtn.disabled = false;
             }
         };
     }
 
-    // ===============================
+    // ========================================
     // AI CONSULT
-    // ===============================
+    // ========================================
 
     if (askBtn) {
 
         askBtn.onclick = async () => {
 
-            const occasion =
-                document.getElementById('occasion-input')?.value;
-
-            const { data: items } =
-                await supabase
-                    .from('items')
-                    .select('*');
-
-            if (!items?.length) {
-                return alert("Archive is empty.");
-            }
-
-            if (!occasion) {
-                return alert("Please specify an occasion.");
-            }
-
-            if (suggestionBox) {
-
-                suggestionBox.classList.remove('hidden');
-
-                suggestionBox.innerHTML =
-                    `<span class="animate-pulse">Curating Recommendation...</span>`;
-            }
-
-            const inventory =
-                items
-                    .map(i =>
-                        `${i.name} (${i.tags?.subcategory || i.tags?.category})`
-                    )
-                    .join(', ');
-
-            const prompt = `
-You are a high-end personal stylist.
-
-Given this inventory:
-[${inventory}]
-
-What should I wear for:
-"${occasion}"?
-
-Provide one sophisticated recommendation.
-
-Use this exact format:
-
-## [Recommendation Name]
-
-[Brief vision statement]
-
-### THE ENSEMBLE
-
-* **[Item Name]** [Style tip]
-* **[Item Name]** [Style tip]
-
-### THE SCENT
-
-**[Fragrance Name]** [Why it fits]
-
-> **STYLIST NOTE:** [Specific tip]
-`;
-
-            try {
-
-                const advice =
-                    await callGeminiAPI(
-                        null,
-                        null,
-                        prompt
-                    );
-
-                if (suggestionBox) {
-                    suggestionBox.innerHTML =
-                        renderAIResponse(advice);
-                }
-
-            } catch (err) {
-
-                if (suggestionBox) {
-                    suggestionBox.innerText =
-                        "Stylist error: " + err.message;
-                }
-            }
+            alert(
+                "Disabled during migration."
+            );
         };
     }
 
-    // ===============================
-    // RUN MIGRATION ONCE
-    // ===============================
+    // ========================================
+    // RUN MIGRATION
+    // ========================================
 
     migrateImagesToStorage();
 });
