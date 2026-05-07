@@ -821,10 +821,4 @@ document.addEventListener('DOMContentLoaded', () => {
             );
         };
     }
-
-    // ========================================
-    // RUN MIGRATION
-    // ========================================
-
-    migrateImagesToStorage();
 });
