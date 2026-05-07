@@ -548,6 +548,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     `LOGOUT (${session.user.user_metadata.full_name || 'USER'})`;
             }
 
+            fetchItems();
+
         } else {
 
             if (authBtn) {
@@ -813,12 +815,52 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
 
     if (askBtn) {
-
         askBtn.onclick = async () => {
+            const userPrompt = document.getElementById('ai-prompt')?.value;
+            
+            if (!userPrompt) {
+                alert("Please enter a question for the consultant.");
+                return;
+            }
 
-            alert(
-                "Disabled during migration."
-            );
+            askBtn.innerText = "CONSULTING...";
+            askBtn.disabled = true;
+
+            try {
+                // 1. Fetch current wardrobe context
+                const { data: items } = await supabase
+                    .from('items')
+                    .select('name, tags');
+
+                const wardrobeContext = items.map(i => 
+                    `- ${i.name} (${i.tags?.brand}, ${i.tags?.category})`
+                ).join('\n');
+
+                // 2. Build the final prompt
+                const finalPrompt = `
+                    You are a professional fashion consultant. 
+                    Here is the user's current wardrobe:
+                    ${wardrobeContext}
+
+                    User Question: ${userPrompt}
+                `;
+
+                // 3. Call Gemini
+                const response = await callGeminiAPI(null, null, finalPrompt);
+
+                // 4. Render the response
+                if (suggestionBox) {
+                    suggestionBox.innerHTML = renderAIResponse(response);
+                    suggestionBox.classList.remove('hidden');
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert("Consultation failed: " + err.message);
+            } finally {
+                askBtn.innerText = "ASK CONSULTANT";
+                askBtn.disabled = false;
+            }
         };
     }
 });
