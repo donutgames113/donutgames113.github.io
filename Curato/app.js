@@ -764,7 +764,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     await supabase
                         .from('items')
                         .insert([{
-
+                            user_id: session?.user?.id,
                             name:
                                 nameInput.value,
 
