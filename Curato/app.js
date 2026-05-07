@@ -51,11 +51,15 @@ async function callGeminiAPI(base64, mimeType, promptText) {
     const activeModel =
         modelSelect?.value ||
         session?.user?.user_metadata?.preferred_model ||
-        "gemini-1.5-flash";
+        "gemini-2.0-flash";
 
     if (!activeKey) {
+
         alert("Missing Gemini API key.");
-        throw new Error("Missing Gemini API key.");
+
+        throw new Error(
+            "Missing Gemini API key."
+        );
     }
 
     const url =
@@ -63,13 +67,16 @@ async function callGeminiAPI(base64, mimeType, promptText) {
 
     const body = {
         contents: [{
-            parts: [{ text: promptText }]
+            parts: [{
+                text: promptText
+            }]
         }]
     };
 
     if (base64) {
 
         body.contents[0].parts.push({
+
             inline_data: {
                 mime_type: mimeType,
                 data: base64
@@ -78,36 +85,52 @@ async function callGeminiAPI(base64, mimeType, promptText) {
     }
 
     const response = await fetch(url, {
+
         method: 'POST',
+
         headers: {
             'Content-Type': 'application/json'
         },
+
         body: JSON.stringify(body)
     });
 
+    const result = await response.json();
+
     if (!response.ok) {
 
-        const err = await response.json();
+        console.error(result);
 
         throw new Error(
-            err.error?.message || "Gemini API error"
+            result.error?.message ||
+            "Gemini API error"
         );
     }
 
-    const res = await response.json();
-
     const resultText =
-        res.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        result.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
     if (promptText.includes("JSON")) {
 
-        const cleaned =
-            resultText
-                .replace(/```json/g, '')
-                .replace(/```/g, '')
-                .trim();
+        try {
 
-        return JSON.parse(cleaned);
+            const cleaned =
+                resultText
+                    .replace(/```json/g, '')
+                    .replace(/```/g, '')
+                    .trim();
+
+            return JSON.parse(cleaned);
+
+        } catch (err) {
+
+            console.error(
+                "JSON parse error:",
+                resultText
+            );
+
+            return null;
+        }
     }
 
     return resultText;
@@ -149,7 +172,9 @@ async function fetchItems() {
         .order('id', { ascending: false });
 
     if (error) {
+
         console.error(error);
+
         return;
     }
 
@@ -161,7 +186,9 @@ async function fetchItems() {
     if (countEl) {
 
         countEl.innerText =
-            filtered.length.toString().padStart(2, '0')
+            filtered.length
+                .toString()
+                .padStart(2, '0')
             + " ITEMS";
     }
 
@@ -170,7 +197,8 @@ async function fetchItems() {
 
     if (!catalogGrid) return;
 
-    catalogGrid.innerHTML = filtered.map(item => `
+    catalogGrid.innerHTML =
+        filtered.map(item => `
 
         <div class="item-card group">
 
@@ -215,7 +243,9 @@ async function compressImage(
     return new Promise((resolve) => {
 
         const img = new Image();
-        const reader = new FileReader();
+
+        const reader =
+            new FileReader();
 
         reader.onload = (e) => {
             img.src = e.target.result;
@@ -227,10 +257,16 @@ async function compressImage(
                 document.createElement('canvas');
 
             const scale =
-                Math.min(1, maxWidth / img.width);
+                Math.min(
+                    1,
+                    maxWidth / img.width
+                );
 
-            canvas.width = img.width * scale;
-            canvas.height = img.height * scale;
+            canvas.width =
+                img.width * scale;
+
+            canvas.height =
+                img.height * scale;
 
             const ctx =
                 canvas.getContext('2d');
@@ -305,119 +341,6 @@ async function uploadImageToStorage(base64Data) {
 
     return data.publicUrl;
 }
-
-// ========================================
-// MIGRATE ALL IMAGES
-// ========================================
-
-// async function migrateImagesToStorage() {
-
-//     console.log("================================");
-//     console.log("STARTING FULL MIGRATION");
-//     console.log("================================");
-
-//     const { data: items, error } =
-//         await supabase
-//             .from('items')
-//             .select('id,image_url');
-
-//     if (error) {
-
-//         console.error(
-//             "FAILED TO FETCH ITEMS:",
-//             error
-//         );
-
-//         return;
-//     }
-
-//     console.log(
-//         `FOUND ${items.length} ITEMS`
-//     );
-
-//     let migrated = 0;
-//     let skipped = 0;
-//     let failed = 0;
-
-//     for (const item of items) {
-
-//         try {
-
-//             if (!item.image_url) {
-
-//                 skipped++;
-//                 continue;
-//             }
-
-//             if (item.image_url.startsWith('http')) {
-
-//                 console.log(
-//                     `SKIPPED ${item.id} (already migrated)`
-//                 );
-
-//                 skipped++;
-//                 continue;
-//             }
-
-//             console.log(
-//                 `MIGRATING ${item.id}...`
-//             );
-
-//             const publicUrl =
-//                 await uploadImageToStorage(
-//                     item.image_url
-//                 );
-
-//             const { error: updateError } =
-//                 await supabase
-//                     .from('items')
-//                     .update({
-//                         image_url: publicUrl
-//                     })
-//                     .eq('id', item.id);
-
-//             if (updateError) {
-
-//                 console.error(
-//                     `FAILED UPDATE ${item.id}`,
-//                     updateError
-//                 );
-
-//                 failed++;
-//                 continue;
-//             }
-
-//             migrated++;
-
-//             console.log(
-//                 `SUCCESS ${item.id}`
-//             );
-
-//         } catch (err) {
-
-//             console.error(
-//                 `FAILED ${item.id}`,
-//                 err
-//             );
-
-//             failed++;
-//         }
-//     }
-
-//     console.log("================================");
-//     console.log("MIGRATION COMPLETE");
-//     console.log("================================");
-//     console.log("Migrated:", migrated);
-//     console.log("Skipped:", skipped);
-//     console.log("Failed:", failed);
-//     console.log("================================");
-
-//     alert(
-//         `Migration complete.\n\nMigrated: ${migrated}\nSkipped: ${skipped}\nFailed: ${failed}`
-//     );
-
-//     location.reload();
-// }
 
 // ========================================
 // DOM READY
@@ -500,7 +423,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const { data: { session } } =
                 await supabase.auth.getSession();
 
-            if (session && keyInput.value) {
+            if (
+                session &&
+                keyInput.value
+            ) {
 
                 await supabase.auth.updateUser({
 
@@ -534,8 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ========================================
-    // IMPORTANT:
-    // DO NOT FETCH ITEMS YET
+    // AUTH STATE
     // ========================================
 
     supabase.auth.onAuthStateChange((_, session) => {
@@ -546,6 +471,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 authBtn.innerText =
                     `LOGOUT (${session.user.user_metadata.full_name || 'USER'})`;
+            }
+
+            if (keyInput) {
+
+                keyInput.value =
+                    session.user.user_metadata?.gemini_api_key || "";
+            }
+
+            if (modelSelect) {
+
+                modelSelect.value =
+                    session.user.user_metadata?.preferred_model ||
+                    "gemini-2.0-flash";
             }
 
             fetchItems();
@@ -602,6 +540,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             currentSortClass =
                 btn.dataset.sort;
+
+            fetchItems();
         };
     });
 
@@ -730,7 +670,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-// ========================================
+    // ========================================
     // SAVE ITEM
     // ========================================
 
@@ -738,21 +678,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         saveBtn.onclick = async () => {
 
-            // 1. Fetch the session at the moment of the click
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } =
+                await supabase.auth.getSession();
 
             if (
                 !currentImageData ||
                 !nameInput?.value
             ) {
+
                 alert("Details required.");
+
                 return;
             }
 
-            saveBtn.innerText = "ARCHIVING...";
+            saveBtn.innerText =
+                "ARCHIVING...";
+
             saveBtn.disabled = true;
 
             try {
+
                 const imageUrl =
                     await uploadImageToStorage(
                         currentImageData
@@ -762,8 +707,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     await supabase
                         .from('items')
                         .insert([{
-                            // 2. Use the ID from the session we just fetched
-                            user_id: session?.user?.id || null,
+
+                            user_id:
+                                session?.user?.id || null,
 
                             name:
                                 nameInput.value,
@@ -772,6 +718,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 imageUrl,
 
                             tags: {
+
                                 brand:
                                     brandInput?.value || "",
 
@@ -793,12 +740,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 location.reload();
 
             } catch (err) {
+
                 console.error(err);
+
                 alert(
                     "Archive failed: "
                     + err.message
                 );
-                saveBtn.innerText = "ARCHIVE ITEM";
+
+                saveBtn.innerText =
+                    "ARCHIVE ITEM";
+
                 saveBtn.disabled = false;
             }
         };
@@ -809,60 +761,102 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
 
     if (askBtn) {
+
         askBtn.onclick = async () => {
-            // 1. Target the correct input element
-            const promptEl = document.getElementById('occasion-input');
-            
-            // 2. Use .value for input tags (not .innerText)
-            const userPrompt = (promptEl?.value || "").trim();
-            
+
+            const promptEl =
+                document.getElementById('occasion-input');
+
+            const userPrompt =
+                (promptEl.value || "").trim();
+
             if (!userPrompt) {
-                alert("Please enter a question for the consultant.");
+
+                alert(
+                    "Please enter a question for the consultant."
+                );
+
                 return;
             }
 
-            askBtn.innerText = "CONSULTING...";
+            askBtn.innerText =
+                "CONSULTING...";
+
             askBtn.disabled = true;
 
             try {
-                // 3. Get session and wardrobe context
-                const { data: { session } } = await supabase.auth.getSession();
-                const { data: items, error: dbError } = await supabase
-                    .from('items')
-                    .select('name, tags');
 
-                if (dbError) throw dbError;
+                const { data: items, error: dbError } =
+                    await supabase
+                        .from('items')
+                        .select('name,tags');
 
-                const wardrobeContext = items && items.length > 0 
-                    ? items.map(i => `- ${i.name} (${i.tags?.brand || 'Independent'}, ${i.tags?.category || 'Item'})`).join('\n')
+                if (dbError) {
+                    throw dbError;
+                }
+
+                const wardrobeContext =
+                    items && items.length > 0
+
+                    ? items.map(i =>
+                        `- ${i.name} (${i.tags?.brand || 'Independent'}, ${i.tags?.category || 'Item'})`
+                    ).join('\n')
+
                     : "The user's archive is currently empty.";
 
-                // 4. Build prompt
                 const finalPrompt = `
-                    You are a professional fashion consultant. 
-                    Based on these items:
-                    ${wardrobeContext}
+You are a professional fashion consultant.
 
-                    Answer this user request: "${userPrompt}"
+Based on these wardrobe items:
+
+${wardrobeContext}
+
+Answer this user request:
+
+"${userPrompt}"
+
+Give a stylish, concise recommendation.
                 `;
 
-                // 5. Call Gemini
-                const response = await callGeminiAPI(null, null, finalPrompt);
+                const response =
+                    await callGeminiAPI(
+                        null,
+                        null,
+                        finalPrompt
+                    );
 
-                // 6. Show results
                 if (suggestionBox) {
-                    suggestionBox.innerHTML = renderAIResponse(response);
+
+                    suggestionBox.innerHTML =
+                        renderAIResponse(response);
+
                     suggestionBox.classList.remove('hidden');
-                    suggestionBox.scrollIntoView({ behavior: 'smooth' });
+
+                    suggestionBox.scrollIntoView({
+                        behavior: 'smooth'
+                    });
                 }
 
             } catch (err) {
-                console.error("Consultant Error:", err);
-                alert("Consultation failed: " + err.message);
+
+                console.error(
+                    "Consultant Error:",
+                    err
+                );
+
+                alert(
+                    "Consultation failed: "
+                    + err.message
+                );
+
             } finally {
-                askBtn.innerText = "CONSULT ARCHIVE";
+
+                askBtn.innerText =
+                    "CONSULT ARCHIVE";
+
                 askBtn.disabled = false;
             }
         };
     }
 });
+````
