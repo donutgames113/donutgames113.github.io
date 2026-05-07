@@ -310,114 +310,114 @@ async function uploadImageToStorage(base64Data) {
 // MIGRATE ALL IMAGES
 // ========================================
 
-async function migrateImagesToStorage() {
+// async function migrateImagesToStorage() {
 
-    console.log("================================");
-    console.log("STARTING FULL MIGRATION");
-    console.log("================================");
+//     console.log("================================");
+//     console.log("STARTING FULL MIGRATION");
+//     console.log("================================");
 
-    const { data: items, error } =
-        await supabase
-            .from('items')
-            .select('id,image_url');
+//     const { data: items, error } =
+//         await supabase
+//             .from('items')
+//             .select('id,image_url');
 
-    if (error) {
+//     if (error) {
 
-        console.error(
-            "FAILED TO FETCH ITEMS:",
-            error
-        );
+//         console.error(
+//             "FAILED TO FETCH ITEMS:",
+//             error
+//         );
 
-        return;
-    }
+//         return;
+//     }
 
-    console.log(
-        `FOUND ${items.length} ITEMS`
-    );
+//     console.log(
+//         `FOUND ${items.length} ITEMS`
+//     );
 
-    let migrated = 0;
-    let skipped = 0;
-    let failed = 0;
+//     let migrated = 0;
+//     let skipped = 0;
+//     let failed = 0;
 
-    for (const item of items) {
+//     for (const item of items) {
 
-        try {
+//         try {
 
-            if (!item.image_url) {
+//             if (!item.image_url) {
 
-                skipped++;
-                continue;
-            }
+//                 skipped++;
+//                 continue;
+//             }
 
-            if (item.image_url.startsWith('http')) {
+//             if (item.image_url.startsWith('http')) {
 
-                console.log(
-                    `SKIPPED ${item.id} (already migrated)`
-                );
+//                 console.log(
+//                     `SKIPPED ${item.id} (already migrated)`
+//                 );
 
-                skipped++;
-                continue;
-            }
+//                 skipped++;
+//                 continue;
+//             }
 
-            console.log(
-                `MIGRATING ${item.id}...`
-            );
+//             console.log(
+//                 `MIGRATING ${item.id}...`
+//             );
 
-            const publicUrl =
-                await uploadImageToStorage(
-                    item.image_url
-                );
+//             const publicUrl =
+//                 await uploadImageToStorage(
+//                     item.image_url
+//                 );
 
-            const { error: updateError } =
-                await supabase
-                    .from('items')
-                    .update({
-                        image_url: publicUrl
-                    })
-                    .eq('id', item.id);
+//             const { error: updateError } =
+//                 await supabase
+//                     .from('items')
+//                     .update({
+//                         image_url: publicUrl
+//                     })
+//                     .eq('id', item.id);
 
-            if (updateError) {
+//             if (updateError) {
 
-                console.error(
-                    `FAILED UPDATE ${item.id}`,
-                    updateError
-                );
+//                 console.error(
+//                     `FAILED UPDATE ${item.id}`,
+//                     updateError
+//                 );
 
-                failed++;
-                continue;
-            }
+//                 failed++;
+//                 continue;
+//             }
 
-            migrated++;
+//             migrated++;
 
-            console.log(
-                `SUCCESS ${item.id}`
-            );
+//             console.log(
+//                 `SUCCESS ${item.id}`
+//             );
 
-        } catch (err) {
+//         } catch (err) {
 
-            console.error(
-                `FAILED ${item.id}`,
-                err
-            );
+//             console.error(
+//                 `FAILED ${item.id}`,
+//                 err
+//             );
 
-            failed++;
-        }
-    }
+//             failed++;
+//         }
+//     }
 
-    console.log("================================");
-    console.log("MIGRATION COMPLETE");
-    console.log("================================");
-    console.log("Migrated:", migrated);
-    console.log("Skipped:", skipped);
-    console.log("Failed:", failed);
-    console.log("================================");
+//     console.log("================================");
+//     console.log("MIGRATION COMPLETE");
+//     console.log("================================");
+//     console.log("Migrated:", migrated);
+//     console.log("Skipped:", skipped);
+//     console.log("Failed:", failed);
+//     console.log("================================");
 
-    alert(
-        `Migration complete.\n\nMigrated: ${migrated}\nSkipped: ${skipped}\nFailed: ${failed}`
-    );
+//     alert(
+//         `Migration complete.\n\nMigrated: ${migrated}\nSkipped: ${skipped}\nFailed: ${failed}`
+//     );
 
-    location.reload();
-}
+//     location.reload();
+// }
 
 // ========================================
 // DOM READY
