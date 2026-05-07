@@ -595,7 +595,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 dropText.classList
                     .add('hidden');
             }
-
+            /*
             if (saveBtn) {
 
                 saveBtn.innerText =
@@ -667,6 +667,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     saveBtn.disabled = false;
                 }
             }
+            */
         };
     }
 
