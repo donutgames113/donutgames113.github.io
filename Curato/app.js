@@ -810,8 +810,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (askBtn) {
         askBtn.onclick = async () => {
-            const inputEl = document.getElementById('occasion-input');
-            const userPrompt = promptInput?.value?.trim();
+            // 1. Target the correct input element
+            const promptEl = document.getElementById('occasion-input');
+            
+            // 2. Use .value for input tags (not .innerText)
+            const userPrompt = (promptEl?.value || "").trim();
             
             if (!userPrompt) {
                 alert("Please enter a question for the consultant.");
@@ -822,38 +825,42 @@ document.addEventListener('DOMContentLoaded', () => {
             askBtn.disabled = true;
 
             try {
-                // 1. Fetch current wardrobe context
-                const { data: items } = await supabase
+                // 3. Get session and wardrobe context
+                const { data: { session } } = await supabase.auth.getSession();
+                const { data: items, error: dbError } = await supabase
                     .from('items')
                     .select('name, tags');
 
-                const wardrobeContext = items.map(i => 
-                    `- ${i.name} (${i.tags?.brand}, ${i.tags?.category})`
-                ).join('\n');
+                if (dbError) throw dbError;
 
-                // 2. Build the final prompt
+                const wardrobeContext = items && items.length > 0 
+                    ? items.map(i => `- ${i.name} (${i.tags?.brand || 'Independent'}, ${i.tags?.category || 'Item'})`).join('\n')
+                    : "The user's archive is currently empty.";
+
+                // 4. Build prompt
                 const finalPrompt = `
                     You are a professional fashion consultant. 
-                    Here is the user's current wardrobe:
+                    Based on these items:
                     ${wardrobeContext}
 
-                    User Question: ${userPrompt}
+                    Answer this user request: "${userPrompt}"
                 `;
 
-                // 3. Call Gemini
+                // 5. Call Gemini
                 const response = await callGeminiAPI(null, null, finalPrompt);
 
-                // 4. Render the response
+                // 6. Show results
                 if (suggestionBox) {
                     suggestionBox.innerHTML = renderAIResponse(response);
                     suggestionBox.classList.remove('hidden');
+                    suggestionBox.scrollIntoView({ behavior: 'smooth' });
                 }
 
             } catch (err) {
-                console.error(err);
+                console.error("Consultant Error:", err);
                 alert("Consultation failed: " + err.message);
             } finally {
-                askBtn.innerText = "ASK CONSULTANT";
+                askBtn.innerText = "CONSULT ARCHIVE";
                 askBtn.disabled = false;
             }
         };
