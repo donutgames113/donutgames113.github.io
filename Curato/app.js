@@ -24,6 +24,12 @@ function renderAIResponse(text) {
         .replace(/```/g, '')
         .trim();
 
+    // Bold
+    line = line.replace(
+        /\*\*(.*?)\*\*/g,
+        '<strong class="text-white font-medium">$1</strong>'
+    );
+
     // Split into sections
     const lines = text.split('\n');
 
@@ -33,12 +39,6 @@ function renderAIResponse(text) {
     lines.forEach(line => {
 
         line = line.trim();
-
-        // Bold
-        line = line.replace(
-            /\*\*(.*?)\*\*/g,
-            '<strong class="text-white font-medium">$1</strong>'
-        );
 
         // Empty line
         if (!line) {
