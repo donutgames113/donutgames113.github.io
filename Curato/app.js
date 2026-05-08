@@ -25,7 +25,7 @@ function renderAIResponse(text) {
         .trim();
 
     // Bold
-    line = line.replace(
+    text = text.replace(
         /\*\*(.*?)\*\*/g,
         '<strong class="text-white font-medium">$1</strong>'
     );
