@@ -18,15 +18,126 @@ let currentSortClass = "ALL";
 
 function renderAIResponse(text) {
 
-    return text
-        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-        .replace(
-            /^\* \*\*(.*?)\*\*(.*$)/gim,
-            '<li><strong>$1</strong>$2</li>'
-        )
-        .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
-        .replace(/\n/g, '<br>');
+    // Clean markdown artifacts
+    text = text
+        .replace(/```markdown/g, '')
+        .replace(/```/g, '')
+        .trim();
+
+    // Split into sections
+    const lines = text.split('\n');
+
+    let html = '';
+    let inList = false;
+
+    lines.forEach(line => {
+
+        line = line.trim();
+
+        // Empty line
+        if (!line) {
+            if (inList) {
+                html += '</ul>';
+                inList = false;
+            }
+            return;
+        }
+
+        // H2
+        if (line.startsWith('## ')) {
+
+            if (inList) {
+                html += '</ul>';
+                inList = false;
+            }
+
+            html += `
+                <h2 class="text-3xl font-extralight text-[#d4ff6a] mb-6 mt-2 tracking-tight">
+                    ${line.replace('## ', '')}
+                </h2>
+            `;
+
+            return;
+        }
+
+        // H3
+        if (line.startsWith('### ')) {
+
+            if (inList) {
+                html += '</ul>';
+                inList = false;
+            }
+
+            html += `
+                <h3 class="text-[10px] uppercase tracking-[0.3em] text-white/40 mt-10 mb-4">
+                    ${line.replace('### ', '')}
+                </h3>
+            `;
+
+            return;
+        }
+
+        // Bullet points
+        if (
+            line.startsWith('- ') ||
+            line.startsWith('* ')
+        ) {
+
+            if (!inList) {
+                html += `<ul class="space-y-4 mt-4">`;
+                inList = true;
+            }
+
+            const clean =
+                line.replace(/^[-*]\s/, '');
+
+            html += `
+                <li class="flex gap-4 items-start">
+                    <div class="w-1.5 h-1.5 rounded-full bg-[#d4ff6a] mt-2 shrink-0"></div>
+                    <div class="text-sm leading-relaxed text-white/70">
+                        ${clean}
+                    </div>
+                </li>
+            `;
+
+            return;
+        }
+
+        // Quote block
+        if (line.startsWith('> ')) {
+
+            if (inList) {
+                html += '</ul>';
+                inList = false;
+            }
+
+            html += `
+                <blockquote class="border-l border-[#d4ff6a]/50 pl-6 py-2 mt-8 text-white/50 italic text-sm leading-relaxed">
+                    ${line.replace('> ', '')}
+                </blockquote>
+            `;
+
+            return;
+        }
+
+        // Regular paragraph
+        if (inList) {
+            html += '</ul>';
+            inList = false;
+        }
+
+        html += `
+            <p class="text-[15px] leading-8 text-white/75 mb-6 font-light">
+                ${line}
+            </p>
+        `;
+    });
+
+    if (inList) {
+        html += '</ul>';
+    }
+
+    return html;
 }
 
 // ========================================
@@ -806,18 +917,54 @@ document.addEventListener('DOMContentLoaded', () => {
                     : "The user's archive is currently empty.";
 
                 const finalPrompt = `
-You are a professional fashion consultant.
+You are Curato, an elite personal fashion archivist and stylist.
 
-Based on these wardrobe items:
+Your tone is:
+- refined
+- cinematic
+- minimal
+- confident
+- emotionally intelligent
+- never cringe
+- never overly verbose
+
+You are helping style outfits ONLY from the user's archive.
+
+WARDROBE:
 
 ${wardrobeContext}
 
-Answer this user request:
+USER REQUEST:
 
 "${userPrompt}"
 
-Give a stylish, concise recommendation.
-                `;
+Respond using EXACTLY this structure:
+
+## Overall Direction
+
+A short stylish overview of the outfit direction and mood.
+
+### Suggested Pieces
+
+- Specific item combinations from the archive
+- Layering suggestions
+- Texture or silhouette observations
+- Styling details
+
+### Styling Notes
+
+Brief refined advice on proportions, fit, mood, timing, or confidence.
+
+> End with one cinematic fashion observation.
+
+Rules:
+- Keep it elegant and concise
+- Never use emojis
+- Never sound like a blog
+- Never explain basic fashion concepts
+- Prioritize aesthetic cohesion
+- Sound like a luxury fashion consultant
+`;
 
                 const response =
                     await callGeminiAPI(
