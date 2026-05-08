@@ -34,6 +34,12 @@ function renderAIResponse(text) {
 
         line = line.trim();
 
+        // Bold
+        line = line.replace(
+            /\*\*(.*?)\*\*/g,
+            '<strong class="text-white font-medium">$1</strong>'
+        );
+
         // Empty line
         if (!line) {
             if (inList) {
