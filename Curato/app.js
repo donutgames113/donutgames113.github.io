@@ -24,12 +24,6 @@ function renderAIResponse(text) {
         .replace(/```/g, '')
         .trim();
 
-    // Bold
-    text = text.replace(
-        /\*\*(.*?)\*\*/g,
-        '<strong class="text-white font-medium">$1</strong>'
-    );
-
     // Split into sections
     const lines = text.split('\n');
 
