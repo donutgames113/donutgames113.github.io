@@ -94,8 +94,12 @@ function renderAIResponse(text) {
                 inList = true;
             }
 
-            const clean =
-                line.replace(/^[-*]\s/, '');
+            const clean = line
+            .replace(/^[-*]\s/, '')
+            .replace(
+                /\*\*(.*?)\*\*/g,
+                '<strong class="text-white font-medium">$1</strong>'
+            );
 
             html += `
                 <li class="flex gap-4 items-start">
@@ -134,7 +138,10 @@ function renderAIResponse(text) {
 
         html += `
             <p class="text-[15px] leading-8 text-white/75 mb-6 font-light">
-                ${line}
+                ${line.replace(
+                    /\*\*(.*?)\*\*/g,
+                    '<strong class="text-white font-medium">$1</strong>'
+                )}
             </p>
         `;
     });
