@@ -737,7 +737,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         .split(',')[1];
 
                 const prompt =
-                    'Identify this item. Return ONLY valid JSON: {"name":"string","brand":"string","category":"Watch|Fragrance|Other","subcategory":"Top|Bottom|Shoes|Socks|null"}';
+                    'Identify this item. Return ONLY valid JSON: {"name":"string","brand":"string","category":"Watch|Fragrance|Other","subcategory":"Top|Bottom|null"}';
 
                 const guess =
                     await callGeminiAPI(
