@@ -158,6 +158,14 @@ select {
     box-shadow: var(--shadow);
 }
 
+.left-rail {
+    height: fit-content;
+}
+
+.left-rail-panel {
+    position: relative;
+}
+
 .nav-blur {
     background: var(--nav-bg);
     backdrop-filter: blur(16px);
@@ -555,6 +563,37 @@ select {
     font-style: italic;
 }
 
+@media (min-width: 1024px) {
+    .left-rail {
+        position: sticky;
+        top: 7rem;
+        align-self: start;
+    }
+
+    .left-rail-panel {
+        max-height: calc(100vh - 8.5rem);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: var(--stroke-soft) transparent;
+    }
+
+    .left-rail-panel::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    .left-rail-panel::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .left-rail-panel::-webkit-scrollbar-thumb {
+        background: var(--stroke-soft);
+        border: 2px solid transparent;
+        border-radius: 999px;
+        background-clip: padding-box;
+    }
+}
+
 @media (max-width: 1023px) {
     .nav-actions {
         gap: 0.75rem;
@@ -562,6 +601,11 @@ select {
 
     .theme-switcher {
         justify-content: flex-end;
+    }
+
+    .left-rail-panel {
+        max-height: none;
+        overflow: visible;
     }
 }
 
