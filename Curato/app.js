@@ -274,6 +274,14 @@ function sortItems(items) {
             return i.tags?.subcategory === "Bottom";
         }
 
+        if (currentSortClass === "SHOES") {
+            return i.tags?.subcategory === "Shoes";
+        }
+
+        if (currentSortClass === "SOCKS") {
+            return i.tags?.subcategory === "Socks";
+        }
+
         return i.tags?.category === currentSortClass;
     });
 }
@@ -729,7 +737,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         .split(',')[1];
 
                 const prompt =
-                    'Identify this item. Return ONLY valid JSON: {"name":"string","brand":"string","category":"Watch|Fragrance|Other","subcategory":"Top|Bottom|null"}';
+                    'Identify this item. Return ONLY valid JSON: {"name":"string","brand":"string","category":"Watch|Fragrance|Other","subcategory":"Top|Bottom|Shoes|Socks|null"}';
 
                 const guess =
                     await callGeminiAPI(
