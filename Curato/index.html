@@ -9,132 +9,42 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #0b0b0c;
-            --card: rgba(255,255,255,0.04);
-            --stroke: rgba(255,255,255,0.08);
-            --text: rgba(255,255,255,0.9);
-            --muted: rgba(255,255,255,0.5);
-            --accent: #d4ff6a;
-        }
-        body {
-            font-family: Inter, sans-serif;
-            background: radial-gradient(1200px 800px at 20% 0%, #1a1a1f 0%, #0b0b0c 60%);
-            color: var(--text);
-            letter-spacing: -0.02em;
-            min-height: 100vh;
-        }
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background-image: url('https://grainy-gradients.vercel.app/noise.svg');
-            opacity: 0.04;
-            pointer-events: none;
-            z-index: 50;
-        }
-        .glass {
-            background: var(--card);
-            border: 1px solid var(--stroke);
-            backdrop-filter: blur(24px);
-        }
-        .nav-blur {
-            background: rgba(10,10,12,0.7);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--stroke);
-        }
-        .item-card {
-            transition: all .4s cubic-bezier(.2,.8,.2,1);
-            position: relative;
-        }
-        .item-card:hover { transform: translateY(-6px); }
-        .img-container {
-            aspect-ratio: 4/5;
-            overflow: hidden;
-            border-radius: 12px;
-            border: 1px solid var(--stroke);
-            background: #121214;
-        }
-        .item-card img {
-            filter: saturate(0.6) brightness(0.9);
-            transition: .6s ease;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .item-card:hover img {
-            filter: saturate(1) brightness(1);
-            transform: scale(1.04);
-        }
-        .chip {
-            border: 1px solid var(--stroke);
-            padding: 6px 14px;
-            border-radius: 999px;
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--muted);
-            transition: .25s;
-            cursor: pointer;
-            background: transparent;
-        }
-        .chip:hover, .cat-opt.active, .sort-opt.active {
-            border-color: var(--accent);
-            color: white;
-            background: rgba(212, 255, 106, 0.05);
-        }
-        #occasion-input {
-            font-size: 32px;
-            font-weight: 200;
-        }
-        .glow-btn {
-            background: white;
-            color: black;
-            box-shadow: 0 0 20px rgba(255,255,255,0.1);
-        }
-        input::placeholder { color: rgba(255,255,255,0.2); }
-        input:focus { border-color: var(--accent) !important; }
-        select option { background: #1a1a1f; color: white; }
-
-        /* AI SUGGESTION RENDERING */
-        .ai-render-area { text-align: left; line-height: 1.8; }
-        .ai-render-area h2 { font-size: 26px; font-weight: 200; color: var(--accent); margin-bottom: 1.5rem; letter-spacing: -0.02em; }
-        .ai-render-area h3 { font-size: 11px; font-weight: 700; color: white; text-transform: uppercase; letter-spacing: 0.2em; margin-top: 2rem; border-bottom: 1px solid var(--stroke); padding-bottom: 0.5rem; }
-        .ai-render-area ul { margin-top: 1rem; list-style: none; padding-left: 0; }
-        .ai-render-area li { margin-bottom: 1.25rem; font-size: 14px; color: rgba(255,255,255,0.7); }
-        .ai-render-area li strong { display: block; color: white; font-size: 15px; margin-bottom: 2px; }
-        .ai-render-area blockquote { margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.02); border-left: 2px solid var(--accent); font-size: 13px; color: var(--muted); font-style: italic; }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body data-theme="dark">
 <nav class="fixed top-0 w-full z-50 nav-blur">
-    <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
+    <div class="max-w-7xl mx-auto px-6 min-h-16 py-3 flex flex-col gap-3 lg:h-16 lg:py-0 lg:flex-row lg:justify-between lg:items-center">
         <div class="leading-tight">
             <div class="text-lg font-semibold tracking-tighter uppercase">Curato</div>
-            <div class="text-[9px] tracking-[0.4em] text-white/30 uppercase">Personal Archive</div>
+            <div class="text-[9px] nav-kicker uppercase">Personal Archive</div>
         </div>
-        <div class="flex items-center gap-4">
-            <select id="model-select" class="hidden md:block bg-transparent border-b border-white/10 text-[9px] uppercase tracking-widest pb-1 focus:outline-none transition-all cursor-pointer text-white/50">
+        <div class="flex items-center gap-4 nav-actions flex-wrap lg:flex-nowrap lg:justify-end">
+            <div class="theme-switcher" aria-label="Theme picker">
+                <button class="theme-chip active" data-theme="dark" type="button">Noir</button>
+                <button class="theme-chip" data-theme="light" type="button">Porcelain</button>
+                <button class="theme-chip" data-theme="dune" type="button">Dune</button>
+                <button class="theme-chip" data-theme="slate" type="button">Slate</button>
+            </div>
+            <select id="model-select" class="hidden md:block nav-field text-[9px] uppercase tracking-widest pb-1 focus:outline-none cursor-pointer">
                 <option value="gemini-3.1-flash-lite-preview">3.1 Flash Lite</option>
                 <option value="gemini-3.1-pro-preview">3.1 Pro</option>
                 <option value="gemini-3-flash-preview">3 Flash Preview</option>
             </select>
-            <input id="user-api-key" type="password" placeholder="Gemini Key" class="hidden md:block bg-transparent border-b border-white/10 text-[10px] w-32 pb-1 focus:outline-none transition-all" />
-            <button id="auth-btn" class="text-[10px] tracking-[0.2em] uppercase text-white/50 hover:text-white transition">Connect</button>
+            <input id="user-api-key" type="password" placeholder="Gemini Key" class="hidden md:block nav-field text-[10px] w-32 pb-1 focus:outline-none" />
+            <button id="auth-btn" class="nav-action text-[10px] tracking-[0.2em] uppercase">Connect</button>
         </div>
     </div>
 </nav>
-<main class="max-w-7xl mx-auto px-6 pt-32 pb-24">
+<main class="max-w-7xl mx-auto px-6 pt-40 lg:pt-32 pb-24">
     <section class="max-w-4xl mx-auto text-center mb-32">
-        <div class="text-[10px] tracking-[0.4em] uppercase text-white/30 mb-8">AI Style Consultant</div>
-        <input id="occasion-input" class="w-full bg-transparent border-b border-white/5 py-8 text-center focus:outline-none transition-all" placeholder="Where are we going?" />
+        <div class="text-[10px] tracking-[0.4em] uppercase eyebrow mb-8">AI Style Consultant</div>
+        <input id="occasion-input" class="w-full bg-transparent occasion-field py-8 text-center" placeholder="Where are we going?" />
         <div class="flex flex-wrap justify-center gap-2 mt-8">
             <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip">Tokyo solo trip</button>
-            <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip">Meeting the family, 30°C</button>
+            <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip">Meeting the family, 30C</button>
             <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip">Late night in Soho</button>
         </div>
-        <button id="ask-btn" class="mt-12 px-12 py-4 rounded-full glow-btn text-[10px] tracking-[0.3em] uppercase hover:scale-[1.02] active:scale-95 transition-all">
+        <button id="ask-btn" class="mt-12 px-12 py-4 rounded-full primary-btn text-[10px] tracking-[0.3em] uppercase active:scale-95">
             Consult Archive
         </button>
         <div id="ai-suggestion" class="hidden mt-12 glass p-10 rounded-3xl max-w-2xl mx-auto ai-render-area"></div>
@@ -142,17 +52,17 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
         <div class="lg:col-span-4 lg:sticky lg:top-28 h-fit">
             <div class="glass p-8 rounded-[2rem]">
-                <div class="text-[10px] tracking-[0.3em] uppercase text-white/30 mb-8">New Addition</div>
-                <div id="drop-zone" class="aspect-square border border-white/5 rounded-2xl flex items-center justify-center cursor-pointer relative overflow-hidden group hover:border-white/20 transition-all bg-white/[0.02]">
+                <div class="text-[10px] tracking-[0.3em] uppercase eyebrow mb-8">New Addition</div>
+                <div id="drop-zone" class="upload-zone group">
                     <div class="text-center group-hover:scale-110 transition-transform duration-500">
-                        <div class="text-2xl font-light text-white/20">+</div>
-                        <div id="drop-text" class="text-[9px] tracking-[0.3em] uppercase mt-2 text-white/30">Upload Image</div>
+                        <div class="text-2xl font-light upload-zone-mark">+</div>
+                        <div id="drop-text" class="text-[9px] tracking-[0.3em] uppercase mt-2 upload-zone-copy">Upload Image</div>
                     </div>
                     <img id="preview-img" class="absolute inset-0 w-full h-full object-cover hidden" />
                     <input id="file-input" type="file" class="hidden" accept="image/*" />
                 </div>
                 <div id="category-wrap" class="mt-8">
-                    <div class="flex flex-wrap gap-2 justify-center md:justify-start p-2 rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-sm">
+                    <div class="flex flex-wrap gap-2 justify-center md:justify-start p-2 rounded-2xl surface-group">
                         <button class="chip sort-opt active" data-sort="ALL">All</button>
                         <button class="chip sort-opt" data-sort="TOPS">Tops</button>
                         <button class="chip sort-opt" data-sort="BOTTOMS">Bottoms</button>
@@ -167,18 +77,18 @@
                     </div>
                 </div>
                 <div class="space-y-4 mt-8">
-                    <input id="item-name" placeholder="Item Name" class="w-full bg-transparent border-b border-white/5 py-3 text-sm focus:outline-none" />
-                    <input id="item-brand" placeholder="Brand / Designer" class="w-full bg-transparent border-b border-white/5 py-3 text-sm focus:outline-none" />
+                    <input id="item-name" placeholder="Item Name" class="w-full text-field py-3 text-sm" />
+                    <input id="item-brand" placeholder="Brand / Designer" class="w-full text-field py-3 text-sm" />
                 </div>
-                <button id="save-btn" class="w-full mt-10 bg-white text-black text-[10px] tracking-[0.3em] uppercase py-5 rounded-2xl hover:bg-[#efefef] transition-colors font-medium">
+                <button id="save-btn" class="w-full mt-10 primary-btn text-[10px] tracking-[0.3em] uppercase py-5 rounded-2xl font-medium">
                     Archive Item
                 </button>
             </div>
         </div>
         <div class="lg:col-span-8">
             <div class="flex justify-between items-end mb-12">
-                <div class="text-[10px] tracking-[0.3em] uppercase text-white/30">The Collection</div>
-                <div id="item-count" class="text-[10px] tracking-[0.1em] text-white/20 tabular-nums">00 ITEMS</div>
+                <div class="text-[10px] tracking-[0.3em] uppercase eyebrow">The Collection</div>
+                <div id="item-count" class="text-[10px] tracking-[0.1em] count-copy tabular-nums">00 ITEMS</div>
             </div>
             <div id="catalog-grid" class="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-12"></div>
         </div>

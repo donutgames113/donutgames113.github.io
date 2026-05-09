@@ -1,6 +1,8 @@
-const SUPABASE_URL = 'https://wyvliczohxpyptwxnvfi.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5';
-const REDIRECT_URL = 'https://donutgames113.github.io/Curato/index.html';
+const SUPABASE_URL = "https://wyvliczohxpyptwxnvfi.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5";
+const REDIRECT_URL = "https://donutgames113.github.io/Curato/index.html";
+const THEME_STORAGE_KEY = "curato-theme";
+const AVAILABLE_THEMES = ["dark", "light", "dune", "slate"];
 
 const supabase = window.supabase.createClient(
     SUPABASE_URL,
@@ -12,75 +14,122 @@ let selectedSubCategory = null;
 let currentImageData = null;
 let currentSortClass = "ALL";
 
+function applyTheme(themeName) {
+
+    const nextTheme =
+        AVAILABLE_THEMES.includes(themeName)
+            ? themeName
+            : "dark";
+
+    document.body.dataset.theme =
+        nextTheme;
+
+    document.querySelectorAll(".theme-chip")
+        .forEach((button) => {
+
+            const isActive =
+                button.dataset.theme === nextTheme;
+
+            button.classList.toggle(
+                "active",
+                isActive
+            );
+
+            button.setAttribute(
+                "aria-pressed",
+                String(isActive)
+            );
+        });
+
+    localStorage.setItem(
+        THEME_STORAGE_KEY,
+        nextTheme
+    );
+}
+
+function setupThemePicker() {
+
+    const savedTheme =
+        localStorage.getItem(
+            THEME_STORAGE_KEY
+        ) || "dark";
+
+    applyTheme(savedTheme);
+
+    document.querySelectorAll(".theme-chip")
+        .forEach((button) => {
+
+            button.onclick = () => {
+                applyTheme(
+                    button.dataset.theme
+                );
+            };
+        });
+}
+
 // ========================================
 // AI RESPONSE RENDERER
 // ========================================
 
 function renderAIResponse(text) {
 
-    // Clean markdown artifacts
     text = text
-        .replace(/```markdown/g, '')
-        .replace(/```/g, '')
+        .replace(/```markdown/g, "")
+        .replace(/```/g, "")
         .trim();
 
-    // Split into sections
-    const lines = text.split('\n');
+    const lines = text.split("\n");
 
-    let html = '';
+    let html = "";
     let inList = false;
 
-    lines.forEach(line => {
+    lines.forEach((line) => {
 
         line = line.trim();
 
-        // Empty line
         if (!line) {
             if (inList) {
-                html += '</ul>';
+                html += "</ul>";
                 inList = false;
             }
             return;
         }
 
-        // H2
-        if (line.startsWith('## ')) {
+        if (line.startsWith("## ")) {
 
             if (inList) {
-                html += '</ul>';
+                html += "</ul>";
                 inList = false;
             }
 
             html += `
-                <h2 class="text-3xl font-extralight text-[#d4ff6a] mb-6 mt-2 tracking-tight">
-                    ${line.replace('## ', '')}
+                <h2 class="text-3xl font-extralight ai-title mb-6 mt-2 tracking-tight">
+                    ${line.replace("## ", "")}
                 </h2>
             `;
 
             return;
         }
 
-        // H3
-        if (line.startsWith('### ')) {
+        if (line.startsWith("### ")) {
 
             if (inList) {
-                html += '</ul>';
+                html += "</ul>";
                 inList = false;
             }
 
             html += `
-                <h3 class="text-[10px] uppercase tracking-[0.3em] text-white/40 mt-10 mb-4">
-                    ${line.replace('### ', '')}
+                <h3 class="text-[10px] uppercase tracking-[0.3em] ai-subtitle mt-10 mb-4 pb-2">
+                    ${line.replace("### ", "")}
                 </h3>
             `;
 
             return;
         }
 
-        // Bullet points
         if (
-            line.startsWith('- ') ||
-            line.startsWith('* ')
+            line.startsWith("- ") ||
+            line.startsWith("* ")
         ) {
 
             if (!inList) {
@@ -89,16 +138,16 @@ function renderAIResponse(text) {
             }
 
             const clean = line
-            .replace(/^[-*]\s/, '')
-            .replace(
-                /\*\*(.*?)\*\*/g,
-                '<strong class="text-white font-medium">$1</strong>'
-            );
+                .replace(/^[-*]\s/, "")
+                .replace(
+                    /\*\*(.*?)\*\*/g,
+                    "<strong class=\"font-medium\">$1</strong>"
+                );
 
             html += `
-                <li class="flex gap-4 items-start">
-                    <div class="w-1.5 h-1.5 rounded-full bg-[#d4ff6a] mt-2 shrink-0"></div>
-                    <div class="text-sm leading-relaxed text-white/70">
+                <li class="flex gap-4 items-start ai-list-item">
+                    <div class="w-1.5 h-1.5 rounded-full ai-list-bullet mt-2 shrink-0"></div>
+                    <div class="text-sm leading-relaxed">
                         ${clean}
                     </div>
                 </li>
@@ -107,41 +156,39 @@ function renderAIResponse(text) {
             return;
         }
 
-        // Quote block
-        if (line.startsWith('> ')) {
+        if (line.startsWith("> ")) {
 
             if (inList) {
-                html += '</ul>';
+                html += "</ul>";
                 inList = false;
             }
 
             html += `
-                <blockquote class="border-l border-[#d4ff6a]/50 pl-6 py-2 mt-8 text-white/50 italic text-sm leading-relaxed">
-                    ${line.replace('> ', '')}
+                <blockquote class="ai-quote">
+                    ${line.replace("> ", "")}
                 </blockquote>
             `;
 
             return;
         }
 
-        // Regular paragraph
         if (inList) {
-            html += '</ul>';
+            html += "</ul>";
             inList = false;
         }
 
         html += `
-            <p class="text-[15px] leading-8 text-white/75 mb-6 font-light">
+            <p class="text-[15px] leading-8 ai-paragraph mb-6 font-light">
                 ${line.replace(
                     /\*\*(.*?)\*\*/g,
-                    '<strong class="text-white font-medium">$1</strong>'
+                    "<strong class=\"font-medium\">$1</strong>"
                 )}
             </p>
         `;
     });
 
     if (inList) {
-        html += '</ul>';
+        html += "</ul>";
     }
 
     return html;
@@ -154,10 +201,10 @@ function renderAIResponse(text) {
 async function callGeminiAPI(base64, mimeType, promptText) {
 
     const keyInput =
-        document.getElementById('user-api-key');
+        document.getElementById("user-api-key");
 
     const modelSelect =
-        document.getElementById('model-select');
+        document.getElementById("model-select");
 
     const { data: { session } } =
         await supabase.auth.getSession();
@@ -192,9 +239,7 @@ async function callGeminiAPI(base64, mimeType, promptText) {
     };
 
     if (base64) {
-
         body.contents[0].parts.push({
-
             inline_data: {
                 mime_type: mimeType,
                 data: base64
@@ -203,13 +248,10 @@ async function callGeminiAPI(base64, mimeType, promptText) {
     }
 
     const response = await fetch(url, {
-
-        method: 'POST',
-
+        method: "POST",
         headers: {
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json"
         },
-
         body: JSON.stringify(body)
     });
 
@@ -234,8 +276,8 @@ async function callGeminiAPI(base64, mimeType, promptText) {
 
             const cleaned =
                 resultText
-                    .replace(/```json/g, '')
-                    .replace(/```/g, '')
+                    .replace(/```json/g, "")
+                    .replace(/```/g, "")
                     .trim();
 
             return JSON.parse(cleaned);
@@ -264,17 +306,17 @@ function sortItems(items) {
         return items;
     }
 
-    return items.filter(i => {
+    return items.filter((item) => {
 
         if (currentSortClass === "TOPS") {
-            return i.tags?.subcategory === "Top";
+            return item.tags?.subcategory === "Top";
         }
 
         if (currentSortClass === "BOTTOMS") {
-            return i.tags?.subcategory === "Bottom";
+            return item.tags?.subcategory === "Bottom";
         }
 
-        return i.tags?.category === currentSortClass;
+        return item.tags?.category === currentSortClass;
     });
 }
 
@@ -285,9 +327,9 @@ function sortItems(items) {
 async function fetchItems() {
 
     const { data, error } = await supabase
-        .from('items')
-        .select('id,name,image_url,tags')
-        .order('id', { ascending: false });
+        .from("items")
+        .select("id,name,image_url,tags")
+        .order("id", { ascending: false });
 
     if (error) {
 
@@ -299,24 +341,24 @@ async function fetchItems() {
     const filtered = sortItems(data);
 
     const countEl =
-        document.getElementById('item-count');
+        document.getElementById("item-count");
 
     if (countEl) {
 
         countEl.innerText =
             filtered.length
                 .toString()
-                .padStart(2, '0')
+                .padStart(2, "0")
             + " ITEMS";
     }
 
     const catalogGrid =
-        document.getElementById('catalog-grid');
+        document.getElementById("catalog-grid");
 
     if (!catalogGrid) return;
 
     catalogGrid.innerHTML =
-        filtered.map(item => `
+        filtered.map((item) => `
 
         <div class="item-card group">
 
@@ -331,13 +373,13 @@ async function fetchItems() {
 
             <div class="mt-5">
 
-                <p class="text-[11px] font-medium uppercase tracking-widest text-white/90">
+                <p class="item-name text-[11px] font-medium uppercase tracking-widest">
                     ${item.name}
                 </p>
 
-                <p class="text-[9px] text-white/30 uppercase tracking-[0.15em] mt-1">
-                    ${item.tags?.brand || 'Independent'}
-                    •
+                <p class="item-meta text-[9px] uppercase tracking-[0.15em] mt-1">
+                    ${item.tags?.brand || "Independent"}
+                    &bull;
                     ${item.tags?.subcategory || item.tags?.category}
                 </p>
 
@@ -345,7 +387,7 @@ async function fetchItems() {
 
         </div>
 
-    `).join('');
+    `).join("");
 }
 
 // ========================================
@@ -361,18 +403,16 @@ async function compressImage(
     return new Promise((resolve) => {
 
         const img = new Image();
+        const reader = new FileReader();
 
-        const reader =
-            new FileReader();
-
-        reader.onload = (e) => {
-            img.src = e.target.result;
+        reader.onload = (event) => {
+            img.src = event.target.result;
         };
 
         img.onload = () => {
 
             const canvas =
-                document.createElement('canvas');
+                document.createElement("canvas");
 
             const scale =
                 Math.min(
@@ -387,7 +427,7 @@ async function compressImage(
                 img.height * scale;
 
             const ctx =
-                canvas.getContext('2d');
+                canvas.getContext("2d");
 
             ctx.drawImage(
                 img,
@@ -398,7 +438,6 @@ async function compressImage(
             );
 
             canvas.toBlob(
-
                 (blob) => {
 
                     const reader2 =
@@ -409,10 +448,8 @@ async function compressImage(
                     };
 
                     reader2.readAsDataURL(blob);
-
                 },
-
-                'image/jpeg',
+                "image/jpeg",
                 quality
             );
         };
@@ -441,9 +478,9 @@ async function uploadImageToStorage(base64Data) {
     const { error: uploadError } =
         await supabase
             .storage
-            .from('wardrobe-images')
+            .from("wardrobe-images")
             .upload(fileName, blob, {
-                contentType: 'image/jpeg',
+                contentType: "image/jpeg",
                 upsert: false
             });
 
@@ -454,7 +491,7 @@ async function uploadImageToStorage(base64Data) {
     const { data } =
         supabase
             .storage
-            .from('wardrobe-images')
+            .from("wardrobe-images")
             .getPublicUrl(fileName);
 
     return data.publicUrl;
@@ -464,44 +501,42 @@ async function uploadImageToStorage(base64Data) {
 // DOM READY
 // ========================================
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
+
+    setupThemePicker();
 
     const authBtn =
-        document.getElementById('auth-btn');
+        document.getElementById("auth-btn");
 
     const keyInput =
-        document.getElementById('user-api-key');
+        document.getElementById("user-api-key");
 
     const modelSelect =
-        document.getElementById('model-select');
+        document.getElementById("model-select");
 
     const dropZone =
-        document.getElementById('drop-zone');
+        document.getElementById("drop-zone");
 
     const previewImg =
-        document.getElementById('preview-img');
+        document.getElementById("preview-img");
 
     const dropText =
-        document.getElementById('drop-text');
+        document.getElementById("drop-text");
 
     const nameInput =
-        document.getElementById('item-name');
+        document.getElementById("item-name");
 
     const brandInput =
-        document.getElementById('item-brand');
+        document.getElementById("item-brand");
 
     const saveBtn =
-        document.getElementById('save-btn');
+        document.getElementById("save-btn");
 
     const askBtn =
-        document.getElementById('ask-btn');
+        document.getElementById("ask-btn");
 
     const suggestionBox =
-        document.getElementById('ai-suggestion');
-
-    // ========================================
-    // AUTH
-    // ========================================
+        document.getElementById("ai-suggestion");
 
     if (authBtn) {
 
@@ -513,15 +548,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (session) {
 
                 await supabase.auth.signOut();
-
                 window.location.reload();
 
             } else {
 
                 await supabase.auth.signInWithOAuth({
-
-                    provider: 'discord',
-
+                    provider: "discord",
                     options: {
                         redirectTo: REDIRECT_URL
                     }
@@ -529,10 +561,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
     }
-
-    // ========================================
-    // SETTINGS
-    // ========================================
 
     if (keyInput) {
 
@@ -545,9 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 session &&
                 keyInput.value
             ) {
-
                 await supabase.auth.updateUser({
-
                     data: {
                         gemini_api_key:
                             keyInput.value.trim()
@@ -565,9 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await supabase.auth.getSession();
 
             if (session) {
-
                 await supabase.auth.updateUser({
-
                     data: {
                         preferred_model:
                             modelSelect.value
@@ -577,28 +601,21 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // ========================================
-    // AUTH STATE
-    // ========================================
-
     supabase.auth.onAuthStateChange((_, session) => {
 
         if (session) {
 
             if (authBtn) {
-
                 authBtn.innerText =
-                    `LOGOUT (${session.user.user_metadata.full_name || 'USER'})`;
+                    `LOGOUT (${session.user.user_metadata.full_name || "USER"})`;
             }
 
             if (keyInput) {
-
                 keyInput.value =
                     session.user.user_metadata?.gemini_api_key || "";
             }
 
             if (modelSelect) {
-
                 modelSelect.value =
                     session.user.user_metadata?.preferred_model ||
                     "gemini-2.0-flash";
@@ -606,86 +623,70 @@ document.addEventListener('DOMContentLoaded', () => {
 
             fetchItems();
 
-        } else {
-
-            if (authBtn) {
-                authBtn.innerText = "CONNECT";
-            }
+        } else if (authBtn) {
+            authBtn.innerText = "CONNECT";
         }
     });
 
-    // ========================================
-    // CATEGORY BUTTONS
-    // ========================================
-
     const catButtons =
-        document.querySelectorAll('.cat-opt');
+        document.querySelectorAll(".cat-opt");
 
-    catButtons.forEach(btn => {
+    catButtons.forEach((button) => {
 
-        btn.onclick = () => {
+        button.onclick = () => {
 
-            catButtons.forEach(
-                b => b.classList.remove('active')
+            catButtons.forEach((chip) =>
+                chip.classList.remove("active")
             );
 
-            btn.classList.add('active');
+            button.classList.add("active");
 
             selectedCategory =
-                btn.dataset.val;
+                button.dataset.val;
 
             selectedSubCategory =
-                btn.dataset.sub || null;
+                button.dataset.sub || null;
         };
     });
 
-    // ========================================
-    // SORT BUTTONS
-    // ========================================
-
     const sortButtons =
-        document.querySelectorAll('.sort-opt');
+        document.querySelectorAll(".sort-opt");
 
-    sortButtons.forEach(btn => {
+    sortButtons.forEach((button) => {
 
-        btn.onclick = () => {
+        button.onclick = () => {
 
-            sortButtons.forEach(
-                b => b.classList.remove('active')
+            sortButtons.forEach((chip) =>
+                chip.classList.remove("active")
             );
 
-            btn.classList.add('active');
+            button.classList.add("active");
 
             currentSortClass =
-                btn.dataset.sort;
+                button.dataset.sort;
 
             fetchItems();
         };
     });
 
-    // ========================================
-    // FILE INPUT
-    // ========================================
-
     if (dropZone) {
 
         dropZone.onclick = () => {
-
             document
-                .getElementById('file-input')
+                .getElementById("file-input")
                 .click();
         };
     }
 
     const fileInput =
-        document.getElementById('file-input');
+        document.getElementById("file-input");
 
     if (fileInput) {
 
-        fileInput.onchange = async (e) => {
+        fileInput.onchange = async (event) => {
 
             const file =
-                e.target.files[0];
+                event.target.files[0];
 
             if (!file) return;
 
@@ -700,22 +701,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 compressedDataUrl;
 
             if (previewImg) {
-
                 previewImg.src =
                     compressedDataUrl;
 
                 previewImg.classList
-                    .remove('hidden');
+                    .remove("hidden");
             }
 
             if (dropText) {
-
                 dropText.classList
-                    .add('hidden');
+                    .add("hidden");
             }
+
             /*
             if (saveBtn) {
-
                 saveBtn.innerText =
                     "IDENTIFYING...";
 
@@ -726,10 +725,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const base64 =
                     compressedDataUrl
-                        .split(',')[1];
+                        .split(",")[1];
 
                 const prompt =
-                    'Identify this item. Return ONLY valid JSON: {"name":"string","brand":"string","category":"Watch|Fragrance|Other","subcategory":"Top|Bottom|null"}';
+                    "Identify this item. Return ONLY valid JSON: {\"name\":\"string\",\"brand\":\"string\",\"category\":\"Watch|Fragrance|Other\",\"subcategory\":\"Top|Bottom|null\"}";
 
                 const guess =
                     await callGeminiAPI(
@@ -752,18 +751,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const matchingBtn =
                         Array.from(catButtons)
-                            .find(
-
-                                b =>
-
-                                    b.dataset.val ===
-                                    guess.category
-
-                                    &&
-
-                                    (b.dataset.sub || null)
-                                    ===
-                                    (guess.subcategory || null)
+                            .find((chip) =>
+                                chip.dataset.val ===
+                                guess.category
+                                &&
+                                (chip.dataset.sub || null)
+                                ===
+                                (guess.subcategory || null)
                             );
 
                     if (matchingBtn) {
@@ -772,13 +766,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
             } catch (err) {
-
                 console.error(err);
-
             } finally {
-
                 if (saveBtn) {
-
                     saveBtn.innerText =
                         "ARCHIVE ITEM";
 
@@ -788,10 +778,6 @@ document.addEventListener('DOMContentLoaded', () => {
             */
         };
     }
-
-    // ========================================
-    // SAVE ITEM
-    // ========================================
 
     if (saveBtn) {
 
@@ -824,29 +810,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const { error } =
                     await supabase
-                        .from('items')
+                        .from("items")
                         .insert([{
-
                             user_id:
                                 session?.user?.id || null,
-
                             name:
                                 nameInput.value,
-
                             image_url:
                                 imageUrl,
-
                             tags: {
-
                                 brand:
                                     brandInput?.value || "",
-
                                 category:
                                     selectedCategory,
-
                                 subcategory:
                                     selectedSubCategory,
-
                                 layerable:
                                     selectedSubCategory === "Top"
                             }
@@ -875,16 +853,12 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // ========================================
-    // AI CONSULT
-    // ========================================
-
     if (askBtn) {
 
         askBtn.onclick = async () => {
 
             const promptEl =
-                document.getElementById('occasion-input');
+                document.getElementById("occasion-input");
 
             const userPrompt =
                 (promptEl.value || "").trim();
@@ -907,8 +881,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const { data: items, error: dbError } =
                     await supabase
-                        .from('items')
-                        .select('name,tags');
+                        .from("items")
+                        .select("name,tags");
 
                 if (dbError) {
                     throw dbError;
@@ -916,12 +890,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const wardrobeContext =
                     items && items.length > 0
-
-                    ? items.map(i =>
-                        `- ${i.name} (${i.tags?.brand || 'Independent'}, ${i.tags?.category || 'Item'})`
-                    ).join('\n')
-
-                    : "The user's archive is currently empty.";
+                        ? items.map((item) =>
+                            `- ${item.name} (${item.tags?.brand || "Independent"}, ${item.tags?.category || "Item"})`
+                        ).join("\n")
+                        : "The user's archive is currently empty.";
 
                 const finalPrompt = `
 You are Curato, an elite personal fashion archivist and stylist.
@@ -981,14 +953,13 @@ Rules:
                     );
 
                 if (suggestionBox) {
-
                     suggestionBox.innerHTML =
                         renderAIResponse(response);
 
-                    suggestionBox.classList.remove('hidden');
+                    suggestionBox.classList.remove("hidden");
 
                     suggestionBox.scrollIntoView({
-                        behavior: 'smooth'
+                        behavior: "smooth"
                     });
                 }
 
@@ -1014,4 +985,3 @@ Rules:
         };
     }
 });
-````
