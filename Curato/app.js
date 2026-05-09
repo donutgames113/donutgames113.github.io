@@ -3,6 +3,23 @@ const SUPABASE_ANON_KEY = "sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5";
 const REDIRECT_URL = "https://donutgames113.github.io/Curato/index.html";
 const THEME_STORAGE_KEY = "curato-theme";
 const AVAILABLE_THEMES = ["dark", "light", "dune", "slate"];
+const ACCESSORY_CATEGORIES = [
+    "Accessory",
+    "Jewelry",
+    "Bag",
+    "Headwear"
+];
+const CATEGORY_LABELS = {
+    Fragrance: "Scent",
+    Watch: "Watch",
+    Shoes: "Shoes",
+    Socks: "Socks",
+    Accessory: "Accessory",
+    Jewelry: "Jewelry",
+    Bag: "Bag",
+    Headwear: "Headwear",
+    Other: "Other"
+};
 
 const FORM_TAG_GROUPS = [
     {
@@ -31,41 +48,18 @@ const FORM_TAG_GROUPS = [
     }
 ];
 
-const COLLECTION_FILTER_GROUPS = [
-    {
-        id: "season",
-        label: "Season",
-        options: ["All-season", "Spring", "Summer", "Autumn", "Winter"]
-    },
-    {
-        id: "occasions",
-        label: "Occasion",
-        options: ["Everyday", "Work", "Evening", "Travel", "Formal"]
-    },
-    {
-        id: "palette",
-        label: "Palette",
-        options: ["Monochrome", "Earth", "Warm", "Cool", "Accent"]
-    },
-    {
-        id: "vibes",
-        label: "Vibe",
-        options: ["Minimal", "Tailored", "Relaxed", "Technical", "Statement"]
-    }
-];
-
 const supabase = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_ANON_KEY
 );
 
 let currentImageData = null;
+let editingItemId = null;
+let editingImageUrl = null;
 let allItems = [];
 let isSaving = false;
-let currentSortClass = "ALL";
 
 let formState = getDefaultFormState();
-let collectionFilters = getDefaultCollectionFilters();
 
 function getDefaultFormState() {
     return {
@@ -75,16 +69,6 @@ function getDefaultFormState() {
         occasions: ["Everyday"],
         palette: "Monochrome",
         vibes: ["Minimal"]
-    };
-}
-
-function getDefaultCollectionFilters() {
-    return {
-        search: "",
-        season: "ALL",
-        occasions: "ALL",
-        palette: "ALL",
-        vibes: "ALL"
     };
 }
 
@@ -207,7 +191,6 @@ function normalizeItem(item) {
             occasions,
             palette: rawTags.palette || "Monochrome",
             vibes,
-            notes: rawTags.notes || "",
             layerable: Boolean(rawTags.layerable)
         }
     };
@@ -219,11 +202,9 @@ function getCategoryLabel(tags) {
         return tags.subcategory;
     }
 
-    if (tags?.category === "Fragrance") {
-        return "Scent";
-    }
-
-    return tags?.category || "Other";
+    return CATEGORY_LABELS[tags?.category] ||
+        tags?.category ||
+        "Other";
 }
 
 function getItemBadgeList(tags) {
@@ -313,25 +294,6 @@ function renderFormTagGroups() {
         ).join("");
 }
 
-function renderCollectionFilterGroups() {
-
-    const container =
-        document.getElementById("collection-filter-groups");
-
-    if (!container) return;
-
-    container.innerHTML =
-        COLLECTION_FILTER_GROUPS.map((group) =>
-            renderTagGroupHTML({
-                group,
-                context: "filter",
-                activeValue: collectionFilters[group.id],
-                activeValues: [],
-                includeAll: true
-            })
-        ).join("");
-}
-
 function renderSelectionSummary() {
 
     const summary =
@@ -352,41 +314,6 @@ function renderSelectionSummary() {
     `).join("");
 }
 
-function renderActiveFilters() {
-
-    const container =
-        document.getElementById("active-filter-pills");
-
-    if (!container) return;
-
-    const active = [];
-
-    if (currentSortClass !== "ALL") {
-        active.push(currentSortClass === "Fragrance"
-            ? "Scent"
-            : currentSortClass);
-    }
-
-    if (collectionFilters.search) {
-        active.push(`Search: ${collectionFilters.search}`);
-    }
-
-    COLLECTION_FILTER_GROUPS.forEach((group) => {
-        const value =
-            collectionFilters[group.id];
-
-        if (value && value !== "ALL") {
-            active.push(value);
-        }
-    });
-
-    container.innerHTML = active.length
-        ? active.map((pill) => `
-            <span class="summary-pill filter-pill">${escapeHtml(toReadableLabel(pill))}</span>
-        `).join("")
-        : `<span class="helper-text">No collection filters active. You are seeing the whole archive.</span>`;
-}
-
 function renderCategoryButtons() {
 
     document.querySelectorAll(".cat-opt")
@@ -396,26 +323,6 @@ function renderCategoryButtons() {
                 button.dataset.val === formState.category
                 &&
                 (button.dataset.sub || null) === formState.subcategory;
-
-            button.classList.toggle(
-                "active",
-                isActive
-            );
-
-            button.setAttribute(
-                "aria-pressed",
-                String(isActive)
-            );
-        });
-}
-
-function renderCollectionCategoryButtons() {
-
-    document.querySelectorAll(".sort-opt")
-        .forEach((button) => {
-
-            const isActive =
-                button.dataset.sort === currentSortClass;
 
             button.classList.toggle(
                 "active",
@@ -466,17 +373,21 @@ function updateSaveButtonState() {
 
     if (isSaving) {
         button.disabled = true;
-        button.textContent = "Archiving...";
+        button.textContent = editingItemId
+            ? "Saving..."
+            : "Archiving...";
         return;
     }
 
     const ready =
-        Boolean(currentImageData) &&
+        Boolean(currentImageData || editingImageUrl) &&
         Boolean(nameInput?.value.trim());
 
     button.disabled = !ready;
     button.textContent = ready
-        ? "Archive Item"
+        ? (editingItemId
+            ? "Save Changes"
+            : "Archive Item")
         : "Image + Name Required";
 }
 
@@ -494,9 +405,12 @@ function updateUploadPreview() {
     const removeButton =
         document.getElementById("remove-image-btn");
 
+    const previewSource =
+        currentImageData || editingImageUrl;
+
     if (preview) {
-        if (currentImageData) {
-            preview.src = currentImageData;
+        if (previewSource) {
+            preview.src = previewSource;
             preview.classList.remove("hidden");
         } else {
             preview.src = "";
@@ -507,20 +421,24 @@ function updateUploadPreview() {
     if (dropText) {
         dropText.classList.toggle(
             "hidden",
-            Boolean(currentImageData)
+            Boolean(previewSource)
         );
     }
 
     if (uploadMeta) {
-        uploadMeta.textContent = currentImageData
-            ? "Preview ready"
-            : "JPEG, PNG, WEBP";
+        if (currentImageData) {
+            uploadMeta.textContent = "Replacement preview ready";
+        } else if (editingImageUrl) {
+            uploadMeta.textContent = "Current image loaded";
+        } else {
+            uploadMeta.textContent = "JPEG, PNG, WEBP";
+        }
     }
 
     if (removeButton) {
         removeButton.classList.toggle(
             "hidden",
-            !currentImageData
+            !previewSource
         );
     }
 }
@@ -529,6 +447,8 @@ function resetForm({ keepFeedback = false } = {}) {
 
     formState = getDefaultFormState();
     currentImageData = null;
+    editingItemId = null;
+    editingImageUrl = null;
 
     const fileInput =
         document.getElementById("file-input");
@@ -538,9 +458,6 @@ function resetForm({ keepFeedback = false } = {}) {
 
     const brandInput =
         document.getElementById("item-brand");
-
-    const notesInput =
-        document.getElementById("item-notes");
 
     if (fileInput) {
         fileInput.value = "";
@@ -552,10 +469,6 @@ function resetForm({ keepFeedback = false } = {}) {
 
     if (brandInput) {
         brandInput.value = "";
-    }
-
-    if (notesInput) {
-        notesInput.value = "";
     }
 
     renderFormTagGroups();
@@ -572,119 +485,7 @@ function resetForm({ keepFeedback = false } = {}) {
     }
 }
 
-function resetCollectionFilters() {
-
-    collectionFilters =
-        getDefaultCollectionFilters();
-
-    currentSortClass = "ALL";
-
-    const searchInput =
-        document.getElementById("catalog-search");
-
-    if (searchInput) {
-        searchInput.value = "";
-    }
-
-    renderCollectionCategoryButtons();
-    renderCollectionFilterGroups();
-    renderActiveFilters();
-    renderCatalog();
-}
-
-function itemMatchesSearch(item, query) {
-
-    const haystack = [
-        item.name,
-        item.tags.brand,
-        item.tags.category,
-        item.tags.subcategory,
-        item.tags.season,
-        item.tags.palette,
-        item.tags.notes,
-        ...(item.tags.occasions || []),
-        ...(item.tags.vibes || [])
-    ].join(" ").toLowerCase();
-
-    return haystack.includes(
-        query.toLowerCase()
-    );
-}
-
-function itemMatchesCollectionFilters(item) {
-
-    if (currentSortClass === "TOPS" &&
-        item.tags.subcategory !== "Top") {
-        return false;
-    }
-
-    if (currentSortClass === "BOTTOMS" &&
-        item.tags.subcategory !== "Bottom") {
-        return false;
-    }
-
-    if (
-        currentSortClass !== "ALL" &&
-        currentSortClass !== "TOPS" &&
-        currentSortClass !== "BOTTOMS" &&
-        item.tags.category !== currentSortClass
-    ) {
-        return false;
-    }
-
-    if (
-        collectionFilters.search &&
-        !itemMatchesSearch(
-            item,
-            collectionFilters.search
-        )
-    ) {
-        return false;
-    }
-
-    if (
-        collectionFilters.season !== "ALL" &&
-        item.tags.season !== collectionFilters.season
-    ) {
-        return false;
-    }
-
-    if (
-        collectionFilters.occasions !== "ALL" &&
-        !item.tags.occasions.includes(
-            collectionFilters.occasions
-        )
-    ) {
-        return false;
-    }
-
-    if (
-        collectionFilters.palette !== "ALL" &&
-        item.tags.palette !== collectionFilters.palette
-    ) {
-        return false;
-    }
-
-    if (
-        collectionFilters.vibes !== "ALL" &&
-        !item.tags.vibes.includes(
-            collectionFilters.vibes
-        )
-    ) {
-        return false;
-    }
-
-    return true;
-}
-
-function getFilteredItems() {
-
-    return allItems.filter(
-        itemMatchesCollectionFilters
-    );
-}
-
-function renderEmptyState(filteredCount) {
+function renderEmptyState(itemCount) {
 
     const emptyState =
         document.getElementById("catalog-empty");
@@ -694,31 +495,20 @@ function renderEmptyState(filteredCount) {
 
     if (!emptyState || !emptyCopy) return;
 
-    if (filteredCount > 0) {
+    if (itemCount > 0) {
         emptyState.classList.add("hidden");
         return;
     }
 
-    const hasAnyFilters =
-        currentSortClass !== "ALL" ||
-        Boolean(collectionFilters.search) ||
-        Object.values(collectionFilters)
-            .some((value) =>
-                value !== "" &&
-                value !== "ALL"
-            );
-
-    emptyCopy.textContent = hasAnyFilters
-        ? "Nothing matches this combination yet. Try clearing a filter or broadening the search."
-        : "Your archive is still empty. Add a first piece and start building a more useful wardrobe map.";
+    emptyCopy.textContent =
+        "Your archive is still empty. Add a first piece and start building a more useful wardrobe map.";
 
     emptyState.classList.remove("hidden");
 }
 
 function renderCatalog() {
 
-    const filtered =
-        getFilteredItems();
+    const items = allItems;
 
     const countEl =
         document.getElementById("item-count");
@@ -728,7 +518,7 @@ function renderCatalog() {
 
     if (countEl) {
         countEl.innerText =
-            filtered.length
+            items.length
                 .toString()
                 .padStart(2, "0")
             + " ITEMS";
@@ -737,21 +527,20 @@ function renderCatalog() {
     if (!grid) return;
 
     updateCollectionStatus(
-        filtered.length > 0
-            ? `Showing ${filtered.length} piece${filtered.length === 1 ? "" : "s"} with the current filters.`
-            : "No results in the current slice."
+        items.length > 0
+            ? `Showing ${items.length} archived piece${items.length === 1 ? "" : "s"}. Click Edit on any card to update it.`
+            : "No archived items yet."
     );
 
-    renderActiveFilters();
-    renderEmptyState(filtered.length);
+    renderEmptyState(items.length);
 
-    if (!filtered.length) {
+    if (!items.length) {
         grid.innerHTML = "";
         return;
     }
 
     grid.innerHTML =
-        filtered.map((item) => {
+        items.map((item) => {
 
             const badges =
                 getItemBadgeList(item.tags);
@@ -783,9 +572,15 @@ function renderCatalog() {
                             `).join("")}
                         </div>
 
-                        ${item.tags.notes
-                            ? `<p class="item-note mt-4">${escapeHtml(item.tags.notes)}</p>`
-                            : ""}
+                        <div class="mt-5">
+                            <button
+                                class="secondary-btn text-[10px] tracking-[0.2em] uppercase edit-item-btn"
+                                type="button"
+                                data-item-id="${escapeHtml(item.id)}"
+                            >
+                                Edit
+                            </button>
+                        </div>
                     </div>
                 </article>
             `;
@@ -1146,7 +941,37 @@ async function fetchItems() {
     renderCatalog();
 }
 
-function buildItemPayload() {
+function beginEditingItem(itemId) {
+
+    const item =
+        allItems.find((entry) =>
+            String(entry.id) === String(itemId)
+        );
+
+    if (!item) {
+        setFormFeedback(
+            "That item could not be loaded for editing.",
+            "error"
+        );
+        return;
+    }
+
+    editingItemId = item.id;
+    editingImageUrl = item.image_url;
+    currentImageData = null;
+
+    formState = {
+        category: item.tags.category || "Other",
+        subcategory: item.tags.subcategory || null,
+        season: item.tags.season || "All-season",
+        occasions: item.tags.occasions?.length
+            ? item.tags.occasions
+            : ["Everyday"],
+        palette: item.tags.palette || "Monochrome",
+        vibes: item.tags.vibes?.length
+            ? item.tags.vibes
+            : ["Minimal"]
+    };
 
     const nameInput =
         document.getElementById("item-name");
@@ -1154,8 +979,39 @@ function buildItemPayload() {
     const brandInput =
         document.getElementById("item-brand");
 
-    const notesInput =
-        document.getElementById("item-notes");
+    if (nameInput) {
+        nameInput.value = item.name || "";
+    }
+
+    if (brandInput) {
+        brandInput.value =
+            item.tags.brand || "";
+    }
+
+    renderFormTagGroups();
+    renderCategoryButtons();
+    renderSelectionSummary();
+    updateUploadPreview();
+    updateSaveButtonState();
+    setFormFeedback(
+        `Editing "${item.name}". Save changes when you are done, or press Reset to exit edit mode.`,
+        "info"
+    );
+
+    document.getElementById("item-name")
+        ?.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+}
+
+function buildItemPayload() {
+
+    const nameInput =
+        document.getElementById("item-name");
+
+    const brandInput =
+        document.getElementById("item-brand");
 
     return {
         name: nameInput?.value.trim() || "",
@@ -1167,8 +1023,7 @@ function buildItemPayload() {
             season: formState.season,
             occasions: formState.occasions,
             palette: formState.palette,
-            vibes: formState.vibes,
-            notes: notesInput?.value.trim() || ""
+            vibes: formState.vibes
         }
     };
 }
@@ -1181,9 +1036,9 @@ async function saveItem() {
     const payload =
         buildItemPayload();
 
-    if (!currentImageData || !payload.name) {
+    if (!(currentImageData || editingImageUrl) || !payload.name) {
         setFormFeedback(
-            "An image and item name are required before archiving.",
+            "An image and item name are required before saving.",
             "error"
         );
         return;
@@ -1192,34 +1047,61 @@ async function saveItem() {
     isSaving = true;
     updateSaveButtonState();
     setFormFeedback(
-        "Uploading and archiving your item...",
+        editingItemId
+            ? "Saving your changes..."
+            : "Uploading and archiving your item...",
         "info"
     );
 
     try {
 
-        const imageUrl =
-            await uploadImageToStorage(
-                currentImageData
-            );
+        let imageUrl =
+            editingImageUrl;
 
-        const { error } =
-            await supabase
-                .from("items")
-                .insert([{
-                    user_id:
-                        session?.user?.id || null,
-                    name: payload.name,
-                    image_url: imageUrl,
-                    tags: payload.tags
-                }]);
+        if (currentImageData) {
+            imageUrl =
+                await uploadImageToStorage(
+                    currentImageData
+                );
+        }
+
+        let error = null;
+
+        if (editingItemId) {
+            const updateResult =
+                await supabase
+                    .from("items")
+                    .update({
+                        name: payload.name,
+                        image_url: imageUrl,
+                        tags: payload.tags
+                    })
+                    .eq("id", editingItemId);
+
+            error = updateResult.error;
+        } else {
+            const insertResult =
+                await supabase
+                    .from("items")
+                    .insert([{
+                        user_id:
+                            session?.user?.id || null,
+                        name: payload.name,
+                        image_url: imageUrl,
+                        tags: payload.tags
+                    }]);
+
+            error = insertResult.error;
+        }
 
         if (error) {
             throw error;
         }
 
         setFormFeedback(
-            "Archived. It has been added to the collection below.",
+            editingItemId
+                ? "Changes saved. The archive has been updated."
+                : "Archived. It has been added to the collection below.",
             "success"
         );
 
@@ -1269,12 +1151,6 @@ function buildWardrobeContext(items) {
         if (item.tags.vibes.length) {
             contextParts.push(
                 `vibe: ${item.tags.vibes.join(", ")}`
-            );
-        }
-
-        if (item.tags.notes) {
-            contextParts.push(
-                `notes: ${item.tags.notes}`
             );
         }
 
@@ -1420,11 +1296,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setupThemePicker();
     renderFormTagGroups();
-    renderCollectionFilterGroups();
     renderSelectionSummary();
     renderCategoryButtons();
-    renderCollectionCategoryButtons();
-    renderActiveFilters();
     updateUploadPreview();
     resetForm();
     fetchItems();
@@ -1452,12 +1325,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const clearFormBtn =
         document.getElementById("clear-form-btn");
-
-    const clearFiltersBtn =
-        document.getElementById("clear-filters-btn");
-
-    const searchInput =
-        document.getElementById("catalog-search");
 
     const occasionInput =
         document.getElementById("occasion-input");
@@ -1592,23 +1459,6 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const filterChip =
-            event.target.closest(
-                "[data-context='filter']"
-            );
-
-        if (filterChip) {
-            const groupId =
-                filterChip.dataset.group;
-
-            collectionFilters[groupId] =
-                filterChip.dataset.value;
-
-            renderCollectionFilterGroups();
-            renderCatalog();
-            return;
-        }
-
         const categoryButton =
             event.target.closest(".cat-opt");
 
@@ -1623,15 +1473,13 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const sortButton =
-            event.target.closest(".sort-opt");
+        const editButton =
+            event.target.closest(".edit-item-btn");
 
-        if (sortButton) {
-            currentSortClass =
-                sortButton.dataset.sort;
-
-            renderCollectionCategoryButtons();
-            renderCatalog();
+        if (editButton) {
+            beginEditingItem(
+                editButton.dataset.itemId
+            );
         }
     });
 
@@ -1646,14 +1494,6 @@ document.addEventListener("DOMContentLoaded", () => {
         ?.addEventListener("input", () => {
             setFormFeedback(
                 "Metadata updates here will improve search and styling suggestions later.",
-                "info"
-            );
-        });
-
-    document.getElementById("item-notes")
-        ?.addEventListener("input", () => {
-            setFormFeedback(
-                "Notes are searchable, so small details pay off later.",
                 "info"
             );
         });
@@ -1734,20 +1574,6 @@ document.addEventListener("DOMContentLoaded", () => {
         saveBtn.onclick = async () => {
             await saveItem();
         };
-    }
-
-    if (clearFiltersBtn) {
-        clearFiltersBtn.onclick = () => {
-            resetCollectionFilters();
-        };
-    }
-
-    if (searchInput) {
-        searchInput.addEventListener("input", () => {
-            collectionFilters.search =
-                searchInput.value.trim();
-            renderCatalog();
-        });
     }
 
     if (occasionInput) {

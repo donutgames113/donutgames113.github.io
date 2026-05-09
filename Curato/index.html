@@ -82,18 +82,23 @@
                 <div class="mt-8">
                     <div class="section-label">Category</div>
                     <div class="flex flex-wrap gap-2 mt-4" id="category-wrap">
-                        <button class="chip cat-opt" data-val="Other" type="button">Other</button>
-                        <button class="chip cat-opt" data-val="Watch" type="button">Watch</button>
-                        <button class="chip cat-opt" data-val="Fragrance" type="button">Scent</button>
                         <button class="chip cat-opt" data-val="Other" data-sub="Top" type="button">Top</button>
                         <button class="chip cat-opt" data-val="Other" data-sub="Bottom" type="button">Bottom</button>
+                        <button class="chip cat-opt" data-val="Shoes" type="button">Shoes</button>
+                        <button class="chip cat-opt" data-val="Socks" type="button">Socks</button>
+                        <button class="chip cat-opt" data-val="Watch" type="button">Watch</button>
+                        <button class="chip cat-opt" data-val="Fragrance" type="button">Scent</button>
+                        <button class="chip cat-opt" data-val="Accessory" type="button">Accessory</button>
+                        <button class="chip cat-opt" data-val="Jewelry" type="button">Jewelry</button>
+                        <button class="chip cat-opt" data-val="Bag" type="button">Bag</button>
+                        <button class="chip cat-opt" data-val="Headwear" type="button">Headwear</button>
+                        <button class="chip cat-opt" data-val="Other" type="button">Other</button>
                     </div>
                 </div>
 
                 <div class="space-y-4 mt-8">
                     <input id="item-name" placeholder="Item Name" class="w-full text-field py-3 text-sm" />
                     <input id="item-brand" placeholder="Brand / Designer" class="w-full text-field py-3 text-sm" />
-                    <textarea id="item-notes" placeholder="Notes, details, fit, fabric, or why it earns a place here" class="w-full text-area-field py-4 text-sm" rows="4"></textarea>
                 </div>
 
                 <div id="item-tag-groups" class="mt-8 space-y-6"></div>
@@ -111,33 +116,14 @@
             <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-10">
                 <div>
                     <div class="text-[10px] tracking-[0.3em] uppercase eyebrow">The Collection</div>
-                    <div id="collection-status" class="helper-text mt-3">Search and filter across your archive without losing the clean read.</div>
+                    <div id="collection-status" class="helper-text mt-3">Every item is visible here. Use any card to load that piece back into the editor.</div>
                 </div>
                 <div id="item-count" class="text-[10px] tracking-[0.1em] count-copy tabular-nums">00 ITEMS</div>
             </div>
 
             <div class="glass rounded-[2rem] p-6 md:p-8">
-                <div class="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
-                    <div class="flex-1">
-                        <div class="section-label">Search Archive</div>
-                        <input id="catalog-search" class="w-full search-field mt-4" type="search" placeholder="Search by name, brand, notes, palette, mood..." />
-                    </div>
-                    <button id="clear-filters-btn" class="secondary-btn text-[10px] tracking-[0.2em] uppercase shrink-0" type="button">Clear Filters</button>
-                </div>
-
-                <div class="mt-8">
-                    <div class="section-label">Collection View</div>
-                    <div id="collection-category-filters" class="flex flex-wrap gap-2 mt-4">
-                        <button class="chip sort-opt active" data-sort="ALL" type="button">All</button>
-                        <button class="chip sort-opt" data-sort="TOPS" type="button">Tops</button>
-                        <button class="chip sort-opt" data-sort="BOTTOMS" type="button">Bottoms</button>
-                        <button class="chip sort-opt" data-sort="Watch" type="button">Watches</button>
-                        <button class="chip sort-opt" data-sort="Fragrance" type="button">Scent</button>
-                    </div>
-                </div>
-
-                <div id="collection-filter-groups" class="mt-8 space-y-6"></div>
-                <div id="active-filter-pills" class="summary-pills mt-8"></div>
+                <div class="section-label">Archive Grid</div>
+                <p class="helper-text mt-4">Click `Edit` on any item to bring it back into the form with its current tags and category.</p>
             </div>
 
             <div id="catalog-empty" class="empty-state hidden mt-10">

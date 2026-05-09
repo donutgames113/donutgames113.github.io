@@ -374,26 +374,6 @@ select {
     color: var(--muted-soft);
 }
 
-.text-area-field {
-    background: transparent;
-    border: 1px solid var(--stroke);
-    border-radius: 1rem;
-    color: var(--text);
-    min-height: 7.5rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    resize: vertical;
-}
-
-.text-area-field::placeholder {
-    color: var(--muted-soft);
-}
-
-.text-area-field:focus {
-    border-color: var(--accent) !important;
-    outline: none;
-}
-
 .search-field {
     width: 100%;
     border: 1px solid var(--stroke);
@@ -518,12 +498,6 @@ select {
 
 .item-meta {
     color: var(--muted-soft);
-}
-
-.item-note {
-    color: var(--muted);
-    font-size: 13px;
-    line-height: 1.6;
 }
 
 .empty-state {
