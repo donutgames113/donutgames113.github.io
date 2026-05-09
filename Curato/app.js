@@ -4,15 +4,89 @@ const REDIRECT_URL = "https://donutgames113.github.io/Curato/index.html";
 const THEME_STORAGE_KEY = "curato-theme";
 const AVAILABLE_THEMES = ["dark", "light", "dune", "slate"];
 
+const FORM_TAG_GROUPS = [
+    {
+        id: "season",
+        label: "Season",
+        multi: false,
+        options: ["All-season", "Spring", "Summer", "Autumn", "Winter"]
+    },
+    {
+        id: "occasions",
+        label: "Occasion",
+        multi: true,
+        options: ["Everyday", "Work", "Evening", "Travel", "Formal"]
+    },
+    {
+        id: "palette",
+        label: "Palette",
+        multi: false,
+        options: ["Monochrome", "Earth", "Warm", "Cool", "Accent"]
+    },
+    {
+        id: "vibes",
+        label: "Vibe",
+        multi: true,
+        options: ["Minimal", "Tailored", "Relaxed", "Technical", "Statement"]
+    }
+];
+
+const COLLECTION_FILTER_GROUPS = [
+    {
+        id: "season",
+        label: "Season",
+        options: ["All-season", "Spring", "Summer", "Autumn", "Winter"]
+    },
+    {
+        id: "occasions",
+        label: "Occasion",
+        options: ["Everyday", "Work", "Evening", "Travel", "Formal"]
+    },
+    {
+        id: "palette",
+        label: "Palette",
+        options: ["Monochrome", "Earth", "Warm", "Cool", "Accent"]
+    },
+    {
+        id: "vibes",
+        label: "Vibe",
+        options: ["Minimal", "Tailored", "Relaxed", "Technical", "Statement"]
+    }
+];
+
 const supabase = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_ANON_KEY
 );
 
-let selectedCategory = "Other";
-let selectedSubCategory = null;
 let currentImageData = null;
+let allItems = [];
+let isSaving = false;
 let currentSortClass = "ALL";
+
+let formState = getDefaultFormState();
+let collectionFilters = getDefaultCollectionFilters();
+
+function getDefaultFormState() {
+    return {
+        category: "Other",
+        subcategory: null,
+        season: "All-season",
+        occasions: ["Everyday"],
+        palette: "Monochrome",
+        vibes: ["Minimal"]
+    };
+}
+
+function getDefaultCollectionFilters() {
+    return {
+        search: "",
+        season: "ALL",
+        occasions: "ALL",
+        palette: "ALL",
+        vibes: "ALL"
+    };
+}
 
 function applyTheme(themeName) {
 
@@ -67,6 +141,657 @@ function setupThemePicker() {
         });
 }
 
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function toReadableLabel(value) {
+
+    return String(value || "")
+        .replace(/-/g, " ");
+}
+
+function normalizeTagArray(value) {
+
+    if (Array.isArray(value)) {
+        return value
+            .map((entry) => String(entry || "").trim())
+            .filter(Boolean);
+    }
+
+    if (typeof value === "string") {
+        return value.trim()
+            ? [value.trim()]
+            : [];
+    }
+
+    return [];
+}
+
+function normalizeItem(item) {
+
+    const rawTags =
+        item?.tags || {};
+
+    const season =
+        rawTags.season ||
+        rawTags.seasons?.[0] ||
+        "All-season";
+
+    const occasions =
+        normalizeTagArray(
+            rawTags.occasions ||
+            rawTags.occasion
+        );
+
+    const vibes =
+        normalizeTagArray(
+            rawTags.vibes ||
+            rawTags.vibe
+        );
+
+    return {
+        ...item,
+        tags: {
+            ...rawTags,
+            brand: rawTags.brand || "",
+            category: rawTags.category || "Other",
+            subcategory: rawTags.subcategory || null,
+            season,
+            occasions,
+            palette: rawTags.palette || "Monochrome",
+            vibes,
+            notes: rawTags.notes || "",
+            layerable: Boolean(rawTags.layerable)
+        }
+    };
+}
+
+function getCategoryLabel(tags) {
+
+    if (tags?.subcategory) {
+        return tags.subcategory;
+    }
+
+    if (tags?.category === "Fragrance") {
+        return "Scent";
+    }
+
+    return tags?.category || "Other";
+}
+
+function getItemBadgeList(tags) {
+
+    const badges = [];
+
+    if (tags.season) {
+        badges.push(tags.season);
+    }
+
+    if (tags.palette) {
+        badges.push(tags.palette);
+    }
+
+    if (tags.occasions?.length) {
+        badges.push(tags.occasions[0]);
+    }
+
+    if (tags.vibes?.length) {
+        badges.push(tags.vibes[0]);
+    }
+
+    return badges.slice(0, 4);
+}
+
+function renderTagGroupHTML({
+    group,
+    context,
+    activeValue,
+    activeValues,
+    includeAll = false
+}) {
+
+    const options = includeAll
+        ? ["ALL", ...group.options]
+        : group.options;
+
+    return `
+        <div class="tag-section">
+            <div class="section-label">${escapeHtml(group.label)}</div>
+            <div class="tag-grid mt-4">
+                ${options.map((option) => {
+                    const isActive = includeAll
+                        ? activeValue === option
+                        : group.multi
+                            ? activeValues.includes(option)
+                            : activeValue === option;
+
+                    const label =
+                        option === "ALL"
+                            ? `Any ${group.label}`
+                            : option;
+
+                    return `
+                        <button
+                            class="chip tag-chip ${isActive ? "active" : ""}"
+                            type="button"
+                            data-context="${context}"
+                            data-group="${group.id}"
+                            data-value="${escapeHtml(option)}"
+                            aria-pressed="${String(isActive)}"
+                        >
+                            ${escapeHtml(label)}
+                        </button>
+                    `;
+                }).join("")}
+            </div>
+        </div>
+    `;
+}
+
+function renderFormTagGroups() {
+
+    const container =
+        document.getElementById("item-tag-groups");
+
+    if (!container) return;
+
+    container.innerHTML =
+        FORM_TAG_GROUPS.map((group) =>
+            renderTagGroupHTML({
+                group,
+                context: "form",
+                activeValue: formState[group.id],
+                activeValues: formState[group.id] || []
+            })
+        ).join("");
+}
+
+function renderCollectionFilterGroups() {
+
+    const container =
+        document.getElementById("collection-filter-groups");
+
+    if (!container) return;
+
+    container.innerHTML =
+        COLLECTION_FILTER_GROUPS.map((group) =>
+            renderTagGroupHTML({
+                group,
+                context: "filter",
+                activeValue: collectionFilters[group.id],
+                activeValues: [],
+                includeAll: true
+            })
+        ).join("");
+}
+
+function renderSelectionSummary() {
+
+    const summary =
+        document.getElementById("selection-summary");
+
+    if (!summary) return;
+
+    const pills = [
+        getCategoryLabel(formState),
+        formState.season,
+        formState.palette,
+        ...formState.occasions,
+        ...formState.vibes
+    ].filter(Boolean);
+
+    summary.innerHTML = pills.map((pill) => `
+        <span class="summary-pill">${escapeHtml(toReadableLabel(pill))}</span>
+    `).join("");
+}
+
+function renderActiveFilters() {
+
+    const container =
+        document.getElementById("active-filter-pills");
+
+    if (!container) return;
+
+    const active = [];
+
+    if (currentSortClass !== "ALL") {
+        active.push(currentSortClass === "Fragrance"
+            ? "Scent"
+            : currentSortClass);
+    }
+
+    if (collectionFilters.search) {
+        active.push(`Search: ${collectionFilters.search}`);
+    }
+
+    COLLECTION_FILTER_GROUPS.forEach((group) => {
+        const value =
+            collectionFilters[group.id];
+
+        if (value && value !== "ALL") {
+            active.push(value);
+        }
+    });
+
+    container.innerHTML = active.length
+        ? active.map((pill) => `
+            <span class="summary-pill filter-pill">${escapeHtml(toReadableLabel(pill))}</span>
+        `).join("")
+        : `<span class="helper-text">No collection filters active. You are seeing the whole archive.</span>`;
+}
+
+function renderCategoryButtons() {
+
+    document.querySelectorAll(".cat-opt")
+        .forEach((button) => {
+
+            const isActive =
+                button.dataset.val === formState.category
+                &&
+                (button.dataset.sub || null) === formState.subcategory;
+
+            button.classList.toggle(
+                "active",
+                isActive
+            );
+
+            button.setAttribute(
+                "aria-pressed",
+                String(isActive)
+            );
+        });
+}
+
+function renderCollectionCategoryButtons() {
+
+    document.querySelectorAll(".sort-opt")
+        .forEach((button) => {
+
+            const isActive =
+                button.dataset.sort === currentSortClass;
+
+            button.classList.toggle(
+                "active",
+                isActive
+            );
+
+            button.setAttribute(
+                "aria-pressed",
+                String(isActive)
+            );
+        });
+}
+
+function setFormFeedback(message, type = "info") {
+
+    const feedback =
+        document.getElementById("form-feedback");
+
+    if (!feedback) return;
+
+    feedback.textContent =
+        message || "";
+
+    feedback.className =
+        `status-line mt-4 ${message ? `status-${type}` : ""}`;
+}
+
+function updateCollectionStatus(message) {
+
+    const status =
+        document.getElementById("collection-status");
+
+    if (!status) return;
+
+    status.textContent =
+        message;
+}
+
+function updateSaveButtonState() {
+
+    const button =
+        document.getElementById("save-btn");
+
+    const nameInput =
+        document.getElementById("item-name");
+
+    if (!button) return;
+
+    if (isSaving) {
+        button.disabled = true;
+        button.textContent = "Archiving...";
+        return;
+    }
+
+    const ready =
+        Boolean(currentImageData) &&
+        Boolean(nameInput?.value.trim());
+
+    button.disabled = !ready;
+    button.textContent = ready
+        ? "Archive Item"
+        : "Image + Name Required";
+}
+
+function updateUploadPreview() {
+
+    const preview =
+        document.getElementById("preview-img");
+
+    const dropText =
+        document.getElementById("drop-text");
+
+    const uploadMeta =
+        document.getElementById("upload-meta");
+
+    const removeButton =
+        document.getElementById("remove-image-btn");
+
+    if (preview) {
+        if (currentImageData) {
+            preview.src = currentImageData;
+            preview.classList.remove("hidden");
+        } else {
+            preview.src = "";
+            preview.classList.add("hidden");
+        }
+    }
+
+    if (dropText) {
+        dropText.classList.toggle(
+            "hidden",
+            Boolean(currentImageData)
+        );
+    }
+
+    if (uploadMeta) {
+        uploadMeta.textContent = currentImageData
+            ? "Preview ready"
+            : "JPEG, PNG, WEBP";
+    }
+
+    if (removeButton) {
+        removeButton.classList.toggle(
+            "hidden",
+            !currentImageData
+        );
+    }
+}
+
+function resetForm({ keepFeedback = false } = {}) {
+
+    formState = getDefaultFormState();
+    currentImageData = null;
+
+    const fileInput =
+        document.getElementById("file-input");
+
+    const nameInput =
+        document.getElementById("item-name");
+
+    const brandInput =
+        document.getElementById("item-brand");
+
+    const notesInput =
+        document.getElementById("item-notes");
+
+    if (fileInput) {
+        fileInput.value = "";
+    }
+
+    if (nameInput) {
+        nameInput.value = "";
+    }
+
+    if (brandInput) {
+        brandInput.value = "";
+    }
+
+    if (notesInput) {
+        notesInput.value = "";
+    }
+
+    renderFormTagGroups();
+    renderCategoryButtons();
+    renderSelectionSummary();
+    updateUploadPreview();
+    updateSaveButtonState();
+
+    if (!keepFeedback) {
+        setFormFeedback(
+            "Add an image and a name, then build out the tags.",
+            "info"
+        );
+    }
+}
+
+function resetCollectionFilters() {
+
+    collectionFilters =
+        getDefaultCollectionFilters();
+
+    currentSortClass = "ALL";
+
+    const searchInput =
+        document.getElementById("catalog-search");
+
+    if (searchInput) {
+        searchInput.value = "";
+    }
+
+    renderCollectionCategoryButtons();
+    renderCollectionFilterGroups();
+    renderActiveFilters();
+    renderCatalog();
+}
+
+function itemMatchesSearch(item, query) {
+
+    const haystack = [
+        item.name,
+        item.tags.brand,
+        item.tags.category,
+        item.tags.subcategory,
+        item.tags.season,
+        item.tags.palette,
+        item.tags.notes,
+        ...(item.tags.occasions || []),
+        ...(item.tags.vibes || [])
+    ].join(" ").toLowerCase();
+
+    return haystack.includes(
+        query.toLowerCase()
+    );
+}
+
+function itemMatchesCollectionFilters(item) {
+
+    if (currentSortClass === "TOPS" &&
+        item.tags.subcategory !== "Top") {
+        return false;
+    }
+
+    if (currentSortClass === "BOTTOMS" &&
+        item.tags.subcategory !== "Bottom") {
+        return false;
+    }
+
+    if (
+        currentSortClass !== "ALL" &&
+        currentSortClass !== "TOPS" &&
+        currentSortClass !== "BOTTOMS" &&
+        item.tags.category !== currentSortClass
+    ) {
+        return false;
+    }
+
+    if (
+        collectionFilters.search &&
+        !itemMatchesSearch(
+            item,
+            collectionFilters.search
+        )
+    ) {
+        return false;
+    }
+
+    if (
+        collectionFilters.season !== "ALL" &&
+        item.tags.season !== collectionFilters.season
+    ) {
+        return false;
+    }
+
+    if (
+        collectionFilters.occasions !== "ALL" &&
+        !item.tags.occasions.includes(
+            collectionFilters.occasions
+        )
+    ) {
+        return false;
+    }
+
+    if (
+        collectionFilters.palette !== "ALL" &&
+        item.tags.palette !== collectionFilters.palette
+    ) {
+        return false;
+    }
+
+    if (
+        collectionFilters.vibes !== "ALL" &&
+        !item.tags.vibes.includes(
+            collectionFilters.vibes
+        )
+    ) {
+        return false;
+    }
+
+    return true;
+}
+
+function getFilteredItems() {
+
+    return allItems.filter(
+        itemMatchesCollectionFilters
+    );
+}
+
+function renderEmptyState(filteredCount) {
+
+    const emptyState =
+        document.getElementById("catalog-empty");
+
+    const emptyCopy =
+        document.getElementById("catalog-empty-copy");
+
+    if (!emptyState || !emptyCopy) return;
+
+    if (filteredCount > 0) {
+        emptyState.classList.add("hidden");
+        return;
+    }
+
+    const hasAnyFilters =
+        currentSortClass !== "ALL" ||
+        Boolean(collectionFilters.search) ||
+        Object.values(collectionFilters)
+            .some((value) =>
+                value !== "" &&
+                value !== "ALL"
+            );
+
+    emptyCopy.textContent = hasAnyFilters
+        ? "Nothing matches this combination yet. Try clearing a filter or broadening the search."
+        : "Your archive is still empty. Add a first piece and start building a more useful wardrobe map.";
+
+    emptyState.classList.remove("hidden");
+}
+
+function renderCatalog() {
+
+    const filtered =
+        getFilteredItems();
+
+    const countEl =
+        document.getElementById("item-count");
+
+    const grid =
+        document.getElementById("catalog-grid");
+
+    if (countEl) {
+        countEl.innerText =
+            filtered.length
+                .toString()
+                .padStart(2, "0")
+            + " ITEMS";
+    }
+
+    if (!grid) return;
+
+    updateCollectionStatus(
+        filtered.length > 0
+            ? `Showing ${filtered.length} piece${filtered.length === 1 ? "" : "s"} with the current filters.`
+            : "No results in the current slice."
+    );
+
+    renderActiveFilters();
+    renderEmptyState(filtered.length);
+
+    if (!filtered.length) {
+        grid.innerHTML = "";
+        return;
+    }
+
+    grid.innerHTML =
+        filtered.map((item) => {
+
+            const badges =
+                getItemBadgeList(item.tags);
+
+            return `
+                <article class="item-card">
+                    <div class="img-container">
+                        <img
+                            src="${escapeHtml(item.image_url)}"
+                            loading="lazy"
+                            alt="${escapeHtml(item.name)}"
+                        >
+                    </div>
+
+                    <div class="mt-5">
+                        <p class="item-name text-[11px] font-medium uppercase tracking-widest">
+                            ${escapeHtml(item.name)}
+                        </p>
+
+                        <p class="item-meta text-[9px] uppercase tracking-[0.15em] mt-1">
+                            ${escapeHtml(item.tags.brand || "Independent")}
+                            &bull;
+                            ${escapeHtml(getCategoryLabel(item.tags))}
+                        </p>
+
+                        <div class="item-badges mt-4">
+                            ${badges.map((badge) => `
+                                <span class="item-badge">${escapeHtml(toReadableLabel(badge))}</span>
+                            `).join("")}
+                        </div>
+
+                        ${item.tags.notes
+                            ? `<p class="item-note mt-4">${escapeHtml(item.tags.notes)}</p>`
+                            : ""}
+                    </div>
+                </article>
+            `;
+        }).join("");
+}
+
 // ========================================
 // AI RESPONSE RENDERER
 // ========================================
@@ -104,7 +829,7 @@ function renderAIResponse(text) {
 
             html += `
                 <h2 class="text-3xl font-extralight ai-title mb-6 mt-2 tracking-tight">
-                    ${line.replace("## ", "")}
+                    ${escapeHtml(line.replace("## ", ""))}
                 </h2>
             `;
 
@@ -120,7 +845,7 @@ function renderAIResponse(text) {
 
             html += `
                 <h3 class="text-[10px] uppercase tracking-[0.3em] ai-subtitle mt-10 mb-4 pb-2">
-                    ${line.replace("### ", "")}
+                    ${escapeHtml(line.replace("### ", ""))}
                 </h3>
             `;
 
@@ -137,12 +862,12 @@ function renderAIResponse(text) {
                 inList = true;
             }
 
-            const clean = line
-                .replace(/^[-*]\s/, "")
-                .replace(
-                    /\*\*(.*?)\*\*/g,
-                    "<strong class=\"font-medium\">$1</strong>"
-                );
+            const clean = escapeHtml(
+                line.replace(/^[-*]\s/, "")
+            ).replace(
+                /\*\*(.*?)\*\*/g,
+                "<strong class=\"font-medium\">$1</strong>"
+            );
 
             html += `
                 <li class="flex gap-4 items-start ai-list-item">
@@ -165,7 +890,7 @@ function renderAIResponse(text) {
 
             html += `
                 <blockquote class="ai-quote">
-                    ${line.replace("> ", "")}
+                    ${escapeHtml(line.replace("> ", ""))}
                 </blockquote>
             `;
 
@@ -179,7 +904,7 @@ function renderAIResponse(text) {
 
         html += `
             <p class="text-[15px] leading-8 ai-paragraph mb-6 font-light">
-                ${line.replace(
+                ${escapeHtml(line).replace(
                     /\*\*(.*?)\*\*/g,
                     "<strong class=\"font-medium\">$1</strong>"
                 )}
@@ -219,9 +944,6 @@ async function callGeminiAPI(base64, mimeType, promptText) {
         "gemini-2.0-flash";
 
     if (!activeKey) {
-
-        alert("Missing Gemini API key.");
-
         throw new Error(
             "Missing Gemini API key."
         );
@@ -258,140 +980,18 @@ async function callGeminiAPI(base64, mimeType, promptText) {
     const result = await response.json();
 
     if (!response.ok) {
-
         console.error(result);
-
         throw new Error(
             result.error?.message ||
             "Gemini API error"
         );
     }
 
-    const resultText =
-        result.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-    if (promptText.includes("JSON")) {
-
-        try {
-
-            const cleaned =
-                resultText
-                    .replace(/```json/g, "")
-                    .replace(/```/g, "")
-                    .trim();
-
-            return JSON.parse(cleaned);
-
-        } catch (err) {
-
-            console.error(
-                "JSON parse error:",
-                resultText
-            );
-
-            return null;
-        }
-    }
-
-    return resultText;
+    return result.candidates?.[0]?.content?.parts?.[0]?.text || "";
 }
 
 // ========================================
-// SORTING
-// ========================================
-
-function sortItems(items) {
-
-    if (currentSortClass === "ALL") {
-        return items;
-    }
-
-    return items.filter((item) => {
-
-        if (currentSortClass === "TOPS") {
-            return item.tags?.subcategory === "Top";
-        }
-
-        if (currentSortClass === "BOTTOMS") {
-            return item.tags?.subcategory === "Bottom";
-        }
-
-        return item.tags?.category === currentSortClass;
-    });
-}
-
-// ========================================
-// FETCH ITEMS
-// ========================================
-
-async function fetchItems() {
-
-    const { data, error } = await supabase
-        .from("items")
-        .select("id,name,image_url,tags")
-        .order("id", { ascending: false });
-
-    if (error) {
-
-        console.error(error);
-
-        return;
-    }
-
-    const filtered = sortItems(data);
-
-    const countEl =
-        document.getElementById("item-count");
-
-    if (countEl) {
-
-        countEl.innerText =
-            filtered.length
-                .toString()
-                .padStart(2, "0")
-            + " ITEMS";
-    }
-
-    const catalogGrid =
-        document.getElementById("catalog-grid");
-
-    if (!catalogGrid) return;
-
-    catalogGrid.innerHTML =
-        filtered.map((item) => `
-
-        <div class="item-card group">
-
-            <div class="img-container">
-
-                <img
-                    src="${item.image_url}"
-                    loading="lazy"
-                >
-
-            </div>
-
-            <div class="mt-5">
-
-                <p class="item-name text-[11px] font-medium uppercase tracking-widest">
-                    ${item.name}
-                </p>
-
-                <p class="item-meta text-[9px] uppercase tracking-[0.15em] mt-1">
-                    ${item.tags?.brand || "Independent"}
-                    &bull;
-                    ${item.tags?.subcategory || item.tags?.category}
-                </p>
-
-            </div>
-
-        </div>
-
-    `).join("");
-}
-
-// ========================================
-// COMPRESS IMAGE
+// FILE HANDLING
 // ========================================
 
 async function compressImage(
@@ -458,9 +1058,33 @@ async function compressImage(
     });
 }
 
-// ========================================
-// UPLOAD TO STORAGE
-// ========================================
+async function handleIncomingFile(file) {
+
+    if (!file?.type?.startsWith("image/")) {
+        setFormFeedback(
+            "Use an image file for the archive preview.",
+            "error"
+        );
+        return;
+    }
+
+    const compressedDataUrl =
+        await compressImage(
+            file,
+            900,
+            0.75
+        );
+
+    currentImageData =
+        compressedDataUrl;
+
+    updateUploadPreview();
+    updateSaveButtonState();
+    setFormFeedback(
+        "Image ready. Add the details that will make this piece searchable later.",
+        "success"
+    );
+}
 
 async function uploadImageToStorage(base64Data) {
 
@@ -498,30 +1122,31 @@ async function uploadImageToStorage(base64Data) {
 }
 
 // ========================================
-// DOM READY
+// DATA
 // ========================================
 
-document.addEventListener("DOMContentLoaded", () => {
+async function fetchItems() {
 
-    setupThemePicker();
+    const { data, error } = await supabase
+        .from("items")
+        .select("id,name,image_url,tags")
+        .order("id", { ascending: false });
 
-    const authBtn =
-        document.getElementById("auth-btn");
+    if (error) {
+        console.error(error);
+        updateCollectionStatus(
+            "The collection could not be loaded right now."
+        );
+        return;
+    }
 
-    const keyInput =
-        document.getElementById("user-api-key");
+    allItems =
+        (data || []).map(normalizeItem);
 
-    const modelSelect =
-        document.getElementById("model-select");
+    renderCatalog();
+}
 
-    const dropZone =
-        document.getElementById("drop-zone");
-
-    const previewImg =
-        document.getElementById("preview-img");
-
-    const dropText =
-        document.getElementById("drop-text");
+function buildItemPayload() {
 
     const nameInput =
         document.getElementById("item-name");
@@ -529,8 +1154,135 @@ document.addEventListener("DOMContentLoaded", () => {
     const brandInput =
         document.getElementById("item-brand");
 
-    const saveBtn =
-        document.getElementById("save-btn");
+    const notesInput =
+        document.getElementById("item-notes");
+
+    return {
+        name: nameInput?.value.trim() || "",
+        tags: {
+            brand: brandInput?.value.trim() || "",
+            category: formState.category,
+            subcategory: formState.subcategory,
+            layerable: formState.subcategory === "Top",
+            season: formState.season,
+            occasions: formState.occasions,
+            palette: formState.palette,
+            vibes: formState.vibes,
+            notes: notesInput?.value.trim() || ""
+        }
+    };
+}
+
+async function saveItem() {
+
+    const { data: { session } } =
+        await supabase.auth.getSession();
+
+    const payload =
+        buildItemPayload();
+
+    if (!currentImageData || !payload.name) {
+        setFormFeedback(
+            "An image and item name are required before archiving.",
+            "error"
+        );
+        return;
+    }
+
+    isSaving = true;
+    updateSaveButtonState();
+    setFormFeedback(
+        "Uploading and archiving your item...",
+        "info"
+    );
+
+    try {
+
+        const imageUrl =
+            await uploadImageToStorage(
+                currentImageData
+            );
+
+        const { error } =
+            await supabase
+                .from("items")
+                .insert([{
+                    user_id:
+                        session?.user?.id || null,
+                    name: payload.name,
+                    image_url: imageUrl,
+                    tags: payload.tags
+                }]);
+
+        if (error) {
+            throw error;
+        }
+
+        setFormFeedback(
+            "Archived. It has been added to the collection below.",
+            "success"
+        );
+
+        resetForm({ keepFeedback: true });
+        await fetchItems();
+
+    } catch (err) {
+
+        console.error(err);
+
+        setFormFeedback(
+            `Archive failed: ${err.message}`,
+            "error"
+        );
+
+    } finally {
+        isSaving = false;
+        updateSaveButtonState();
+    }
+}
+
+// ========================================
+// AI CONSULT
+// ========================================
+
+function buildWardrobeContext(items) {
+
+    if (!items.length) {
+        return "The user's archive is currently empty.";
+    }
+
+    return items.map((item) => {
+
+        const contextParts = [
+            item.tags.brand || "Independent",
+            getCategoryLabel(item.tags),
+            item.tags.season,
+            item.tags.palette
+        ];
+
+        if (item.tags.occasions.length) {
+            contextParts.push(
+                `occasion: ${item.tags.occasions.join(", ")}`
+            );
+        }
+
+        if (item.tags.vibes.length) {
+            contextParts.push(
+                `vibe: ${item.tags.vibes.join(", ")}`
+            );
+        }
+
+        if (item.tags.notes) {
+            contextParts.push(
+                `notes: ${item.tags.notes}`
+            );
+        }
+
+        return `- ${item.name} (${contextParts.join("; ")})`;
+    }).join("\n");
+}
+
+async function runConsultation() {
 
     const askBtn =
         document.getElementById("ask-btn");
@@ -538,364 +1290,41 @@ document.addEventListener("DOMContentLoaded", () => {
     const suggestionBox =
         document.getElementById("ai-suggestion");
 
-    if (authBtn) {
-
-        authBtn.onclick = async () => {
-
-            const { data: { session } } =
-                await supabase.auth.getSession();
-
-            if (session) {
-
-                await supabase.auth.signOut();
-                window.location.reload();
-
-            } else {
-
-                await supabase.auth.signInWithOAuth({
-                    provider: "discord",
-                    options: {
-                        redirectTo: REDIRECT_URL
-                    }
-                });
-            }
-        };
-    }
-
-    if (keyInput) {
-
-        keyInput.onblur = async () => {
-
-            const { data: { session } } =
-                await supabase.auth.getSession();
-
-            if (
-                session &&
-                keyInput.value
-            ) {
-                await supabase.auth.updateUser({
-                    data: {
-                        gemini_api_key:
-                            keyInput.value.trim()
-                    }
-                });
-            }
-        };
-    }
-
-    if (modelSelect) {
-
-        modelSelect.onchange = async () => {
-
-            const { data: { session } } =
-                await supabase.auth.getSession();
-
-            if (session) {
-                await supabase.auth.updateUser({
-                    data: {
-                        preferred_model:
-                            modelSelect.value
-                    }
-                });
-            }
-        };
-    }
-
-    supabase.auth.onAuthStateChange((_, session) => {
-
-        if (session) {
-
-            if (authBtn) {
-                authBtn.innerText =
-                    `LOGOUT (${session.user.user_metadata.full_name || "USER"})`;
-            }
-
-            if (keyInput) {
-                keyInput.value =
-                    session.user.user_metadata?.gemini_api_key || "";
-            }
-
-            if (modelSelect) {
-                modelSelect.value =
-                    session.user.user_metadata?.preferred_model ||
-                    "gemini-2.0-flash";
-            }
-
-            fetchItems();
-
-        } else if (authBtn) {
-            authBtn.innerText = "CONNECT";
-        }
-    });
-
-    const catButtons =
-        document.querySelectorAll(".cat-opt");
-
-    catButtons.forEach((button) => {
-
-        button.onclick = () => {
-
-            catButtons.forEach((chip) =>
-                chip.classList.remove("active")
-            );
-
-            button.classList.add("active");
-
-            selectedCategory =
-                button.dataset.val;
-
-            selectedSubCategory =
-                button.dataset.sub || null;
-        };
-    });
-
-    const sortButtons =
-        document.querySelectorAll(".sort-opt");
-
-    sortButtons.forEach((button) => {
-
-        button.onclick = () => {
-
-            sortButtons.forEach((chip) =>
-                chip.classList.remove("active")
-            );
-
-            button.classList.add("active");
-
-            currentSortClass =
-                button.dataset.sort;
-
-            fetchItems();
-        };
-    });
-
-    if (dropZone) {
-
-        dropZone.onclick = () => {
-            document
-                .getElementById("file-input")
-                .click();
-        };
-    }
-
-    const fileInput =
-        document.getElementById("file-input");
-
-    if (fileInput) {
-
-        fileInput.onchange = async (event) => {
-
-            const file =
-                event.target.files[0];
-
-            if (!file) return;
-
-            const compressedDataUrl =
-                await compressImage(
-                    file,
-                    900,
-                    0.75
-                );
-
-            currentImageData =
-                compressedDataUrl;
-
-            if (previewImg) {
-                previewImg.src =
-                    compressedDataUrl;
-
-                previewImg.classList
-                    .remove("hidden");
-            }
-
-            if (dropText) {
-                dropText.classList
-                    .add("hidden");
-            }
-
-            /*
-            if (saveBtn) {
-                saveBtn.innerText =
-                    "IDENTIFYING...";
-
-                saveBtn.disabled = true;
-            }
-
-            try {
-
-                const base64 =
-                    compressedDataUrl
-                        .split(",")[1];
-
-                const prompt =
-                    "Identify this item. Return ONLY valid JSON: {\"name\":\"string\",\"brand\":\"string\",\"category\":\"Watch|Fragrance|Other\",\"subcategory\":\"Top|Bottom|null\"}";
-
-                const guess =
-                    await callGeminiAPI(
-                        base64,
-                        file.type,
-                        prompt
-                    );
-
-                if (guess) {
-
-                    if (nameInput) {
-                        nameInput.value =
-                            guess.name || "";
-                    }
-
-                    if (brandInput) {
-                        brandInput.value =
-                            guess.brand || "";
-                    }
-
-                    const matchingBtn =
-                        Array.from(catButtons)
-                            .find((chip) =>
-                                chip.dataset.val ===
-                                guess.category
-                                &&
-                                (chip.dataset.sub || null)
-                                ===
-                                (guess.subcategory || null)
-                            );
-
-                    if (matchingBtn) {
-                        matchingBtn.click();
-                    }
-                }
-
-            } catch (err) {
-                console.error(err);
-            } finally {
-                if (saveBtn) {
-                    saveBtn.innerText =
-                        "ARCHIVE ITEM";
-
-                    saveBtn.disabled = false;
-                }
-            }
-            */
-        };
-    }
-
-    if (saveBtn) {
-
-        saveBtn.onclick = async () => {
-
-            const { data: { session } } =
-                await supabase.auth.getSession();
-
-            if (
-                !currentImageData ||
-                !nameInput?.value
-            ) {
-
-                alert("Details required.");
-
-                return;
-            }
-
-            saveBtn.innerText =
-                "ARCHIVING...";
-
-            saveBtn.disabled = true;
-
-            try {
-
-                const imageUrl =
-                    await uploadImageToStorage(
-                        currentImageData
-                    );
-
-                const { error } =
-                    await supabase
-                        .from("items")
-                        .insert([{
-                            user_id:
-                                session?.user?.id || null,
-                            name:
-                                nameInput.value,
-                            image_url:
-                                imageUrl,
-                            tags: {
-                                brand:
-                                    brandInput?.value || "",
-                                category:
-                                    selectedCategory,
-                                subcategory:
-                                    selectedSubCategory,
-                                layerable:
-                                    selectedSubCategory === "Top"
-                            }
-                        }]);
-
-                if (error) {
-                    throw error;
-                }
-
-                location.reload();
-
-            } catch (err) {
-
-                console.error(err);
-
-                alert(
-                    "Archive failed: "
-                    + err.message
-                );
-
-                saveBtn.innerText =
-                    "ARCHIVE ITEM";
-
-                saveBtn.disabled = false;
-            }
-        };
+    const promptEl =
+        document.getElementById("occasion-input");
+
+    const userPrompt =
+        (promptEl?.value || "").trim();
+
+    if (!userPrompt) {
+        alert(
+            "Please enter a question for the consultant."
+        );
+        return;
     }
 
     if (askBtn) {
+        askBtn.disabled = true;
+        askBtn.innerText = "Consulting...";
+    }
 
-        askBtn.onclick = async () => {
+    try {
 
-            const promptEl =
-                document.getElementById("occasion-input");
+        const { data, error } =
+            await supabase
+                .from("items")
+                .select("name,tags");
 
-            const userPrompt =
-                (promptEl.value || "").trim();
+        if (error) {
+            throw error;
+        }
 
-            if (!userPrompt) {
+        const wardrobeContext =
+            buildWardrobeContext(
+                (data || []).map(normalizeItem)
+            );
 
-                alert(
-                    "Please enter a question for the consultant."
-                );
-
-                return;
-            }
-
-            askBtn.innerText =
-                "CONSULTING...";
-
-            askBtn.disabled = true;
-
-            try {
-
-                const { data: items, error: dbError } =
-                    await supabase
-                        .from("items")
-                        .select("name,tags");
-
-                if (dbError) {
-                    throw dbError;
-                }
-
-                const wardrobeContext =
-                    items && items.length > 0
-                        ? items.map((item) =>
-                            `- ${item.name} (${item.tags?.brand || "Independent"}, ${item.tags?.category || "Item"})`
-                        ).join("\n")
-                        : "The user's archive is currently empty.";
-
-                const finalPrompt = `
+        const finalPrompt = `
 You are Curato, an elite personal fashion archivist and stylist.
 
 Your tone is:
@@ -945,43 +1374,394 @@ Rules:
 - Sound like a luxury fashion consultant
 `;
 
-                const response =
-                    await callGeminiAPI(
-                        null,
-                        null,
-                        finalPrompt
-                    );
+        const response =
+            await callGeminiAPI(
+                null,
+                null,
+                finalPrompt
+            );
 
-                if (suggestionBox) {
-                    suggestionBox.innerHTML =
-                        renderAIResponse(response);
+        if (suggestionBox) {
+            suggestionBox.innerHTML =
+                renderAIResponse(response);
 
-                    suggestionBox.classList.remove("hidden");
+            suggestionBox.classList.remove("hidden");
+            suggestionBox.scrollIntoView({
+                behavior: "smooth"
+            });
+        }
 
-                    suggestionBox.scrollIntoView({
-                        behavior: "smooth"
-                    });
-                }
+    } catch (err) {
 
-            } catch (err) {
+        console.error(
+            "Consultant Error:",
+            err
+        );
 
-                console.error(
-                    "Consultant Error:",
-                    err
-                );
+        alert(
+            "Consultation failed: "
+            + err.message
+        );
 
-                alert(
-                    "Consultation failed: "
-                    + err.message
-                );
+    } finally {
+        if (askBtn) {
+            askBtn.innerText =
+                "Consult Archive";
+            askBtn.disabled = false;
+        }
+    }
+}
 
-            } finally {
+// ========================================
+// DOM READY
+// ========================================
 
-                askBtn.innerText =
-                    "CONSULT ARCHIVE";
+document.addEventListener("DOMContentLoaded", () => {
 
-                askBtn.disabled = false;
+    setupThemePicker();
+    renderFormTagGroups();
+    renderCollectionFilterGroups();
+    renderSelectionSummary();
+    renderCategoryButtons();
+    renderCollectionCategoryButtons();
+    renderActiveFilters();
+    updateUploadPreview();
+    resetForm();
+    fetchItems();
+
+    const authBtn =
+        document.getElementById("auth-btn");
+
+    const keyInput =
+        document.getElementById("user-api-key");
+
+    const modelSelect =
+        document.getElementById("model-select");
+
+    const fileInput =
+        document.getElementById("file-input");
+
+    const dropZone =
+        document.getElementById("drop-zone");
+
+    const removeImageBtn =
+        document.getElementById("remove-image-btn");
+
+    const saveBtn =
+        document.getElementById("save-btn");
+
+    const clearFormBtn =
+        document.getElementById("clear-form-btn");
+
+    const clearFiltersBtn =
+        document.getElementById("clear-filters-btn");
+
+    const searchInput =
+        document.getElementById("catalog-search");
+
+    const occasionInput =
+        document.getElementById("occasion-input");
+
+    const askBtn =
+        document.getElementById("ask-btn");
+
+    const nameInput =
+        document.getElementById("item-name");
+
+    if (authBtn) {
+        authBtn.onclick = async () => {
+
+            const { data: { session } } =
+                await supabase.auth.getSession();
+
+            if (session) {
+                await supabase.auth.signOut();
+                window.location.reload();
+                return;
             }
+
+            await supabase.auth.signInWithOAuth({
+                provider: "discord",
+                options: {
+                    redirectTo: REDIRECT_URL
+                }
+            });
+        };
+    }
+
+    if (keyInput) {
+        keyInput.onblur = async () => {
+
+            const { data: { session } } =
+                await supabase.auth.getSession();
+
+            if (session && keyInput.value) {
+                await supabase.auth.updateUser({
+                    data: {
+                        gemini_api_key:
+                            keyInput.value.trim()
+                    }
+                });
+            }
+        };
+    }
+
+    if (modelSelect) {
+        modelSelect.onchange = async () => {
+
+            const { data: { session } } =
+                await supabase.auth.getSession();
+
+            if (session) {
+                await supabase.auth.updateUser({
+                    data: {
+                        preferred_model:
+                            modelSelect.value
+                    }
+                });
+            }
+        };
+    }
+
+    supabase.auth.onAuthStateChange((_, session) => {
+
+        if (session) {
+
+            if (authBtn) {
+                authBtn.innerText =
+                    `LOGOUT (${session.user.user_metadata.full_name || "USER"})`;
+            }
+
+            if (keyInput) {
+                keyInput.value =
+                    session.user.user_metadata?.gemini_api_key || "";
+            }
+
+            if (modelSelect) {
+                modelSelect.value =
+                    session.user.user_metadata?.preferred_model ||
+                    "gemini-2.0-flash";
+            }
+
+        } else if (authBtn) {
+            authBtn.innerText = "CONNECT";
+        }
+
+        fetchItems();
+    });
+
+    document.addEventListener("click", (event) => {
+
+        const formChip =
+            event.target.closest(
+                "[data-context='form']"
+            );
+
+        if (formChip) {
+
+            const groupId =
+                formChip.dataset.group;
+
+            const config =
+                FORM_TAG_GROUPS.find(
+                    (group) => group.id === groupId
+                );
+
+            if (!config) return;
+
+            const value =
+                formChip.dataset.value;
+
+            if (config.multi) {
+
+                const nextValues =
+                    formState[groupId].includes(value)
+                        ? formState[groupId].filter(
+                            (entry) => entry !== value
+                        )
+                        : [...formState[groupId], value];
+
+                formState[groupId] = nextValues;
+
+            } else {
+                formState[groupId] = value;
+            }
+
+            renderFormTagGroups();
+            renderSelectionSummary();
+            return;
+        }
+
+        const filterChip =
+            event.target.closest(
+                "[data-context='filter']"
+            );
+
+        if (filterChip) {
+            const groupId =
+                filterChip.dataset.group;
+
+            collectionFilters[groupId] =
+                filterChip.dataset.value;
+
+            renderCollectionFilterGroups();
+            renderCatalog();
+            return;
+        }
+
+        const categoryButton =
+            event.target.closest(".cat-opt");
+
+        if (categoryButton) {
+            formState.category =
+                categoryButton.dataset.val;
+            formState.subcategory =
+                categoryButton.dataset.sub || null;
+
+            renderCategoryButtons();
+            renderSelectionSummary();
+            return;
+        }
+
+        const sortButton =
+            event.target.closest(".sort-opt");
+
+        if (sortButton) {
+            currentSortClass =
+                sortButton.dataset.sort;
+
+            renderCollectionCategoryButtons();
+            renderCatalog();
+        }
+    });
+
+    if (nameInput) {
+        nameInput.addEventListener(
+            "input",
+            updateSaveButtonState
+        );
+    }
+
+    document.getElementById("item-brand")
+        ?.addEventListener("input", () => {
+            setFormFeedback(
+                "Metadata updates here will improve search and styling suggestions later.",
+                "info"
+            );
+        });
+
+    document.getElementById("item-notes")
+        ?.addEventListener("input", () => {
+            setFormFeedback(
+                "Notes are searchable, so small details pay off later.",
+                "info"
+            );
+        });
+
+    if (fileInput) {
+        fileInput.onchange = async (event) => {
+            const file =
+                event.target.files[0];
+
+            if (file) {
+                await handleIncomingFile(file);
+            }
+        };
+    }
+
+    if (dropZone) {
+        dropZone.onclick = () => {
+            fileInput?.click();
+        };
+
+        dropZone.onkeydown = (event) => {
+            if (
+                event.key === "Enter" ||
+                event.key === " "
+            ) {
+                event.preventDefault();
+                fileInput?.click();
+            }
+        };
+
+        ["dragenter", "dragover"].forEach((type) => {
+            dropZone.addEventListener(type, (event) => {
+                event.preventDefault();
+                dropZone.classList.add("dragging");
+            });
+        });
+
+        ["dragleave", "dragend", "drop"].forEach((type) => {
+            dropZone.addEventListener(type, (event) => {
+                event.preventDefault();
+                dropZone.classList.remove("dragging");
+            });
+        });
+
+        dropZone.addEventListener("drop", async (event) => {
+            const file =
+                event.dataTransfer?.files?.[0];
+
+            if (file) {
+                await handleIncomingFile(file);
+            }
+        });
+    }
+
+    if (removeImageBtn) {
+        removeImageBtn.onclick = (event) => {
+            event.stopPropagation();
+            currentImageData = null;
+            if (fileInput) {
+                fileInput.value = "";
+            }
+            updateUploadPreview();
+            updateSaveButtonState();
+            setFormFeedback(
+                "Image removed. Drop in a new one when you are ready.",
+                "info"
+            );
+        };
+    }
+
+    if (clearFormBtn) {
+        clearFormBtn.onclick = () => {
+            resetForm();
+        };
+    }
+
+    if (saveBtn) {
+        saveBtn.onclick = async () => {
+            await saveItem();
+        };
+    }
+
+    if (clearFiltersBtn) {
+        clearFiltersBtn.onclick = () => {
+            resetCollectionFilters();
+        };
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener("input", () => {
+            collectionFilters.search =
+                searchInput.value.trim();
+            renderCatalog();
+        });
+    }
+
+    if (occasionInput) {
+        occasionInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                runConsultation();
+            }
+        });
+    }
+
+    if (askBtn) {
+        askBtn.onclick = async () => {
+            await runConsultation();
         };
     }
 });

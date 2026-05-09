@@ -264,6 +264,8 @@ select {
 }
 
 .chip:hover,
+.chip.active,
+.tag-chip.active,
 .cat-opt.active,
 .sort-opt.active {
     border-color: var(--accent);
@@ -283,8 +285,22 @@ select {
 
 .primary-btn:disabled {
     opacity: 0.7;
-    cursor: wait;
+    cursor: not-allowed;
     transform: none;
+}
+
+.secondary-btn {
+    border: 1px solid var(--stroke);
+    border-radius: 999px;
+    color: var(--muted);
+    background: transparent;
+    padding: 0.85rem 1rem;
+}
+
+.secondary-btn:hover {
+    border-color: var(--stroke-soft);
+    color: var(--text);
+    background: var(--field-bg);
 }
 
 .upload-zone {
@@ -300,6 +316,11 @@ select {
     background: var(--field-bg);
 }
 
+.upload-zone.dragging {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+
 .upload-zone:hover {
     border-color: var(--stroke-soft);
     background: var(--card-strong);
@@ -311,6 +332,30 @@ select {
 
 .upload-zone-mark {
     color: var(--muted-soft);
+}
+
+.upload-actions {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 2;
+}
+
+.icon-btn {
+    border: 1px solid var(--stroke);
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.2);
+    color: white;
+    padding: 0.55rem 0.8rem;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    backdrop-filter: blur(12px);
+}
+
+.icon-btn:hover {
+    border-color: var(--accent);
+    background: rgba(0, 0, 0, 0.35);
 }
 
 .surface-group {
@@ -327,6 +372,114 @@ select {
 
 .text-field::placeholder {
     color: var(--muted-soft);
+}
+
+.text-area-field {
+    background: transparent;
+    border: 1px solid var(--stroke);
+    border-radius: 1rem;
+    color: var(--text);
+    min-height: 7.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    resize: vertical;
+}
+
+.text-area-field::placeholder {
+    color: var(--muted-soft);
+}
+
+.text-area-field:focus {
+    border-color: var(--accent) !important;
+    outline: none;
+}
+
+.search-field {
+    width: 100%;
+    border: 1px solid var(--stroke);
+    background: var(--field-bg);
+    border-radius: 1rem;
+    color: var(--text);
+    padding: 1rem 1.1rem;
+}
+
+.search-field::placeholder {
+    color: var(--muted-soft);
+}
+
+.search-field:focus {
+    border-color: var(--accent);
+    outline: none;
+}
+
+.helper-text,
+.muted-copy {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.section-label {
+    color: var(--muted-soft);
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+}
+
+.summary-panel {
+    border: 1px solid var(--stroke);
+    background: var(--field-bg);
+    border-radius: 1.25rem;
+    padding: 1rem 1.1rem;
+}
+
+.summary-pills,
+.item-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.summary-pill,
+.item-badge {
+    border: 1px solid var(--stroke);
+    background: var(--card-strong);
+    border-radius: 999px;
+    color: var(--text);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 0.45rem 0.75rem;
+    text-transform: uppercase;
+}
+
+.filter-pill {
+    background: var(--accent-soft);
+    border-color: var(--accent-strong);
+}
+
+.tag-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.status-line {
+    min-height: 1.25rem;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--muted);
+}
+
+.status-success {
+    color: var(--text);
+}
+
+.status-error {
+    color: #ff8c7a;
+}
+
+.status-info {
+    color: var(--muted);
 }
 
 .item-card {
@@ -365,6 +518,26 @@ select {
 
 .item-meta {
     color: var(--muted-soft);
+}
+
+.item-note {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.empty-state {
+    border: 1px dashed var(--stroke-soft);
+    border-radius: 1.75rem;
+    background: var(--field-bg);
+    padding: 2rem;
+}
+
+.empty-kicker {
+    color: var(--text);
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
 }
 
 .ai-render-area {
@@ -429,6 +602,10 @@ select {
     .theme-switcher {
         width: 100%;
         justify-content: center;
+    }
+
+    .tag-grid {
+        gap: 0.4rem;
     }
 
     .theme-chip {

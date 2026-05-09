@@ -31,7 +31,7 @@
                 <option value="gemini-3-flash-preview">3 Flash Preview</option>
             </select>
             <input id="user-api-key" type="password" placeholder="Gemini Key" class="hidden md:block nav-field text-[10px] w-32 pb-1 focus:outline-none" />
-            <button id="auth-btn" class="nav-action text-[10px] tracking-[0.2em] uppercase">Connect</button>
+            <button id="auth-btn" class="nav-action text-[10px] tracking-[0.2em] uppercase" type="button">Connect</button>
         </div>
     </div>
 </nav>
@@ -40,58 +40,113 @@
         <div class="text-[10px] tracking-[0.4em] uppercase eyebrow mb-8">AI Style Consultant</div>
         <input id="occasion-input" class="w-full bg-transparent occasion-field py-8 text-center" placeholder="Where are we going?" />
         <div class="flex flex-wrap justify-center gap-2 mt-8">
-            <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip">Tokyo solo trip</button>
-            <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip">Meeting the family, 30C</button>
-            <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip">Late night in Soho</button>
+            <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip" type="button">Tokyo solo trip</button>
+            <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip" type="button">Meeting the family, 30C</button>
+            <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip" type="button">Late night in Soho</button>
         </div>
-        <button id="ask-btn" class="mt-12 px-12 py-4 rounded-full primary-btn text-[10px] tracking-[0.3em] uppercase active:scale-95">
+        <button id="ask-btn" class="mt-12 px-12 py-4 rounded-full primary-btn text-[10px] tracking-[0.3em] uppercase active:scale-95" type="button">
             Consult Archive
         </button>
         <div id="ai-suggestion" class="hidden mt-12 glass p-10 rounded-3xl max-w-2xl mx-auto ai-render-area"></div>
     </section>
+
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
-        <div class="lg:col-span-4 lg:sticky lg:top-28 h-fit">
+        <aside class="lg:col-span-4 lg:sticky lg:top-28 h-fit">
             <div class="glass p-8 rounded-[2rem]">
-                <div class="text-[10px] tracking-[0.3em] uppercase eyebrow mb-8">New Addition</div>
-                <div id="drop-zone" class="upload-zone group">
+                <div class="flex items-center justify-between gap-4 mb-8">
+                    <div>
+                        <div class="text-[10px] tracking-[0.3em] uppercase eyebrow">New Addition</div>
+                        <p class="helper-text mt-3">Archive the essentials, then refine each piece with tags that actually help you style from it later.</p>
+                    </div>
+                    <button id="clear-form-btn" class="secondary-btn text-[10px] tracking-[0.2em] uppercase" type="button">Reset</button>
+                </div>
+
+                <div id="drop-zone" class="upload-zone group" tabindex="0" role="button" aria-label="Upload image">
                     <div class="text-center group-hover:scale-110 transition-transform duration-500">
                         <div class="text-2xl font-light upload-zone-mark">+</div>
-                        <div id="drop-text" class="text-[9px] tracking-[0.3em] uppercase mt-2 upload-zone-copy">Upload Image</div>
+                        <div id="drop-text" class="text-[9px] tracking-[0.3em] uppercase mt-2 upload-zone-copy">Drop or Upload Image</div>
+                        <div id="upload-meta" class="text-[10px] mt-3 muted-copy">JPEG, PNG, WEBP</div>
                     </div>
-                    <img id="preview-img" class="absolute inset-0 w-full h-full object-cover hidden" />
+                    <img id="preview-img" class="absolute inset-0 w-full h-full object-cover hidden" alt="Preview of selected item" />
+                    <div class="upload-actions">
+                        <button id="remove-image-btn" class="icon-btn hidden" type="button">Remove</button>
+                    </div>
                     <input id="file-input" type="file" class="hidden" accept="image/*" />
                 </div>
-                <div id="category-wrap" class="mt-8">
-                    <div class="flex flex-wrap gap-2 justify-center md:justify-start p-2 rounded-2xl surface-group">
-                        <button class="chip sort-opt active" data-sort="ALL">All</button>
-                        <button class="chip sort-opt" data-sort="TOPS">Tops</button>
-                        <button class="chip sort-opt" data-sort="BOTTOMS">Bottoms</button>
-                        <button class="chip sort-opt" data-sort="Watch">Watches</button>
-                        <button class="chip sort-opt" data-sort="Fragrance">Scent</button>
-                    </div>
-                    <div class="mt-4 flex flex-wrap gap-2">
-                        <button class="chip cat-opt" data-val="Watch">Watch</button>
-                        <button class="chip cat-opt" data-val="Fragrance">Scent</button>
-                        <button class="chip cat-opt" data-val="Other" data-sub="Top">Top</button>
-                        <button class="chip cat-opt" data-val="Other" data-sub="Bottom">Bottom</button>
+
+                <div class="summary-panel mt-6">
+                    <div class="section-label">Current Tag Stack</div>
+                    <div id="selection-summary" class="summary-pills mt-4"></div>
+                </div>
+
+                <div class="mt-8">
+                    <div class="section-label">Category</div>
+                    <div class="flex flex-wrap gap-2 mt-4" id="category-wrap">
+                        <button class="chip cat-opt" data-val="Other" type="button">Other</button>
+                        <button class="chip cat-opt" data-val="Watch" type="button">Watch</button>
+                        <button class="chip cat-opt" data-val="Fragrance" type="button">Scent</button>
+                        <button class="chip cat-opt" data-val="Other" data-sub="Top" type="button">Top</button>
+                        <button class="chip cat-opt" data-val="Other" data-sub="Bottom" type="button">Bottom</button>
                     </div>
                 </div>
+
                 <div class="space-y-4 mt-8">
                     <input id="item-name" placeholder="Item Name" class="w-full text-field py-3 text-sm" />
                     <input id="item-brand" placeholder="Brand / Designer" class="w-full text-field py-3 text-sm" />
+                    <textarea id="item-notes" placeholder="Notes, details, fit, fabric, or why it earns a place here" class="w-full text-area-field py-4 text-sm" rows="4"></textarea>
                 </div>
-                <button id="save-btn" class="w-full mt-10 primary-btn text-[10px] tracking-[0.3em] uppercase py-5 rounded-2xl font-medium">
-                    Archive Item
-                </button>
+
+                <div id="item-tag-groups" class="mt-8 space-y-6"></div>
+
+                <div class="mt-10 flex items-center gap-3">
+                    <button id="save-btn" class="flex-1 primary-btn text-[10px] tracking-[0.3em] uppercase py-5 rounded-2xl font-medium" type="button">
+                        Archive Item
+                    </button>
+                </div>
+                <div id="form-feedback" class="status-line mt-4" aria-live="polite"></div>
             </div>
-        </div>
-        <div class="lg:col-span-8">
-            <div class="flex justify-between items-end mb-12">
-                <div class="text-[10px] tracking-[0.3em] uppercase eyebrow">The Collection</div>
+        </aside>
+
+        <section class="lg:col-span-8">
+            <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-10">
+                <div>
+                    <div class="text-[10px] tracking-[0.3em] uppercase eyebrow">The Collection</div>
+                    <div id="collection-status" class="helper-text mt-3">Search and filter across your archive without losing the clean read.</div>
+                </div>
                 <div id="item-count" class="text-[10px] tracking-[0.1em] count-copy tabular-nums">00 ITEMS</div>
             </div>
-            <div id="catalog-grid" class="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-12"></div>
-        </div>
+
+            <div class="glass rounded-[2rem] p-6 md:p-8">
+                <div class="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+                    <div class="flex-1">
+                        <div class="section-label">Search Archive</div>
+                        <input id="catalog-search" class="w-full search-field mt-4" type="search" placeholder="Search by name, brand, notes, palette, mood..." />
+                    </div>
+                    <button id="clear-filters-btn" class="secondary-btn text-[10px] tracking-[0.2em] uppercase shrink-0" type="button">Clear Filters</button>
+                </div>
+
+                <div class="mt-8">
+                    <div class="section-label">Collection View</div>
+                    <div id="collection-category-filters" class="flex flex-wrap gap-2 mt-4">
+                        <button class="chip sort-opt active" data-sort="ALL" type="button">All</button>
+                        <button class="chip sort-opt" data-sort="TOPS" type="button">Tops</button>
+                        <button class="chip sort-opt" data-sort="BOTTOMS" type="button">Bottoms</button>
+                        <button class="chip sort-opt" data-sort="Watch" type="button">Watches</button>
+                        <button class="chip sort-opt" data-sort="Fragrance" type="button">Scent</button>
+                    </div>
+                </div>
+
+                <div id="collection-filter-groups" class="mt-8 space-y-6"></div>
+                <div id="active-filter-pills" class="summary-pills mt-8"></div>
+            </div>
+
+            <div id="catalog-empty" class="empty-state hidden mt-10">
+                <div class="empty-kicker">Nothing in this slice yet</div>
+                <p id="catalog-empty-copy" class="helper-text mt-3">Try clearing a filter or add something new to the archive.</p>
+            </div>
+
+            <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-12 mt-10"></div>
+        </section>
     </div>
 </main>
 <script type="module" src="app.js"></script>
