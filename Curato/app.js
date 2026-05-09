@@ -1,591 +1,16 @@
-const SUPABASE_URL = "https://wyvliczohxpyptwxnvfi.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5";
-const REDIRECT_URL = "https://donutgames113.github.io/Curato/index.html";
-const THEME_STORAGE_KEY = "curato-theme";
-const AVAILABLE_THEMES = ["dark", "light", "dune", "slate"];
-const ACCESSORY_CATEGORIES = [
-    "Accessory",
-    "Jewelry",
-    "Bag",
-    "Headwear"
-];
-const CATEGORY_LABELS = {
-    Fragrance: "Scent",
-    Watch: "Watch",
-    Shoes: "Shoes",
-    Socks: "Socks",
-    Accessory: "Accessory",
-    Jewelry: "Jewelry",
-    Bag: "Bag",
-    Headwear: "Headwear",
-    Other: "Other"
-};
-
-const FORM_TAG_GROUPS = [
-    {
-        id: "season",
-        label: "Season",
-        multi: false,
-        options: ["All-season", "Spring", "Summer", "Autumn", "Winter"]
-    },
-    {
-        id: "occasions",
-        label: "Occasion",
-        multi: true,
-        options: ["Everyday", "Work", "Evening", "Travel", "Formal"]
-    },
-    {
-        id: "palette",
-        label: "Palette",
-        multi: false,
-        options: ["Monochrome", "Earth", "Warm", "Cool", "Accent"]
-    },
-    {
-        id: "vibes",
-        label: "Vibe",
-        multi: true,
-        options: ["Minimal", "Tailored", "Relaxed", "Technical", "Statement"]
-    }
-];
+const SUPABASE_URL = 'https://wyvliczohxpyptwxnvfi.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5';
+const REDIRECT_URL = 'https://donutgames113.github.io/Curato/index.html';
 
 const supabase = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_ANON_KEY
 );
 
+let selectedCategory = "Other";
+let selectedSubCategory = null;
 let currentImageData = null;
-let editingItemId = null;
-let editingImageUrl = null;
-let allItems = [];
-let isSaving = false;
-
-let formState = getDefaultFormState();
-
-function getDefaultFormState() {
-    return {
-        category: "Other",
-        subcategory: null,
-        season: "All-season",
-        occasions: ["Everyday"],
-        palette: "Monochrome",
-        vibes: ["Minimal"]
-    };
-}
-
-function applyTheme(themeName) {
-
-    const nextTheme =
-        AVAILABLE_THEMES.includes(themeName)
-            ? themeName
-            : "dark";
-
-    document.body.dataset.theme =
-        nextTheme;
-
-    document.querySelectorAll(".theme-chip")
-        .forEach((button) => {
-
-            const isActive =
-                button.dataset.theme === nextTheme;
-
-            button.classList.toggle(
-                "active",
-                isActive
-            );
-
-            button.setAttribute(
-                "aria-pressed",
-                String(isActive)
-            );
-        });
-
-    localStorage.setItem(
-        THEME_STORAGE_KEY,
-        nextTheme
-    );
-}
-
-function setupThemePicker() {
-
-    const savedTheme =
-        localStorage.getItem(
-            THEME_STORAGE_KEY
-        ) || "dark";
-
-    applyTheme(savedTheme);
-
-    document.querySelectorAll(".theme-chip")
-        .forEach((button) => {
-
-            button.onclick = () => {
-                applyTheme(
-                    button.dataset.theme
-                );
-            };
-        });
-}
-
-function escapeHtml(value) {
-
-    return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-}
-
-function toReadableLabel(value) {
-
-    return String(value || "")
-        .replace(/-/g, " ");
-}
-
-function normalizeTagArray(value) {
-
-    if (Array.isArray(value)) {
-        return value
-            .map((entry) => String(entry || "").trim())
-            .filter(Boolean);
-    }
-
-    if (typeof value === "string") {
-        return value.trim()
-            ? [value.trim()]
-            : [];
-    }
-
-    return [];
-}
-
-function normalizeItem(item) {
-
-    const rawTags =
-        item?.tags || {};
-
-    const season =
-        rawTags.season ||
-        rawTags.seasons?.[0] ||
-        "All-season";
-
-    const occasions =
-        normalizeTagArray(
-            rawTags.occasions ||
-            rawTags.occasion
-        );
-
-    const vibes =
-        normalizeTagArray(
-            rawTags.vibes ||
-            rawTags.vibe
-        );
-
-    return {
-        ...item,
-        tags: {
-            ...rawTags,
-            brand: rawTags.brand || "",
-            category: rawTags.category || "Other",
-            subcategory: rawTags.subcategory || null,
-            season,
-            occasions,
-            palette: rawTags.palette || "Monochrome",
-            vibes,
-            layerable: Boolean(rawTags.layerable)
-        }
-    };
-}
-
-function getCategoryLabel(tags) {
-
-    if (tags?.subcategory) {
-        return tags.subcategory;
-    }
-
-    return CATEGORY_LABELS[tags?.category] ||
-        tags?.category ||
-        "Other";
-}
-
-function getItemBadgeList(tags) {
-
-    const badges = [];
-
-    if (tags.season) {
-        badges.push(tags.season);
-    }
-
-    if (tags.palette) {
-        badges.push(tags.palette);
-    }
-
-    if (tags.occasions?.length) {
-        badges.push(tags.occasions[0]);
-    }
-
-    if (tags.vibes?.length) {
-        badges.push(tags.vibes[0]);
-    }
-
-    return badges.slice(0, 4);
-}
-
-function renderTagGroupHTML({
-    group,
-    context,
-    activeValue,
-    activeValues,
-    includeAll = false
-}) {
-
-    const options = includeAll
-        ? ["ALL", ...group.options]
-        : group.options;
-
-    return `
-        <div class="tag-section">
-            <div class="section-label">${escapeHtml(group.label)}</div>
-            <div class="tag-grid mt-4">
-                ${options.map((option) => {
-                    const isActive = includeAll
-                        ? activeValue === option
-                        : group.multi
-                            ? activeValues.includes(option)
-                            : activeValue === option;
-
-                    const label =
-                        option === "ALL"
-                            ? `Any ${group.label}`
-                            : option;
-
-                    return `
-                        <button
-                            class="chip tag-chip ${isActive ? "active" : ""}"
-                            type="button"
-                            data-context="${context}"
-                            data-group="${group.id}"
-                            data-value="${escapeHtml(option)}"
-                            aria-pressed="${String(isActive)}"
-                        >
-                            ${escapeHtml(label)}
-                        </button>
-                    `;
-                }).join("")}
-            </div>
-        </div>
-    `;
-}
-
-function renderFormTagGroups() {
-
-    const container =
-        document.getElementById("item-tag-groups");
-
-    if (!container) return;
-
-    container.innerHTML =
-        FORM_TAG_GROUPS.map((group) =>
-            renderTagGroupHTML({
-                group,
-                context: "form",
-                activeValue: formState[group.id],
-                activeValues: formState[group.id] || []
-            })
-        ).join("");
-}
-
-function renderSelectionSummary() {
-
-    const summary =
-        document.getElementById("selection-summary");
-
-    if (!summary) return;
-
-    const pills = [
-        getCategoryLabel(formState),
-        formState.season,
-        formState.palette,
-        ...formState.occasions,
-        ...formState.vibes
-    ].filter(Boolean);
-
-    summary.innerHTML = pills.map((pill) => `
-        <span class="summary-pill">${escapeHtml(toReadableLabel(pill))}</span>
-    `).join("");
-}
-
-function renderCategoryButtons() {
-
-    document.querySelectorAll(".cat-opt")
-        .forEach((button) => {
-
-            const isActive =
-                button.dataset.val === formState.category
-                &&
-                (button.dataset.sub || null) === formState.subcategory;
-
-            button.classList.toggle(
-                "active",
-                isActive
-            );
-
-            button.setAttribute(
-                "aria-pressed",
-                String(isActive)
-            );
-        });
-}
-
-function setFormFeedback(message, type = "info") {
-
-    const feedback =
-        document.getElementById("form-feedback");
-
-    if (!feedback) return;
-
-    feedback.textContent =
-        message || "";
-
-    feedback.className =
-        `status-line mt-4 ${message ? `status-${type}` : ""}`;
-}
-
-function updateCollectionStatus(message) {
-
-    const status =
-        document.getElementById("collection-status");
-
-    if (!status) return;
-
-    status.textContent =
-        message;
-}
-
-function updateSaveButtonState() {
-
-    const button =
-        document.getElementById("save-btn");
-
-    const nameInput =
-        document.getElementById("item-name");
-
-    if (!button) return;
-
-    if (isSaving) {
-        button.disabled = true;
-        button.textContent = editingItemId
-            ? "Saving..."
-            : "Archiving...";
-        return;
-    }
-
-    const ready =
-        Boolean(currentImageData || editingImageUrl) &&
-        Boolean(nameInput?.value.trim());
-
-    button.disabled = !ready;
-    button.textContent = ready
-        ? (editingItemId
-            ? "Save Changes"
-            : "Archive Item")
-        : "Image + Name Required";
-}
-
-function updateUploadPreview() {
-
-    const preview =
-        document.getElementById("preview-img");
-
-    const dropText =
-        document.getElementById("drop-text");
-
-    const uploadMeta =
-        document.getElementById("upload-meta");
-
-    const removeButton =
-        document.getElementById("remove-image-btn");
-
-    const previewSource =
-        currentImageData || editingImageUrl;
-
-    if (preview) {
-        if (previewSource) {
-            preview.src = previewSource;
-            preview.classList.remove("hidden");
-        } else {
-            preview.src = "";
-            preview.classList.add("hidden");
-        }
-    }
-
-    if (dropText) {
-        dropText.classList.toggle(
-            "hidden",
-            Boolean(previewSource)
-        );
-    }
-
-    if (uploadMeta) {
-        if (currentImageData) {
-            uploadMeta.textContent = "Replacement preview ready";
-        } else if (editingImageUrl) {
-            uploadMeta.textContent = "Current image loaded";
-        } else {
-            uploadMeta.textContent = "JPEG, PNG, WEBP";
-        }
-    }
-
-    if (removeButton) {
-        removeButton.classList.toggle(
-            "hidden",
-            !previewSource
-        );
-    }
-}
-
-function resetForm({ keepFeedback = false } = {}) {
-
-    formState = getDefaultFormState();
-    currentImageData = null;
-    editingItemId = null;
-    editingImageUrl = null;
-
-    const fileInput =
-        document.getElementById("file-input");
-
-    const nameInput =
-        document.getElementById("item-name");
-
-    const brandInput =
-        document.getElementById("item-brand");
-
-    if (fileInput) {
-        fileInput.value = "";
-    }
-
-    if (nameInput) {
-        nameInput.value = "";
-    }
-
-    if (brandInput) {
-        brandInput.value = "";
-    }
-
-    renderFormTagGroups();
-    renderCategoryButtons();
-    renderSelectionSummary();
-    updateUploadPreview();
-    updateSaveButtonState();
-
-    if (!keepFeedback) {
-        setFormFeedback(
-            "Add an image and a name, then build out the tags.",
-            "info"
-        );
-    }
-}
-
-function renderEmptyState(itemCount) {
-
-    const emptyState =
-        document.getElementById("catalog-empty");
-
-    const emptyCopy =
-        document.getElementById("catalog-empty-copy");
-
-    if (!emptyState || !emptyCopy) return;
-
-    if (itemCount > 0) {
-        emptyState.classList.add("hidden");
-        return;
-    }
-
-    emptyCopy.textContent =
-        "Your archive is still empty. Add a first piece and start building a more useful wardrobe map.";
-
-    emptyState.classList.remove("hidden");
-}
-
-function renderCatalog() {
-
-    const items = allItems;
-
-    const countEl =
-        document.getElementById("item-count");
-
-    const grid =
-        document.getElementById("catalog-grid");
-
-    if (countEl) {
-        countEl.innerText =
-            items.length
-                .toString()
-                .padStart(2, "0")
-            + " ITEMS";
-    }
-
-    if (!grid) return;
-
-    updateCollectionStatus(
-        items.length > 0
-            ? `Showing ${items.length} archived piece${items.length === 1 ? "" : "s"}. Click Edit on any card to update it.`
-            : "No archived items yet."
-    );
-
-    renderEmptyState(items.length);
-
-    if (!items.length) {
-        grid.innerHTML = "";
-        return;
-    }
-
-    grid.innerHTML =
-        items.map((item) => {
-
-            const badges =
-                getItemBadgeList(item.tags);
-
-            return `
-                <article class="item-card">
-                    <div class="img-container">
-                        <img
-                            src="${escapeHtml(item.image_url)}"
-                            loading="lazy"
-                            alt="${escapeHtml(item.name)}"
-                        >
-                    </div>
-
-                    <div class="mt-5">
-                        <p class="item-name text-[11px] font-medium uppercase tracking-widest">
-                            ${escapeHtml(item.name)}
-                        </p>
-
-                        <p class="item-meta text-[9px] uppercase tracking-[0.15em] mt-1">
-                            ${escapeHtml(item.tags.brand || "Independent")}
-                            &bull;
-                            ${escapeHtml(getCategoryLabel(item.tags))}
-                        </p>
-
-                        <div class="item-badges mt-4">
-                            ${badges.map((badge) => `
-                                <span class="item-badge">${escapeHtml(toReadableLabel(badge))}</span>
-                            `).join("")}
-                        </div>
-
-                        <div class="mt-5">
-                            <button
-                                class="secondary-btn text-[10px] tracking-[0.2em] uppercase edit-item-btn"
-                                type="button"
-                                data-item-id="${escapeHtml(item.id)}"
-                            >
-                                Edit
-                            </button>
-                        </div>
-                    </div>
-                </article>
-            `;
-        }).join("");
-}
+let currentSortClass = "ALL";
 
 // ========================================
 // AI RESPONSE RENDERER
@@ -593,63 +18,69 @@ function renderCatalog() {
 
 function renderAIResponse(text) {
 
+    // Clean markdown artifacts
     text = text
-        .replace(/```markdown/g, "")
-        .replace(/```/g, "")
+        .replace(/```markdown/g, '')
+        .replace(/```/g, '')
         .trim();
 
-    const lines = text.split("\n");
+    // Split into sections
+    const lines = text.split('\n');
 
-    let html = "";
+    let html = '';
     let inList = false;
 
-    lines.forEach((line) => {
+    lines.forEach(line => {
 
         line = line.trim();
 
+        // Empty line
         if (!line) {
             if (inList) {
-                html += "</ul>";
+                html += '</ul>';
                 inList = false;
             }
             return;
         }
 
-        if (line.startsWith("## ")) {
+        // H2
+        if (line.startsWith('## ')) {
 
             if (inList) {
-                html += "</ul>";
+                html += '</ul>';
                 inList = false;
             }
 
             html += `
-                <h2 class="text-3xl font-extralight ai-title mb-6 mt-2 tracking-tight">
-                    ${escapeHtml(line.replace("## ", ""))}
+                <h2 class="text-3xl font-extralight text-[#d4ff6a] mb-6 mt-2 tracking-tight">
+                    ${line.replace('## ', '')}
                 </h2>
             `;
 
             return;
         }
 
-        if (line.startsWith("### ")) {
+        // H3
+        if (line.startsWith('### ')) {
 
             if (inList) {
-                html += "</ul>";
+                html += '</ul>';
                 inList = false;
             }
 
             html += `
-                <h3 class="text-[10px] uppercase tracking-[0.3em] ai-subtitle mt-10 mb-4 pb-2">
-                    ${escapeHtml(line.replace("### ", ""))}
+                <h3 class="text-[10px] uppercase tracking-[0.3em] text-white/40 mt-10 mb-4">
+                    ${line.replace('### ', '')}
                 </h3>
             `;
 
             return;
         }
 
+        // Bullet points
         if (
-            line.startsWith("- ") ||
-            line.startsWith("* ")
+            line.startsWith('- ') ||
+            line.startsWith('* ')
         ) {
 
             if (!inList) {
@@ -657,17 +88,17 @@ function renderAIResponse(text) {
                 inList = true;
             }
 
-            const clean = escapeHtml(
-                line.replace(/^[-*]\s/, "")
-            ).replace(
+            const clean = line
+            .replace(/^[-*]\s/, '')
+            .replace(
                 /\*\*(.*?)\*\*/g,
-                "<strong class=\"font-medium\">$1</strong>"
+                '<strong class="text-white font-medium">$1</strong>'
             );
 
             html += `
-                <li class="flex gap-4 items-start ai-list-item">
-                    <div class="w-1.5 h-1.5 rounded-full ai-list-bullet mt-2 shrink-0"></div>
-                    <div class="text-sm leading-relaxed">
+                <li class="flex gap-4 items-start">
+                    <div class="w-1.5 h-1.5 rounded-full bg-[#d4ff6a] mt-2 shrink-0"></div>
+                    <div class="text-sm leading-relaxed text-white/70">
                         ${clean}
                     </div>
                 </li>
@@ -676,39 +107,41 @@ function renderAIResponse(text) {
             return;
         }
 
-        if (line.startsWith("> ")) {
+        // Quote block
+        if (line.startsWith('> ')) {
 
             if (inList) {
-                html += "</ul>";
+                html += '</ul>';
                 inList = false;
             }
 
             html += `
-                <blockquote class="ai-quote">
-                    ${escapeHtml(line.replace("> ", ""))}
+                <blockquote class="border-l border-[#d4ff6a]/50 pl-6 py-2 mt-8 text-white/50 italic text-sm leading-relaxed">
+                    ${line.replace('> ', '')}
                 </blockquote>
             `;
 
             return;
         }
 
+        // Regular paragraph
         if (inList) {
-            html += "</ul>";
+            html += '</ul>';
             inList = false;
         }
 
         html += `
-            <p class="text-[15px] leading-8 ai-paragraph mb-6 font-light">
-                ${escapeHtml(line).replace(
+            <p class="text-[15px] leading-8 text-white/75 mb-6 font-light">
+                ${line.replace(
                     /\*\*(.*?)\*\*/g,
-                    "<strong class=\"font-medium\">$1</strong>"
+                    '<strong class="text-white font-medium">$1</strong>'
                 )}
             </p>
         `;
     });
 
     if (inList) {
-        html += "</ul>";
+        html += '</ul>';
     }
 
     return html;
@@ -721,10 +154,10 @@ function renderAIResponse(text) {
 async function callGeminiAPI(base64, mimeType, promptText) {
 
     const keyInput =
-        document.getElementById("user-api-key");
+        document.getElementById('user-api-key');
 
     const modelSelect =
-        document.getElementById("model-select");
+        document.getElementById('model-select');
 
     const { data: { session } } =
         await supabase.auth.getSession();
@@ -739,6 +172,9 @@ async function callGeminiAPI(base64, mimeType, promptText) {
         "gemini-2.0-flash";
 
     if (!activeKey) {
+
+        alert("Missing Gemini API key.");
+
         throw new Error(
             "Missing Gemini API key."
         );
@@ -756,7 +192,9 @@ async function callGeminiAPI(base64, mimeType, promptText) {
     };
 
     if (base64) {
+
         body.contents[0].parts.push({
+
             inline_data: {
                 mime_type: mimeType,
                 data: base64
@@ -765,28 +203,153 @@ async function callGeminiAPI(base64, mimeType, promptText) {
     }
 
     const response = await fetch(url, {
-        method: "POST",
+
+        method: 'POST',
+
         headers: {
-            "Content-Type": "application/json"
+            'Content-Type': 'application/json'
         },
+
         body: JSON.stringify(body)
     });
 
     const result = await response.json();
 
     if (!response.ok) {
+
         console.error(result);
+
         throw new Error(
             result.error?.message ||
             "Gemini API error"
         );
     }
 
-    return result.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const resultText =
+        result.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+    if (promptText.includes("JSON")) {
+
+        try {
+
+            const cleaned =
+                resultText
+                    .replace(/```json/g, '')
+                    .replace(/```/g, '')
+                    .trim();
+
+            return JSON.parse(cleaned);
+
+        } catch (err) {
+
+            console.error(
+                "JSON parse error:",
+                resultText
+            );
+
+            return null;
+        }
+    }
+
+    return resultText;
 }
 
 // ========================================
-// FILE HANDLING
+// SORTING
+// ========================================
+
+function sortItems(items) {
+
+    if (currentSortClass === "ALL") {
+        return items;
+    }
+
+    return items.filter(i => {
+
+        if (currentSortClass === "TOPS") {
+            return i.tags?.subcategory === "Top";
+        }
+
+        if (currentSortClass === "BOTTOMS") {
+            return i.tags?.subcategory === "Bottom";
+        }
+
+        return i.tags?.category === currentSortClass;
+    });
+}
+
+// ========================================
+// FETCH ITEMS
+// ========================================
+
+async function fetchItems() {
+
+    const { data, error } = await supabase
+        .from('items')
+        .select('id,name,image_url,tags')
+        .order('id', { ascending: false });
+
+    if (error) {
+
+        console.error(error);
+
+        return;
+    }
+
+    const filtered = sortItems(data);
+
+    const countEl =
+        document.getElementById('item-count');
+
+    if (countEl) {
+
+        countEl.innerText =
+            filtered.length
+                .toString()
+                .padStart(2, '0')
+            + " ITEMS";
+    }
+
+    const catalogGrid =
+        document.getElementById('catalog-grid');
+
+    if (!catalogGrid) return;
+
+    catalogGrid.innerHTML =
+        filtered.map(item => `
+
+        <div class="item-card group">
+
+            <div class="img-container">
+
+                <img
+                    src="${item.image_url}"
+                    loading="lazy"
+                >
+
+            </div>
+
+            <div class="mt-5">
+
+                <p class="text-[11px] font-medium uppercase tracking-widest text-white/90">
+                    ${item.name}
+                </p>
+
+                <p class="text-[9px] text-white/30 uppercase tracking-[0.15em] mt-1">
+                    ${item.tags?.brand || 'Independent'}
+                    •
+                    ${item.tags?.subcategory || item.tags?.category}
+                </p>
+
+            </div>
+
+        </div>
+
+    `).join('');
+}
+
+// ========================================
+// COMPRESS IMAGE
 // ========================================
 
 async function compressImage(
@@ -798,16 +361,18 @@ async function compressImage(
     return new Promise((resolve) => {
 
         const img = new Image();
-        const reader = new FileReader();
 
-        reader.onload = (event) => {
-            img.src = event.target.result;
+        const reader =
+            new FileReader();
+
+        reader.onload = (e) => {
+            img.src = e.target.result;
         };
 
         img.onload = () => {
 
             const canvas =
-                document.createElement("canvas");
+                document.createElement('canvas');
 
             const scale =
                 Math.min(
@@ -822,7 +387,7 @@ async function compressImage(
                 img.height * scale;
 
             const ctx =
-                canvas.getContext("2d");
+                canvas.getContext('2d');
 
             ctx.drawImage(
                 img,
@@ -833,6 +398,7 @@ async function compressImage(
             );
 
             canvas.toBlob(
+
                 (blob) => {
 
                     const reader2 =
@@ -843,8 +409,10 @@ async function compressImage(
                     };
 
                     reader2.readAsDataURL(blob);
+
                 },
-                "image/jpeg",
+
+                'image/jpeg',
                 quality
             );
         };
@@ -853,33 +421,9 @@ async function compressImage(
     });
 }
 
-async function handleIncomingFile(file) {
-
-    if (!file?.type?.startsWith("image/")) {
-        setFormFeedback(
-            "Use an image file for the archive preview.",
-            "error"
-        );
-        return;
-    }
-
-    const compressedDataUrl =
-        await compressImage(
-            file,
-            900,
-            0.75
-        );
-
-    currentImageData =
-        compressedDataUrl;
-
-    updateUploadPreview();
-    updateSaveButtonState();
-    setFormFeedback(
-        "Image ready. Add the details that will make this piece searchable later.",
-        "success"
-    );
-}
+// ========================================
+// UPLOAD TO STORAGE
+// ========================================
 
 async function uploadImageToStorage(base64Data) {
 
@@ -897,9 +441,9 @@ async function uploadImageToStorage(base64Data) {
     const { error: uploadError } =
         await supabase
             .storage
-            .from("wardrobe-images")
+            .from('wardrobe-images')
             .upload(fileName, blob, {
-                contentType: "image/jpeg",
+                contentType: 'image/jpeg',
                 upsert: false
             });
 
@@ -910,297 +454,476 @@ async function uploadImageToStorage(base64Data) {
     const { data } =
         supabase
             .storage
-            .from("wardrobe-images")
+            .from('wardrobe-images')
             .getPublicUrl(fileName);
 
     return data.publicUrl;
 }
 
 // ========================================
-// DATA
+// DOM READY
 // ========================================
 
-async function fetchItems() {
+document.addEventListener('DOMContentLoaded', () => {
 
-    const { data, error } = await supabase
-        .from("items")
-        .select("id,name,image_url,tags")
-        .order("id", { ascending: false });
+    const authBtn =
+        document.getElementById('auth-btn');
 
-    if (error) {
-        console.error(error);
-        updateCollectionStatus(
-            "The collection could not be loaded right now."
-        );
-        return;
-    }
+    const keyInput =
+        document.getElementById('user-api-key');
 
-    allItems =
-        (data || []).map(normalizeItem);
+    const modelSelect =
+        document.getElementById('model-select');
 
-    renderCatalog();
-}
+    const dropZone =
+        document.getElementById('drop-zone');
 
-function beginEditingItem(itemId) {
+    const previewImg =
+        document.getElementById('preview-img');
 
-    const item =
-        allItems.find((entry) =>
-            String(entry.id) === String(itemId)
-        );
-
-    if (!item) {
-        setFormFeedback(
-            "That item could not be loaded for editing.",
-            "error"
-        );
-        return;
-    }
-
-    editingItemId = item.id;
-    editingImageUrl = item.image_url;
-    currentImageData = null;
-
-    formState = {
-        category: item.tags.category || "Other",
-        subcategory: item.tags.subcategory || null,
-        season: item.tags.season || "All-season",
-        occasions: item.tags.occasions?.length
-            ? item.tags.occasions
-            : ["Everyday"],
-        palette: item.tags.palette || "Monochrome",
-        vibes: item.tags.vibes?.length
-            ? item.tags.vibes
-            : ["Minimal"]
-    };
+    const dropText =
+        document.getElementById('drop-text');
 
     const nameInput =
-        document.getElementById("item-name");
+        document.getElementById('item-name');
 
     const brandInput =
-        document.getElementById("item-brand");
+        document.getElementById('item-brand');
 
-    if (nameInput) {
-        nameInput.value = item.name || "";
-    }
-
-    if (brandInput) {
-        brandInput.value =
-            item.tags.brand || "";
-    }
-
-    renderFormTagGroups();
-    renderCategoryButtons();
-    renderSelectionSummary();
-    updateUploadPreview();
-    updateSaveButtonState();
-    setFormFeedback(
-        `Editing "${item.name}". Save changes when you are done, or press Reset to exit edit mode.`,
-        "info"
-    );
-
-    document.getElementById("item-name")
-        ?.scrollIntoView({
-            behavior: "smooth",
-            block: "center"
-        });
-}
-
-function buildItemPayload() {
-
-    const nameInput =
-        document.getElementById("item-name");
-
-    const brandInput =
-        document.getElementById("item-brand");
-
-    return {
-        name: nameInput?.value.trim() || "",
-        tags: {
-            brand: brandInput?.value.trim() || "",
-            category: formState.category,
-            subcategory: formState.subcategory,
-            layerable: formState.subcategory === "Top",
-            season: formState.season,
-            occasions: formState.occasions,
-            palette: formState.palette,
-            vibes: formState.vibes
-        }
-    };
-}
-
-async function saveItem() {
-
-    const { data: { session } } =
-        await supabase.auth.getSession();
-
-    const payload =
-        buildItemPayload();
-
-    if (!(currentImageData || editingImageUrl) || !payload.name) {
-        setFormFeedback(
-            "An image and item name are required before saving.",
-            "error"
-        );
-        return;
-    }
-
-    isSaving = true;
-    updateSaveButtonState();
-    setFormFeedback(
-        editingItemId
-            ? "Saving your changes..."
-            : "Uploading and archiving your item...",
-        "info"
-    );
-
-    try {
-
-        let imageUrl =
-            editingImageUrl;
-
-        if (currentImageData) {
-            imageUrl =
-                await uploadImageToStorage(
-                    currentImageData
-                );
-        }
-
-        let error = null;
-
-        if (editingItemId) {
-            const updateResult =
-                await supabase
-                    .from("items")
-                    .update({
-                        name: payload.name,
-                        image_url: imageUrl,
-                        tags: payload.tags
-                    })
-                    .eq("id", editingItemId);
-
-            error = updateResult.error;
-        } else {
-            const insertResult =
-                await supabase
-                    .from("items")
-                    .insert([{
-                        user_id:
-                            session?.user?.id || null,
-                        name: payload.name,
-                        image_url: imageUrl,
-                        tags: payload.tags
-                    }]);
-
-            error = insertResult.error;
-        }
-
-        if (error) {
-            throw error;
-        }
-
-        setFormFeedback(
-            editingItemId
-                ? "Changes saved. The archive has been updated."
-                : "Archived. It has been added to the collection below.",
-            "success"
-        );
-
-        resetForm({ keepFeedback: true });
-        await fetchItems();
-
-    } catch (err) {
-
-        console.error(err);
-
-        setFormFeedback(
-            `Archive failed: ${err.message}`,
-            "error"
-        );
-
-    } finally {
-        isSaving = false;
-        updateSaveButtonState();
-    }
-}
-
-// ========================================
-// AI CONSULT
-// ========================================
-
-function buildWardrobeContext(items) {
-
-    if (!items.length) {
-        return "The user's archive is currently empty.";
-    }
-
-    return items.map((item) => {
-
-        const contextParts = [
-            item.tags.brand || "Independent",
-            getCategoryLabel(item.tags),
-            item.tags.season,
-            item.tags.palette
-        ];
-
-        if (item.tags.occasions.length) {
-            contextParts.push(
-                `occasion: ${item.tags.occasions.join(", ")}`
-            );
-        }
-
-        if (item.tags.vibes.length) {
-            contextParts.push(
-                `vibe: ${item.tags.vibes.join(", ")}`
-            );
-        }
-
-        return `- ${item.name} (${contextParts.join("; ")})`;
-    }).join("\n");
-}
-
-async function runConsultation() {
+    const saveBtn =
+        document.getElementById('save-btn');
 
     const askBtn =
-        document.getElementById("ask-btn");
+        document.getElementById('ask-btn');
 
     const suggestionBox =
-        document.getElementById("ai-suggestion");
+        document.getElementById('ai-suggestion');
 
-    const promptEl =
-        document.getElementById("occasion-input");
+    // ========================================
+    // AUTH
+    // ========================================
 
-    const userPrompt =
-        (promptEl?.value || "").trim();
+    if (authBtn) {
 
-    if (!userPrompt) {
-        alert(
-            "Please enter a question for the consultant."
-        );
-        return;
+        authBtn.onclick = async () => {
+
+            const { data: { session } } =
+                await supabase.auth.getSession();
+
+            if (session) {
+
+                await supabase.auth.signOut();
+
+                window.location.reload();
+
+            } else {
+
+                await supabase.auth.signInWithOAuth({
+
+                    provider: 'discord',
+
+                    options: {
+                        redirectTo: REDIRECT_URL
+                    }
+                });
+            }
+        };
     }
 
-    if (askBtn) {
-        askBtn.disabled = true;
-        askBtn.innerText = "Consulting...";
+    // ========================================
+    // SETTINGS
+    // ========================================
+
+    if (keyInput) {
+
+        keyInput.onblur = async () => {
+
+            const { data: { session } } =
+                await supabase.auth.getSession();
+
+            if (
+                session &&
+                keyInput.value
+            ) {
+
+                await supabase.auth.updateUser({
+
+                    data: {
+                        gemini_api_key:
+                            keyInput.value.trim()
+                    }
+                });
+            }
+        };
     }
 
-    try {
+    if (modelSelect) {
 
-        const { data, error } =
-            await supabase
-                .from("items")
-                .select("name,tags");
+        modelSelect.onchange = async () => {
 
-        if (error) {
-            throw error;
+            const { data: { session } } =
+                await supabase.auth.getSession();
+
+            if (session) {
+
+                await supabase.auth.updateUser({
+
+                    data: {
+                        preferred_model:
+                            modelSelect.value
+                    }
+                });
+            }
+        };
+    }
+
+    // ========================================
+    // AUTH STATE
+    // ========================================
+
+    supabase.auth.onAuthStateChange((_, session) => {
+
+        if (session) {
+
+            if (authBtn) {
+
+                authBtn.innerText =
+                    `LOGOUT (${session.user.user_metadata.full_name || 'USER'})`;
+            }
+
+            if (keyInput) {
+
+                keyInput.value =
+                    session.user.user_metadata?.gemini_api_key || "";
+            }
+
+            if (modelSelect) {
+
+                modelSelect.value =
+                    session.user.user_metadata?.preferred_model ||
+                    "gemini-2.0-flash";
+            }
+
+            fetchItems();
+
+        } else {
+
+            if (authBtn) {
+                authBtn.innerText = "CONNECT";
+            }
         }
+    });
 
-        const wardrobeContext =
-            buildWardrobeContext(
-                (data || []).map(normalizeItem)
+    // ========================================
+    // CATEGORY BUTTONS
+    // ========================================
+
+    const catButtons =
+        document.querySelectorAll('.cat-opt');
+
+    catButtons.forEach(btn => {
+
+        btn.onclick = () => {
+
+            catButtons.forEach(
+                b => b.classList.remove('active')
             );
 
-        const finalPrompt = `
+            btn.classList.add('active');
+
+            selectedCategory =
+                btn.dataset.val;
+
+            selectedSubCategory =
+                btn.dataset.sub || null;
+        };
+    });
+
+    // ========================================
+    // SORT BUTTONS
+    // ========================================
+
+    const sortButtons =
+        document.querySelectorAll('.sort-opt');
+
+    sortButtons.forEach(btn => {
+
+        btn.onclick = () => {
+
+            sortButtons.forEach(
+                b => b.classList.remove('active')
+            );
+
+            btn.classList.add('active');
+
+            currentSortClass =
+                btn.dataset.sort;
+
+            fetchItems();
+        };
+    });
+
+    // ========================================
+    // FILE INPUT
+    // ========================================
+
+    if (dropZone) {
+
+        dropZone.onclick = () => {
+
+            document
+                .getElementById('file-input')
+                .click();
+        };
+    }
+
+    const fileInput =
+        document.getElementById('file-input');
+
+    if (fileInput) {
+
+        fileInput.onchange = async (e) => {
+
+            const file =
+                e.target.files[0];
+
+            if (!file) return;
+
+            const compressedDataUrl =
+                await compressImage(
+                    file,
+                    900,
+                    0.75
+                );
+
+            currentImageData =
+                compressedDataUrl;
+
+            if (previewImg) {
+
+                previewImg.src =
+                    compressedDataUrl;
+
+                previewImg.classList
+                    .remove('hidden');
+            }
+
+            if (dropText) {
+
+                dropText.classList
+                    .add('hidden');
+            }
+            /*
+            if (saveBtn) {
+
+                saveBtn.innerText =
+                    "IDENTIFYING...";
+
+                saveBtn.disabled = true;
+            }
+
+            try {
+
+                const base64 =
+                    compressedDataUrl
+                        .split(',')[1];
+
+                const prompt =
+                    'Identify this item. Return ONLY valid JSON: {"name":"string","brand":"string","category":"Watch|Fragrance|Other","subcategory":"Top|Bottom|null"}';
+
+                const guess =
+                    await callGeminiAPI(
+                        base64,
+                        file.type,
+                        prompt
+                    );
+
+                if (guess) {
+
+                    if (nameInput) {
+                        nameInput.value =
+                            guess.name || "";
+                    }
+
+                    if (brandInput) {
+                        brandInput.value =
+                            guess.brand || "";
+                    }
+
+                    const matchingBtn =
+                        Array.from(catButtons)
+                            .find(
+
+                                b =>
+
+                                    b.dataset.val ===
+                                    guess.category
+
+                                    &&
+
+                                    (b.dataset.sub || null)
+                                    ===
+                                    (guess.subcategory || null)
+                            );
+
+                    if (matchingBtn) {
+                        matchingBtn.click();
+                    }
+                }
+
+            } catch (err) {
+
+                console.error(err);
+
+            } finally {
+
+                if (saveBtn) {
+
+                    saveBtn.innerText =
+                        "ARCHIVE ITEM";
+
+                    saveBtn.disabled = false;
+                }
+            }
+            */
+        };
+    }
+
+    // ========================================
+    // SAVE ITEM
+    // ========================================
+
+    if (saveBtn) {
+
+        saveBtn.onclick = async () => {
+
+            const { data: { session } } =
+                await supabase.auth.getSession();
+
+            if (
+                !currentImageData ||
+                !nameInput?.value
+            ) {
+
+                alert("Details required.");
+
+                return;
+            }
+
+            saveBtn.innerText =
+                "ARCHIVING...";
+
+            saveBtn.disabled = true;
+
+            try {
+
+                const imageUrl =
+                    await uploadImageToStorage(
+                        currentImageData
+                    );
+
+                const { error } =
+                    await supabase
+                        .from('items')
+                        .insert([{
+
+                            user_id:
+                                session?.user?.id || null,
+
+                            name:
+                                nameInput.value,
+
+                            image_url:
+                                imageUrl,
+
+                            tags: {
+
+                                brand:
+                                    brandInput?.value || "",
+
+                                category:
+                                    selectedCategory,
+
+                                subcategory:
+                                    selectedSubCategory,
+
+                                layerable:
+                                    selectedSubCategory === "Top"
+                            }
+                        }]);
+
+                if (error) {
+                    throw error;
+                }
+
+                location.reload();
+
+            } catch (err) {
+
+                console.error(err);
+
+                alert(
+                    "Archive failed: "
+                    + err.message
+                );
+
+                saveBtn.innerText =
+                    "ARCHIVE ITEM";
+
+                saveBtn.disabled = false;
+            }
+        };
+    }
+
+    // ========================================
+    // AI CONSULT
+    // ========================================
+
+    if (askBtn) {
+
+        askBtn.onclick = async () => {
+
+            const promptEl =
+                document.getElementById('occasion-input');
+
+            const userPrompt =
+                (promptEl.value || "").trim();
+
+            if (!userPrompt) {
+
+                alert(
+                    "Please enter a question for the consultant."
+                );
+
+                return;
+            }
+
+            askBtn.innerText =
+                "CONSULTING...";
+
+            askBtn.disabled = true;
+
+            try {
+
+                const { data: items, error: dbError } =
+                    await supabase
+                        .from('items')
+                        .select('name,tags');
+
+                if (dbError) {
+                    throw dbError;
+                }
+
+                const wardrobeContext =
+                    items && items.length > 0
+
+                    ? items.map(i =>
+                        `- ${i.name} (${i.tags?.brand || 'Independent'}, ${i.tags?.category || 'Item'})`
+                    ).join('\n')
+
+                    : "The user's archive is currently empty.";
+
+                const finalPrompt = `
 You are Curato, an elite personal fashion archivist and stylist.
 
 Your tone is:
@@ -1250,344 +973,45 @@ Rules:
 - Sound like a luxury fashion consultant
 `;
 
-        const response =
-            await callGeminiAPI(
-                null,
-                null,
-                finalPrompt
-            );
+                const response =
+                    await callGeminiAPI(
+                        null,
+                        null,
+                        finalPrompt
+                    );
 
-        if (suggestionBox) {
-            suggestionBox.innerHTML =
-                renderAIResponse(response);
+                if (suggestionBox) {
 
-            suggestionBox.classList.remove("hidden");
-            suggestionBox.scrollIntoView({
-                behavior: "smooth"
-            });
-        }
+                    suggestionBox.innerHTML =
+                        renderAIResponse(response);
 
-    } catch (err) {
+                    suggestionBox.classList.remove('hidden');
 
-        console.error(
-            "Consultant Error:",
-            err
-        );
-
-        alert(
-            "Consultation failed: "
-            + err.message
-        );
-
-    } finally {
-        if (askBtn) {
-            askBtn.innerText =
-                "Consult Archive";
-            askBtn.disabled = false;
-        }
-    }
-}
-
-// ========================================
-// DOM READY
-// ========================================
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    setupThemePicker();
-    renderFormTagGroups();
-    renderSelectionSummary();
-    renderCategoryButtons();
-    updateUploadPreview();
-    resetForm();
-    fetchItems();
-
-    const authBtn =
-        document.getElementById("auth-btn");
-
-    const keyInput =
-        document.getElementById("user-api-key");
-
-    const modelSelect =
-        document.getElementById("model-select");
-
-    const fileInput =
-        document.getElementById("file-input");
-
-    const dropZone =
-        document.getElementById("drop-zone");
-
-    const removeImageBtn =
-        document.getElementById("remove-image-btn");
-
-    const saveBtn =
-        document.getElementById("save-btn");
-
-    const clearFormBtn =
-        document.getElementById("clear-form-btn");
-
-    const occasionInput =
-        document.getElementById("occasion-input");
-
-    const askBtn =
-        document.getElementById("ask-btn");
-
-    const nameInput =
-        document.getElementById("item-name");
-
-    if (authBtn) {
-        authBtn.onclick = async () => {
-
-            const { data: { session } } =
-                await supabase.auth.getSession();
-
-            if (session) {
-                await supabase.auth.signOut();
-                window.location.reload();
-                return;
-            }
-
-            await supabase.auth.signInWithOAuth({
-                provider: "discord",
-                options: {
-                    redirectTo: REDIRECT_URL
+                    suggestionBox.scrollIntoView({
+                        behavior: 'smooth'
+                    });
                 }
-            });
-        };
-    }
 
-    if (keyInput) {
-        keyInput.onblur = async () => {
+            } catch (err) {
 
-            const { data: { session } } =
-                await supabase.auth.getSession();
-
-            if (session && keyInput.value) {
-                await supabase.auth.updateUser({
-                    data: {
-                        gemini_api_key:
-                            keyInput.value.trim()
-                    }
-                });
-            }
-        };
-    }
-
-    if (modelSelect) {
-        modelSelect.onchange = async () => {
-
-            const { data: { session } } =
-                await supabase.auth.getSession();
-
-            if (session) {
-                await supabase.auth.updateUser({
-                    data: {
-                        preferred_model:
-                            modelSelect.value
-                    }
-                });
-            }
-        };
-    }
-
-    supabase.auth.onAuthStateChange((_, session) => {
-
-        if (session) {
-
-            if (authBtn) {
-                authBtn.innerText =
-                    `LOGOUT (${session.user.user_metadata.full_name || "USER"})`;
-            }
-
-            if (keyInput) {
-                keyInput.value =
-                    session.user.user_metadata?.gemini_api_key || "";
-            }
-
-            if (modelSelect) {
-                modelSelect.value =
-                    session.user.user_metadata?.preferred_model ||
-                    "gemini-2.0-flash";
-            }
-
-        } else if (authBtn) {
-            authBtn.innerText = "CONNECT";
-        }
-
-        fetchItems();
-    });
-
-    document.addEventListener("click", (event) => {
-
-        const formChip =
-            event.target.closest(
-                "[data-context='form']"
-            );
-
-        if (formChip) {
-
-            const groupId =
-                formChip.dataset.group;
-
-            const config =
-                FORM_TAG_GROUPS.find(
-                    (group) => group.id === groupId
+                console.error(
+                    "Consultant Error:",
+                    err
                 );
 
-            if (!config) return;
+                alert(
+                    "Consultation failed: "
+                    + err.message
+                );
 
-            const value =
-                formChip.dataset.value;
+            } finally {
 
-            if (config.multi) {
+                askBtn.innerText =
+                    "CONSULT ARCHIVE";
 
-                const nextValues =
-                    formState[groupId].includes(value)
-                        ? formState[groupId].filter(
-                            (entry) => entry !== value
-                        )
-                        : [...formState[groupId], value];
-
-                formState[groupId] = nextValues;
-
-            } else {
-                formState[groupId] = value;
+                askBtn.disabled = false;
             }
-
-            renderFormTagGroups();
-            renderSelectionSummary();
-            return;
-        }
-
-        const categoryButton =
-            event.target.closest(".cat-opt");
-
-        if (categoryButton) {
-            formState.category =
-                categoryButton.dataset.val;
-            formState.subcategory =
-                categoryButton.dataset.sub || null;
-
-            renderCategoryButtons();
-            renderSelectionSummary();
-            return;
-        }
-
-        const editButton =
-            event.target.closest(".edit-item-btn");
-
-        if (editButton) {
-            beginEditingItem(
-                editButton.dataset.itemId
-            );
-        }
-    });
-
-    if (nameInput) {
-        nameInput.addEventListener(
-            "input",
-            updateSaveButtonState
-        );
-    }
-
-    document.getElementById("item-brand")
-        ?.addEventListener("input", () => {
-            setFormFeedback(
-                "Metadata updates here will improve search and styling suggestions later.",
-                "info"
-            );
-        });
-
-    if (fileInput) {
-        fileInput.onchange = async (event) => {
-            const file =
-                event.target.files[0];
-
-            if (file) {
-                await handleIncomingFile(file);
-            }
-        };
-    }
-
-    if (dropZone) {
-        dropZone.onclick = () => {
-            fileInput?.click();
-        };
-
-        dropZone.onkeydown = (event) => {
-            if (
-                event.key === "Enter" ||
-                event.key === " "
-            ) {
-                event.preventDefault();
-                fileInput?.click();
-            }
-        };
-
-        ["dragenter", "dragover"].forEach((type) => {
-            dropZone.addEventListener(type, (event) => {
-                event.preventDefault();
-                dropZone.classList.add("dragging");
-            });
-        });
-
-        ["dragleave", "dragend", "drop"].forEach((type) => {
-            dropZone.addEventListener(type, (event) => {
-                event.preventDefault();
-                dropZone.classList.remove("dragging");
-            });
-        });
-
-        dropZone.addEventListener("drop", async (event) => {
-            const file =
-                event.dataTransfer?.files?.[0];
-
-            if (file) {
-                await handleIncomingFile(file);
-            }
-        });
-    }
-
-    if (removeImageBtn) {
-        removeImageBtn.onclick = (event) => {
-            event.stopPropagation();
-            currentImageData = null;
-            if (fileInput) {
-                fileInput.value = "";
-            }
-            updateUploadPreview();
-            updateSaveButtonState();
-            setFormFeedback(
-                "Image removed. Drop in a new one when you are ready.",
-                "info"
-            );
-        };
-    }
-
-    if (clearFormBtn) {
-        clearFormBtn.onclick = () => {
-            resetForm();
-        };
-    }
-
-    if (saveBtn) {
-        saveBtn.onclick = async () => {
-            await saveItem();
-        };
-    }
-
-    if (occasionInput) {
-        occasionInput.addEventListener("keydown", (event) => {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                runConsultation();
-            }
-        });
-    }
-
-    if (askBtn) {
-        askBtn.onclick = async () => {
-            await runConsultation();
         };
     }
 });
+````
