@@ -6,7 +6,6 @@
     <title>Curato | Archive</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
@@ -143,14 +142,7 @@
         <button id="ask-btn" class="mt-12 px-12 py-4 rounded-full glow-btn text-[10px] tracking-[0.3em] uppercase hover:scale-[1.02] active:scale-95 transition-all">
             Consult Archive
         </button>
-        <div id="ai-suggestion" class="hidden mt-12 glass p-10 rounded-3xl max-w-2xl mx-auto relative group">
-            <div id="ai-content-area" class="ai-render-area"></div>
-            
-            <button id="share-btn" class="absolute top-6 right-6 flex items-center gap-2 text-[9px] tracking-[0.2em] uppercase text-white/50 hover:text-white transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-                Share Card
-            </button>`
-        </div>
+        <div id="ai-suggestion" class="hidden mt-12 glass p-10 rounded-3xl max-w-2xl mx-auto ai-render-area"></div>
     </section>
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
         <div class="lg:col-span-4 lg:sticky lg:top-28 h-fit">
