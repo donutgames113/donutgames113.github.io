@@ -1061,16 +1061,17 @@ Rules:
                     );
 
                 if (suggestionBox) {
-                    // 1. Put the text inside the specific content area
-                    aiContentArea.innerHTML = renderAIResponse(response);
 
-                    // 2. Show the box
+                    suggestionBox.innerHTML =
+                        renderAIResponse(response);
+
                     suggestionBox.classList.remove('hidden');
 
                     suggestionBox.scrollIntoView({
                         behavior: 'smooth'
                     });
                 }
+
             } catch (err) {
 
                 console.error(
