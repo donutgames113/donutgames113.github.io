@@ -900,7 +900,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!userPrompt) {
 
                 alert(
-                    "Please enter a question for the consultant."
+                    "Please enter a question."
                 );
 
                 return;
