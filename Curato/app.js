@@ -729,7 +729,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         .split(',')[1];
 
                 const prompt =
-                    'Identify this item. Return ONLY valid JSON: {"name":"string","brand":"string","category":"Watch|Fragrance|Other","subcategory":"Top|Bottom|null"}';
+                    'Identify this item. Return ONLY valid JSON: {"name":"string","brand":"string","category":"Watch|Fragrance|Shoes|Other","subcategory":"Top|Bottom|null"}';
 
                 const guess =
                     await callGeminiAPI(
@@ -936,6 +936,7 @@ Your tone is:
 - never overly verbose
 
 You are helping style outfits ONLY from the user's archive.
+Fragrances can be layered, but make sure it smells good.
 
 WARDROBE:
 
@@ -1014,4 +1015,3 @@ Rules:
         };
     }
 });
-````
