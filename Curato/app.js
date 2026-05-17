@@ -936,7 +936,7 @@ Your tone is:
 - never overly verbose
 
 You are helping style outfits ONLY from the user's archive.
-Fragrances can be layered, but make sure it smells good.
+Fragrances can be layered, but make sure it smells good. Optimise for the best possible smell for a situation.
 
 WARDROBE:
 
@@ -972,6 +972,7 @@ Rules:
 - Never explain basic fashion concepts
 - Prioritize aesthetic cohesion
 - Sound like a luxury fashion consultant
+- Keep it simple.
 `;
 
                 const response =
