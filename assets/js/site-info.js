@@ -1,4 +1,4 @@
-﻿(() => {
+(() => {
   const dataUrl = "assets/data/site.json";
   const fallback = { contactEmail: "hello@donut.studio" };
 
