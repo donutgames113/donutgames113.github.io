@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://donutgames113.github.io/sitemap.xml
