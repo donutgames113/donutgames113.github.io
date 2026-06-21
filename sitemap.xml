@@ -2,30 +2,46 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://donutgames113.github.io/index.html</loc>
-    <lastmod>2026-06-20</lastmod>
+    <lastmod>2026-06-21</lastmod>
   </url>
   <url>
     <loc>https://donutgames113.github.io/about.html</loc>
-    <lastmod>2026-06-09</lastmod>
+    <lastmod>2026-06-21</lastmod>
   </url>
   <url>
     <loc>https://donutgames113.github.io/gallery.html</loc>
-    <lastmod>2026-06-09</lastmod>
+    <lastmod>2026-06-21</lastmod>
   </url>
   <url>
     <loc>https://donutgames113.github.io/journal.html</loc>
-    <lastmod>2026-06-09</lastmod>
+    <lastmod>2026-06-21</lastmod>
   </url>
   <url>
     <loc>https://donutgames113.github.io/media-kit.html</loc>
-    <lastmod>2026-06-09</lastmod>
+    <lastmod>2026-06-21</lastmod>
   </url>
   <url>
     <loc>https://donutgames113.github.io/portfolio.html</loc>
-    <lastmod>2026-06-09</lastmod>
+    <lastmod>2026-06-21</lastmod>
   </url>
   <url>
     <loc>https://donutgames113.github.io/structures.html</loc>
-    <lastmod>2026-06-09</lastmod>
+    <lastmod>2026-06-21</lastmod>
+  </url>
+  <url>
+    <loc>https://donutgames113.github.io/Games/index.html</loc>
+    <lastmod>2026-06-21</lastmod>
+  </url>
+  <url>
+    <loc>https://donutgames113.github.io/Games/skyscraper-shenanigans.html</loc>
+    <lastmod>2026-06-21</lastmod>
+  </url>
+  <url>
+    <loc>https://donutgames113.github.io/Games/parkour-run.html</loc>
+    <lastmod>2026-06-21</lastmod>
+  </url>
+  <url>
+    <loc>https://donutgames113.github.io/Games/the-tower.html</loc>
+    <lastmod>2026-06-21</lastmod>
   </url>
 </urlset>
