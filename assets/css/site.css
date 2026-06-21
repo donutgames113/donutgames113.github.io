@@ -439,6 +439,58 @@ img {
   line-height: 0.95;
 }
 
+.game-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(260px, 0.95fr);
+  gap: var(--space-phi-2);
+  align-items: center;
+}
+
+.game-hero img {
+  width: 100%;
+  max-height: 360px;
+  object-fit: contain;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0;
+  border-top: 1px solid var(--border);
+}
+
+.stat {
+  padding: var(--space-phi);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.stat strong {
+  display: block;
+  color: var(--text);
+  font-size: 1.25rem;
+}
+
+.stat span {
+  color: var(--muted);
+  font-family: "Space Mono", "Courier New", monospace;
+  font-size: 0.82rem;
+}
+
+.detail-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--muted);
+  line-height: var(--phi);
+}
+
+.detail-list li {
+  margin-bottom: var(--space-phi-inv);
+}
+
 .blog-post {
   display: flex;
   flex-direction: column;
@@ -837,6 +889,10 @@ footer .footer-link:focus-visible {
 }
 
 @media (max-width: 720px) {
+  .game-hero {
+    grid-template-columns: 1fr;
+  }
+
   .vector-section .kit-card {
     flex-direction: column;
     align-items: flex-start;

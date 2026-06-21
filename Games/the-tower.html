@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Tower | Donut Games</title>
+    <meta name="description" content="The Tower is Donut's Roblox tower traversal game with multiple modes for exploration and competition." />
+    <link rel="canonical" href="https://donutgames113.github.io/Games/the-tower.html" />
+    <link rel="icon" type="image/png" href="../Images/icons/Favicon.png" />
+    <link rel="icon" type="image/x-icon" href="../Images/icons/favicon.ico" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:wght@600&family=Space+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../assets/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="logo">Donut</div>
+      <nav aria-label="Primary">
+        <ul class="site-nav">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="../portfolio.html">Portfolio</a></li>
+          <li><a href="index.html" class="active">Games</a></li>
+          <li><a href="../journal.html">Journal</a></li>
+          <li><a href="../gallery.html">Gallery</a></li>
+          <li><a href="../structures.html">Structures</a></li>
+        </ul>
+      </nav>
+      <div class="header-controls">
+        <button class="settings-button" type="button" id="settings-button">Settings</button>
+      </div>
+    </header>
+    <main>
+      <section class="hero game-hero">
+        <div>
+          <p class="subtitle">Roblox Tower Traversal</p>
+          <h1>The Tower</h1>
+          <p>A tall tower experience with multiple gamemodes for players who want to explore, climb, or compete with friends.</p>
+          <div class="actions">
+            <a class="button" href="https://www.roblox.com/games/refer?PlaceId=18708310628" target="_blank" rel="noopener noreferrer">Play on Roblox</a>
+            <a class="button secondary" href="index.html">All games</a>
+          </div>
+        </div>
+        <img src="../Images/projects/TheTower.PNG" alt="The Tower game art" />
+      </section>
+      <section class="section">
+        <h2 class="section-title">Overview</h2>
+        <div class="stat-grid">
+          <div class="stat"><strong>Genre</strong><span>Casual Traversal</span></div>
+          <div class="stat"><strong>Platform</strong><span>Roblox</span></div>
+          <div class="stat"><strong>Status</strong><span>Beta</span></div>
+        </div>
+      </section>
+      <section class="section">
+        <h2 class="section-title">Highlights</h2>
+        <div class="card-list">
+          <article class="card"><h3>Multiple modes</h3><p>Either play solo or compete with friends in a shared server.</p></article>
+          <article class="card"><h3>Easy to learn</h3><p>The premise is easy to understand and feels natural to play.</p></article>
+        </div>
+      </section>
+    </main>
+    <footer>&copy; 2026 Donut. <a class="footer-link" href="../media-kit.html">Media kit</a>. <a class="footer-link" href="https://x.com/RealDonutGames" target="_blank" rel="noopener noreferrer">@RealDonutGames on X</a>.</footer>
+    <div class="settings-overlay" id="settings-modal" aria-hidden="true">
+      <div class="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <div class="settings-header"><h2 id="settings-title">Settings &amp; Preferences</h2><button class="settings-close" type="button" aria-label="Close settings">Close</button></div>
+        <div class="settings-grid">
+          <div class="settings-block"><h3>Appearance</h3><label class="settings-label" for="theme-selector">Color theme</label><select id="theme-selector" class="theme-selector"><option value="dark">Dark</option><option value="light">Light</option><option value="mediterranean">Mediterranean</option><option value="nordic">Nordic</option><option value="desert-bloom">Desert Bloom</option></select></div>
+          <div class="settings-block"><h3>Comfort</h3><label class="toggle"><input type="checkbox" id="setting-reduce-motion" /><span>Reduce motion</span></label><p class="settings-help">Cuts back on animation and scrolling effects.</p><label class="toggle"><input type="checkbox" id="setting-compact" /><span>Compact spacing</span></label><p class="settings-help">Tightens padding and layout rhythm.</p></div>
+          <div class="settings-block"><h3>Preferences</h3><label class="toggle"><input type="checkbox" id="setting-contrast" /><span>High contrast mode</span></label><p class="settings-help">Boosts borders and text contrast.</p><button class="button secondary settings-reset" type="button" id="settings-reset">Reset preferences</button></div>
+        </div>
+      </div>
+    </div>
+    <script src="../assets/js/theme.js" defer></script>
+  </body>
+</html>
