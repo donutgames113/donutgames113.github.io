@@ -30,9 +30,9 @@
     <main>
       <section class="hero">
         <p class="subtitle">Roblox Developer | Builder | Brand Designer</p>
-        <h1>Pretty cool game dev.</h1>
+        <h1>Roblox work with polish and proof.</h1>
         <p>
-          This portfolio showcases my work in game development, environment design, and brand identity. It's a WIP, so don't expect much!
+          This portfolio collects my game development, environment design, and brand identity work, including public releases and contributions connected to 1.3M+ Roblox visits.
         </p>
         <div class="actions">
           <a class="button" href="about.html">About</a>
@@ -41,50 +41,59 @@
       </section>
       <section class="section" id="projects">
         <h2 class="section-title">Projects</h2>
-        <p class="section-subtitle">A selection of public Roblox releases, environment work, and brand design.</p>
+        <p class="section-subtitle">A selection of public Roblox releases, environment work, and brand design with a consistent shipped standard.</p>
         <div class="card-list">
           <article class="card">
             <img src="Images/projects/Skyscraper Shenanigans Logo.png" alt="Skyscraper Shenanigans" />
             <h3>Skyscraper Shenanigans</h3>
-            <p>A high-rise race against time, other players, water or lava.</p>
+            <p>A high-rise race against time, other players, water, or lava.</p>
             <a class="button secondary" href="Games/skyscraper-shenanigans.html">View project</a>
           </article>
           <article class="card">
             <img src="Images/projects/PRUN logo.png" alt="Parkour Run" />
             <h3>Parkour Run (Beta)</h3>
-            <p>Procedural parkour with a work in progress system for racing, and dynamic environments.</p>
+            <p>Procedural parkour shaped around racing, momentum, and dynamic environments.</p>
             <a class="button secondary" href="Games/parkour-run.html">View project</a>
           </article>
           <article class="card">
             <img src="Images/projects/TheTower.PNG" alt="The Tower" />
             <h3>The Tower</h3>
-            <p>Tall tower with multiple gamemodes to explore, or compete with friends.</p>
+            <p>A tower experience with multiple gamemodes for exploration and competition.</p>
             <a class="button secondary" href="Games/the-tower.html">View project</a>
           </article>
         </div>
       </section>
       <section class="section">
         <h2 class="section-title">Reach</h2>
-        <div class="card">
-          <h3>Documented audience reach</h3>
+        <div class="card featured-credit" id="aventix-credit">
+          <p class="card-kicker">Aventix Productions</p>
+          <h3>Graphics designer and game developer</h3>
           <p style="font-size: 2rem; font-weight: 700; color: var(--accent);"> <span id="visitSum">0</span> </p>
-          <p style="margin: 0; color: var(--muted);">Combined visits across Playzero, Aventix, and Coral-related Roblox communities connected to this work.</p>
+          <p style="margin: 0; color: var(--muted);">Contributed to +1 Speed ASMR Escape, a Roblox experience with over 1.3M visits and around 1,200 average players.</p>
+          <div class="credit-meta" aria-label="Aventix contribution stats">
+            <span>1.3M+ visits</span>
+            <span>Avg 1,200 players</span>
+          </div>
+          <div class="actions">
+            <a class="button secondary" href="https://www.roblox.com/communities/35276185/Aventix-Productions" target="_blank" rel="noopener noreferrer">Aventix group</a>
+            <a class="button secondary" href="https://www.roblox.com/games/108914645067573/1-Speed-ASMR-Escape" target="_blank" rel="noopener noreferrer">Roblox game</a>
+          </div>
         </div>
       </section>
       <section class="section" id="skills">
         <h2 class="section-title">Capabilities</h2>
         <div class="card-list">
-          <article class="card"><h3>UI/UX</h3><p>Versatility across several styles.</p></article>
-          <article class="card"><h3>Graphics</h3><p>Visual design and asset creation.</p></article>
-          <article class="card"><h3>Building</h3><p>Able to create immersive environments.</p></article>
-          <article class="card"><h3>Scripting</h3><p>Able to script at an intermediate level with 3+ years of experience.</p></article>
-          <article class="card"><h3>Programming</h3><p>Able to write efficient and maintainable code.</p></article>
-          <article class="card"><h3>API Work</h3><p>Able to integrate and utilize various APIs effectively.</p></article>
+          <article class="card"><h3>UI/UX</h3><p>Adaptable interface design across several visual styles.</p></article>
+          <article class="card"><h3>Graphics</h3><p>Launch-ready visual design, thumbnails, and asset creation.</p></article>
+          <article class="card"><h3>Building</h3><p>Immersive environments with readable scale, lighting, and atmosphere.</p></article>
+          <article class="card"><h3>Scripting</h3><p>Intermediate Lua scripting backed by 3+ years of hands-on development.</p></article>
+          <article class="card"><h3>Programming</h3><p>Efficient, maintainable code for tools, websites, and gameplay systems.</p></article>
+          <article class="card"><h3>API Work</h3><p>Practical API integration for web tools and connected project workflows.</p></article>
         </div>
       </section>
       <section class="section">
         <h2 class="section-title">Project links</h2>
-        <p class="section-subtitle">External projects and tools that sit outside this portfolio.</p>
+        <p class="section-subtitle">External projects and tools that show the broader technical side of the work.</p>
         <div class="project-link-list">
           <a class="project-link" href="https://donutgames113.github.io/Curato/" target="_blank" rel="noopener noreferrer">
             <span>
@@ -110,10 +119,7 @@
       &copy; 2026 Donut. <a class="footer-link" href="media-kit.html">Media kit</a>. <a class="footer-link" href="https://x.com/RealDonutGames" target="_blank" rel="noopener noreferrer">@RealDonutGames on X</a>.
     </footer>
     <script>
-      const playzero = 600;
-      const aventix = 8962;
-      const coral = 3365;
-      const totalVisits = playzero + aventix + coral;
+      const totalVisits = 1300000;
 
       function to3SF(num) {
         if (num === 0) return "0";
