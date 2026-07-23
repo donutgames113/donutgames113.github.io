@@ -716,6 +716,7 @@ img {
 .bento-grid {
   column-width: calc(220px * var(--phi));
   column-gap: var(--space-phi-inv);
+  font-size: 0;
 }
 
 .bento-grid img {
@@ -724,6 +725,18 @@ img {
   margin-bottom: var(--space-phi-inv);
   break-inside: avoid;
   border-radius: 6px;
+}
+
+.bento-grid img.Small {
+  width: calc(50% - (var(--space-phi-inv) / 2));
+  display: inline-block;
+  vertical-align: top;
+  padding: 0;
+  background: transparent;
+}
+
+.bento-grid img.Small:nth-of-type(odd) {
+  margin-right: var(--space-phi-inv);
 }
 
 .lightbox-overlay {
