@@ -116,6 +116,27 @@
   --settings-block-bg: rgba(210, 108, 129, 0.12);
 }
 
+[data-theme="soft"] {
+  --body-bg: linear-gradient(145deg, #f5f7f1, #dfe6dc);
+  --header-bg: rgba(245, 247, 241, 0.92);
+  --hero-bg: linear-gradient(135deg, rgba(59, 132, 83, 0.2), rgba(245, 247, 241, 0.96));
+  --panel: rgba(255, 255, 250, 0.62);
+  --panel-strong: rgba(39, 54, 45, 0.16);
+  --text: #1b211d;
+  --muted: #5b665e;
+  --accent: #3b8453;
+  --accent-dark: #255738;
+  --border: rgba(37, 87, 56, 0.26);
+  --shadow-soft: none;
+  --button-bg: #1b211d;
+  --button-text: #f7faf5;
+  --button-hover-bg: var(--accent);
+  --button-hover-text: #f7faf5;
+  --settings-overlay-bg: rgba(220, 227, 218, 0.74);
+  --settings-panel-bg: rgba(247, 250, 245, 0.92);
+  --settings-block-bg: rgba(59, 132, 83, 0.12);
+}
+
 [data-density="compact"] {
   --space-1: 0.85rem;
   --content-width: calc(620px * var(--phi));
