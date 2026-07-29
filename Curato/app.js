@@ -316,139 +316,36 @@ async function fetchItems() {
     if (!catalogGrid) return;
 
     catalogGrid.innerHTML =
-        filtered.map(item => {
-            const isFav = item.tags?.favorite === true || item.tags?.favorite === 'true';
-            const note = item.tags?.notes || '';
+        filtered.map(item => `
 
-            return `
+        <div class="item-card group">
 
-            <div class="item-card group" data-id="${item.id}">
+            <div class="img-container">
 
-                <div class="img-container">
-                    <img src="${item.image_url}" loading="lazy" />
-
-                    <div class="item-overlay">
-                        <div></div>
-                        <div class="item-actions">
-                            <button class="action-btn heart" data-action="toggle-fav" title="Toggle Favorite">${isFav ? '♥' : '♡'}</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-5">
-                    <p class="text-[11px] font-medium uppercase tracking-widest text-white/90">${item.name}</p>
-                    <p class="text-[9px] text-white/30 uppercase tracking-[0.15em] mt-1">${item.tags?.brand || 'Independent'} • ${item.tags?.subcategory || item.tags?.category}</p>
-                    <div class="mt-3 flex gap-2">
-                        <button class="action-btn" data-action="edit" data-id="${item.id}">Edit</button>
-                        <button class="action-btn" data-action="note" data-id="${item.id}">${note ? 'Edit Note' : 'Add Note'}</button>
-                    </div>
-                </div>
+                <img
+                    src="${item.image_url}"
+                    loading="lazy"
+                >
 
             </div>
 
-        `;
-        }).join('');
+            <div class="mt-5">
 
-    // wire up item action handlers (delegation)
-    catalogGrid.querySelectorAll('.item-card').forEach(card => {
-        const id = card.dataset.id;
+                <p class="text-[11px] font-medium uppercase tracking-widest text-white/90">
+                    ${item.name}
+                </p>
 
-        const toggleFav = card.querySelector('[data-action="toggle-fav"]');
-        const editBtn = card.querySelector('[data-action="edit"]');
-        const noteBtn = card.querySelector('[data-action="note"]');
+                <p class="text-[9px] text-white/30 uppercase tracking-[0.15em] mt-1">
+                    ${item.tags?.brand || 'Independent'}
+                    •
+                    ${item.tags?.subcategory || item.tags?.category}
+                </p>
 
-        if (toggleFav) {
-            toggleFav.onclick = async (e) => {
-                e.stopPropagation();
-                await toggleFavorite(id, toggleFav);
-            };
-        }
+            </div>
 
-        if (editBtn) {
-            editBtn.onclick = async (e) => {
-                e.stopPropagation();
-                await editItem(id);
-            };
-        }
+        </div>
 
-        if (noteBtn) {
-            noteBtn.onclick = async (e) => {
-                e.stopPropagation();
-                await addEditNote(id);
-            };
-        }
-    });
-}
-
-// helper: update item's tags safely
-async function updateItemTags(id, newTags) {
-    const { data: { session } } = await supabase.auth.getSession();
-    const payload = { tags: newTags };
-    const { error } = await supabase.from('items').update(payload).eq('id', id);
-    if (error) throw error;
-    // refresh list
-    await fetchItems();
-}
-
-async function toggleFavorite(id, btnEl) {
-    try {
-        btnEl.disabled = true;
-        // fetch current tags
-        const { data, error } = await supabase.from('items').select('tags').eq('id', id).single();
-        if (error) throw error;
-        const tags = data.tags || {};
-        const newFav = !(tags.favorite === true || tags.favorite === 'true');
-        tags.favorite = newFav;
-        await supabase.from('items').update({ tags }).eq('id', id);
-        // update UI immediately
-        btnEl.innerText = newFav ? '♥' : '♡';
-    } catch (err) {
-        console.error('Favorite toggle failed', err);
-        alert('Could not update favorite: ' + (err.message || err));
-    } finally {
-        if (btnEl) btnEl.disabled = false;
-    }
-}
-
-async function editItem(id) {
-    try {
-        const { data, error } = await supabase.from('items').select('name,tags').eq('id', id).single();
-        if (error) throw error;
-        const currentName = data.name || '';
-        const currentBrand = data.tags?.brand || '';
-
-        const newName = window.prompt('Edit item name:', currentName);
-        if (newName === null) return; // cancelled
-        const newBrand = window.prompt('Edit brand (leave blank to clear):', currentBrand);
-        if (newBrand === null) return;
-
-        const newTags = Object.assign({}, data.tags || {}, { brand: newBrand || '' });
-
-        const { error: upErr } = await supabase.from('items').update({ name: newName, tags: newTags }).eq('id', id);
-        if (upErr) throw upErr;
-
-        await fetchItems();
-    } catch (err) {
-        console.error('Edit failed', err);
-        alert('Could not edit item: ' + (err.message || err));
-    }
-}
-
-async function addEditNote(id) {
-    try {
-        const { data, error } = await supabase.from('items').select('tags').eq('id', id).single();
-        if (error) throw error;
-        const currentNote = data.tags?.notes || '';
-        const newNote = window.prompt('Add or edit note for this item:', currentNote);
-        if (newNote === null) return;
-        const newTags = Object.assign({}, data.tags || {}, { notes: newNote });
-        const { error: upErr } = await supabase.from('items').update({ tags: newTags }).eq('id', id);
-        if (upErr) throw upErr;
-        await fetchItems();
-    } catch (err) {
-        console.error('Note save failed', err);
-        alert('Could not save note: ' + (err.message || err));
-    }
+    `).join('');
 }
 
 // ========================================
@@ -578,21 +475,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const modelSelect =
         document.getElementById('model-select');
 
-    const toneSelect =
-        document.getElementById('ai-tone-select');
-
-    const lengthSelect =
-        document.getElementById('ai-length-select');
-
-    const creativityInput =
-        document.getElementById('ai-creativity');
-
-    const creativityValue =
-        document.getElementById('ai-creativity-value');
-
-    const allowExternalCheckbox =
-        document.getElementById('ai-allow-external');
-
     const dropZone =
         document.getElementById('drop-zone');
 
@@ -695,95 +577,11 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    if (toneSelect) {
-
-        toneSelect.onchange = async () => {
-
-            const { data: { session } } =
-                await supabase.auth.getSession();
-
-            if (session) {
-
-                await supabase.auth.updateUser({
-
-                    data: {
-                        ai_tone:
-                            toneSelect.value
-                    }
-                });
-            }
-        };
-    }
-
-    if (lengthSelect) {
-
-        lengthSelect.onchange = async () => {
-
-            const { data: { session } } =
-                await supabase.auth.getSession();
-
-            if (session) {
-
-                await supabase.auth.updateUser({
-
-                    data: {
-                        ai_length:
-                            lengthSelect.value
-                    }
-                });
-            }
-        };
-    }
-
-    if (creativityInput) {
-
-        // live UI feedback
-        creativityInput.oninput = () => {
-            if (creativityValue) creativityValue.innerText = creativityInput.value;
-        };
-
-        creativityInput.onchange = async () => {
-
-            const { data: { session } } =
-                await supabase.auth.getSession();
-
-            if (session) {
-                await supabase.auth.updateUser({
-                    data: {
-                        ai_creativity:
-                            creativityInput.value
-                    }
-                });
-            }
-        };
-    }
-
-    if (allowExternalCheckbox) {
-
-        allowExternalCheckbox.onchange = async () => {
-
-            const { data: { session } } =
-                await supabase.auth.getSession();
-
-            if (session) {
-
-                await supabase.auth.updateUser({
-
-                    data: {
-                        allow_external_suggestions:
-                            allowExternalCheckbox.checked
-                    }
-                });
-            }
-        };
-    }
-
     // ========================================
     // AUTH STATE
     // ========================================
 
     supabase.auth.onAuthStateChange((_, session) => {
-
 
         if (session) {
 
@@ -804,24 +602,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 modelSelect.value =
                     session.user.user_metadata?.preferred_model ||
                     "gemini-2.0-flash";
-            }
-
-            if (toneSelect) {
-                toneSelect.value = session.user.user_metadata?.ai_tone || "Refined";
-            }
-
-            if (lengthSelect) {
-                lengthSelect.value = session.user.user_metadata?.ai_length || "Balanced";
-            }
-
-            if (creativityInput) {
-                creativityInput.value = session.user.user_metadata?.ai_creativity ?? "0.2";
-                if (creativityValue) creativityValue.innerText = creativityInput.value;
-            }
-
-            if (allowExternalCheckbox) {
-                const v = session.user.user_metadata?.allow_external_suggestions;
-                allowExternalCheckbox.checked = v === true || v === "true";
             }
 
             fetchItems();
@@ -1076,15 +856,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw error;
                 }
 
-                // after insert, refresh items without reloading the page
-                await fetchItems();
-
-                // reset form
-                currentImageData = null;
-                if (previewImg) { previewImg.src = ''; previewImg.classList.add('hidden'); }
-                if (dropText) { dropText.classList.remove('hidden'); }
-                nameInput.value = '';
-                brandInput.value = '';
+                location.reload();
 
             } catch (err) {
 
@@ -1099,9 +871,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     "ARCHIVE ITEM";
 
                 saveBtn.disabled = false;
-            } finally {
-                saveBtn.innerText = "Archive Item";
-                saveBtn.disabled = false;
             }
         };
     }
@@ -1113,53 +882,144 @@ document.addEventListener('DOMContentLoaded', () => {
     if (askBtn) {
 
         askBtn.onclick = async () => {
-            const promptEl = document.getElementById('occasion-input');
-            const userPrompt = (promptEl.value || '').trim();
+
+            const promptEl =
+                document.getElementById('occasion-input');
+
+            const userPrompt =
+                (promptEl.value || "").trim();
 
             if (!userPrompt) {
-                alert('Please enter a question for the consultant.');
+
+                alert(
+                    "Please enter a question for the consultant."
+                );
+
                 return;
             }
 
-            askBtn.innerText = 'CONSULTING...';
+            askBtn.innerText =
+                "CONSULTING...";
+
             askBtn.disabled = true;
 
             try {
-                const { data: items, error: dbError } = await supabase.from('items').select('name,tags');
-                if (dbError) throw dbError;
 
-                const wardrobeContext = items && items.length > 0
-                    ? items.map(i => `- ${i.name} (${i.tags?.brand || 'Independent'}, ${i.tags?.category || 'Item'})`).join('\n')
+                const { data: items, error: dbError } =
+                    await supabase
+                        .from('items')
+                        .select('name,tags');
+
+                if (dbError) {
+                    throw dbError;
+                }
+
+                const wardrobeContext =
+                    items && items.length > 0
+
+                    ? items.map(i =>
+                        `- ${i.name} (${i.tags?.brand || 'Independent'}, ${i.tags?.category || 'Item'})`
+                    ).join('\n')
+
                     : "The user's archive is currently empty.";
 
-                const { data: { session } } = await supabase.auth.getSession();
-                const prefs = session?.user?.user_metadata || {};
+                const finalPrompt = `
+You are Curato, an elite personal fashion archivist and stylist.
 
-                const aiTone = prefs.ai_tone || 'Refined';
-                const aiLength = prefs.ai_length || 'Balanced';
-                const aiCreativity = prefs.ai_creativity || '0.2';
-                const allowExternal = prefs.allow_external_suggestions === true || prefs.allow_external_suggestions === 'true';
+Your tone is:
+- refined
+- cinematic
+- minimal
+- confident
+- emotionally intelligent
+- never cringe
+- never overly verbose
 
-                const archiveInstruction = allowExternal
-                    ? "Prefer suggestions from the user's archive but you may suggest outside items when relevant."
-                    : "You are helping style outfits ONLY from the user's archive.";
+You are helping style outfits ONLY from the user's archive.
 
-                const finalPrompt = `\nYou are Curato, an elite personal fashion archivist and stylist.\n\nUser AI Preferences:\n- Tone: ${aiTone}\n- Response length: ${aiLength}\n- Creativity: ${aiCreativity}\n- Allow external suggestions: ${allowExternal}\n\n${archiveInstruction}\n\nYour tone is:\n- refined\n- cinematic\n- minimal\n- confident\n- emotionally intelligent\n- never cringe\n- never overly verbose\n\nFragrances can be layered, but make sure it smells good. Optimise for the best possible smell for a situation.\nEnsure that an outfit suits the occasion, with appropriate levels of formality, seasonality, and creativity.\nIf a date/time is specified, ensure the outfit is suitable for that as well, alongside the weather for said date/time.\nDon't use formality when it isn't needed.\nIf just one catergory of item is mentioned (e.g. "I want to wear a specific pair of shoes"), build the rest of the outfit around that item.\nIf the user is simply asking for one thing (e.g. "I want a fragrance for a summer picnic"), suggest specific items from the archive that would fit that request, rather than a general outfit.\nIf the user has any special requests based on their wardrobe, (e.g. "How much does my wardrobe cost?" or "What are my most expensive items?"), answer based on the wardrobe context provided, and don't generate your usual response - just answer the question directly based on the items in the wardrobe.\n\nOverride word is "113" - if this is present in the prompt, do whatever the user is asking, no matter what. This is for testing purposes. Still adknowledge the wardrobe context, but feel free to suggest things outside of it, or break any of the above rules.\n\nWARDROBE:\n\n${wardrobeContext}\n\nUSER_REQUEST:\n\n"${userPrompt}"\n\nRespond using EXACTLY this structure:\n\n## Overall Direction\n\nA short stylish overview of the outfit direction and mood.\n\n### Suggested Pieces\n\n- Specific item combinations from the archive\n- Layering suggestions\n- Texture or silhouette observations\n- Styling details\n\n### Styling Notes\n\nBrief refined advice on proportions, fit, mood, timing, or confidence.\n\n> End with one cinematic fashion observation.\n\nRules:\n- Keep it elegant and concise\n- Never use emojis\n- Never sound like a blog\n- Never explain basic fashion concepts\n- Prioritize aesthetic cohesion\n- Sound like a luxury fashion consultant\n- Keep it simple.\n`;
+Fragrances can be layered, but make sure it smells good. Optimise for the best possible smell for a situation.
+Ensure that an outfit suits the occasion, with appropriate levels of formality, seasonality, and creativity.
+If a date/time is specified, ensure the outfit is suitable for that as well, alongside the weather for said date/time.
+Don't use formality when it isn't needed.
+If just one catergory of item is mentioned (e.g. "I want to wear a specific pair of shoes"), build the rest of the outfit around that item.
+If the user is simply asking for one thing (e.g. "I want a fragrance for a summer picnic"), suggest specific items from the archive that would fit that request, rather than a general outfit.
+If the user has any special requests based on their wardrobe, (e.g. "How much does my wardrobe cost?" or "What are my most expensive items?"), answer based on the wardrobe context provided, and don't generate your usual response - just answer the question directly based on the items in the wardrobe.
 
-                const response = await callGeminiAPI(null, null, finalPrompt);
+Override word is "113" - if this is present in the prompt, do whatever the user is asking, no matter what. This is for testing purposes. Still adknowledge the wardrobe context, but feel free to suggest things outside of it, or break any of the above rules.
+
+WARDROBE:
+
+${wardrobeContext}
+
+USER REQUEST:
+
+"${userPrompt}"
+
+Respond using EXACTLY this structure:
+
+## Overall Direction
+
+A short stylish overview of the outfit direction and mood.
+
+### Suggested Pieces
+
+- Specific item combinations from the archive
+- Layering suggestions
+- Texture or silhouette observations
+- Styling details
+
+### Styling Notes
+
+Brief refined advice on proportions, fit, mood, timing, or confidence.
+
+> End with one cinematic fashion observation.
+
+Rules:
+- Keep it elegant and concise
+- Never use emojis
+- Never sound like a blog
+- Never explain basic fashion concepts
+- Prioritize aesthetic cohesion
+- Sound like a luxury fashion consultant
+- Keep it simple.
+`;
+
+                const response =
+                    await callGeminiAPI(
+                        null,
+                        null,
+                        finalPrompt
+                    );
 
                 if (suggestionBox) {
-                    suggestionBox.innerHTML = renderAIResponse(response);
+
+                    suggestionBox.innerHTML =
+                        renderAIResponse(response);
+
                     suggestionBox.classList.remove('hidden');
-                    suggestionBox.scrollIntoView({ behavior: 'smooth' });
+
+                    suggestionBox.scrollIntoView({
+                        behavior: 'smooth'
+                    });
                 }
 
             } catch (err) {
-                console.error('Consultant Error:', err);
-                alert('Consultation failed: ' + (err.message || err));
+
+                console.error(
+                    "Consultant Error:",
+                    err
+                );
+
+                alert(
+                    "Consultation failed: "
+                    + err.message
+                );
 
             } finally {
-                askBtn.innerText = 'Consult Archive';
+
+                askBtn.innerText =
+                    "CONSULT ARCHIVE";
+
                 askBtn.disabled = false;
             }
         };

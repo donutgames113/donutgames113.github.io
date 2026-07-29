@@ -11,121 +11,100 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-1: #04050a;
-            --bg-2: #07080d;
-            --panel: rgba(255,255,255,0.03);
-            --glass-stroke: rgba(255,255,255,0.05);
-            --text: rgba(255,255,255,0.96);
-            --muted: rgba(255,255,255,0.45);
-            --neon: #7cffef; /* cyan-neon */
-            --accent: #b0ff6a; /* lime */
-            --accent-soft: rgba(176,255,106,0.06);
-            --glass-grad: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.008));
+            --bg: #0b0b0c;
+            --card: rgba(255,255,255,0.04);
+            --stroke: rgba(255,255,255,0.08);
+            --text: rgba(255,255,255,0.9);
+            --muted: rgba(255,255,255,0.5);
+            --accent: #d4ff6a;
         }
-
-        /* Page background */
         body {
-            font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-            background: radial-gradient(800px 400px at 10% 10%, rgba(124,255,239,0.04), transparent), linear-gradient(180deg,var(--bg-1), var(--bg-2));
+            font-family: Inter, sans-serif;
+            background: radial-gradient(1200px 800px at 20% 0%, #1a1a1f 0%, #0b0b0c 60%);
             color: var(--text);
-            -webkit-font-smoothing:antialiased;
-            letter-spacing: -0.01em;
+            letter-spacing: -0.02em;
             min-height: 100vh;
-            transition: background .6s ease;
         }
-
-        /* subtle static/noise */
         body::before {
             content: "";
             position: fixed;
             inset: 0;
             background-image: url('https://grainy-gradients.vercel.app/noise.svg');
-            opacity: 0.02;
+            opacity: 0.04;
             pointer-events: none;
-            z-index: 1;
+            z-index: 50;
         }
-
-        /* Glass panels */
         .glass {
-            background: var(--glass-grad);
-            border: 1px solid var(--glass-stroke);
-            border-radius: 16px;
-            backdrop-filter: blur(10px) saturate(120%);
-            box-shadow: 0 12px 40px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+            background: var(--card);
+            border: 1px solid var(--stroke);
+            backdrop-filter: blur(24px);
         }
-
-        /* Nav */
         .nav-blur {
-            background: linear-gradient(90deg, rgba(6,8,12,0.6), rgba(6,8,12,0.35));
-            border-bottom: 1px solid rgba(255,255,255,0.02);
-            backdrop-filter: blur(8px) saturate(120%);
+            background: rgba(10,10,12,0.7);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--stroke);
         }
-        nav .brand {
-            font-weight:700; letter-spacing: -0.04em; font-size:18px;
+        .item-card {
+            transition: all .4s cubic-bezier(.2,.8,.2,1);
+            position: relative;
         }
-        nav .subtle {
-            font-size:10px; letter-spacing:0.28em; color:var(--muted);
+        .item-card:hover { transform: translateY(-6px); }
+        .img-container {
+            aspect-ratio: 4/5;
+            overflow: hidden;
+            border-radius: 12px;
+            border: 1px solid var(--stroke);
+            background: #121214;
         }
-
-        /* Controls */
+        .item-card img {
+            filter: saturate(0.6) brightness(0.9);
+            transition: .6s ease;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .item-card:hover img {
+            filter: saturate(1) brightness(1);
+            transform: scale(1.04);
+        }
         .chip {
-            border: 1px solid rgba(255,255,255,0.04);
-            padding: 8px 14px; border-radius: 999px; font-size:11px; text-transform:uppercase;
-            color:var(--muted); background: linear-gradient(180deg, rgba(255,255,255,0.006), transparent);
-            transition: transform .15s ease, box-shadow .15s ease, color .15s;
+            border: 1px solid var(--stroke);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            transition: .25s;
+            cursor: pointer;
+            background: transparent;
         }
-        .chip:hover { transform: translateY(-4px); color: white; box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
-        .chip.active, .cat-opt.active, .sort-opt.active { border-color: var(--neon); color: white; background: var(--accent-soft); }
-
-        /* Header input */
-        #occasion-input { font-size:28px; font-weight:300; padding:18px 14px; border-radius:14px; background: transparent; border: 1px solid rgba(255,255,255,0.03); color:var(--text); }
-        #occasion-input:focus { box-shadow: 0 8px 30px rgba(124,255,239,0.06); border-color: rgba(124,255,239,0.12); }
-
-        /* Buttons */
-        .primary-btn { background: linear-gradient(90deg, rgba(124,255,239,0.95), rgba(176,255,106,0.95)); color: #041012; padding:12px 28px; border-radius:999px; font-weight:700; letter-spacing:0.08em; box-shadow: 0 8px 30px rgba(124,255,239,0.08); border: none; }
-        .primary-btn:active { transform: translateY(1px); }
-        .subtle-btn { background: rgba(255,255,255,0.02); color:var(--muted); padding:8px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.03); }
-
-        /* Cards and grid */
-        .item-card { transition: transform .28s cubic-bezier(.2,.9,.3,1), box-shadow .28s; border-radius:14px; overflow:visible; }
-        .item-card .img-container { border-radius:12px; overflow:hidden; box-shadow: 0 8px 30px rgba(2,6,23,0.6); }
-        .item-card:hover { transform: translateY(-10px); }
-        #catalog-grid { display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:28px; }
-        @media(min-width:1024px) { #catalog-grid { grid-template-columns: repeat(3,minmax(0,1fr)); } }
-
-        .item-card p { margin:0; }
-        .item-card .title { font-size:13px; font-weight:600; letter-spacing:0.02em; color:var(--text); }
-        .item-card .meta { font-size:11px; color:var(--muted); margin-top:6px; }
-
-        /* Image effects */
-        .img-container img { width:100%; height:100%; object-fit:cover; transform-origin:center; transition: transform .6s ease, filter .6s ease; filter: saturate(0.85) contrast(1); }
-        .item-card:hover .img-container img { transform: scale(1.06) rotate(-0.2deg); filter: saturate(1.05) contrast(1.02); }
-
-        /* Item overlay actions */
-        .item-overlay { position:absolute; inset:12px; display:flex; justify-content:space-between; align-items:flex-start; pointer-events:none; }
-        .item-actions { pointer-events:auto; display:flex; gap:8px; }
-        .action-btn { backdrop-filter: blur(6px); background: linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.28)); color:white; padding:8px 10px; border-radius:10px; font-size:12px; border:1px solid rgba(255,255,255,0.025); cursor:pointer; }
-        .action-btn.heart { background: linear-gradient(90deg, rgba(124,255,239,0.12), rgba(176,255,106,0.06)); color: var(--neon); }
-
-        /* AI suggestion panel */
-        .ai-render-area { color:var(--text); }
-        .ai-render-area h2 { font-size:22px; color:var(--neon); font-weight:400; }
-        .ai-render-area p, .ai-render-area li { color: rgba(255,255,255,0.88); }
-        .ai-render-area blockquote { border-left:3px solid rgba(124,255,239,0.18); background: rgba(124,255,239,0.02); padding:10px 12px; border-radius:8px; }
-
-        /* Chat area */
-        #ai-chat { background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent); padding:12px; border-radius:12px; }
-        #ai-chat-messages { max-height: 360px; overflow:auto; padding:8px; }
-        .bubble { border-radius:12px; padding:12px 14px; }
-        .bubble.user { background: linear-gradient(90deg, rgba(255,255,255,0.95), rgba(240,240,240,0.95)); color:#041012; }
-        .bubble.assistant { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.02); color:var(--text); }
-
-        /* Small screens adjustments */
-        @media(max-width:768px) {
-            #occasion-input { font-size:20px; padding:14px; }
-            .primary-btn { padding:10px 18px; }
-            #catalog-grid { gap:18px; }
+        .chip:hover, .cat-opt.active, .sort-opt.active {
+            border-color: var(--accent);
+            color: white;
+            background: rgba(212, 255, 106, 0.05);
         }
+        #occasion-input {
+            font-size: 32px;
+            font-weight: 200;
+        }
+        .glow-btn {
+            background: white;
+            color: black;
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+        }
+        input::placeholder { color: rgba(255,255,255,0.2); }
+        input:focus { border-color: var(--accent) !important; }
+        select option { background: #1a1a1f; color: white; }
+
+        /* AI SUGGESTION RENDERING */
+        .ai-render-area { text-align: left; line-height: 1.8; }
+        .ai-render-area h2 { font-size: 26px; font-weight: 200; color: var(--accent); margin-bottom: 1.5rem; letter-spacing: -0.02em; }
+        .ai-render-area h3 { font-size: 11px; font-weight: 700; color: white; text-transform: uppercase; letter-spacing: 0.2em; margin-top: 2rem; border-bottom: 1px solid var(--stroke); padding-bottom: 0.5rem; }
+        .ai-render-area ul { margin-top: 1rem; list-style: none; padding-left: 0; }
+        .ai-render-area li { margin-bottom: 1.25rem; font-size: 14px; color: rgba(255,255,255,0.7); }
+        .ai-render-area li strong { display: block; color: white; font-size: 15px; margin-bottom: 2px; }
+        .ai-render-area blockquote { margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.02); border-left: 2px solid var(--accent); font-size: 13px; color: var(--muted); font-style: italic; }
     </style>
 </head>
 <body>
@@ -136,39 +115,13 @@
             <div class="text-[9px] tracking-[0.4em] text-white/30 uppercase">Personal Archive</div>
         </div>
         <div class="flex items-center gap-4">
-            <div class="hidden md:flex items-center gap-4">
-                <select id="model-select" class="bg-transparent border-b border-white/10 text-[9px] uppercase tracking-widest pb-1 focus:outline-none transition-all cursor-pointer text-white/50">
-                    <option value="gemini-3.1-flash-lite-preview">3.1 Flash Lite</option>
-                    <option value="gemini-3.1-pro-preview">3.1 Pro</option>
-                    <option value="gemini-3-flash-preview">3 Flash Preview</option>
-                </select>
-
-                <select id="ai-tone-select" class="bg-transparent border-b border-white/10 text-[9px] uppercase tracking-widest pb-1 focus:outline-none transition-all cursor-pointer text-white/50">
-                    <option value="Refined">Refined</option>
-                    <option value="Casual">Casual</option>
-                    <option value="Minimal">Minimal</option>
-                    <option value="Playful">Playful</option>
-                    <option value="Technical">Technical</option>
-                </select>
-
-                <select id="ai-length-select" class="bg-transparent border-b border-white/10 text-[9px] uppercase tracking-widest pb-1 focus:outline-none transition-all cursor-pointer text-white/50">
-                    <option value="Concise">Concise</option>
-                    <option value="Balanced">Balanced</option>
-                    <option value="Verbose">Verbose</option>
-                </select>
-
-                <div class="flex items-center gap-2">
-                    <input id="ai-creativity" type="range" min="0" max="1" step="0.1" value="0.2" class="w-24" />
-                    <span id="ai-creativity-value" class="text-[10px] text-white/40">0.2</span>
-                </div>
-
-                <input id="user-api-key" type="password" placeholder="Gemini Key" class="bg-transparent border-b border-white/10 text-[10px] w-32 pb-1 focus:outline-none transition-all" />
-            </div>
-
-            <div class="hidden md:flex items-center gap-3">
-                <label class="text-[10px] text-white/40 flex items-center gap-2"><input id="ai-allow-external" type="checkbox" /> <span>Allow outside suggestions</span></label>
-                <button id="auth-btn" class="text-[10px] tracking-[0.2em] uppercase text-white/50 hover:text-white transition">Connect</button>
-            </div>
+            <select id="model-select" class="hidden md:block bg-transparent border-b border-white/10 text-[9px] uppercase tracking-widest pb-1 focus:outline-none transition-all cursor-pointer text-white/50">
+                <option value="gemini-3.1-flash-lite-preview">3.1 Flash Lite</option>
+                <option value="gemini-3.1-pro-preview">3.1 Pro</option>
+                <option value="gemini-3-flash-preview">3 Flash Preview</option>
+            </select>
+            <input id="user-api-key" type="password" placeholder="Gemini Key" class="hidden md:block bg-transparent border-b border-white/10 text-[10px] w-32 pb-1 focus:outline-none transition-all" />
+            <button id="auth-btn" class="text-[10px] tracking-[0.2em] uppercase text-white/50 hover:text-white transition">Connect</button>
         </div>
     </div>
 </nav>
@@ -181,13 +134,10 @@
             <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip">Meeting the family, 30°C</button>
             <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip">Late night in Soho</button>
         </div>
-        <div class="mt-12">
-            <div class="flex justify-center">
-                <button id="ask-btn" class="primary-btn">Consult Archive</button>
-            </div>
-
-            <div id="ai-suggestion" class="hidden mt-12 glass p-10 rounded-3xl max-w-2xl mx-auto ai-render-area"></div>
-        </div>
+        <button id="ask-btn" class="mt-12 px-12 py-4 rounded-full glow-btn text-[10px] tracking-[0.3em] uppercase hover:scale-[1.02] active:scale-95 transition-all">
+            Consult Archive
+        </button>
+        <div id="ai-suggestion" class="hidden mt-12 glass p-10 rounded-3xl max-w-2xl mx-auto ai-render-area"></div>
     </section>
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
         <div class="lg:col-span-4 lg:sticky lg:top-28 h-fit">
