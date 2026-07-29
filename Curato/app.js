@@ -317,36 +317,139 @@ async function fetchItems() {
     if (!catalogGrid) return;
 
     catalogGrid.innerHTML =
-        filtered.map(item => `
+        filtered.map(item => {
+            const isFav = item.tags?.favorite === true || item.tags?.favorite === 'true';
+            const note = item.tags?.notes || '';
 
-        <div class="item-card group">
+            return `
 
-            <div class="img-container">
+            <div class="item-card group" data-id="${item.id}">
 
-                <img
-                    src="${item.image_url}"
-                    loading="lazy"
-                >
+                <div class="img-container">
+                    <img src="${item.image_url}" loading="lazy" />
+
+                    <div class="item-overlay">
+                        <div></div>
+                        <div class="item-actions">
+                            <button class="action-btn heart" data-action="toggle-fav" title="Toggle Favorite">${isFav ? '♥' : '♡'}</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-5">
+                    <p class="text-[11px] font-medium uppercase tracking-widest text-white/90">${item.name}</p>
+                    <p class="text-[9px] text-white/30 uppercase tracking-[0.15em] mt-1">${item.tags?.brand || 'Independent'} • ${item.tags?.subcategory || item.tags?.category}</p>
+                    <div class="mt-3 flex gap-2">
+                        <button class="action-btn" data-action="edit" data-id="${item.id}">Edit</button>
+                        <button class="action-btn" data-action="note" data-id="${item.id}">${note ? 'Edit Note' : 'Add Note'}</button>
+                    </div>
+                </div>
 
             </div>
 
-            <div class="mt-5">
+        `;
+        }).join('');
 
-                <p class="text-[11px] font-medium uppercase tracking-widest text-white/90">
-                    ${item.name}
-                </p>
+    // wire up item action handlers (delegation)
+    catalogGrid.querySelectorAll('.item-card').forEach(card => {
+        const id = card.dataset.id;
 
-                <p class="text-[9px] text-white/30 uppercase tracking-[0.15em] mt-1">
-                    ${item.tags?.brand || 'Independent'}
-                    •
-                    ${item.tags?.subcategory || item.tags?.category}
-                </p>
+        const toggleFav = card.querySelector('[data-action="toggle-fav"]');
+        const editBtn = card.querySelector('[data-action="edit"]');
+        const noteBtn = card.querySelector('[data-action="note"]');
 
-            </div>
+        if (toggleFav) {
+            toggleFav.onclick = async (e) => {
+                e.stopPropagation();
+                await toggleFavorite(id, toggleFav);
+            };
+        }
 
-        </div>
+        if (editBtn) {
+            editBtn.onclick = async (e) => {
+                e.stopPropagation();
+                await editItem(id);
+            };
+        }
 
-    `).join('');
+        if (noteBtn) {
+            noteBtn.onclick = async (e) => {
+                e.stopPropagation();
+                await addEditNote(id);
+            };
+        }
+    });
+}
+
+// helper: update item's tags safely
+async function updateItemTags(id, newTags) {
+    const { data: { session } } = await supabase.auth.getSession();
+    const payload = { tags: newTags };
+    const { error } = await supabase.from('items').update(payload).eq('id', id);
+    if (error) throw error;
+    // refresh list
+    await fetchItems();
+}
+
+async function toggleFavorite(id, btnEl) {
+    try {
+        btnEl.disabled = true;
+        // fetch current tags
+        const { data, error } = await supabase.from('items').select('tags').eq('id', id).single();
+        if (error) throw error;
+        const tags = data.tags || {};
+        const newFav = !(tags.favorite === true || tags.favorite === 'true');
+        tags.favorite = newFav;
+        await supabase.from('items').update({ tags }).eq('id', id);
+        // update UI immediately
+        btnEl.innerText = newFav ? '♥' : '♡';
+    } catch (err) {
+        console.error('Favorite toggle failed', err);
+        alert('Could not update favorite: ' + (err.message || err));
+    } finally {
+        if (btnEl) btnEl.disabled = false;
+    }
+}
+
+async function editItem(id) {
+    try {
+        const { data, error } = await supabase.from('items').select('name,tags').eq('id', id).single();
+        if (error) throw error;
+        const currentName = data.name || '';
+        const currentBrand = data.tags?.brand || '';
+
+        const newName = window.prompt('Edit item name:', currentName);
+        if (newName === null) return; // cancelled
+        const newBrand = window.prompt('Edit brand (leave blank to clear):', currentBrand);
+        if (newBrand === null) return;
+
+        const newTags = Object.assign({}, data.tags || {}, { brand: newBrand || '' });
+
+        const { error: upErr } = await supabase.from('items').update({ name: newName, tags: newTags }).eq('id', id);
+        if (upErr) throw upErr;
+
+        await fetchItems();
+    } catch (err) {
+        console.error('Edit failed', err);
+        alert('Could not edit item: ' + (err.message || err));
+    }
+}
+
+async function addEditNote(id) {
+    try {
+        const { data, error } = await supabase.from('items').select('tags').eq('id', id).single();
+        if (error) throw error;
+        const currentNote = data.tags?.notes || '';
+        const newNote = window.prompt('Add or edit note for this item:', currentNote);
+        if (newNote === null) return;
+        const newTags = Object.assign({}, data.tags || {}, { notes: newNote });
+        const { error: upErr } = await supabase.from('items').update({ tags: newTags }).eq('id', id);
+        if (upErr) throw upErr;
+        await fetchItems();
+    } catch (err) {
+        console.error('Note save failed', err);
+        alert('Could not save note: ' + (err.message || err));
+    }
 }
 
 // ========================================
@@ -682,6 +785,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     supabase.auth.onAuthStateChange((_, session) => {
 
+        // clear in-memory chat when auth state changes (do not persist chats)
+        conversationHistory = [];
+
         if (session) {
 
             if (authBtn) {
@@ -973,7 +1079,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw error;
                 }
 
-                location.reload();
+                // after insert, refresh items without reloading the page
+                await fetchItems();
+
+                // reset form
+                currentImageData = null;
+                if (previewImg) { previewImg.src = ''; previewImg.classList.add('hidden'); }
+                if (dropText) { dropText.classList.remove('hidden'); }
+                nameInput.value = '';
+                brandInput.value = '';
 
             } catch (err) {
 
@@ -988,6 +1102,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     "ARCHIVE ITEM";
 
                 saveBtn.disabled = false;
+            } finally {
+                saveBtn.innerText = "Archive Item";
+                saveBtn.disabled = false;
             }
         };
     }
@@ -997,6 +1114,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
 
     if (askBtn) {
+
+        // ensure fresh in-memory chat on page load
+        conversationHistory = [];
 
         // Render conversation messages into the chat area
         function renderConversation() {
@@ -1085,21 +1205,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 renderConversation();
 
-                // Save to inbox_entries for later (best-effort)
-                try {
-                    await supabase.from('inbox_entries').insert([{
-                        user_id: session?.user?.id || null,
-                        prompt: userPrompt,
-                        response: response,
-                    }]);
-                } catch (saveErr) {
-                    // don't block UX if saving fails
-                    console.warn('Could not save inbox entry', saveErr.message || saveErr);
-                }
+                // Chats are intentionally kept in-memory only per session; do not persist to the backend.
 
                 // clear followup input
                 if (followupInput) followupInput.value = '';
-
             } catch (err) {
                 console.error('Consultant Error:', err);
                 alert('Consultation failed: ' + err.message);

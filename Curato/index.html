@@ -78,6 +78,12 @@
         .bubble.user { background: rgba(255,255,255,0.95); color:#0b0b0c; border-bottom-right-radius:6px; }
         .bubble.assistant { background: rgba(255,255,255,0.03); color:var(--text); border-bottom-left-radius:6px; border:1px solid rgba(255,255,255,0.02); }
 
+        /* Item overlays */
+        .item-overlay { position: absolute; inset: 12px; display:flex; justify-content:space-between; pointer-events:none; }
+        .item-actions { pointer-events:auto; display:flex; gap:8px; }
+        .action-btn { background: rgba(0,0,0,0.45); color: white; padding:6px 8px; border-radius:8px; font-size:12px; border:1px solid rgba(255,255,255,0.04); cursor:pointer; }
+        .action-btn.heart { background: linear-gradient(90deg, rgba(212,255,106,0.12), rgba(212,255,106,0.06)); color: #071; }
+
     </style>
 </head>
 <body>
