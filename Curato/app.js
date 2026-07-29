@@ -475,6 +475,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const modelSelect =
         document.getElementById('model-select');
 
+    const toneSelect =
+        document.getElementById('ai-tone-select');
+
+    const lengthSelect =
+        document.getElementById('ai-length-select');
+
+    const creativityInput =
+        document.getElementById('ai-creativity');
+
+    const creativityValue =
+        document.getElementById('ai-creativity-value');
+
+    const allowExternalCheckbox =
+        document.getElementById('ai-allow-external');
+
     const dropZone =
         document.getElementById('drop-zone');
 
@@ -577,6 +592,89 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    if (toneSelect) {
+
+        toneSelect.onchange = async () => {
+
+            const { data: { session } } =
+                await supabase.auth.getSession();
+
+            if (session) {
+
+                await supabase.auth.updateUser({
+
+                    data: {
+                        ai_tone:
+                            toneSelect.value
+                    }
+                });
+            }
+        };
+    }
+
+    if (lengthSelect) {
+
+        lengthSelect.onchange = async () => {
+
+            const { data: { session } } =
+                await supabase.auth.getSession();
+
+            if (session) {
+
+                await supabase.auth.updateUser({
+
+                    data: {
+                        ai_length:
+                            lengthSelect.value
+                    }
+                });
+            }
+        };
+    }
+
+    if (creativityInput) {
+
+        // live UI feedback
+        creativityInput.oninput = () => {
+            if (creativityValue) creativityValue.innerText = creativityInput.value;
+        };
+
+        creativityInput.onchange = async () => {
+
+            const { data: { session } } =
+                await supabase.auth.getSession();
+
+            if (session) {
+                await supabase.auth.updateUser({
+                    data: {
+                        ai_creativity:
+                            creativityInput.value
+                    }
+                });
+            }
+        };
+    }
+
+    if (allowExternalCheckbox) {
+
+        allowExternalCheckbox.onchange = async () => {
+
+            const { data: { session } } =
+                await supabase.auth.getSession();
+
+            if (session) {
+
+                await supabase.auth.updateUser({
+
+                    data: {
+                        allow_external_suggestions:
+                            allowExternalCheckbox.checked
+                    }
+                });
+            }
+        };
+    }
+
     // ========================================
     // AUTH STATE
     // ========================================
@@ -602,6 +700,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 modelSelect.value =
                     session.user.user_metadata?.preferred_model ||
                     "gemini-2.0-flash";
+            }
+
+            if (toneSelect) {
+                toneSelect.value = session.user.user_metadata?.ai_tone || "Refined";
+            }
+
+            if (lengthSelect) {
+                lengthSelect.value = session.user.user_metadata?.ai_length || "Balanced";
+            }
+
+            if (creativityInput) {
+                creativityInput.value = session.user.user_metadata?.ai_creativity ?? "0.2";
+                if (creativityValue) creativityValue.innerText = creativityInput.value;
+            }
+
+            if (allowExternalCheckbox) {
+                const v = session.user.user_metadata?.allow_external_suggestions;
+                allowExternalCheckbox.checked = v === true || v === "true";
             }
 
             fetchItems();
@@ -923,8 +1039,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     : "The user's archive is currently empty.";
 
+                const { data: { session } } = await supabase.auth.getSession();
+
+                const prefs = session?.user?.user_metadata || {};
+
+                const aiTone = prefs.ai_tone || 'Refined';
+                const aiLength = prefs.ai_length || 'Balanced';
+                const aiCreativity = prefs.ai_creativity || '0.2';
+                const allowExternal = prefs.allow_external_suggestions === true || prefs.allow_external_suggestions === 'true';
+
+                const archiveInstruction = allowExternal
+                    ? "Prefer suggestions from the user's archive but you may suggest outside items when relevant."
+                    : "You are helping style outfits ONLY from the user's archive.";
+
                 const finalPrompt = `
 You are Curato, an elite personal fashion archivist and stylist.
+
+User AI Preferences:
+- Tone: ${aiTone}
+- Response length: ${aiLength}
+- Creativity: ${aiCreativity}
+- Allow external suggestions: ${allowExternal}
+
+${archiveInstruction}
 
 Your tone is:
 - refined
@@ -934,8 +1071,6 @@ Your tone is:
 - emotionally intelligent
 - never cringe
 - never overly verbose
-
-You are helping style outfits ONLY from the user's archive.
 
 Fragrances can be layered, but make sure it smells good. Optimise for the best possible smell for a situation.
 Ensure that an outfit suits the occasion, with appropriate levels of formality, seasonality, and creativity.
