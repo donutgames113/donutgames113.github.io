@@ -11,100 +11,73 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0b0b0c;
-            --card: rgba(255,255,255,0.04);
-            --stroke: rgba(255,255,255,0.08);
-            --text: rgba(255,255,255,0.9);
-            --muted: rgba(255,255,255,0.5);
+            --bg: linear-gradient(180deg,#0b0b0c 0%, #0f0f12 100%);
+            --card: rgba(255,255,255,0.03);
+            --stroke: rgba(255,255,255,0.06);
+            --text: rgba(255,255,255,0.95);
+            --muted: rgba(255,255,255,0.45);
             --accent: #d4ff6a;
+            --accent-2: rgba(212,255,106,0.08);
         }
         body {
             font-family: Inter, sans-serif;
-            background: radial-gradient(1200px 800px at 20% 0%, #1a1a1f 0%, #0b0b0c 60%);
+            background: var(--bg);
             color: var(--text);
             letter-spacing: -0.02em;
             min-height: 100vh;
+            -webkit-font-smoothing:antialiased;
         }
         body::before {
             content: "";
             position: fixed;
             inset: 0;
             background-image: url('https://grainy-gradients.vercel.app/noise.svg');
-            opacity: 0.04;
+            opacity: 0.03;
             pointer-events: none;
             z-index: 50;
         }
         .glass {
-            background: var(--card);
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
             border: 1px solid var(--stroke);
-            backdrop-filter: blur(24px);
+            backdrop-filter: blur(16px) saturate(120%);
+            box-shadow: 0 8px 30px rgba(2,4,8,0.6);
         }
         .nav-blur {
-            background: rgba(10,10,12,0.7);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--stroke);
+            background: rgba(6,7,9,0.65);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
         }
-        .item-card {
-            transition: all .4s cubic-bezier(.2,.8,.2,1);
-            position: relative;
-        }
-        .item-card:hover { transform: translateY(-6px); }
-        .img-container {
-            aspect-ratio: 4/5;
-            overflow: hidden;
-            border-radius: 12px;
-            border: 1px solid var(--stroke);
-            background: #121214;
-        }
-        .item-card img {
-            filter: saturate(0.6) brightness(0.9);
-            transition: .6s ease;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .item-card:hover img {
-            filter: saturate(1) brightness(1);
-            transform: scale(1.04);
-        }
-        .chip {
-            border: 1px solid var(--stroke);
-            padding: 6px 14px;
-            border-radius: 999px;
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--muted);
-            transition: .25s;
-            cursor: pointer;
-            background: transparent;
-        }
-        .chip:hover, .cat-opt.active, .sort-opt.active {
-            border-color: var(--accent);
-            color: white;
-            background: rgba(212, 255, 106, 0.05);
-        }
-        #occasion-input {
-            font-size: 32px;
-            font-weight: 200;
-        }
-        .glow-btn {
-            background: white;
-            color: black;
-            box-shadow: 0 0 20px rgba(255,255,255,0.1);
-        }
+        .item-card { transition: all .35s cubic-bezier(.2,.8,.2,1); position: relative; }
+        .item-card:hover { transform: translateY(-8px); box-shadow: 0 12px 30px rgba(2,4,8,0.6); }
+        .img-container { aspect-ratio: 4/5; overflow: hidden; border-radius: 14px; border: 1px solid rgba(255,255,255,0.03); background: linear-gradient(180deg,#0e0e10,#0b0b0c); }
+        .item-card img { filter: saturate(0.75) brightness(0.95); transition: .6s ease; width:100%; height:100%; object-fit:cover; }
+        .item-card:hover img { filter: saturate(1) brightness(1); transform: scale(1.04); }
+        .chip { border: 1px solid rgba(255,255,255,0.04); padding: 7px 16px; border-radius: 999px; font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); transition:.18s; cursor:pointer; background:transparent; }
+        .chip:hover, .cat-opt.active, .sort-opt.active { border-color: var(--accent); color:white; background: var(--accent-2); }
+        #occasion-input { font-size:28px; font-weight:200; padding:12px 8px; border-radius:10px; }
+        .primary-btn { background: linear-gradient(90deg,#ffffff,#f7f7f7); color:black; padding:12px 28px; border-radius:999px; font-weight:600; letter-spacing:0.12em; }
+        .subtle-btn { background:transparent; color:var(--muted); padding:8px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.03); }
         input::placeholder { color: rgba(255,255,255,0.2); }
-        input:focus { border-color: var(--accent) !important; }
-        select option { background: #1a1a1f; color: white; }
+        input:focus { outline: none; box-shadow: 0 0 0 4px rgba(212,255,106,0.04); border-color: var(--accent) !important; }
+        select option { background: #0f0f12; color: white; }
 
-        /* AI SUGGESTION RENDERING */
-        .ai-render-area { text-align: left; line-height: 1.8; }
-        .ai-render-area h2 { font-size: 26px; font-weight: 200; color: var(--accent); margin-bottom: 1.5rem; letter-spacing: -0.02em; }
-        .ai-render-area h3 { font-size: 11px; font-weight: 700; color: white; text-transform: uppercase; letter-spacing: 0.2em; margin-top: 2rem; border-bottom: 1px solid var(--stroke); padding-bottom: 0.5rem; }
-        .ai-render-area ul { margin-top: 1rem; list-style: none; padding-left: 0; }
-        .ai-render-area li { margin-bottom: 1.25rem; font-size: 14px; color: rgba(255,255,255,0.7); }
-        .ai-render-area li strong { display: block; color: white; font-size: 15px; margin-bottom: 2px; }
-        .ai-render-area blockquote { margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.02); border-left: 2px solid var(--accent); font-size: 13px; color: var(--muted); font-style: italic; }
+        /* AI / Chat */
+        .ai-render-area { text-align:left; line-height:1.8; }
+        .ai-render-area h2 { font-size:24px; font-weight:300; color:var(--accent); margin-bottom:1rem; }
+        .ai-render-area h3 { font-size:11px; font-weight:700; color:white; text-transform:uppercase; letter-spacing:0.18em; margin-top:1rem; border-bottom:1px solid rgba(255,255,255,0.04); padding-bottom:0.35rem; }
+        .ai-render-area ul { margin-top:0.75rem; list-style:none; padding-left:0; }
+        .ai-render-area li { margin-bottom:1rem; font-size:14px; color:rgba(255,255,255,0.8); }
+        .ai-render-area li strong { display:block; color:white; font-size:15px; margin-bottom:3px; }
+        .ai-render-area blockquote { margin-top:1rem; padding:1rem; background: rgba(255,255,255,0.01); border-left:3px solid var(--accent); font-size:13px; color:var(--muted); font-style:italic; }
+
+        /* Chat bubbles */
+        #ai-chat-messages { max-height: 360px; overflow:auto; padding:12px; }
+        .chat-row { display:flex; gap:12px; align-items:flex-start; }
+        .chat-row.user { justify-content:flex-end; }
+        .bubble { max-width:78%; padding:12px 14px; border-radius:12px; font-size:14px; line-height:1.5; }
+        .bubble.user { background: rgba(255,255,255,0.95); color:#0b0b0c; border-bottom-right-radius:6px; }
+        .bubble.assistant { background: rgba(255,255,255,0.03); color:var(--text); border-bottom-left-radius:6px; border:1px solid rgba(255,255,255,0.02); }
+
     </style>
 </head>
 <body>
@@ -160,10 +133,22 @@
             <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip">Meeting the family, 30°C</button>
             <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip">Late night in Soho</button>
         </div>
-        <button id="ask-btn" class="mt-12 px-12 py-4 rounded-full glow-btn text-[10px] tracking-[0.3em] uppercase hover:scale-[1.02] active:scale-95 transition-all">
-            Consult Archive
-        </button>
-        <div id="ai-suggestion" class="hidden mt-12 glass p-10 rounded-3xl max-w-2xl mx-auto ai-render-area"></div>
+        <div class="mt-12">
+            <div class="flex justify-center">
+                <button id="ask-btn" class="primary-btn">Consult Archive</button>
+            </div>
+
+            <div id="ai-chat" class="hidden mt-8 max-w-2xl mx-auto">
+                <div id="ai-suggestion" class="glass p-6 rounded-2xl ai-render-area mb-6"></div>
+
+                <div id="ai-chat-messages" class="glass p-4 rounded-2xl mb-4"></div>
+
+                <div class="flex gap-3 items-center">
+                    <input id="ai-followup-input" placeholder="Ask a follow-up question..." class="w-full bg-transparent border-b border-white/5 py-3 text-sm focus:outline-none" />
+                    <button id="ai-followup-send" class="subtle-btn">Send</button>
+                </div>
+            </div>
+        </div>
     </section>
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
         <div class="lg:col-span-4 lg:sticky lg:top-28 h-fit">
