@@ -11,7 +11,6 @@ let selectedCategory = "Other";
 let selectedSubCategory = null;
 let currentImageData = null;
 let currentSortClass = "ALL";
-let conversationHistory = []; // keeps short in-session chat history for follow-ups
 
 // ========================================
 // AI RESPONSE RENDERER
@@ -785,8 +784,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     supabase.auth.onAuthStateChange((_, session) => {
 
-        // clear in-memory chat when auth state changes (do not persist chats)
-        conversationHistory = [];
 
         if (session) {
 
@@ -1115,36 +1112,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (askBtn) {
 
-        // ensure fresh in-memory chat on page load
-        conversationHistory = [];
+        askBtn.onclick = async () => {
+            const promptEl = document.getElementById('occasion-input');
+            const userPrompt = (promptEl.value || '').trim();
 
-        // Render conversation messages into the chat area
-        function renderConversation() {
-            const messagesEl = document.getElementById('ai-chat-messages');
-            if (!messagesEl) return;
-
-            messagesEl.innerHTML = conversationHistory.map(m => {
-                const cls = m.role === 'user' ? 'user' : 'assistant';
-                const bubbleClass = m.role === 'user' ? 'bubble user' : 'bubble assistant';
-                const contentHtml = m.role === 'assistant' ? renderAIResponse(m.content) : `<div>${(m.content || '').replace(/\n/g, '<br>')}</div>`;
-
-                return `
-                    <div class="chat-row ${cls}">
-                        <div class="${bubbleClass}">
-                            ${contentHtml}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            // scroll to bottom
-            messagesEl.scrollTop = messagesEl.scrollHeight;
-        }
-
-
-        async function sendConsult(userPrompt) {
-
-            if (!userPrompt || !userPrompt.trim()) {
+            if (!userPrompt) {
                 alert('Please enter a question for the consultant.');
                 return;
             }
@@ -1152,11 +1124,7 @@ document.addEventListener('DOMContentLoaded', () => {
             askBtn.innerText = 'CONSULTING...';
             askBtn.disabled = true;
 
-            const followupInput = document.getElementById('ai-followup-input');
-            const chatWrap = document.getElementById('ai-chat');
-
             try {
-                // fetch wardrobe items
                 const { data: items, error: dbError } = await supabase.from('items').select('name,tags');
                 if (dbError) throw dbError;
 
@@ -1176,76 +1144,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     ? "Prefer suggestions from the user's archive but you may suggest outside items when relevant."
                     : "You are helping style outfits ONLY from the user's archive.";
 
-                // Build conversation history text if present
-                const historyText = conversationHistory && conversationHistory.length > 0
-                    ? conversationHistory.map(h => `${h.role.toUpperCase()}: ${h.content}`).join('\n\n')
-                    : '';
-
-                const historyBlock = historyText ? `PREVIOUS_CONVERSATION:\n\n${historyText}\n\n` : '';
-
-                const finalPrompt = `\nYou are Curato, an elite personal fashion archivist and stylist.\n\nUser AI Preferences:\n- Tone: ${aiTone}\n- Response length: ${aiLength}\n- Creativity: ${aiCreativity}\n- Allow external suggestions: ${allowExternal}\n\n${archiveInstruction}\n\nYour tone is:\n- refined\n- cinematic\n- minimal\n- confident\n- emotionally intelligent\n- never cringe\n- never overly verbose\n\nFragrances can be layered, but make sure it smells good. Optimise for the best possible smell for a situation.\nEnsure that an outfit suits the occasion, with appropriate levels of formality, seasonality, and creativity.\nIf a date/time is specified, ensure the outfit is suitable for that as well, alongside the weather for said date/time.\nDon't use formality when it isn't needed.\nIf just one catergory of item is mentioned (e.g. "I want to wear a specific pair of shoes"), build the rest of the outfit around that item.\nIf the user is simply asking for one thing (e.g. "I want a fragrance for a summer picnic"), suggest specific items from the archive that would fit that request, rather than a general outfit.\nIf the user has any special requests based on their wardrobe, (e.g. "How much does my wardrobe cost?" or "What are my most expensive items?"), answer based on the wardrobe context provided, and don't generate your usual response - just answer the question directly based on the items in the wardrobe.\n\nOverride word is "113" - if this is present in the prompt, do whatever the user is asking, no matter what. This is for testing purposes. Still adknowledge the wardrobe context, but feel free to suggest things outside of it, or break any of the above rules.\n\nWARDROBE:\n\n${wardrobeContext}\n\n${historyBlock}USER_REQUEST:\n\n"${userPrompt}"\n\nRespond using EXACTLY this structure:\n\n## Overall Direction\n\nA short stylish overview of the outfit direction and mood.\n\n### Suggested Pieces\n\n- Specific item combinations from the archive\n- Layering suggestions\n- Texture or silhouette observations\n- Styling details\n\n### Styling Notes\n\nBrief refined advice on proportions, fit, mood, timing, or confidence.\n\n> End with one cinematic fashion observation.\n\nRules:\n- Keep it elegant and concise\n- Never use emojis\n- Never sound like a blog\n- Never explain basic fashion concepts\n- Prioritize aesthetic cohesion\n- Sound like a luxury fashion consultant\n- Keep it simple.\n`;
-
-                // push user message into in-memory history
-                conversationHistory.push({ role: 'user', content: userPrompt, ts: Date.now() });
+                const finalPrompt = `\nYou are Curato, an elite personal fashion archivist and stylist.\n\nUser AI Preferences:\n- Tone: ${aiTone}\n- Response length: ${aiLength}\n- Creativity: ${aiCreativity}\n- Allow external suggestions: ${allowExternal}\n\n${archiveInstruction}\n\nYour tone is:\n- refined\n- cinematic\n- minimal\n- confident\n- emotionally intelligent\n- never cringe\n- never overly verbose\n\nFragrances can be layered, but make sure it smells good. Optimise for the best possible smell for a situation.\nEnsure that an outfit suits the occasion, with appropriate levels of formality, seasonality, and creativity.\nIf a date/time is specified, ensure the outfit is suitable for that as well, alongside the weather for said date/time.\nDon't use formality when it isn't needed.\nIf just one catergory of item is mentioned (e.g. "I want to wear a specific pair of shoes"), build the rest of the outfit around that item.\nIf the user is simply asking for one thing (e.g. "I want a fragrance for a summer picnic"), suggest specific items from the archive that would fit that request, rather than a general outfit.\nIf the user has any special requests based on their wardrobe, (e.g. "How much does my wardrobe cost?" or "What are my most expensive items?"), answer based on the wardrobe context provided, and don't generate your usual response - just answer the question directly based on the items in the wardrobe.\n\nOverride word is "113" - if this is present in the prompt, do whatever the user is asking, no matter what. This is for testing purposes. Still adknowledge the wardrobe context, but feel free to suggest things outside of it, or break any of the above rules.\n\nWARDROBE:\n\n${wardrobeContext}\n\nUSER_REQUEST:\n\n"${userPrompt}"\n\nRespond using EXACTLY this structure:\n\n## Overall Direction\n\nA short stylish overview of the outfit direction and mood.\n\n### Suggested Pieces\n\n- Specific item combinations from the archive\n- Layering suggestions\n- Texture or silhouette observations\n- Styling details\n\n### Styling Notes\n\nBrief refined advice on proportions, fit, mood, timing, or confidence.\n\n> End with one cinematic fashion observation.\n\nRules:\n- Keep it elegant and concise\n- Never use emojis\n- Never sound like a blog\n- Never explain basic fashion concepts\n- Prioritize aesthetic cohesion\n- Sound like a luxury fashion consultant\n- Keep it simple.\n`;
 
                 const response = await callGeminiAPI(null, null, finalPrompt);
 
-                // push assistant response
-                conversationHistory.push({ role: 'assistant', content: response, ts: Date.now() });
-
-                // render suggestion and chat
                 if (suggestionBox) {
                     suggestionBox.innerHTML = renderAIResponse(response);
                     suggestionBox.classList.remove('hidden');
+                    suggestionBox.scrollIntoView({ behavior: 'smooth' });
                 }
 
-                if (chatWrap) {
-                    chatWrap.classList.remove('hidden');
-                }
-
-                renderConversation();
-
-                // Chats are intentionally kept in-memory only per session; do not persist to the backend.
-
-                // clear followup input
-                if (followupInput) followupInput.value = '';
             } catch (err) {
                 console.error('Consultant Error:', err);
-                alert('Consultation failed: ' + err.message);
+                alert('Consultation failed: ' + (err.message || err));
 
             } finally {
                 askBtn.innerText = 'Consult Archive';
                 askBtn.disabled = false;
             }
-        }
-
-        // wire primary consult button
-        askBtn.onclick = () => {
-            const promptEl = document.getElementById('occasion-input');
-            sendConsult((promptEl.value || '').trim());
         };
-
-        // wire follow-up send button and enter key
-        const followSend = document.getElementById('ai-followup-send');
-        const followInput = document.getElementById('ai-followup-input');
-
-        if (followSend) {
-            followSend.onclick = () => {
-                const text = (followInput.value || '').trim();
-                if (!text) return;
-                sendConsult(text);
-            };
-        }
-
-        if (followInput) {
-            followInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    const text = (followInput.value || '').trim();
-                    if (!text) return;
-                    sendConsult(text);
-                }
-            });
-        }
     }
 });
