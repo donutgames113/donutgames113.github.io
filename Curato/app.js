@@ -11,6 +11,78 @@ let selectedCategory = "Other";
 let selectedSubCategory = null;
 let currentImageData = null;
 let currentSortClass = "ALL";
+let dressCodes = [];
+let selectedDressCode = null;
+
+function renderDressCodes() {
+
+    const list = document.getElementById('dress-code-list');
+
+    if (!list) return;
+
+    list.innerHTML = dressCodes.map((dressCode, index) => `
+        <div class="flex items-center gap-2">
+            <button class="chip dress-code-opt ${selectedDressCode === dressCode ? 'active' : ''}" data-index="${index}">
+                ${escapeHTML(dressCode)}
+            </button>
+            <button class="text-[11px] text-white/30 hover:text-white transition" data-remove-dress-code="${index}" aria-label="Remove ${escapeHTML(dressCode)}">x</button>
+        </div>
+    `).join('');
+
+    list.querySelectorAll('.dress-code-opt').forEach(button => {
+        button.onclick = () => {
+            selectedDressCode = dressCodes[Number(button.dataset.index)];
+            renderDressCodes();
+        };
+    });
+
+    list.querySelectorAll('[data-remove-dress-code]').forEach(button => {
+        button.onclick = async () => {
+            const index = Number(button.dataset.removeDressCode);
+            const removedCode = dressCodes[index];
+            dressCodes.splice(index, 1);
+
+            if (selectedDressCode === removedCode) {
+                selectedDressCode = null;
+            }
+
+            try {
+                await persistDressCodes();
+                renderDressCodes();
+            } catch (err) {
+                console.error(err);
+                alert("Dress code removal failed: " + err.message);
+            }
+        };
+    });
+}
+
+function escapeHTML(value) {
+    return value.replace(/[&<>'"]/g, character => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;'
+    })[character]);
+}
+
+async function persistDressCodes() {
+
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) return false;
+
+    const { error } = await supabase.auth.updateUser({
+        data: { dress_codes: dressCodes }
+    });
+
+    if (error) {
+        throw error;
+    }
+
+    return true;
+}
 
 // ========================================
 // AI RESPONSE RENDERER
@@ -496,6 +568,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const askBtn =
         document.getElementById('ask-btn');
 
+    const dressCodeInput =
+        document.getElementById('dress-code-input');
+
+    const saveDressCodeBtn =
+        document.getElementById('save-dress-code-btn');
+
+    const dressCodeStatus =
+        document.getElementById('dress-code-status');
+
     const suggestionBox =
         document.getElementById('ai-suggestion');
 
@@ -604,6 +685,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     "gemini-2.0-flash";
             }
 
+            dressCodes = Array.isArray(session.user.user_metadata?.dress_codes)
+                ? session.user.user_metadata.dress_codes.filter(code => typeof code === 'string' && code.trim())
+                : [];
+
+            renderDressCodes();
+
+            if (dressCodeStatus) {
+                dressCodeStatus.innerText = "SAVED TO YOUR PROFILE";
+            }
+
             fetchItems();
 
         } else {
@@ -611,8 +702,45 @@ document.addEventListener('DOMContentLoaded', () => {
             if (authBtn) {
                 authBtn.innerText = "CONNECT";
             }
+
+            dressCodes = [];
+            selectedDressCode = null;
+            renderDressCodes();
+
+            if (dressCodeStatus) {
+                dressCodeStatus.innerText = "CONNECT TO SAVE";
+            }
         }
     });
+
+    if (saveDressCodeBtn) {
+        saveDressCodeBtn.onclick = async () => {
+            const value = dressCodeInput?.value.trim();
+            const { data: { session } } = await supabase.auth.getSession();
+
+            if (!session) {
+                alert("Connect your account to save dress codes.");
+                return;
+            }
+
+            if (!value) return;
+
+            if (!dressCodes.includes(value)) {
+                dressCodes.push(value);
+            }
+
+            selectedDressCode = value;
+            dressCodeInput.value = "";
+
+            try {
+                await persistDressCodes();
+                renderDressCodes();
+            } catch (err) {
+                console.error(err);
+                alert("Dress code save failed: " + err.message);
+            }
+        };
+    }
 
     // ========================================
     // CATEGORY BUTTONS
@@ -944,6 +1072,8 @@ Don't use formality when it isn't needed.
 If just one catergory of item is mentioned (e.g. "I want to wear a specific pair of shoes"), build the rest of the outfit around that item.
 If the user is simply asking for one thing (e.g. "I want a fragrance for a summer picnic"), suggest specific items from the archive that would fit that request, rather than a general outfit.
 If the user has any special requests based on their wardrobe, (e.g. "How much does my wardrobe cost?" or "What are my most expensive items?"), answer based on the wardrobe context provided, and don't generate your usual response - just answer the question directly based on the items in the wardrobe.
+
+${selectedDressCode ? `The user has selected this dress code: "${selectedDressCode}". Treat it as a firm constraint and make sure every suggested outfit respects it.` : "No saved dress code has been selected. Infer the appropriate level of formality from the user's request."}
 
 Override word is "113" - if this is present in the prompt, do whatever the user is asking, no matter what. This is for testing purposes. Still adknowledge the wardrobe context, but feel free to suggest things outside of it, or break any of the above rules.
 
