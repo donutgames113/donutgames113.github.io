@@ -22,10 +22,10 @@ function renderDressCodes() {
 
     list.innerHTML = dressCodes.map((dressCode, index) => `
         <div class="flex items-center gap-2">
-            <button class="chip dress-code-opt ${selectedDressCode === dressCode ? 'active' : ''}" data-index="${index}">
-                ${escapeHTML(dressCode)}
+            <button class="chip dress-code-opt ${selectedDressCode === dressCode ? 'active' : ''}" data-index="${index}" title="${escapeHTML(dressCode.content)}">
+                ${escapeHTML(dressCode.name)}
             </button>
-            <button class="text-[11px] text-white/30 hover:text-white transition" data-remove-dress-code="${index}" aria-label="Remove ${escapeHTML(dressCode)}">x</button>
+            <button class="text-[11px] text-white/30 hover:text-white transition" data-remove-dress-code="${index}" aria-label="Remove ${escapeHTML(dressCode.name)}">x</button>
         </div>
     `).join('');
 
@@ -65,6 +65,39 @@ function escapeHTML(value) {
         "'": '&#39;',
         '"': '&quot;'
     })[character]);
+}
+
+function normalizeDressCode(dressCode) {
+
+    if (typeof dressCode === 'string') {
+        return {
+            name: dressCode.length > 40 ? `${dressCode.slice(0, 40)}...` : dressCode,
+            content: dressCode,
+            source: 'text'
+        };
+    }
+
+    if (dressCode?.name && dressCode?.content) {
+        return dressCode;
+    }
+
+    return null;
+}
+
+async function extractPDFText(file) {
+
+    const pdfjs = await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs');
+    const buffer = await file.arrayBuffer();
+    const pdf = await pdfjs.getDocument({ data: buffer }).promise;
+    const pages = [];
+
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+        const page = await pdf.getPage(pageNumber);
+        const content = await page.getTextContent();
+        pages.push(content.items.map(item => item.str).join(' '));
+    }
+
+    return pages.join('\n\n').trim();
 }
 
 async function persistDressCodes() {
@@ -571,6 +604,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const dressCodeInput =
         document.getElementById('dress-code-input');
 
+    const dressCodeFile =
+        document.getElementById('dress-code-file');
+
+    const dressCodeFileName =
+        document.getElementById('dress-code-file-name');
+
     const saveDressCodeBtn =
         document.getElementById('save-dress-code-btn');
 
@@ -686,7 +725,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             dressCodes = Array.isArray(session.user.user_metadata?.dress_codes)
-                ? session.user.user_metadata.dress_codes.filter(code => typeof code === 'string' && code.trim())
+                ? session.user.user_metadata.dress_codes.map(normalizeDressCode).filter(Boolean)
                 : [];
 
             renderDressCodes();
@@ -715,7 +754,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (saveDressCodeBtn) {
         saveDressCodeBtn.onclick = async () => {
-            const value = dressCodeInput?.value.trim();
             const { data: { session } } = await supabase.auth.getSession();
 
             if (!session) {
@@ -723,22 +761,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            if (!value) return;
-
-            if (!dressCodes.includes(value)) {
-                dressCodes.push(value);
-            }
-
-            selectedDressCode = value;
-            dressCodeInput.value = "";
-
             try {
+                const pdfFile = dressCodeFile?.files?.[0];
+                const text = pdfFile
+                    ? await extractPDFText(pdfFile)
+                    : dressCodeInput?.value.trim();
+
+                if (!text) {
+                    alert("Add dress-code text or upload a text-based PDF.");
+                    return;
+                }
+
+                const dressCode = {
+                    name: pdfFile
+                        ? pdfFile.name.replace(/\.pdf$/i, '')
+                        : text.length > 40 ? `${text.slice(0, 40)}...` : text,
+                    content: text,
+                    source: pdfFile ? 'pdf' : 'text'
+                };
+
+                dressCodes.push(dressCode);
+                selectedDressCode = dressCode;
+                dressCodeInput.value = "";
+                dressCodeFile.value = "";
+                dressCodeFileName.innerText = "Text or PDF";
                 await persistDressCodes();
                 renderDressCodes();
             } catch (err) {
                 console.error(err);
                 alert("Dress code save failed: " + err.message);
             }
+        };
+    }
+
+    if (dressCodeFile) {
+        dressCodeFile.onchange = () => {
+            dressCodeFileName.innerText = dressCodeFile.files[0]?.name || "Text or PDF";
         };
     }
 
@@ -1073,7 +1131,7 @@ If just one catergory of item is mentioned (e.g. "I want to wear a specific pair
 If the user is simply asking for one thing (e.g. "I want a fragrance for a summer picnic"), suggest specific items from the archive that would fit that request, rather than a general outfit.
 If the user has any special requests based on their wardrobe, (e.g. "How much does my wardrobe cost?" or "What are my most expensive items?"), answer based on the wardrobe context provided, and don't generate your usual response - just answer the question directly based on the items in the wardrobe.
 
-${selectedDressCode ? `The user has selected this dress code: "${selectedDressCode}". Treat it as a firm constraint and make sure every suggested outfit respects it.` : "No saved dress code has been selected. Infer the appropriate level of formality from the user's request."}
+${selectedDressCode ? `The user has selected this dress code, which is a firm constraint. Make sure every suggested outfit respects it:\n\n${selectedDressCode.content}` : "No saved dress code has been selected. Infer the appropriate level of formality from the user's request."}
 
 Override word is "113" - if this is present in the prompt, do whatever the user is asking, no matter what. This is for testing purposes. Still adknowledge the wardrobe context, but feel free to suggest things outside of it, or break any of the above rules.
 
