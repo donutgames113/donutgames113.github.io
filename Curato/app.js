@@ -1156,12 +1156,11 @@ A short stylish overview of the outfit direction and mood.
 - Layering suggestions
 - Texture or silhouette observations
 - Styling details
+- If no socks are catalogued, suggest a sock style that would work with the outfit (color and style)
 
 ### Styling Notes
 
 Brief refined advice on proportions, fit, mood, timing, or confidence.
-
-> End with one cinematic fashion observation.
 
 Rules:
 - Keep it elegant and concise
