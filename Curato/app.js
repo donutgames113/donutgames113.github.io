@@ -1152,7 +1152,7 @@ A short stylish overview of the outfit direction and mood.
 
 ### Suggested Pieces
 
-- Specific item combinations from the archive
+- Specific item combinations from the archive, including fragrances and accessories.
 - Layering suggestions
 - Texture or silhouette observations
 - Styling details
