@@ -15,7 +15,7 @@
             --card: rgba(255,255,255,0.04);
             --stroke: rgba(255,255,255,0.08);
             --text: rgba(255,255,255,0.9);
-            --muted: rgba(255,255,255,0.5);
+            --muted: rgba(255,255,255,0.7);
             --accent: #d4ff6a;
         }
         body {
@@ -23,6 +23,7 @@
             background: radial-gradient(1200px 800px at 20% 0%, #1a1a1f 0%, #0b0b0c 60%);
             color: var(--text);
             letter-spacing: -0.02em;
+            line-height: 1.5;
             min-height: 100vh;
         }
         body::before {
@@ -35,8 +36,8 @@
             z-index: 50;
         }
         .glass {
-            background: var(--card);
-            border: 1px solid var(--stroke);
+            background: rgba(24,24,28,0.82);
+            border: 1px solid rgba(255,255,255,0.14);
             backdrop-filter: blur(24px);
         }
         .nav-blur {
@@ -68,13 +69,13 @@
             transform: scale(1.04);
         }
         .chip {
-            border: 1px solid var(--stroke);
-            padding: 6px 14px;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 8px 14px;
             border-radius: 999px;
             font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            color: var(--muted);
+            color: rgba(255,255,255,0.72);
             transition: .25s;
             cursor: pointer;
             background: transparent;
@@ -83,6 +84,40 @@
             border-color: var(--accent);
             color: white;
             background: rgba(212, 255, 106, 0.05);
+        }
+        button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex="0"]:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 3px;
+        }
+        label, .text-\[9px\], .text-\[10px\] {
+            line-height: 1.5;
+        }
+        #item-count, #favorites-title, #item-inspector-title {
+            color: rgba(255,255,255,0.9);
+        }
+        #catalog-grid .text-\[11px\] {
+            font-size: 12px;
+        }
+        #catalog-grid .text-\[9px\] {
+            font-size: 11px;
+            color: rgba(255,255,255,0.62);
+        }
+        #favorites-list .text-\[9px\], #item-inspector-list .text-\[10px\] {
+            font-size: 11px;
+            color: rgba(255,255,255,0.68);
+        }
+        #favorites-list input {
+            font-size: 14px;
+        }
+        #favorites-list button, #item-inspector-modal button {
+            min-height: 36px;
+        }
+        #favorites-modal section, #item-inspector-modal section {
+            background: rgba(20,20,24,0.96);
+            border-color: rgba(255,255,255,0.2);
+        }
+        #favorites-empty {
+            color: rgba(255,255,255,0.62);
         }
         #occasion-input {
             font-size: 32px;
@@ -94,6 +129,8 @@
             box-shadow: 0 0 20px rgba(255,255,255,0.1);
         }
         input::placeholder { color: rgba(255,255,255,0.2); }
+        input, textarea, select { color: rgba(255,255,255,0.9); }
+        input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.48); }
         input:focus { border-color: var(--accent) !important; }
         select option { background: #1a1a1f; color: white; }
 
@@ -102,7 +139,18 @@
         .ai-render-area h2 { font-size: 26px; font-weight: 200; color: var(--accent); margin-bottom: 1.5rem; letter-spacing: -0.02em; }
         .ai-render-area h3 { font-size: 11px; font-weight: 700; color: white; text-transform: uppercase; letter-spacing: 0.2em; margin-top: 2rem; border-bottom: 1px solid var(--stroke); padding-bottom: 0.5rem; }
         .ai-render-area ul { margin-top: 1rem; list-style: none; padding-left: 0; }
-        .ai-render-area li { margin-bottom: 1.25rem; font-size: 14px; color: rgba(255,255,255,0.7); }
+        .ai-render-area li { margin-bottom: 1.25rem;         font-size: 14px;
+        }
+        #favorites-btn, #auth-btn {
+        color: rgba(255,255,255,0.78);
+        font-size: 11px;
+        }
+        #favorites-btn:hover, #auth-btn:hover {
+        color: white;
+        }
+        #item-inspector-list > div {
+        background: rgba(255,255,255,0.05);
+        border-color: rgba(255,255,255,0.16); color: rgba(255,255,255,0.7); }
         .ai-render-area li strong { display: block; color: white; font-size: 15px; margin-bottom: 2px; }
         .ai-render-area blockquote { margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.02); border-left: 2px solid var(--accent); font-size: 13px; color: var(--muted); font-style: italic; }
         .favorite-stack {
