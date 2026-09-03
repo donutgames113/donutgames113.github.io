@@ -6,7 +6,6 @@
     <title>Curato | Archive</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs" type="module"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
@@ -163,22 +162,6 @@
             <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip">Tokyo solo trip</button>
             <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip">Meeting the family, 30°C</button>
             <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip">Late night in Soho</button>
-        </div>
-        <div class="max-w-2xl mx-auto mt-10 text-left">
-            <div class="flex items-center justify-between mb-3">
-                <label for="dress-code-input" class="text-[10px] tracking-[0.3em] uppercase text-white/30">Dress Code</label>
-                <span id="dress-code-status" class="text-[9px] tracking-[0.15em] uppercase text-white/30"></span>
-            </div>
-            <div class="space-y-3">
-                <textarea id="dress-code-input" rows="3" class="w-full resize-y bg-transparent border border-white/5 rounded-xl p-3 text-sm focus:outline-none" placeholder="Paste dress-code requirements here"></textarea>
-                <div class="flex flex-wrap items-center gap-3">
-                    <label for="dress-code-file" class="chip cursor-pointer">Upload PDF</label>
-                    <input id="dress-code-file" type="file" accept="application/pdf,.pdf" class="hidden" />
-                    <span id="dress-code-file-name" class="text-[10px] text-white/40">Text or PDF</span>
-                    <button id="save-dress-code-btn" class="chip ml-auto">Save Dress Code</button>
-                </div>
-            </div>
-            <div id="dress-code-list" class="flex flex-wrap gap-2 mt-4"></div>
         </div>
         <button id="ask-btn" class="mt-12 px-12 py-4 rounded-full glow-btn text-[10px] tracking-[0.3em] uppercase hover:scale-[1.02] active:scale-95 transition-all">
             Consult Archive

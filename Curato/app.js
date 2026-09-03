@@ -11,8 +11,6 @@ let selectedCategory = "Other";
 let selectedSubCategory = null;
 let currentImageData = null;
 let currentSortClass = "ALL";
-let dressCodes = [];
-let selectedDressCode = null;
 let latestSuggestion = "";
 let favoriteOutfits = [];
 
@@ -44,8 +42,18 @@ function renderFavorites() {
                 ${cards}
                 <div class="favorite-name text-[10px] uppercase tracking-[0.18em] text-white/80">${escapeHTML(outfit.title)}</div>
             </div>
-            <div class="flex items-center justify-between mt-3 px-1">
-                <span class="text-[9px] uppercase tracking-[0.15em] text-white/30">${items.length} pieces</span>
+            <div class="mt-4 px-1">
+                <div class="text-[9px] uppercase tracking-[0.15em] text-white/30 mb-2">Items in outfit</div>
+                <ul class="space-y-1.5">
+                    ${items.map(item => `<li class="flex items-center gap-2 text-xs text-white/65">
+                        <img src="${escapeHTML(item.image_url)}" alt="" class="w-7 h-9 rounded object-cover border border-white/10">
+                        <span>${escapeHTML(item.name)}</span>
+                    </li>`).join('')}
+                </ul>
+            </div>
+            <div class="flex items-center gap-2 mt-4 px-1">
+                <input type="text" value="${escapeHTML(outfit.title)}" data-favorite-title="${escapeHTML(outfit.id)}" class="min-w-0 flex-1 bg-transparent border-b border-white/10 py-2 text-xs text-white/80 focus:outline-none focus:border-[#d4ff6a]" aria-label="Favorite outfit name">
+                <button type="button" class="text-[9px] uppercase tracking-[0.15em] text-white/30 hover:text-white" data-rename-favorite="${escapeHTML(outfit.id)}">Rename</button>
                 <button type="button" class="text-[9px] uppercase tracking-[0.15em] text-white/30 hover:text-white" data-remove-favorite="${escapeHTML(outfit.id)}">Remove</button>
             </div>
         </article>`;
@@ -63,6 +71,12 @@ function renderFavorites() {
     list.querySelectorAll('[data-remove-favorite]').forEach(button => {
         button.onclick = () => removeFavorite(button.dataset.removeFavorite);
     });
+    list.querySelectorAll('[data-rename-favorite]').forEach(button => {
+        button.onclick = () => {
+            const input = list.querySelector(`[data-favorite-title="${CSS.escape(button.dataset.renameFavorite)}"]`);
+            if (input) renameFavorite(button.dataset.renameFavorite, input.value);
+        };
+    });
 }
 
 async function loadFavorites() {
@@ -79,6 +93,28 @@ async function loadFavorites() {
     renderFavorites();
 }
 
+async function renameFavorite(id, title) {
+    const nextTitle = title.trim();
+    if (!nextTitle) {
+        alert("Favorite name cannot be empty.");
+        return;
+    }
+
+    const { error } = await supabase
+        .from('favorite_outfits')
+        .update({ title: nextTitle })
+        .eq('id', id);
+
+    if (error) {
+        alert("Favorite rename failed: " + error.message);
+        return;
+    }
+
+    const favorite = favoriteOutfits.find(outfit => outfit.id === id);
+    if (favorite) favorite.title = nextTitle;
+    renderFavorites();
+}
+
 async function removeFavorite(id) {
     const { error } = await supabase.from('favorite_outfits').delete().eq('id', id);
     if (error) {
@@ -89,49 +125,6 @@ async function removeFavorite(id) {
     renderFavorites();
 }
 
-function renderDressCodes() {
-
-    const list = document.getElementById('dress-code-list');
-
-    if (!list) return;
-
-    list.innerHTML = dressCodes.map((dressCode, index) => `
-        <div class="flex items-center gap-2">
-            <button class="chip dress-code-opt ${selectedDressCode === dressCode ? 'active' : ''}" data-index="${index}" title="${escapeHTML(dressCode.content)}">
-                ${escapeHTML(dressCode.name)}
-            </button>
-            <button class="text-[11px] text-white/30 hover:text-white transition" data-remove-dress-code="${index}" aria-label="Remove ${escapeHTML(dressCode.name)}">x</button>
-        </div>
-    `).join('');
-
-    list.querySelectorAll('.dress-code-opt').forEach(button => {
-        button.onclick = () => {
-            selectedDressCode = dressCodes[Number(button.dataset.index)];
-            renderDressCodes();
-        };
-    });
-
-    list.querySelectorAll('[data-remove-dress-code]').forEach(button => {
-        button.onclick = async () => {
-            const index = Number(button.dataset.removeDressCode);
-            const removedCode = dressCodes[index];
-            dressCodes.splice(index, 1);
-
-            if (selectedDressCode === removedCode) {
-                selectedDressCode = null;
-            }
-
-            try {
-                await persistDressCodes();
-                renderDressCodes();
-            } catch (err) {
-                console.error(err);
-                alert("Dress code removal failed: " + err.message);
-            }
-        };
-    });
-}
-
 function escapeHTML(value) {
     return String(value ?? '').replace(/[&<>'"]/g, character => ({
         '&': '&amp;',
@@ -140,56 +133,6 @@ function escapeHTML(value) {
         "'": '&#39;',
         '"': '&quot;'
     })[character]);
-}
-
-function normalizeDressCode(dressCode) {
-
-    if (typeof dressCode === 'string') {
-        return {
-            name: dressCode.length > 40 ? `${dressCode.slice(0, 40)}...` : dressCode,
-            content: dressCode,
-            source: 'text'
-        };
-    }
-
-    if (dressCode?.name && dressCode?.content) {
-        return dressCode;
-    }
-
-    return null;
-}
-
-async function extractPDFText(file) {
-
-    const pdfjs = await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs');
-    const buffer = await file.arrayBuffer();
-    const pdf = await pdfjs.getDocument({ data: buffer }).promise;
-    const pages = [];
-
-    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
-        const page = await pdf.getPage(pageNumber);
-        const content = await page.getTextContent();
-        pages.push(content.items.map(item => item.str).join(' '));
-    }
-
-    return pages.join('\n\n').trim();
-}
-
-async function persistDressCodes() {
-
-    const { data: { session } } = await supabase.auth.getSession();
-
-    if (!session) return false;
-
-    const { error } = await supabase.auth.updateUser({
-        data: { dress_codes: dressCodes }
-    });
-
-    if (error) {
-        throw error;
-    }
-
-    return true;
 }
 
 // ========================================
@@ -676,21 +619,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const askBtn =
         document.getElementById('ask-btn');
 
-    const dressCodeInput =
-        document.getElementById('dress-code-input');
-
-    const dressCodeFile =
-        document.getElementById('dress-code-file');
-
-    const dressCodeFileName =
-        document.getElementById('dress-code-file-name');
-
-    const saveDressCodeBtn =
-        document.getElementById('save-dress-code-btn');
-
-    const dressCodeStatus =
-        document.getElementById('dress-code-status');
-
     const suggestionBox =
         document.getElementById('ai-suggestion');
 
@@ -865,16 +793,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     "gemini-2.0-flash";
             }
 
-            dressCodes = Array.isArray(session.user.user_metadata?.dress_codes)
-                ? session.user.user_metadata.dress_codes.map(normalizeDressCode).filter(Boolean)
-                : [];
-
-            renderDressCodes();
-
-            if (dressCodeStatus) {
-                dressCodeStatus.innerText = "SAVED TO YOUR PROFILE";
-            }
-
             fetchItems();
 
         } else {
@@ -883,63 +801,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 authBtn.innerText = "CONNECT";
             }
 
-            dressCodes = [];
-            selectedDressCode = null;
-            renderDressCodes();
-
-            if (dressCodeStatus) {
-                dressCodeStatus.innerText = "CONNECT TO SAVE";
-            }
         }
     });
-
-    if (saveDressCodeBtn) {
-        saveDressCodeBtn.onclick = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-
-            if (!session) {
-                alert("Connect your account to save dress codes.");
-                return;
-            }
-
-            try {
-                const pdfFile = dressCodeFile?.files?.[0];
-                const text = pdfFile
-                    ? await extractPDFText(pdfFile)
-                    : dressCodeInput?.value.trim();
-
-                if (!text) {
-                    alert("Add dress-code text or upload a text-based PDF.");
-                    return;
-                }
-
-                const dressCode = {
-                    name: pdfFile
-                        ? pdfFile.name.replace(/\.pdf$/i, '')
-                        : text.length > 40 ? `${text.slice(0, 40)}...` : text,
-                    content: text,
-                    source: pdfFile ? 'pdf' : 'text'
-                };
-
-                dressCodes.push(dressCode);
-                selectedDressCode = dressCode;
-                dressCodeInput.value = "";
-                dressCodeFile.value = "";
-                dressCodeFileName.innerText = "Text or PDF";
-                await persistDressCodes();
-                renderDressCodes();
-            } catch (err) {
-                console.error(err);
-                alert("Dress code save failed: " + err.message);
-            }
-        };
-    }
-
-    if (dressCodeFile) {
-        dressCodeFile.onchange = () => {
-            dressCodeFileName.innerText = dressCodeFile.files[0]?.name || "Text or PDF";
-        };
-    }
 
     // ========================================
     // CATEGORY BUTTONS
@@ -1274,8 +1137,6 @@ If the user is simply asking for one thing (e.g. "I want a fragrance for a summe
 If the user has any special requests based on their wardrobe, (e.g. "How much does my wardrobe cost?" or "What are my most expensive items?"), answer based on the wardrobe context provided, and don't generate your usual response - just answer the question directly based on the items in the wardrobe.
 If an item is said to hav
 e multiple parts, then it doesn't need to be worn together (e.g. "I want to wear a suit" doesn't mean the user wants to wear the jacket and pants together, they could just want to wear the jacket with other items). Ties and matching pocket squares don't need to be worn together, but they can be. If a necklace is said to have a detatchable pendant, then it doesn't need to be worn with the pendant, but it can be.
-${selectedDressCode ? `The user has selected this dress code, which is a firm constraint. Make sure every suggested outfit respects it:\n\n${selectedDressCode.content}` : "No saved dress code has been selected. Infer the appropriate level of formality from the user's request."}
-
 Override word is "113" - if this is present in the prompt, do whatever the user is asking, no matter what. This is for testing purposes. Still adknowledge the wardrobe context, but feel free to suggest things outside of it, or break any of the above rules.
 
 WARDROBE:
