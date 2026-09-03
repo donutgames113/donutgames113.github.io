@@ -13,6 +13,81 @@ let currentImageData = null;
 let currentSortClass = "ALL";
 let dressCodes = [];
 let selectedDressCode = null;
+let latestSuggestion = "";
+let favoriteOutfits = [];
+
+function getOutfitItems(text, items) {
+    const normalizedText = text.toLowerCase();
+    return items.filter(item => normalizedText.includes(item.name.toLowerCase()));
+}
+
+function renderFavorites() {
+    const list = document.getElementById('favorites-list');
+    const empty = document.getElementById('favorites-empty');
+    if (!list || !empty) return;
+
+    empty.classList.toggle('hidden', favoriteOutfits.length > 0);
+    list.innerHTML = favoriteOutfits.map(outfit => {
+        const items = Array.isArray(outfit.items) ? outfit.items : [];
+        const cards = items.map((item, index) => {
+            const angle = ((index * 19) % 25) - 12;
+            const x = ((index * 17) % 25) - 12;
+            const y = ((index * 11) % 19) - 9;
+            const hoverX = (index - (items.length - 1) / 2) * 55;
+            const hoverY = index % 2 ? 12 : -8;
+            return `<div class="favorite-card" style="--x:${x}px;--y:${y}px;--r:${angle}deg;--hover-x:${hoverX}px;--hover-y:${hoverY}px;--hover-r:${(index % 2 ? 2 : -2)}deg;z-index:${index + 1}" title="${escapeHTML(item.name)}">
+                <img src="${escapeHTML(item.image_url)}" alt="${escapeHTML(item.name)}" loading="lazy">
+            </div>`;
+        }).join('');
+        return `<article class="glass rounded-2xl p-3">
+            <div class="favorite-stack" data-favorite-stack tabindex="0" aria-label="Tap to spread ${escapeHTML(outfit.title)}">
+                ${cards}
+                <div class="favorite-name text-[10px] uppercase tracking-[0.18em] text-white/80">${escapeHTML(outfit.title)}</div>
+            </div>
+            <div class="flex items-center justify-between mt-3 px-1">
+                <span class="text-[9px] uppercase tracking-[0.15em] text-white/30">${items.length} pieces</span>
+                <button type="button" class="text-[9px] uppercase tracking-[0.15em] text-white/30 hover:text-white" data-remove-favorite="${escapeHTML(outfit.id)}">Remove</button>
+            </div>
+        </article>`;
+    }).join('');
+
+    list.querySelectorAll('[data-favorite-stack]').forEach(stack => {
+        stack.onclick = () => stack.classList.toggle('is-revealed');
+        stack.onkeydown = event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                stack.classList.toggle('is-revealed');
+            }
+        };
+    });
+    list.querySelectorAll('[data-remove-favorite]').forEach(button => {
+        button.onclick = () => removeFavorite(button.dataset.removeFavorite);
+    });
+}
+
+async function loadFavorites() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+        alert("Connect your account to view favorites.");
+        return;
+    }
+    const { data, error } = await supabase.from('favorite_outfits')
+        .select('id,title,items,created_at')
+        .order('created_at', { ascending: false });
+    if (error) throw error;
+    favoriteOutfits = data || [];
+    renderFavorites();
+}
+
+async function removeFavorite(id) {
+    const { error } = await supabase.from('favorite_outfits').delete().eq('id', id);
+    if (error) {
+        alert("Favorite removal failed: " + error.message);
+        return;
+    }
+    favoriteOutfits = favoriteOutfits.filter(outfit => outfit.id !== id);
+    renderFavorites();
+}
 
 function renderDressCodes() {
 
@@ -58,7 +133,7 @@ function renderDressCodes() {
 }
 
 function escapeHTML(value) {
-    return value.replace(/[&<>'"]/g, character => ({
+    return String(value ?? '').replace(/[&<>'"]/g, character => ({
         '&': '&amp;',
         '<': '&lt;',
         '>': '&gt;',
@@ -619,6 +694,72 @@ document.addEventListener('DOMContentLoaded', () => {
     const suggestionBox =
         document.getElementById('ai-suggestion');
 
+    const saveOutfitBtn =
+        document.getElementById('save-outfit-btn');
+
+    const favoritesBtn =
+        document.getElementById('favorites-btn');
+
+    const favoritesModal =
+        document.getElementById('favorites-modal');
+
+    const openFavorites = async () => {
+        try {
+            await loadFavorites();
+            favoritesModal?.classList.remove('hidden');
+            favoritesModal?.classList.add('flex');
+        } catch (err) {
+            console.error(err);
+            alert("Favorites failed to load: " + err.message);
+        }
+    };
+
+    favoritesBtn?.addEventListener('click', openFavorites);
+    document.querySelectorAll('[data-close-favorites]').forEach(button => {
+        button.addEventListener('click', () => {
+            favoritesModal?.classList.add('hidden');
+            favoritesModal?.classList.remove('flex');
+        });
+    });
+
+    saveOutfitBtn?.addEventListener('click', async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+            alert("Connect your account to save favorite outfits.");
+            return;
+        }
+        saveOutfitBtn.disabled = true;
+        saveOutfitBtn.innerText = "SAVING...";
+        try {
+            const { data: items, error: itemsError } = await supabase
+                .from('items')
+                .select('id,name,image_url,tags');
+            if (itemsError) throw itemsError;
+            const outfitItems = getOutfitItems(latestSuggestion, items || []);
+            if (!outfitItems.length) {
+                alert("The consultation did not reference any archived pieces to save.");
+                return;
+            }
+            const title = document.getElementById('occasion-input')?.value.trim() || "Curated outfit";
+            const { error } = await supabase.from('favorite_outfits').insert([{
+                user_id: session.user.id,
+                title: title.length > 60 ? `${title.slice(0, 60)}...` : title,
+                items: outfitItems
+            }]);
+            if (error) throw error;
+            saveOutfitBtn.innerText = "SAVED TO FAVORITES";
+            await loadFavorites();
+        } catch (err) {
+            console.error(err);
+            alert("Favorite save failed: " + err.message);
+        } finally {
+            saveOutfitBtn.disabled = false;
+            if (saveOutfitBtn.innerText === "SAVING...") {
+                saveOutfitBtn.innerText = "SAVE OUTFIT TO FAVORITES";
+            }
+        }
+    });
+
     // ========================================
     // AUTH
     // ========================================
@@ -1165,6 +1306,7 @@ Brief refined advice on proportions, fit, mood, timing, or confidence.
 
 Rules:
 - Keep it elegant and concise
+- When suggesting archived pieces, use each item's exact archive name so the outfit can be saved.
 - Never use emojis
 - Never sound like a blog
 - Never explain basic fashion concepts
@@ -1191,6 +1333,8 @@ Rules:
                         behavior: 'smooth'
                     });
                 }
+                latestSuggestion = response;
+                saveOutfitBtn?.classList.remove('hidden');
 
             } catch (err) {
 
