@@ -43,8 +43,8 @@ function renderFavorites() {
                 <div class="favorite-name text-[10px] uppercase tracking-[0.18em] text-white/80">${escapeHTML(outfit.title)}</div>
             </div>
             <div class="mt-4 px-1">
-                <div class="text-[9px] uppercase tracking-[0.15em] text-white/30 mb-2">Items in outfit</div>
-                <ul class="space-y-1.5">
+                <button type="button" class="text-[9px] uppercase tracking-[0.15em] text-white/50 hover:text-white" data-toggle-items>View item list (${items.length})</button>
+                <ul class="hidden space-y-1.5 mt-3" data-favorite-items>
                     ${items.map(item => `<li class="flex items-center gap-2 text-xs text-white/65">
                         <img src="${escapeHTML(item.image_url)}" alt="" class="w-7 h-9 rounded object-cover border border-white/10">
                         <span>${escapeHTML(item.name)}</span>
@@ -68,12 +68,26 @@ function renderFavorites() {
             }
         };
     });
+    list.querySelectorAll('[data-toggle-items]').forEach(button => {
+        button.onclick = event => {
+            event.stopPropagation();
+            const itemsList = button.parentElement.querySelector('[data-favorite-items]');
+            itemsList?.classList.toggle('hidden');
+            button.innerText = itemsList?.classList.contains('hidden')
+                ? `View item list (${itemsList?.children.length || 0})`
+                : 'Hide item list';
+        };
+    });
     list.querySelectorAll('[data-remove-favorite]').forEach(button => {
-        button.onclick = () => removeFavorite(button.dataset.removeFavorite);
+        button.onclick = event => {
+            event.stopPropagation();
+            removeFavorite(button.dataset.removeFavorite);
+        };
     });
     list.querySelectorAll('[data-rename-favorite]').forEach(button => {
-        button.onclick = () => {
-            const input = list.querySelector(`[data-favorite-title="${CSS.escape(button.dataset.renameFavorite)}"]`);
+        button.onclick = event => {
+            event.stopPropagation();
+            const input = button.parentElement.querySelector('[data-favorite-title]');
             if (input) renameFavorite(button.dataset.renameFavorite, input.value);
         };
     });
