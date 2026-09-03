@@ -43,7 +43,7 @@ function renderFavorites() {
                 <div class="favorite-name text-[10px] uppercase tracking-[0.18em] text-white/80">${escapeHTML(outfit.title)}</div>
             </div>
             <div class="mt-4 px-1">
-                <button type="button" class="text-[9px] uppercase tracking-[0.15em] text-white/50 hover:text-white" data-toggle-items>View item list (${items.length})</button>
+                <button type="button" class="text-[9px] uppercase tracking-[0.15em] text-white/70 hover:text-white border border-white/10 rounded-full px-3 py-2" data-inspect-items="${escapeHTML(outfit.id)}">Inspect item list (${items.length})</button>
                 <ul class="hidden space-y-1.5 mt-3" data-favorite-items>
                     ${items.map(item => `<li class="flex items-center gap-2 text-xs text-white/65">
                         <img src="${escapeHTML(item.image_url)}" alt="" class="w-7 h-9 rounded object-cover border border-white/10">
@@ -68,14 +68,10 @@ function renderFavorites() {
             }
         };
     });
-    list.querySelectorAll('[data-toggle-items]').forEach(button => {
+    list.querySelectorAll('[data-inspect-items]').forEach(button => {
         button.onclick = event => {
             event.stopPropagation();
-            const itemsList = button.parentElement.querySelector('[data-favorite-items]');
-            itemsList?.classList.toggle('hidden');
-            button.innerText = itemsList?.classList.contains('hidden')
-                ? `View item list (${itemsList?.children.length || 0})`
-                : 'Hide item list';
+            openItemInspector(button.dataset.inspectItems);
         };
     });
     list.querySelectorAll('[data-remove-favorite]').forEach(button => {
@@ -91,6 +87,29 @@ function renderFavorites() {
             if (input) renameFavorite(button.dataset.renameFavorite, input.value);
         };
     });
+}
+
+function openItemInspector(id) {
+    const favorite = favoriteOutfits.find(outfit => outfit.id === id);
+    const modal = document.getElementById('item-inspector-modal');
+    const title = document.getElementById('item-inspector-title');
+    const itemList = document.getElementById('item-inspector-list');
+    if (!favorite || !modal || !title || !itemList) return;
+
+    title.innerText = favorite.title;
+    itemList.innerHTML = (favorite.items || []).map(item => `
+        <div class="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+            <img src="${escapeHTML(item.image_url)}" alt="${escapeHTML(item.name)}" class="w-20 h-24 rounded-xl object-cover border border-white/10">
+            <div class="min-w-0">
+                <div class="text-sm text-white/90">${escapeHTML(item.name)}</div>
+                <div class="text-[10px] text-white/40 uppercase tracking-[0.15em] mt-2">${escapeHTML(item.tags?.brand || 'Independent')}</div>
+                <div class="text-[10px] text-white/30 uppercase tracking-[0.15em] mt-1">${escapeHTML(item.tags?.subcategory || item.tags?.category || 'Item')}</div>
+            </div>
+        </div>
+    `).join('');
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
 }
 
 async function loadFavorites() {
@@ -645,6 +664,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const favoritesModal =
         document.getElementById('favorites-modal');
 
+    const itemInspectorModal =
+        document.getElementById('item-inspector-modal');
+
     const openFavorites = async () => {
         try {
             await loadFavorites();
@@ -661,6 +683,12 @@ document.addEventListener('DOMContentLoaded', () => {
         button.addEventListener('click', () => {
             favoritesModal?.classList.add('hidden');
             favoritesModal?.classList.remove('flex');
+        });
+    });
+    document.querySelectorAll('[data-close-item-inspector]').forEach(button => {
+        button.addEventListener('click', () => {
+            itemInspectorModal?.classList.add('hidden');
+            itemInspectorModal?.classList.remove('flex');
         });
     });
 
