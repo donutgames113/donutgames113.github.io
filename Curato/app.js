@@ -16,7 +16,11 @@ let favoriteOutfits = [];
 
 function getOutfitItems(text, items) {
     const normalizedText = text.toLowerCase();
-    return items.filter(item => normalizedText.includes(item.name.toLowerCase()));
+    return items.filter(item => {
+        const itemName = item.name.trim().toLowerCase();
+        if (!itemName) return false;
+        return normalizedText.includes(itemName);
+    });
 }
 
 function renderFavorites() {
@@ -1167,10 +1171,11 @@ Your tone is:
 - never cringe
 - never overly verbose
 
-You are helping style outfits ONLY from the user's archive.
+You are helping style complete looks ONLY from the user's archive.
 
 Fragrances can be layered, but make sure it smells good. Optimise for the best possible smell for a situation.
 Ensure that fragrances are mentioned if required for the occasion, and that they are appropriate for the season and time of day.
+Treat the outfit as everything worn or carried by the person: clothing, shoes, watches, jewellery, bags, eyewear, hats, fragrances, and every other accessory in the archive. Include every relevant item in the suggested pieces.
 Ensure that an outfit suits the occasion, with appropriate levels of formality, seasonality, and creativity.
 If a date/time is specified, ensure the outfit is suitable for that as well, alongside the weather for said date/time.
 Don't use formality when it isn't needed.
@@ -1197,7 +1202,7 @@ A short stylish overview of the outfit direction and mood.
 
 ### Suggested Pieces
 
-- Specific item combinations from the archive, including fragrances and accessories.
+- Specific item combinations from the archive, including every clothing piece, shoe, accessory, watch, jewellery item, bag, eyewear item, hat, and fragrance used in the complete look.
 - Layering suggestions
 - Texture or silhouette observations
 - Styling details
@@ -1209,7 +1214,7 @@ Brief refined advice on proportions, fit, mood, timing, or confidence.
 
 Rules:
 - Keep it elegant and concise
-- When suggesting archived pieces, use each item's exact archive name so the outfit can be saved.
+- When suggesting archived pieces, use each item's exact archive name, once per item, so the complete look can be saved.
 - Never use emojis
 - Never sound like a blog
 - Never explain basic fashion concepts
