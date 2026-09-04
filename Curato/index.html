@@ -197,7 +197,7 @@
         <div class="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-5 md:px-8">
             <a href="#" class="flex items-center gap-3 no-underline" aria-label="Curato home">
                 <span class="brand-mark"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
-                <span><strong class="block text-lg font-bold leading-none tracking-[-.06em]">curato</strong><small class="mono mt-1 block text-[9px] uppercase tracking-[.16em] text-[#9a91a0]">style, remixed</small></span>
+                <strong class="text-lg font-bold leading-none tracking-[-.06em]">curato</strong>
             </a>
             <div class="flex items-center gap-4">
                 <select id="model-select" class="hidden border-b border-[#dcd4ca] bg-transparent pb-1 text-[10px] text-[#756d89] outline-none md:block">
@@ -215,9 +215,7 @@
 
     <main class="mx-auto max-w-7xl px-5 pb-24 pt-32 md:px-8">
         <section class="mx-auto mb-24 max-w-5xl">
-            <div class="mb-6 flex items-center justify-between"><span class="eyebrow">01 / Ask your archive</span><span class="mono text-[10px] text-[#a8a0ad]">AI STYLE DESK <i class="fa-solid fa-arrow-down-long ml-1"></i></span></div>
             <h1 class="hero-title max-w-4xl font-bold">Get dressed<br><em>for the plot.</em></h1>
-            <p class="mt-6 max-w-md text-base leading-relaxed text-[#756d89]">Tell Curato where you’re headed. It’ll make the most of what you already own.</p>
             <div class="prompt-wrap mt-9">
                 <input id="occasion-input" class="w-full border-0 bg-transparent px-5 pb-5 pt-4 outline-none" placeholder="Where are we going?" aria-label="Tell Curato what you need an outfit for">
                 <div class="flex flex-col items-stretch justify-between gap-3 px-2 pb-2 sm:flex-row sm:items-center">
@@ -236,18 +234,16 @@
         <div class="grid grid-cols-1 gap-14 lg:grid-cols-12 lg:gap-20">
             <aside class="lg:col-span-4 lg:sticky lg:top-28 lg:h-fit">
                 <div class="surface rounded-[25px] p-5 md:p-7">
-                    <div class="mb-6 flex items-center justify-between"><span class="section-label">Add a piece</span><span class="mono text-[10px] text-[#a8a0ad]">02</span></div>
+                    <div class="mb-6 flex items-center justify-between"><span class="section-label">Add a piece</span></div>
                     <div id="drop-zone" class="drop-zone group relative flex cursor-pointer items-center justify-center overflow-hidden">
                         <div class="text-center transition-transform duration-300 group-hover:scale-105">
                             <div class="upload-orb mx-auto"><i class="fa-solid fa-arrow-up-from-bracket"></i></div>
                             <div id="drop-text" class="mt-4 text-sm font-semibold">Drop a photo here</div>
-                            <div class="mono mt-2 text-[10px] text-[#9b92a0]">or click to browse</div>
                         </div>
                         <img id="preview-img" class="absolute inset-0 hidden h-full w-full object-cover" alt="Selected item preview">
                         <input id="file-input" type="file" class="hidden" accept="image/*">
                     </div>
                     <div id="category-wrap" class="mt-7">
-                        <div class="mono mb-3 text-[10px] uppercase tracking-[.1em] text-[#9b92a0]">Filter your piece</div>
                         <div class="filter-box flex flex-wrap gap-1">
                             <button class="chip cat-opt active" data-val="Other" data-sub="Top"><i class="fa-solid fa-shirt"></i> Top</button>
                             <button class="chip cat-opt" data-val="Other" data-sub="Bottom"><i class="fa-solid fa-person"></i> Bottom</button>
@@ -266,7 +262,7 @@
 
             <section class="lg:col-span-8">
                 <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <div><span class="eyebrow">03 / The collection</span><h2 class="mt-2 text-3xl font-bold tracking-[-.06em]">Your wardrobe, <span class="text-[#7455f5]">your rules.</span></h2></div>
+                    <div><h2 class="text-3xl font-bold tracking-[-.06em]">Your wardrobe, <span class="text-[#7455f5]">your rules.</span></h2></div>
                     <div id="item-count" class="self-start rounded-full bg-[#eeeaff] px-3 py-2">00 ITEMS</div>
                 </div>
                 <div class="filter-box mb-9 flex flex-wrap gap-1">
@@ -285,7 +281,7 @@
     <div id="favorites-modal" class="fixed inset-0 z-[60] hidden items-center justify-center p-5" role="dialog" aria-modal="true" aria-labelledby="favorites-title">
         <div class="absolute inset-0 backdrop-blur-sm" style="background: var(--backdrop)" data-close-favorites></div>
         <section class="relative max-h-[85vh] w-full max-w-4xl overflow-y-auto rounded-[25px] border p-7 md:p-10">
-            <div class="mb-8 flex items-start justify-between gap-6"><div><span class="eyebrow">Your saved energy</span><h2 id="favorites-title" class="mt-2 text-3xl font-bold tracking-[-.06em]">Favorite outfits</h2></div><button type="button" data-close-favorites class="text-xl text-[#9b92a0] hover:text-[#201b35]" aria-label="Close favorites"><i class="fa-solid fa-xmark"></i></button></div>
+            <div class="mb-8 flex items-start justify-between gap-6"><h2 id="favorites-title" class="text-3xl font-bold tracking-[-.06em]">Favorite outfits</h2><button type="button" data-close-favorites class="text-xl text-[#9b92a0] hover:text-[#201b35]" aria-label="Close favorites"><i class="fa-solid fa-xmark"></i></button></div>
             <div id="favorites-list" class="grid grid-cols-1 gap-5 sm:grid-cols-2"></div>
             <p id="favorites-empty" class="hidden py-10 text-center text-sm text-[#9b92a0]">No saved outfits yet.</p>
         </section>
@@ -293,7 +289,7 @@
     <div id="item-inspector-modal" class="fixed inset-0 z-[70] hidden items-center justify-center p-5" role="dialog" aria-modal="true" aria-labelledby="item-inspector-title">
         <div class="absolute inset-0 backdrop-blur-sm" style="background: var(--backdrop)" data-close-item-inspector></div>
         <section class="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-[25px] border p-7 md:p-10">
-            <div class="mb-8 flex items-start justify-between gap-6"><div><span class="eyebrow">The ingredients</span><h2 id="item-inspector-title" class="mt-2 text-3xl font-bold tracking-[-.06em]"></h2></div><button type="button" data-close-item-inspector class="text-xl text-[#9b92a0] hover:text-[#201b35]" aria-label="Close item details"><i class="fa-solid fa-xmark"></i></button></div>
+            <div class="mb-8 flex items-start justify-between gap-6"><h2 id="item-inspector-title" class="text-3xl font-bold tracking-[-.06em]"></h2><button type="button" data-close-item-inspector class="text-xl text-[#9b92a0] hover:text-[#201b35]" aria-label="Close item details"><i class="fa-solid fa-xmark"></i></button></div>
             <div id="item-inspector-list" class="space-y-3"></div>
         </section>
     </div>
