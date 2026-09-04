@@ -1360,20 +1360,24 @@ FINAL CHECK BEFORE ANSWERING:
                     suggestionBox.innerHTML =
                         renderAIResponse(result.response, result.item_references);
 
-                    suggestionBox.querySelectorAll('[data-consultation-reference]').forEach(card => {
-                        const inspect = () => {
-                            const reference = Number(card.dataset.consultationReference);
-                            const item = consultationItems.find(entry => entry.reference === reference);
-                            openConsultationItemInspector(item);
-                        };
-                        card.addEventListener('click', inspect);
-                        card.addEventListener('keydown', event => {
-                            if (event.key === 'Enter' || event.key === ' ') {
-                                event.preventDefault();
-                                inspect();
-                            }
-                        });
+                    suggestionBox.querySelectorAll('.ai-vibe-row, .ai-vibe-pill').forEach(element => {
+                        element.remove();
                     });
+                    suggestionBox.onclick = event => {
+                        const card = event.target.closest('[data-consultation-reference]');
+                        if (!card || !suggestionBox.contains(card)) return;
+                        const reference = Number(card.dataset.consultationReference);
+                        const item = consultationItems.find(entry => entry.reference === reference);
+                        openConsultationItemInspector(item);
+                    };
+                    suggestionBox.onkeydown = event => {
+                        const card = event.target.closest('[data-consultation-reference]');
+                        if (!card || (event.key !== 'Enter' && event.key !== ' ')) return;
+                        event.preventDefault();
+                        const reference = Number(card.dataset.consultationReference);
+                        const item = consultationItems.find(entry => entry.reference === reference);
+                        openConsultationItemInspector(item);
+                    };
 
                     suggestionBox.classList.remove('hidden');
 
