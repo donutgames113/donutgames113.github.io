@@ -167,6 +167,10 @@
         .ai-render-area ul { display: grid; gap: 9px; margin: 0; padding: 0; }
         .ai-render-area li { margin: 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--card) 74%, transparent); font-size: 14px; }
         .ai-render-area li strong { color: var(--ink); display: block; font-size: 15px; }
+        .ai-item-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 10px; margin: 0 0 1.25rem; }
+        .ai-item-card { display: flex; flex-direction: column; gap: 8px; padding: 8px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--card) 82%, transparent); }
+        .ai-item-card img { width: 100%; height: 104px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); }
+        .ai-item-card span { display: block; color: var(--muted); font: 500 10px "DM Mono", monospace; text-transform: uppercase; letter-spacing: .08em; }
         .response-copy { margin: 0 0 1rem; color: var(--muted); font-size: 15px; line-height: 1.75; }
         .response-copy strong { color: var(--ink); font-weight: 700; }
         .ai-render-area blockquote { margin: 1.5rem 0 0; padding: 15px 17px; border: 1px solid color-mix(in srgb, var(--orange) 48%, var(--line)); border-left: 4px solid var(--orange); border-radius: 0 14px 14px 14px; color: var(--muted); background: color-mix(in srgb, var(--orange) 8%, var(--card)); }

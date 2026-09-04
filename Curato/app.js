@@ -197,7 +197,28 @@ function escapeHTML(value) {
 // AI RESPONSE RENDERER
 // ========================================
 
-function renderAIResponse(text) {
+function renderAIResponse(text, itemReferences = []) {
+
+    const selectedItems = Array.isArray(itemReferences)
+        ? itemReferences
+            .map(reference => consultationItems.find(item => item.reference === reference))
+            .filter(Boolean)
+        : [];
+
+    let html = '';
+
+    if (selectedItems.length) {
+        html += `
+            <div class="ai-item-strip">
+                ${selectedItems.map(item => `
+                    <div class="ai-item-card">
+                        <img src="${escapeHTML(item.image_url)}" alt="${escapeHTML(item.name)}" loading="lazy">
+                        <span>${escapeHTML(item.name)}</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
 
     // Clean markdown artifacts
     text = text
@@ -208,7 +229,6 @@ function renderAIResponse(text) {
     // Split into sections
     const lines = text.split('\n');
 
-    let html = '';
     let inList = false;
 
     lines.forEach(line => {
@@ -1277,7 +1297,7 @@ FINAL CHECK BEFORE ANSWERING:
                 if (suggestionBox) {
 
                     suggestionBox.innerHTML =
-                        renderAIResponse(result.response);
+                        renderAIResponse(result.response, result.item_references);
 
                     suggestionBox.classList.remove('hidden');
 
