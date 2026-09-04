@@ -137,6 +137,36 @@ function openItemInspector(id) {
     modal.classList.add('flex');
 }
 
+function openConsultationItemInspector(item) {
+    const modal = document.getElementById('item-inspector-modal');
+    const title = document.getElementById('item-inspector-title');
+    const itemList = document.getElementById('item-inspector-list');
+    if (!item || !modal || !title || !itemList) return;
+
+    const tags = item.tags || {};
+    const details = Object.entries(tags)
+        .filter(([key, value]) => value !== null && value !== undefined && value !== '')
+        .map(([key, value]) => `
+            <div class="item-detail-row">
+                <span>${escapeHTML(key.replace(/_/g, ' '))}</span>
+                <strong>${escapeHTML(String(value))}</strong>
+            </div>
+        `).join('');
+
+    title.innerText = item.name;
+    itemList.innerHTML = `
+        <div class="consultation-inspector-item">
+            <img src="${escapeHTML(item.image_url)}" alt="${escapeHTML(item.name)}">
+            <div class="consultation-inspector-details">
+                <div class="inspector-item-name">${escapeHTML(item.name)}</div>
+                ${details}
+            </div>
+        </div>
+    `;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
 async function loadFavorites() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
@@ -205,31 +235,17 @@ function renderAIResponse(text, itemReferences = []) {
             .filter(Boolean)
         : [];
 
-    const vibeChips = [...new Set(
-        selectedItems
-            .map(item => item.tags?.subcategory || item.tags?.category)
-            .filter(Boolean)
-    )].slice(0, 4);
-
     let html = '';
 
     if (selectedItems.length) {
         html += `
             <div class="ai-item-strip">
                 ${selectedItems.map(item => `
-                    <div class="ai-item-card">
+                    <button type="button" class="ai-item-card" data-consultation-reference="${item.reference}" aria-label="Inspect ${escapeHTML(item.name)}">
                         <img src="${escapeHTML(item.image_url)}" alt="${escapeHTML(item.name)}" loading="lazy">
                         <span>${escapeHTML(item.name)}</span>
-                    </div>
+                    </button>
                 `).join('')}
-            </div>
-        `;
-    }
-
-    if (vibeChips.length) {
-        html += `
-            <div class="ai-vibe-row">
-                ${vibeChips.map(chip => `<span class="ai-vibe-pill">${escapeHTML(chip)}</span>`).join('')}
             </div>
         `;
     }
@@ -1343,6 +1359,21 @@ FINAL CHECK BEFORE ANSWERING:
 
                     suggestionBox.innerHTML =
                         renderAIResponse(result.response, result.item_references);
+
+                    suggestionBox.querySelectorAll('[data-consultation-reference]').forEach(card => {
+                        const inspect = () => {
+                            const reference = Number(card.dataset.consultationReference);
+                            const item = consultationItems.find(entry => entry.reference === reference);
+                            openConsultationItemInspector(item);
+                        };
+                        card.addEventListener('click', inspect);
+                        card.addEventListener('keydown', event => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                inspect();
+                            }
+                        });
+                    });
 
                     suggestionBox.classList.remove('hidden');
 
