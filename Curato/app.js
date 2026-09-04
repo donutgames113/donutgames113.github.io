@@ -62,24 +62,24 @@ function renderFavorites() {
                 <img src="${escapeHTML(item.image_url)}" alt="${escapeHTML(item.name)}" loading="lazy">
             </div>`;
         }).join('');
-        return `<article class="glass rounded-2xl p-3">
+        return `<article class="favorite-panel">
             <div class="favorite-stack" data-favorite-stack tabindex="0" aria-label="Tap to spread ${escapeHTML(outfit.title)}">
                 ${cards}
-                <div class="favorite-name text-[10px] uppercase tracking-[0.18em] text-white/80">${escapeHTML(outfit.title)}</div>
+                <div class="favorite-name">${escapeHTML(outfit.title)}</div>
             </div>
-            <div class="mt-4 px-1">
-                <button type="button" class="text-[9px] uppercase tracking-[0.15em] text-white/70 hover:text-white border border-white/10 rounded-full px-3 py-2" data-inspect-items="${escapeHTML(outfit.id)}">Inspect item list (${items.length})</button>
-                <ul class="hidden space-y-1.5 mt-3" data-favorite-items>
-                    ${items.map(item => `<li class="flex items-center gap-2 text-xs text-white/65">
+            <div>
+                <button type="button" class="favorite-action" data-inspect-items="${escapeHTML(outfit.id)}"><i class="fa-solid fa-list-ul"></i> Items <span>(${items.length})</span></button>
+                <ul class="favorite-items hidden" data-favorite-items>
+                    ${items.map(item => `<li class="flex items-center gap-2 text-xs">
                         <img src="${escapeHTML(item.image_url)}" alt="" class="w-7 h-9 rounded object-cover border border-white/10">
                         <span>${escapeHTML(item.name)}</span>
                     </li>`).join('')}
                 </ul>
             </div>
-            <div class="flex items-center gap-2 mt-4 px-1">
-                <input type="text" value="${escapeHTML(outfit.title)}" data-favorite-title="${escapeHTML(outfit.id)}" class="min-w-0 flex-1 bg-transparent border-b border-white/10 py-2 text-xs text-white/80 focus:outline-none focus:border-[#d4ff6a]" aria-label="Favorite outfit name">
-                <button type="button" class="text-[9px] uppercase tracking-[0.15em] text-white/30 hover:text-white" data-rename-favorite="${escapeHTML(outfit.id)}">Rename</button>
-                <button type="button" class="text-[9px] uppercase tracking-[0.15em] text-white/30 hover:text-white" data-remove-favorite="${escapeHTML(outfit.id)}">Remove</button>
+            <div class="favorite-actions">
+                <input type="text" value="${escapeHTML(outfit.title)}" data-favorite-title="${escapeHTML(outfit.id)}" class="favorite-title" aria-label="Favorite outfit name">
+                <button type="button" class="favorite-action" data-rename-favorite="${escapeHTML(outfit.id)}" aria-label="Rename outfit"><i class="fa-solid fa-pen"></i><span class="hidden sm:inline">Rename</span></button>
+                <button type="button" class="favorite-action danger" data-remove-favorite="${escapeHTML(outfit.id)}" aria-label="Remove outfit"><i class="fa-solid fa-trash-can"></i></button>
             </div>
         </article>`;
     }).join('');
@@ -123,12 +123,12 @@ function openItemInspector(id) {
 
     title.innerText = favorite.title;
     itemList.innerHTML = (favorite.items || []).map(item => `
-        <div class="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-3">
-            <img src="${escapeHTML(item.image_url)}" alt="${escapeHTML(item.name)}" class="w-20 h-24 rounded-xl object-cover border border-white/10">
+        <div class="inspector-item">
+            <img src="${escapeHTML(item.image_url)}" alt="${escapeHTML(item.name)}">
             <div class="min-w-0">
-                <div class="text-sm text-white/90">${escapeHTML(item.name)}</div>
-                <div class="text-[10px] text-white/40 uppercase tracking-[0.15em] mt-2">${escapeHTML(item.tags?.brand || 'Independent')}</div>
-                <div class="text-[10px] text-white/30 uppercase tracking-[0.15em] mt-1">${escapeHTML(item.tags?.subcategory || item.tags?.category || 'Item')}</div>
+                <div class="inspector-item-name">${escapeHTML(item.name)}</div>
+                <div class="inspector-meta">${escapeHTML(item.tags?.brand || 'Independent')}</div>
+                <div class="inspector-meta">${escapeHTML(item.tags?.subcategory || item.tags?.category || 'Item')}</div>
             </div>
         </div>
     `).join('');
@@ -279,7 +279,7 @@ function renderAIResponse(text) {
             html += `
                 <li class="flex gap-4 items-start">
                     <div class="w-1.5 h-1.5 rounded-full bg-[#d4ff6a] mt-2 shrink-0"></div>
-                    <div class="text-sm leading-relaxed text-white/70">
+                    <div class="response-copy">
                         ${clean}
                     </div>
                 </li>
@@ -312,7 +312,7 @@ function renderAIResponse(text) {
         }
 
         html += `
-            <p class="text-[15px] leading-8 text-white/75 mb-6 font-light">
+            <p class="response-copy">
                 ${line.replace(
                     /\*\*(.*?)\*\*/g,
                     '<strong class="text-white font-medium">$1</strong>'
