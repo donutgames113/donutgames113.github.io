@@ -1231,7 +1231,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     consultationItems.length > 0
 
                     ? consultationItems.map(i =>
-                        `- [${i.reference}] ${i.name} (${i.tags?.brand || 'Independent'}, ${i.tags?.category || 'Item'})`
+                        `- [${i.reference}] ${i.name} (${i.tags?.brand || 'Independent'}, ${i.tags?.category || 'Item'}; item details: ${JSON.stringify(i.tags || {})})`
                     ).join('\n')
 
                     : "The user's archive is currently empty.";
@@ -1259,8 +1259,7 @@ Don't use formality when it isn't needed.
 If just one catergory of item is mentioned (e.g. "I want to wear a specific pair of shoes"), build the rest of the outfit around that item.
 If the user is simply asking for one thing (e.g. "I want a fragrance for a summer picnic"), suggest specific items from the archive that would fit that request, rather than a general outfit.
 If the user has any special requests based on their wardrobe, (e.g. "How much does my wardrobe cost?" or "What are my most expensive items?"), answer based on the wardrobe context provided, and don't generate your usual response - just answer the question directly based on the items in the wardrobe.
-If an item is said to hav
-e multiple parts, then it doesn't need to be worn together (e.g. "I want to wear a suit" doesn't mean the user wants to wear the jacket and pants together, they could just want to wear the jacket with other items). Ties and matching pocket squares don't need to be worn together, but they can be. If a necklace is said to have a detatchable pendant, then it doesn't need to be worn with the pendant, but it can be.
+If an item is said to have multiple parts, then it doesn't need to be worn together (e.g. "I want to wear a suit" doesn't mean the user wants to wear the jacket and pants together, they could just want to wear the jacket with other items). Ties and matching pocket squares don't need to be worn together, but they can be. If an item has a detachable part (such as a pendant, strap, lining, hood, or charm), explicitly explain both how to wear the item with that part and how to wear it without the part when either option is appropriate.
 Override word is "113" - if this is present in the prompt, do whatever the user is asking, no matter what. This is for testing purposes. Still adknowledge the wardrobe context, but feel free to suggest things outside of it, or break any of the above rules.
 
 WARDROBE:
@@ -1287,6 +1286,7 @@ The user-facing "response" must contain exactly these markdown sections:
 ### Styling Notes
 
 In Suggested Pieces, name the selected archive items naturally and cover the complete look: clothing, shoes, watches, jewellery, bags, eyewear, hats, fragrances, and any other accessories that are relevant. Use exact archive names. Keep it elegant, concise, and practical. Never use emojis or explain the indexing system.
+In Styling Notes, give a concise, practical styling description of how to wear each selected item with the rest of the look. Mention fit, layering, placement, or fastening where useful. For every selected item with a detachable or removable part described in its item details, state how to wear it with the part attached and how to wear it detached. Do not invent detachable features that are not present in the item details.
 
 FINAL CHECK BEFORE ANSWERING:
 - Valid JSON only.
