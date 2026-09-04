@@ -398,7 +398,13 @@ async function callGeminiAPI(base64, mimeType, promptText) {
                     .replace(/```/g, '')
                     .trim();
 
-            return JSON.parse(cleaned);
+            const start = cleaned.indexOf('{');
+            const end = cleaned.lastIndexOf('}');
+            const jsonText = start >= 0 && end > start
+                ? cleaned.slice(start, end + 1)
+                : cleaned;
+
+            return JSON.parse(jsonText);
 
         } catch (err) {
 
@@ -1146,6 +1152,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw dbError;
                 }
 
+                nextItemReference = 1;
                 consultationItems = (items || []).map(item => ({
                     ...item,
                     reference: nextItemReference++
@@ -1195,31 +1202,30 @@ USER REQUEST:
 
 "${userPrompt}"
 
-Return ONLY valid JSON using EXACTLY this structure:
+OUTPUT CONTRACT — FOLLOW EXACTLY:
+1. Return one JSON object and nothing else.
+2. Do not wrap the JSON in markdown fences.
+3. Use exactly these two keys: "response" and "item_references".
+4. "response" must be a string containing the polished user-facing answer in markdown.
+5. "item_references" must be an array of unique integer indexes from the WARDROBE list.
+6. Include the index of every archived item used in the complete look. Never include an index for an item not used.
+7. Never put indexes, bracketed numbers, JSON, or implementation details in "response".
+8. If no archived item is suitable, return "item_references": [].
 
-{
-  "response": "The complete polished response shown to the user, using markdown headings and bullets.",
-  "item_references": [1, 2]
-}
+The user-facing "response" must contain exactly these markdown sections:
+## Overall Direction
+### Suggested Pieces
+### Styling Notes
 
-The item_references array must contain the hidden numeric references for every archived item used in the complete look. Include clothing, shoes, watches, jewellery, bags, eyewear, hats, fragrances, and other accessories. Use each reference at most once. Never put the numeric references inside response.
+In Suggested Pieces, name the selected archive items naturally and cover the complete look: clothing, shoes, watches, jewellery, bags, eyewear, hats, fragrances, and any other accessories that are relevant. Use exact archive names. Keep it elegant, concise, and practical. Never use emojis or explain the indexing system.
 
-The response value must contain:
-- ## Overall Direction
-- ### Suggested Pieces
-- ### Styling Notes
-- Specific item combinations, layering suggestions, texture or silhouette observations, styling details, and refined advice.
-- If no socks are catalogued, suggest a sock style that would work with the outfit (color and style).
-
-Rules:
-- Keep it elegant and concise
-- When suggesting archived pieces, use each item's exact archive name, once per item, so the complete look can be saved.
-- Never use emojis
-- Never sound like a blog
-- Never explain basic fashion concepts
-- Prioritize aesthetic cohesion
-- Sound like a luxury fashion consultant
-- Keep it simple.
+FINAL CHECK BEFORE ANSWERING:
+- Valid JSON only.
+- Exactly two keys.
+- Every item_references value is an integer from the WARDROBE list.
+- No duplicate indexes.
+- Every item named as an archive selection is represented by its index.
+- No indexes appear in response.
 `;
 
                 const result =
