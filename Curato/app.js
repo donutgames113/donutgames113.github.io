@@ -11,16 +11,16 @@ let selectedCategory = "Other";
 let selectedSubCategory = null;
 let currentImageData = null;
 let currentSortClass = "ALL";
-let latestSuggestion = "";
+let latestSuggestion = null;
 let favoriteOutfits = [];
+let consultationItems = [];
+let nextItemReference = 1;
 
-function getOutfitItems(text, items) {
-    const normalizedText = text.toLowerCase();
-    return items.filter(item => {
-        const itemName = item.name.trim().toLowerCase();
-        if (!itemName) return false;
-        return normalizedText.includes(itemName);
-    });
+function getOutfitItems(itemReferences) {
+    const references = new Set(itemReferences);
+    return consultationItems
+        .filter(item => references.has(item.reference))
+        .map(({ reference, ...item }) => item);
 }
 
 function renderFavorites() {
@@ -705,11 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveOutfitBtn.disabled = true;
         saveOutfitBtn.innerText = "SAVING...";
         try {
-            const { data: items, error: itemsError } = await supabase
-                .from('items')
-                .select('id,name,image_url,tags');
-            if (itemsError) throw itemsError;
-            const outfitItems = getOutfitItems(latestSuggestion, items || []);
+            const outfitItems = getOutfitItems(latestSuggestion?.item_references || []);
             if (!outfitItems.length) {
                 alert("The consultation did not reference any archived pieces to save.");
                 return;
@@ -1144,17 +1140,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 const { data: items, error: dbError } =
                     await supabase
                         .from('items')
-                        .select('name,tags');
+                        .select('id,name,image_url,tags');
 
                 if (dbError) {
                     throw dbError;
                 }
 
-                const wardrobeContext =
-                    items && items.length > 0
+                consultationItems = (items || []).map(item => ({
+                    ...item,
+                    reference: nextItemReference++
+                }));
 
-                    ? items.map(i =>
-                        `- ${i.name} (${i.tags?.brand || 'Independent'}, ${i.tags?.category || 'Item'})`
+                const wardrobeContext =
+                    consultationItems.length > 0
+
+                    ? consultationItems.map(i =>
+                        `- [${i.reference}] ${i.name} (${i.tags?.brand || 'Independent'}, ${i.tags?.category || 'Item'})`
                     ).join('\n')
 
                     : "The user's archive is currently empty.";
@@ -1194,23 +1195,21 @@ USER REQUEST:
 
 "${userPrompt}"
 
-Respond using EXACTLY this structure:
+Return ONLY valid JSON using EXACTLY this structure:
 
-## Overall Direction
+{
+  "response": "The complete polished response shown to the user, using markdown headings and bullets.",
+  "item_references": [1, 2]
+}
 
-A short stylish overview of the outfit direction and mood.
+The item_references array must contain the hidden numeric references for every archived item used in the complete look. Include clothing, shoes, watches, jewellery, bags, eyewear, hats, fragrances, and other accessories. Use each reference at most once. Never put the numeric references inside response.
 
-### Suggested Pieces
-
-- Specific item combinations from the archive, including every clothing piece, shoe, accessory, watch, jewellery item, bag, eyewear item, hat, and fragrance used in the complete look.
-- Layering suggestions
-- Texture or silhouette observations
-- Styling details
-- If no socks are catalogued, suggest a sock style that would work with the outfit (color and style)
-
-### Styling Notes
-
-Brief refined advice on proportions, fit, mood, timing, or confidence.
+The response value must contain:
+- ## Overall Direction
+- ### Suggested Pieces
+- ### Styling Notes
+- Specific item combinations, layering suggestions, texture or silhouette observations, styling details, and refined advice.
+- If no socks are catalogued, suggest a sock style that would work with the outfit (color and style).
 
 Rules:
 - Keep it elegant and concise
@@ -1223,17 +1222,34 @@ Rules:
 - Keep it simple.
 `;
 
-                const response =
+                const result =
                     await callGeminiAPI(
                         null,
                         null,
                         finalPrompt
                     );
+                const references = result?.item_references;
+                const uniqueReferences = Array.isArray(references)
+                    ? new Set(references)
+                    : new Set();
+                const validReferences = Array.isArray(references)
+                    && references.every(reference =>
+                        Number.isInteger(reference)
+                        && consultationItems.some(item => item.reference === reference)
+                    );
+                if (
+                    !result?.response
+                    || !Array.isArray(references)
+                    || uniqueReferences.size !== references.length
+                    || !validReferences
+                ) {
+                    throw new Error("Consultant returned an invalid outfit format.");
+                }
 
                 if (suggestionBox) {
 
                     suggestionBox.innerHTML =
-                        renderAIResponse(response);
+                        renderAIResponse(result.response);
 
                     suggestionBox.classList.remove('hidden');
 
@@ -1241,7 +1257,7 @@ Rules:
                         behavior: 'smooth'
                     });
                 }
-                latestSuggestion = response;
+                latestSuggestion = result;
                 saveOutfitBtn?.classList.remove('hidden');
 
             } catch (err) {
