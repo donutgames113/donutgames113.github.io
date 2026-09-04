@@ -168,9 +168,12 @@
         .ai-render-area li { margin: 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--card) 74%, transparent); font-size: 14px; }
         .ai-render-area li strong { color: var(--ink); display: block; font-size: 15px; }
         .ai-item-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 10px; margin: 0 0 1.25rem; }
-        .ai-item-card { display: flex; flex-direction: column; gap: 8px; padding: 8px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--card) 82%, transparent); }
+        .ai-item-card { display: flex; flex-direction: column; gap: 8px; padding: 8px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--card) 82%, transparent); transition: transform .2s ease, box-shadow .2s ease; }
+        .ai-item-card:hover { transform: translateY(-2px); box-shadow: 0 12px 22px rgba(32,27,53,.08); }
         .ai-item-card img { width: 100%; height: 104px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); }
         .ai-item-card span { display: block; color: var(--muted); font: 500 10px "DM Mono", monospace; text-transform: uppercase; letter-spacing: .08em; }
+        .ai-vibe-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 1rem; }
+        .ai-vibe-pill { display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(116,85,245,.25); border-radius: 999px; padding: 6px 10px; background: linear-gradient(135deg, rgba(116,85,245,.12), rgba(255,138,91,.12)); color: var(--ink); font: 700 9px "DM Mono", monospace; letter-spacing: .08em; text-transform: uppercase; }
         .response-copy { margin: 0 0 1rem; color: var(--muted); font-size: 15px; line-height: 1.75; }
         .response-copy strong { color: var(--ink); font-weight: 700; }
         .ai-render-area blockquote { margin: 1.5rem 0 0; padding: 15px 17px; border: 1px solid color-mix(in srgb, var(--orange) 48%, var(--line)); border-left: 4px solid var(--orange); border-radius: 0 14px 14px 14px; color: var(--muted); background: color-mix(in srgb, var(--orange) 8%, var(--card)); }

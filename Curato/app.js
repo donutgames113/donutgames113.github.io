@@ -205,6 +205,12 @@ function renderAIResponse(text, itemReferences = []) {
             .filter(Boolean)
         : [];
 
+    const vibeChips = [...new Set(
+        selectedItems
+            .map(item => item.tags?.subcategory || item.tags?.category)
+            .filter(Boolean)
+    )].slice(0, 4);
+
     let html = '';
 
     if (selectedItems.length) {
@@ -220,11 +226,32 @@ function renderAIResponse(text, itemReferences = []) {
         `;
     }
 
+    if (vibeChips.length) {
+        html += `
+            <div class="ai-vibe-row">
+                ${vibeChips.map(chip => `<span class="ai-vibe-pill">${escapeHTML(chip)}</span>`).join('')}
+            </div>
+        `;
+    }
+
     // Clean markdown artifacts
     text = text
         .replace(/```markdown/g, '')
         .replace(/```/g, '')
         .trim();
+
+    text = text.replace(/### Styling Notes\s*[\r\n]+([\s\S]*?)(?=\n### |\n## |$)/i, (_, body) => {
+        const compact = body
+            .replace(/\s+/g, ' ')
+            .trim();
+        const brief = compact
+            .split(/(?<=[.!?])\s+/)
+            .slice(0, 2)
+            .join(' ')
+            .trim();
+        const finalBrief = brief.length > 120 ? `${brief.slice(0, 117).trim()}…` : brief;
+        return `### Styling Notes\n${finalBrief || 'Confident, polished, and easy.'}`;
+    });
 
     // Split into sections
     const lines = text.split('\n');
