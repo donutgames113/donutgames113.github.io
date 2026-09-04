@@ -3,294 +3,272 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Curato | Archive</title>
+    <title>Curato | Your style, remixed</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <style>
         :root {
-            --bg: #0b0b0c;
-            --card: rgba(255,255,255,0.04);
-            --stroke: rgba(255,255,255,0.08);
-            --text: rgba(255,255,255,0.9);
-            --muted: rgba(255,255,255,0.7);
-            --accent: #d4ff6a;
+            --ink: #201b35;
+            --muted: #756d89;
+            --paper: #f7f4ee;
+            --card: #fffdf8;
+            --line: #e6e0d7;
+            --purple: #7455f5;
+            --orange: #ff8a5b;
+            --mint: #b9eed9;
+            --yellow: #ffe38b;
         }
+        * { box-sizing: border-box; }
         body {
-            font-family: Inter, sans-serif;
-            background: radial-gradient(1200px 800px at 20% 0%, #1a1a1f 0%, #0b0b0c 60%);
-            color: var(--text);
-            letter-spacing: -0.02em;
-            line-height: 1.5;
+            margin: 0;
             min-height: 100vh;
+            color: var(--ink);
+            background: var(--paper);
+            font-family: "Space Grotesk", sans-serif;
+            letter-spacing: -0.025em;
         }
         body::before {
             content: "";
             position: fixed;
             inset: 0;
-            background-image: url('https://grainy-gradients.vercel.app/noise.svg');
-            opacity: 0.04;
             pointer-events: none;
-            z-index: 50;
+            opacity: .32;
+            background-image: radial-gradient(#d2cabc 0.7px, transparent .7px);
+            background-size: 14px 14px;
+            z-index: -1;
         }
-        .glass {
-            background: rgba(24,24,28,0.82);
-            border: 1px solid rgba(255,255,255,0.14);
-            backdrop-filter: blur(24px);
+        .mono { font-family: "DM Mono", monospace; }
+        .topbar {
+            background: rgba(247,244,238,.86);
+            border-bottom: 1px solid var(--line);
+            backdrop-filter: blur(16px);
         }
-        .nav-blur {
-            background: rgba(10,10,12,0.7);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--stroke);
-        }
-        .item-card {
-            transition: all .4s cubic-bezier(.2,.8,.2,1);
-            position: relative;
-        }
-        .item-card:hover { transform: translateY(-6px); }
-        .img-container {
-            aspect-ratio: 4/5;
-            overflow: hidden;
-            border-radius: 12px;
-            border: 1px solid var(--stroke);
-            background: #121214;
-        }
-        .item-card img {
-            filter: saturate(0.6) brightness(0.9);
-            transition: .6s ease;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .item-card:hover img {
-            filter: saturate(1) brightness(1);
-            transform: scale(1.04);
-        }
-        .chip {
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 8px 14px;
-            border-radius: 999px;
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: rgba(255,255,255,0.72);
-            transition: .25s;
-            cursor: pointer;
-            background: transparent;
-        }
-        .chip:hover, .cat-opt.active, .sort-opt.active {
-            border-color: var(--accent);
+        .brand-mark {
+            display: inline-flex;
+            width: 34px;
+            height: 34px;
+            align-items: center;
+            justify-content: center;
             color: white;
-            background: rgba(212, 255, 106, 0.05);
+            background: var(--purple);
+            border-radius: 11px 11px 11px 3px;
+            transform: rotate(-6deg);
+            box-shadow: 4px 4px 0 var(--yellow);
         }
-        button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex="0"]:focus-visible {
-            outline: 2px solid var(--accent);
-            outline-offset: 3px;
+        .surface {
+            background: rgba(255,253,248,.88);
+            border: 1px solid var(--line);
+            box-shadow: 0 14px 45px rgba(54, 38, 84, .07);
         }
-        label, .text-\[9px\], .text-\[10px\] {
-            line-height: 1.5;
+        .eyebrow {
+            color: var(--purple);
+            font: 500 11px/1 "DM Mono", monospace;
+            letter-spacing: .1em;
+            text-transform: uppercase;
         }
-        #item-count, #favorites-title, #item-inspector-title {
-            color: rgba(255,255,255,0.9);
-        }
-        #catalog-grid .text-\[11px\] {
-            font-size: 12px;
-        }
-        #catalog-grid .text-\[9px\] {
-            font-size: 11px;
-            color: rgba(255,255,255,0.62);
-        }
-        #favorites-list .text-\[9px\], #item-inspector-list .text-\[10px\] {
-            font-size: 11px;
-            color: rgba(255,255,255,0.68);
-        }
-        #favorites-list input {
-            font-size: 14px;
-        }
-        #favorites-list button, #item-inspector-modal button {
-            min-height: 36px;
-        }
-        #favorites-modal section, #item-inspector-modal section {
-            background: rgba(20,20,24,0.96);
-            border-color: rgba(255,255,255,0.2);
-        }
-        #favorites-empty {
-            color: rgba(255,255,255,0.62);
-        }
+        .hero-title { font-size: clamp(2.7rem, 7vw, 6.5rem); line-height: .93; letter-spacing: -.08em; }
+        .hero-title em { color: var(--purple); font-style: normal; }
+        .prompt-wrap { background: var(--ink); border-radius: 25px; padding: 8px; box-shadow: 10px 12px 0 var(--mint); }
         #occasion-input {
-            font-size: 32px;
-            font-weight: 200;
+            min-height: 100px;
+            color: white;
+            font-size: clamp(1.35rem, 3vw, 2.5rem);
+            font-weight: 500;
+            line-height: 1.05;
+            letter-spacing: -.055em;
         }
-        .glow-btn {
-            background: white;
-            color: black;
-            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+        #occasion-input::placeholder { color: rgba(255,255,255,.38); }
+        .prompt-submit, .primary-button {
+            background: var(--orange);
+            color: var(--ink);
+            font-weight: 700;
+            transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
         }
-        input::placeholder { color: rgba(255,255,255,0.2); }
-        input, textarea, select { color: rgba(255,255,255,0.9); }
-        input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.48); }
-        input:focus { border-color: var(--accent) !important; }
-        select option { background: #1a1a1f; color: white; }
-
-        /* AI SUGGESTION RENDERING */
-        .ai-render-area { text-align: left; line-height: 1.8; }
-        .ai-render-area h2 { font-size: 26px; font-weight: 200; color: var(--accent); margin-bottom: 1.5rem; letter-spacing: -0.02em; }
-        .ai-render-area h3 { font-size: 11px; font-weight: 700; color: white; text-transform: uppercase; letter-spacing: 0.2em; margin-top: 2rem; border-bottom: 1px solid var(--stroke); padding-bottom: 0.5rem; }
-        .ai-render-area ul { margin-top: 1rem; list-style: none; padding-left: 0; }
-        .ai-render-area li { margin-bottom: 1.25rem;         font-size: 14px;
+        .prompt-submit:hover, .primary-button:hover { background: #ff9d75; transform: translateY(-2px); box-shadow: 0 5px 0 rgba(0,0,0,.18); }
+        .prompt-submit:disabled, .primary-button:disabled { opacity: .55; transform: none; box-shadow: none; }
+        .suggestion-chip, .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            min-height: 34px;
+            padding: 7px 13px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: var(--card);
+            color: var(--muted);
+            cursor: pointer;
+            font: 500 11px/1 "DM Mono", monospace;
+            transition: .2s ease;
         }
-        #favorites-btn, #auth-btn {
-        color: rgba(255,255,255,0.78);
-        font-size: 11px;
+        .suggestion-chip:hover, .chip:hover, .cat-opt.active, .sort-opt.active {
+            color: var(--ink);
+            border-color: var(--purple);
+            background: #eeeaff;
+            transform: translateY(-1px);
         }
-        #favorites-btn:hover, #auth-btn:hover {
-        color: white;
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--muted);
+            font: 500 11px/1 "DM Mono", monospace;
+            letter-spacing: .08em;
+            text-transform: uppercase;
         }
-        #item-inspector-list > div {
-        background: rgba(255,255,255,0.05);
-        border-color: rgba(255,255,255,0.16); color: rgba(255,255,255,0.7); }
-        .ai-render-area li strong { display: block; color: white; font-size: 15px; margin-bottom: 2px; }
-        .ai-render-area blockquote { margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.02); border-left: 2px solid var(--accent); font-size: 13px; color: var(--muted); font-style: italic; }
-        .favorite-stack {
-            position: relative;
-            height: 210px;
-            overflow: hidden;
-            border-radius: 1rem;
-            background: rgba(255,255,255,0.025);
-            border: 1px solid var(--stroke);
+        .section-label::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--orange); }
+        .drop-zone {
+            min-height: 230px;
+            border: 1.5px dashed #c9c0b5;
+            border-radius: 19px;
+            background: linear-gradient(135deg, #fffdf8, #f1ede5);
+            transition: .2s ease;
         }
-        .favorite-card {
-            position: absolute;
-            width: 112px;
-            height: 154px;
-            left: 50%;
-            top: 50%;
-            margin: -77px 0 0 -56px;
-            border: 3px solid #18181b;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 12px 24px rgba(0,0,0,.35);
-            transform: translate(var(--x), var(--y)) rotate(var(--r));
-            transition: transform .35s cubic-bezier(.2,.8,.2,1), z-index .1s;
-        }
-        .favorite-card img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.75); }
-        .favorite-stack:hover .favorite-card,
-        .favorite-stack.is-revealed .favorite-card {
-            transform: translate(calc(var(--x) + var(--hover-x)), calc(var(--y) + var(--hover-y))) rotate(var(--hover-r));
-        }
-        .favorite-name { position: absolute; left: 12px; right: 12px; bottom: 10px; z-index: 20; pointer-events: none; }
+        .drop-zone:hover { border-color: var(--purple); background: #f1edff; }
+        .upload-orb { width: 58px; height: 58px; display: grid; place-items: center; color: var(--purple); background: #e9e4ff; border-radius: 18px 18px 18px 5px; font-size: 22px; }
+        .field { color: var(--ink); border-bottom: 1px solid var(--line); background: transparent; }
+        .field::placeholder { color: #aaa1af; }
+        .field:focus { border-color: var(--purple) !important; outline: none; }
+        .filter-box { background: #f1ede5; border-radius: 15px; padding: 5px; }
+        .filter-box .chip { border-color: transparent; background: transparent; }
+        .filter-box .chip.active { background: var(--card); box-shadow: 0 2px 8px rgba(32,27,53,.08); }
+        .item-card { position: relative; transition: transform .25s ease; }
+        .item-card:hover { transform: translateY(-6px) rotate(-.6deg); }
+        .img-container { overflow: hidden; aspect-ratio: 4 / 5; border: 1px solid var(--line); border-radius: 19px; background: #ebe5dd; box-shadow: 5px 6px 0 #ded7cc; }
+        .item-card img { width: 100%; height: 100%; object-fit: cover; transition: transform .45s ease; }
+        .item-card:hover img { transform: scale(1.06); }
+        #catalog-grid .text-\[11px\] { font-size: 13px; color: var(--ink); }
+        #catalog-grid .text-\[9px\] { font-size: 11px; color: var(--muted); }
+        #item-count { color: var(--purple); font: 500 12px "DM Mono", monospace; }
+        .icon-button { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font: 500 11px "DM Mono", monospace; text-transform: uppercase; transition: .2s; }
+        .icon-button:hover { color: var(--ink); }
+        .ai-render-area { color: var(--ink); text-align: left; line-height: 1.7; }
+        .ai-render-area h2 { color: var(--purple); font-size: 26px; line-height: 1.1; margin-bottom: 1.5rem; }
+        .ai-render-area h3 { color: var(--ink); border-bottom: 1px solid var(--line); font: 500 11px "DM Mono", monospace; letter-spacing: .12em; margin-top: 2rem; padding-bottom: .6rem; text-transform: uppercase; }
+        .ai-render-area li { margin-bottom: 1rem; font-size: 14px; }
+        .ai-render-area li strong { color: var(--ink); display: block; font-size: 15px; }
+        .ai-render-area blockquote { border-left: 3px solid var(--orange); color: var(--muted); margin-top: 2rem; padding: 1rem 1.2rem; }
+        .ai-render-area .text-white, .ai-render-area .text-white\/90, .ai-render-area .text-white\/75, .ai-render-area .text-white\/70, .ai-render-area .text-white\/50 { color: var(--ink); }
+        .ai-render-area .text-white\/70, .ai-render-area .text-white\/50 { color: var(--muted); }
+        .ai-render-area .border-\[\#d4ff6a\]\/50 { border-color: var(--orange); }
+        .favorite-stack { position: relative; height: 210px; overflow: hidden; border: 1px solid var(--line); border-radius: 17px; background: #f1ede5; }
+        .favorite-card { position: absolute; width: 112px; height: 154px; left: 50%; top: 50%; margin: -77px 0 0 -56px; overflow: hidden; border: 4px solid var(--card); border-radius: 10px; box-shadow: 0 12px 24px rgba(54,38,84,.2); transform: translate(var(--x),var(--y)) rotate(var(--r)); transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+        .favorite-card img { width: 100%; height: 100%; object-fit: cover; }
+        .favorite-stack:hover .favorite-card, .favorite-stack.is-revealed .favorite-card { transform: translate(calc(var(--x) + var(--hover-x)),calc(var(--y) + var(--hover-y))) rotate(var(--hover-r)); }
+        .favorite-name { position: absolute; right: 12px; bottom: 10px; left: 12px; color: var(--ink); font: 500 10px "DM Mono", monospace; text-transform: uppercase; }
+        button:focus-visible, input:focus-visible, select:focus-visible, [tabindex="0"]:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
+        #favorites-modal section, #item-inspector-modal section { background: var(--paper); border-color: var(--line); }
+        #favorites-list button, #item-inspector-modal button { min-height: 34px; }
+        @media (max-width: 640px) { .hero-title { font-size: 3.6rem; } .prompt-wrap { box-shadow: 6px 8px 0 var(--mint); } }
     </style>
 </head>
 <body>
-<nav class="fixed top-0 w-full z-50 nav-blur">
-    <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
-        <div class="leading-tight">
-            <div class="text-lg font-semibold tracking-tighter uppercase">Curato</div>
-            <div class="text-[9px] tracking-[0.4em] text-white/30 uppercase">Personal Archive</div>
+    <nav class="topbar fixed top-0 z-50 w-full">
+        <div class="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-5 md:px-8">
+            <a href="#" class="flex items-center gap-3 no-underline" aria-label="Curato home">
+                <span class="brand-mark"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+                <span><strong class="block text-lg font-bold leading-none tracking-[-.06em]">curato</strong><small class="mono mt-1 block text-[9px] uppercase tracking-[.16em] text-[#9a91a0]">style, remixed</small></span>
+            </a>
+            <div class="flex items-center gap-4">
+                <select id="model-select" class="hidden border-b border-[#dcd4ca] bg-transparent pb-1 text-[10px] text-[#756d89] outline-none md:block">
+                    <option value="gemini-3.1-flash-lite-preview">3.1 Flash Lite</option>
+                    <option value="gemini-3.1-pro-preview">3.1 Pro</option>
+                    <option value="gemini-3-flash-preview">3 Flash Preview</option>
+                </select>
+                <input id="user-api-key" type="password" placeholder="Gemini key" class="hidden w-24 border-b border-[#dcd4ca] bg-transparent pb-1 text-[10px] outline-none md:block" aria-label="Gemini API key">
+                <button id="auth-btn" class="icon-button" type="button"><i class="fa-regular fa-circle-user text-base"></i><span>Connect</span></button>
+                <button id="favorites-btn" class="icon-button" type="button"><i class="fa-regular fa-bookmark text-base"></i><span class="hidden sm:inline">Favorites</span></button>
+            </div>
         </div>
-        <div class="flex items-center gap-4">
-            <select id="model-select" class="hidden md:block bg-transparent border-b border-white/10 text-[9px] uppercase tracking-widest pb-1 focus:outline-none transition-all cursor-pointer text-white/50">
-                <option value="gemini-3.1-flash-lite-preview">3.1 Flash Lite</option>
-                <option value="gemini-3.1-pro-preview">3.1 Pro</option>
-                <option value="gemini-3-flash-preview">3 Flash Preview</option>
-            </select>
-            <input id="user-api-key" type="password" placeholder="Gemini Key" class="hidden md:block bg-transparent border-b border-white/10 text-[10px] w-32 pb-1 focus:outline-none transition-all" />
-            <button id="auth-btn" class="text-[10px] tracking-[0.2em] uppercase text-white/50 hover:text-white transition">Connect</button>
-            <button id="favorites-btn" class="text-[10px] tracking-[0.2em] uppercase text-white/50 hover:text-white transition" type="button">Favorites</button>
+    </nav>
+
+    <main class="mx-auto max-w-7xl px-5 pb-24 pt-32 md:px-8">
+        <section class="mx-auto mb-24 max-w-5xl">
+            <div class="mb-6 flex items-center justify-between"><span class="eyebrow">01 / Ask your archive</span><span class="mono text-[10px] text-[#a8a0ad]">AI STYLE DESK <i class="fa-solid fa-arrow-down-long ml-1"></i></span></div>
+            <h1 class="hero-title max-w-4xl font-bold">Get dressed<br><em>for the plot.</em></h1>
+            <p class="mt-6 max-w-md text-base leading-relaxed text-[#756d89]">Tell Curato where you’re headed. It’ll make the most of what you already own.</p>
+            <div class="prompt-wrap mt-9">
+                <input id="occasion-input" class="w-full border-0 bg-transparent px-5 pb-5 pt-4 outline-none" placeholder="Where are we going?" aria-label="Tell Curato what you need an outfit for">
+                <div class="flex flex-col items-stretch justify-between gap-3 px-2 pb-2 sm:flex-row sm:items-center">
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="document.getElementById('occasion-input').value = this.innerText" class="suggestion-chip"><i class="fa-solid fa-plane-departure"></i> Tokyo solo trip</button>
+                        <button onclick="document.getElementById('occasion-input').value = this.innerText" class="suggestion-chip"><i class="fa-solid fa-sun"></i> Meeting the family</button>
+                        <button onclick="document.getElementById('occasion-input').value = this.innerText" class="suggestion-chip"><i class="fa-solid fa-moon"></i> Late night in Soho</button>
+                    </div>
+                    <button id="ask-btn" class="prompt-submit rounded-[17px] px-5 py-3 text-[11px] uppercase tracking-[.08em]"><i class="fa-solid fa-sparkles mr-2"></i> Consult</button>
+                </div>
+            </div>
+            <div id="ai-suggestion" class="surface hidden mt-10 rounded-[23px] p-6 md:p-10 ai-render-area"></div>
+            <button id="save-outfit-btn" class="hidden mt-5 rounded-full border border-[#d8d0c7] px-5 py-3 text-[10px] font-medium uppercase tracking-[.1em] text-[#756d89] transition hover:border-[#7455f5] hover:text-[#201b35]" type="button"><i class="fa-regular fa-bookmark mr-2"></i>Save this look</button>
+        </section>
+
+        <div class="grid grid-cols-1 gap-14 lg:grid-cols-12 lg:gap-20">
+            <aside class="lg:col-span-4 lg:sticky lg:top-28 lg:h-fit">
+                <div class="surface rounded-[25px] p-5 md:p-7">
+                    <div class="mb-6 flex items-center justify-between"><span class="section-label">Add a piece</span><span class="mono text-[10px] text-[#a8a0ad]">02</span></div>
+                    <div id="drop-zone" class="drop-zone group relative flex cursor-pointer items-center justify-center overflow-hidden">
+                        <div class="text-center transition-transform duration-300 group-hover:scale-105">
+                            <div class="upload-orb mx-auto"><i class="fa-solid fa-arrow-up-from-bracket"></i></div>
+                            <div id="drop-text" class="mt-4 text-sm font-semibold">Drop a photo here</div>
+                            <div class="mono mt-2 text-[10px] text-[#9b92a0]">or click to browse</div>
+                        </div>
+                        <img id="preview-img" class="absolute inset-0 hidden h-full w-full object-cover" alt="Selected item preview">
+                        <input id="file-input" type="file" class="hidden" accept="image/*">
+                    </div>
+                    <div id="category-wrap" class="mt-7">
+                        <div class="mono mb-3 text-[10px] uppercase tracking-[.1em] text-[#9b92a0]">Filter your piece</div>
+                        <div class="filter-box flex flex-wrap gap-1">
+                            <button class="chip cat-opt active" data-val="Other" data-sub="Top"><i class="fa-solid fa-shirt"></i> Top</button>
+                            <button class="chip cat-opt" data-val="Other" data-sub="Bottom"><i class="fa-solid fa-person"></i> Bottom</button>
+                            <button class="chip cat-opt" data-val="Shoes"><i class="fa-solid fa-shoe-prints"></i> Shoes</button>
+                            <button class="chip cat-opt" data-val="Watch"><i class="fa-regular fa-clock"></i> Watch</button>
+                            <button class="chip cat-opt" data-val="Fragrance"><i class="fa-solid fa-spray-can-sparkles"></i> Scent</button>
+                        </div>
+                    </div>
+                    <div class="mt-7 space-y-1">
+                        <input id="item-name" placeholder="What is it called?" class="field w-full py-3 text-sm">
+                        <input id="item-brand" placeholder="Brand or designer (optional)" class="field w-full py-3 text-sm">
+                    </div>
+                    <button id="save-btn" class="primary-button mt-7 w-full rounded-[15px] py-4 text-[11px] uppercase tracking-[.1em]"><i class="fa-solid fa-plus mr-2"></i>Archive piece</button>
+                </div>
+            </aside>
+
+            <section class="lg:col-span-8">
+                <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                    <div><span class="eyebrow">03 / The collection</span><h2 class="mt-2 text-3xl font-bold tracking-[-.06em]">Your wardrobe, <span class="text-[#7455f5]">your rules.</span></h2></div>
+                    <div id="item-count" class="self-start rounded-full bg-[#eeeaff] px-3 py-2">00 ITEMS</div>
+                </div>
+                <div class="filter-box mb-9 flex flex-wrap gap-1">
+                    <button class="chip sort-opt active" data-sort="ALL">Everything</button>
+                    <button class="chip sort-opt" data-sort="TOPS">Tops</button>
+                    <button class="chip sort-opt" data-sort="BOTTOMS">Bottoms</button>
+                    <button class="chip sort-opt" data-sort="Watch">Watches</button>
+                    <button class="chip sort-opt" data-sort="Fragrance">Scent</button>
+                    <button class="chip sort-opt" data-sort="Shoes">Shoes</button>
+                </div>
+                <div id="catalog-grid" class="grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-3 md:gap-x-7"></div>
+            </section>
         </div>
+    </main>
+
+    <div id="favorites-modal" class="fixed inset-0 z-[60] hidden items-center justify-center p-5" role="dialog" aria-modal="true" aria-labelledby="favorites-title">
+        <div class="absolute inset-0 bg-[#201b35]/55 backdrop-blur-sm" data-close-favorites></div>
+        <section class="relative max-h-[85vh] w-full max-w-4xl overflow-y-auto rounded-[25px] border p-7 md:p-10">
+            <div class="mb-8 flex items-start justify-between gap-6"><div><span class="eyebrow">Your saved energy</span><h2 id="favorites-title" class="mt-2 text-3xl font-bold tracking-[-.06em]">Favorite outfits</h2></div><button type="button" data-close-favorites class="text-xl text-[#9b92a0] hover:text-[#201b35]" aria-label="Close favorites"><i class="fa-solid fa-xmark"></i></button></div>
+            <div id="favorites-list" class="grid grid-cols-1 gap-5 sm:grid-cols-2"></div>
+            <p id="favorites-empty" class="hidden py-10 text-center text-sm text-[#9b92a0]">No saved outfits yet.</p>
+        </section>
     </div>
-</nav>
-<main class="max-w-7xl mx-auto px-6 pt-32 pb-24">
-    <section class="max-w-4xl mx-auto text-center mb-32">
-        <div class="text-[10px] tracking-[0.4em] uppercase text-white/30 mb-8">AI Style Consultant</div>
-        <input id="occasion-input" class="w-full bg-transparent border-b border-white/5 py-8 text-center focus:outline-none transition-all" placeholder="Where are we going?" />
-        <div class="flex flex-wrap justify-center gap-2 mt-8">
-            <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip">Tokyo solo trip</button>
-            <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip">Meeting the family, 30°C</button>
-            <button onclick="document.getElementById('occasion-input').value = this.innerText" class="chip">Late night in Soho</button>
-        </div>
-        <button id="ask-btn" class="mt-12 px-12 py-4 rounded-full glow-btn text-[10px] tracking-[0.3em] uppercase hover:scale-[1.02] active:scale-95 transition-all">
-            Consult Archive
-        </button>
-        <div id="ai-suggestion" class="hidden mt-12 glass p-10 rounded-3xl max-w-2xl mx-auto ai-render-area"></div>
-        <button id="save-outfit-btn" class="hidden mt-6 px-8 py-3 rounded-full border border-white/10 text-[10px] tracking-[0.3em] uppercase hover:border-[#d4ff6a] transition-all" type="button">Save outfit to favorites</button>
-    </section>
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
-        <div class="lg:col-span-4 lg:sticky lg:top-28 h-fit">
-            <div class="glass p-8 rounded-[2rem]">
-                <div class="text-[10px] tracking-[0.3em] uppercase text-white/30 mb-8">New Addition</div>
-                <div id="drop-zone" class="aspect-square border border-white/5 rounded-2xl flex items-center justify-center cursor-pointer relative overflow-hidden group hover:border-white/20 transition-all bg-white/[0.02]">
-                    <div class="text-center group-hover:scale-110 transition-transform duration-500">
-                        <div class="text-2xl font-light text-white/20">+</div>
-                        <div id="drop-text" class="text-[9px] tracking-[0.3em] uppercase mt-2 text-white/30">Upload Image</div>
-                    </div>
-                    <img id="preview-img" class="absolute inset-0 w-full h-full object-cover hidden" />
-                    <input id="file-input" type="file" class="hidden" accept="image/*" />
-                </div>
-                <div id="category-wrap" class="mt-8">
-                    <div class="flex flex-wrap gap-2 justify-center md:justify-start p-2 rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-sm">
-                        <button class="chip sort-opt active" data-sort="ALL">All</button>
-                        <button class="chip sort-opt" data-sort="TOPS">Tops</button>
-                        <button class="chip sort-opt" data-sort="BOTTOMS">Bottoms</button>
-                        <button class="chip sort-opt" data-sort="Watch">Watches</button>
-                        <button class="chip sort-opt" data-sort="Fragrance">Scent</button>
-                        <button class="chip sort-opt" data-sort="Shoes">Shoes</button>
-                    </div>
-                    <div class="mt-4 flex flex-wrap gap-2">
-                        <button class="chip cat-opt" data-val="Watch">Watch</button>
-                        <button class="chip cat-opt" data-val="Fragrance">Scent</button>
-                        <button class="chip cat-opt" data-val="Shoes">Shoes</button>
-                        <button class="chip cat-opt" data-val="Other" data-sub="Top">Top</button>
-                        <button class="chip cat-opt" data-val="Other" data-sub="Bottom">Bottom</button>
-                    </div>
-                </div>
-                <div class="space-y-4 mt-8">
-                    <input id="item-name" placeholder="Item Name" class="w-full bg-transparent border-b border-white/5 py-3 text-sm focus:outline-none" />
-                    <input id="item-brand" placeholder="Brand / Designer" class="w-full bg-transparent border-b border-white/5 py-3 text-sm focus:outline-none" />
-                </div>
-                <button id="save-btn" class="w-full mt-10 bg-white text-black text-[10px] tracking-[0.3em] uppercase py-5 rounded-2xl hover:bg-[#efefef] transition-colors font-medium">
-                    Archive Item
-                </button>
-            </div>
-        </div>
-        <div class="lg:col-span-8">
-            <div class="flex justify-between items-end mb-12">
-                <div class="text-[10px] tracking-[0.3em] uppercase text-white/30">The Collection</div>
-                <div id="item-count" class="text-[10px] tracking-[0.1em] text-white/20 tabular-nums">00 ITEMS</div>
-            </div>
-            <div id="catalog-grid" class="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-12"></div>
-        </div>
+    <div id="item-inspector-modal" class="fixed inset-0 z-[70] hidden items-center justify-center p-5" role="dialog" aria-modal="true" aria-labelledby="item-inspector-title">
+        <div class="absolute inset-0 bg-[#201b35]/55 backdrop-blur-sm" data-close-item-inspector></div>
+        <section class="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-[25px] border p-7 md:p-10">
+            <div class="mb-8 flex items-start justify-between gap-6"><div><span class="eyebrow">The ingredients</span><h2 id="item-inspector-title" class="mt-2 text-3xl font-bold tracking-[-.06em]"></h2></div><button type="button" data-close-item-inspector class="text-xl text-[#9b92a0] hover:text-[#201b35]" aria-label="Close item details"><i class="fa-solid fa-xmark"></i></button></div>
+            <div id="item-inspector-list" class="space-y-3"></div>
+        </section>
     </div>
-</main>
-<div id="favorites-modal" class="fixed inset-0 z-[60] hidden items-center justify-center p-5" role="dialog" aria-modal="true" aria-labelledby="favorites-title">
-    <div class="absolute inset-0 bg-black/75 backdrop-blur-sm" data-close-favorites></div>
-    <section class="relative glass rounded-[2rem] w-full max-w-4xl max-h-[85vh] overflow-y-auto p-7 md:p-10">
-        <div class="flex items-start justify-between gap-6 mb-8">
-            <div>
-                <div class="text-[10px] tracking-[0.3em] uppercase text-white/30 mb-2">Your archive</div>
-                <h2 id="favorites-title" class="text-3xl font-extralight tracking-tight">Favorite outfits</h2>
-            </div>
-            <button type="button" data-close-favorites class="text-white/40 hover:text-white text-xl" aria-label="Close favorites">×</button>
-        </div>
-        <div id="favorites-list" class="grid grid-cols-1 sm:grid-cols-2 gap-5"></div>
-        <p id="favorites-empty" class="hidden text-sm text-white/40 py-10 text-center">No saved outfits yet.</p>
-    </section>
-</div>
-<div id="item-inspector-modal" class="fixed inset-0 z-[70] hidden items-center justify-center p-5" role="dialog" aria-modal="true" aria-labelledby="item-inspector-title">
-    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" data-close-item-inspector></div>
-    <section class="relative glass rounded-[2rem] w-full max-w-2xl max-h-[85vh] overflow-y-auto p-7 md:p-10">
-        <div class="flex items-start justify-between gap-6 mb-8">
-            <div>
-                <div class="text-[10px] tracking-[0.3em] uppercase text-white/30 mb-2">Favorite details</div>
-                <h2 id="item-inspector-title" class="text-3xl font-extralight tracking-tight"></h2>
-            </div>
-            <button type="button" data-close-item-inspector class="text-white/40 hover:text-white text-xl" aria-label="Close item details">×</button>
-        </div>
-        <div id="item-inspector-list" class="space-y-3"></div>
-    </section>
-</div>
-<script type="module" src="app.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
