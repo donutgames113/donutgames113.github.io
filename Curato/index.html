@@ -149,11 +149,17 @@
         .filter-box { background: color-mix(in srgb, var(--line) 48%, var(--paper)); border-radius: 15px; padding: 5px; }
         .filter-box .chip { border-color: transparent; background: transparent; }
         .filter-box .chip.active { background: var(--card); box-shadow: 0 2px 8px rgba(32,27,53,.08); }
-        .item-card { position: relative; transition: transform .25s ease; }
+        .item-card { position: relative; cursor: pointer; transition: transform .25s ease; }
         .item-card:hover { transform: translateY(-6px) rotate(-.6deg); }
+        .item-card:focus-visible { outline: 3px solid var(--yellow); outline-offset: 5px; }
         .img-container { overflow: hidden; aspect-ratio: 4 / 5; border: 1px solid var(--line); border-radius: 19px; background: var(--card); box-shadow: 5px 6px 0 var(--line); }
         .item-card img { width: 100%; height: 100%; object-fit: cover; transition: transform .45s ease; }
         .item-card:hover img { transform: scale(1.06); }
+        .item-details { max-height: 0; overflow: hidden; opacity: 0; margin-top: 0; padding: 0 12px; border: 1px solid transparent; border-radius: 14px; background: color-mix(in srgb, var(--card) 86%, transparent); transition: max-height .3s ease, opacity .2s ease, margin-top .3s ease, padding .3s ease, border-color .3s ease; }
+        .item-card[aria-expanded="true"] .item-details { max-height: 300px; opacity: 1; margin-top: 14px; padding: 12px; border-color: var(--line); }
+        .item-detail-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent); color: var(--muted); font: 500 10px "DM Mono", monospace; text-transform: capitalize; }
+        .item-detail-row:last-child { border-bottom: 0; }
+        .item-detail-row strong { color: var(--ink); font-weight: 500; text-align: right; }
         #catalog-grid .text-\[11px\] { font-size: 13px; color: var(--ink); }
         #catalog-grid .text-\[9px\] { font-size: 11px; color: var(--muted); }
         #item-count { color: var(--purple); font: 500 12px "DM Mono", monospace; }

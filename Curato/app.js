@@ -244,13 +244,7 @@ function renderAIResponse(text, itemReferences = []) {
         const compact = body
             .replace(/\s+/g, ' ')
             .trim();
-        const brief = compact
-            .split(/(?<=[.!?])\s+/)
-            .slice(0, 2)
-            .join(' ')
-            .trim();
-        const finalBrief = brief.length > 120 ? `${brief.slice(0, 117).trim()}…` : brief;
-        return `### Styling Notes\n${finalBrief || 'Confident, polished, and easy.'}`;
+        return `### Styling Notes\n${compact || 'Confident, polished, and easy.'}`;
     });
 
     // Split into sections
@@ -549,37 +543,61 @@ async function fetchItems() {
 
     if (!catalogGrid) return;
 
-    catalogGrid.innerHTML =
-        filtered.map(item => `
+    catalogGrid.innerHTML = filtered.map(item => {
+        const tags = item.tags || {};
+        const category = tags.subcategory || tags.category || 'Item';
+        const detailEntries = Object.entries(tags)
+            .filter(([key, value]) => value !== null && value !== undefined && value !== '' && key !== 'brand' && key !== 'category' && key !== 'subcategory')
+            .map(([key, value]) => `
+                <div class="item-detail-row">
+                    <span>${escapeHTML(key.replace(/_/g, ' '))}</span>
+                    <strong>${escapeHTML(String(value))}</strong>
+                </div>
+            `).join('');
 
-        <div class="item-card group">
+        return `
+            <article class="item-card group" data-item-card tabindex="0" aria-expanded="false">
+                <div class="img-container">
+                    <img src="${escapeHTML(item.image_url)}" loading="lazy" alt="${escapeHTML(item.name)}">
+                </div>
+                <div class="mt-5">
+                    <p class="text-[11px] font-medium uppercase tracking-widest text-white/90">${escapeHTML(item.name)}</p>
+                    <p class="text-[9px] text-white/30 uppercase tracking-[0.15em] mt-1">
+                        ${escapeHTML(tags.brand || 'Independent')} • ${escapeHTML(category)}
+                    </p>
+                </div>
+                <div class="item-details" aria-hidden="true">
+                    <div class="item-detail-row">
+                        <span>Category</span>
+                        <strong>${escapeHTML(tags.category || 'Other')}</strong>
+                    </div>
+                    ${tags.subcategory ? `
+                        <div class="item-detail-row">
+                            <span>Type</span>
+                            <strong>${escapeHTML(tags.subcategory)}</strong>
+                        </div>
+                    ` : ''}
+                    ${detailEntries}
+                </div>
+            </article>
+        `;
+    }).join('');
 
-            <div class="img-container">
+    catalogGrid.querySelectorAll('[data-item-card]').forEach(card => {
+        const toggle = () => {
+            const expanded = card.getAttribute('aria-expanded') === 'true';
+            card.setAttribute('aria-expanded', String(!expanded));
+            card.querySelector('.item-details')?.setAttribute('aria-hidden', String(expanded));
+        };
 
-                <img
-                    src="${item.image_url}"
-                    loading="lazy"
-                >
-
-            </div>
-
-            <div class="mt-5">
-
-                <p class="text-[11px] font-medium uppercase tracking-widest text-white/90">
-                    ${item.name}
-                </p>
-
-                <p class="text-[9px] text-white/30 uppercase tracking-[0.15em] mt-1">
-                    ${item.tags?.brand || 'Independent'}
-                    •
-                    ${item.tags?.subcategory || item.tags?.category}
-                </p>
-
-            </div>
-
-        </div>
-
-    `).join('');
+        card.addEventListener('click', toggle);
+        card.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                toggle();
+            }
+        });
+    });
 }
 
 // ========================================
