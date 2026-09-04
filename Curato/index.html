@@ -21,6 +21,19 @@
             --orange: #ff8a5b;
             --mint: #b9eed9;
             --yellow: #ffe38b;
+            --shadow: rgba(54, 38, 84, .07);
+            --backdrop: rgba(32, 27, 53, .55);
+        }
+        body.dark-mode {
+            --ink: #f7f3ec;
+            --muted: #bcb4c7;
+            --paper: #171522;
+            --card: #242031;
+            --line: #3d354c;
+            --mint: #3e766b;
+            --yellow: #f1cf63;
+            --shadow: rgba(0, 0, 0, .28);
+            --backdrop: rgba(0, 0, 0, .72);
         }
         * { box-sizing: border-box; }
         body {
@@ -37,13 +50,13 @@
             inset: 0;
             pointer-events: none;
             opacity: .32;
-            background-image: radial-gradient(#d2cabc 0.7px, transparent .7px);
+            background-image: radial-gradient(color-mix(in srgb, var(--muted) 22%, transparent) 0.7px, transparent .7px);
             background-size: 14px 14px;
             z-index: -1;
         }
         .mono { font-family: "DM Mono", monospace; }
         .topbar {
-            background: rgba(247,244,238,.86);
+            background: color-mix(in srgb, var(--paper) 88%, transparent);
             border-bottom: 1px solid var(--line);
             backdrop-filter: blur(16px);
         }
@@ -60,10 +73,11 @@
             box-shadow: 4px 4px 0 var(--yellow);
         }
         .surface {
-            background: rgba(255,253,248,.88);
+            background: color-mix(in srgb, var(--card) 92%, transparent);
             border: 1px solid var(--line);
-            box-shadow: 0 14px 45px rgba(54, 38, 84, .07);
+            box-shadow: 0 14px 45px var(--shadow);
         }
+        .glass { background: var(--card); border: 1px solid var(--line); box-shadow: 0 14px 45px var(--shadow); }
         .eyebrow {
             color: var(--purple);
             font: 500 11px/1 "DM Mono", monospace;
@@ -72,7 +86,7 @@
         }
         .hero-title { font-size: clamp(2.7rem, 7vw, 6.5rem); line-height: .93; letter-spacing: -.08em; }
         .hero-title em { color: var(--purple); font-style: normal; }
-        .prompt-wrap { background: var(--ink); border-radius: 25px; padding: 8px; box-shadow: 10px 12px 0 var(--mint); }
+        .prompt-wrap { background: #201b35; border-radius: 25px; padding: 8px; box-shadow: 10px 12px 0 var(--mint); }
         #occasion-input {
             min-height: 100px;
             color: white;
@@ -124,20 +138,20 @@
             min-height: 230px;
             border: 1.5px dashed #c9c0b5;
             border-radius: 19px;
-            background: linear-gradient(135deg, #fffdf8, #f1ede5);
+            background: linear-gradient(135deg, var(--card), color-mix(in srgb, var(--paper) 70%, var(--card)));
             transition: .2s ease;
         }
-        .drop-zone:hover { border-color: var(--purple); background: #f1edff; }
+        .drop-zone:hover { border-color: var(--purple); background: color-mix(in srgb, var(--purple) 12%, var(--card)); }
         .upload-orb { width: 58px; height: 58px; display: grid; place-items: center; color: var(--purple); background: #e9e4ff; border-radius: 18px 18px 18px 5px; font-size: 22px; }
         .field { color: var(--ink); border-bottom: 1px solid var(--line); background: transparent; }
-        .field::placeholder { color: #aaa1af; }
+        .field::placeholder { color: color-mix(in srgb, var(--muted) 72%, transparent); }
         .field:focus { border-color: var(--purple) !important; outline: none; }
-        .filter-box { background: #f1ede5; border-radius: 15px; padding: 5px; }
+        .filter-box { background: color-mix(in srgb, var(--line) 48%, var(--paper)); border-radius: 15px; padding: 5px; }
         .filter-box .chip { border-color: transparent; background: transparent; }
         .filter-box .chip.active { background: var(--card); box-shadow: 0 2px 8px rgba(32,27,53,.08); }
         .item-card { position: relative; transition: transform .25s ease; }
         .item-card:hover { transform: translateY(-6px) rotate(-.6deg); }
-        .img-container { overflow: hidden; aspect-ratio: 4 / 5; border: 1px solid var(--line); border-radius: 19px; background: #ebe5dd; box-shadow: 5px 6px 0 #ded7cc; }
+        .img-container { overflow: hidden; aspect-ratio: 4 / 5; border: 1px solid var(--line); border-radius: 19px; background: var(--card); box-shadow: 5px 6px 0 var(--line); }
         .item-card img { width: 100%; height: 100%; object-fit: cover; transition: transform .45s ease; }
         .item-card:hover img { transform: scale(1.06); }
         #catalog-grid .text-\[11px\] { font-size: 13px; color: var(--ink); }
@@ -154,13 +168,26 @@
         .ai-render-area .text-white, .ai-render-area .text-white\/90, .ai-render-area .text-white\/75, .ai-render-area .text-white\/70, .ai-render-area .text-white\/50 { color: var(--ink); }
         .ai-render-area .text-white\/70, .ai-render-area .text-white\/50 { color: var(--muted); }
         .ai-render-area .border-\[\#d4ff6a\]\/50 { border-color: var(--orange); }
-        .favorite-stack { position: relative; height: 210px; overflow: hidden; border: 1px solid var(--line); border-radius: 17px; background: #f1ede5; }
+        .favorite-stack { position: relative; height: 210px; overflow: hidden; border: 1px solid var(--line); border-radius: 17px; background: color-mix(in srgb, var(--line) 48%, var(--paper)); }
         .favorite-card { position: absolute; width: 112px; height: 154px; left: 50%; top: 50%; margin: -77px 0 0 -56px; overflow: hidden; border: 4px solid var(--card); border-radius: 10px; box-shadow: 0 12px 24px rgba(54,38,84,.2); transform: translate(var(--x),var(--y)) rotate(var(--r)); transition: transform .35s cubic-bezier(.2,.8,.2,1); }
         .favorite-card img { width: 100%; height: 100%; object-fit: cover; }
         .favorite-stack:hover .favorite-card, .favorite-stack.is-revealed .favorite-card { transform: translate(calc(var(--x) + var(--hover-x)),calc(var(--y) + var(--hover-y))) rotate(var(--hover-r)); }
         .favorite-name { position: absolute; right: 12px; bottom: 10px; left: 12px; color: var(--ink); font: 500 10px "DM Mono", monospace; text-transform: uppercase; }
         button:focus-visible, input:focus-visible, select:focus-visible, [tabindex="0"]:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
         #favorites-modal section, #item-inspector-modal section { background: var(--paper); border-color: var(--line); }
+        #favorites-modal .text-white\/80, #favorites-modal .text-white\/70, #favorites-modal .text-white\/65, #favorites-modal .text-white\/40, #favorites-modal .text-white\/30,
+        #item-inspector-modal .text-white\/90, #item-inspector-modal .text-white\/40, #item-inspector-modal .text-white\/30 { color: var(--ink); }
+        #favorites-modal .text-white\/70, #favorites-modal .text-white\/65, #favorites-modal .text-white\/40, #favorites-modal .text-white\/30,
+        #item-inspector-modal .text-white\/40, #item-inspector-modal .text-white\/30 { color: var(--muted); }
+        #favorites-modal .border-white\/10, #item-inspector-modal .border-white\/10 { border-color: var(--line); }
+        #favorites-modal .bg-white\/\[0\.03\], #item-inspector-modal .bg-white\/\[0\.03\] { background: color-mix(in srgb, var(--card) 82%, transparent); }
+        #favorites-modal input { color: var(--ink); border-color: var(--line); }
+        #favorites-modal input::placeholder { color: var(--muted); }
+        .theme-toggle { width: 34px; height: 34px; display: inline-grid; place-items: center; border: 1px solid var(--line); border-radius: 11px; color: var(--muted); transition: .2s ease; }
+        .theme-toggle:hover { color: var(--ink); border-color: var(--purple); transform: rotate(-8deg); }
+        .dark-mode .fa-sun { display: inline-block; }
+        .dark-mode .fa-moon { display: none; }
+        body:not(.dark-mode) .theme-toggle .fa-sun { display: none; }
         #favorites-list button, #item-inspector-modal button { min-height: 34px; }
         @media (max-width: 640px) { .hero-title { font-size: 3.6rem; } .prompt-wrap { box-shadow: 6px 8px 0 var(--mint); } }
     </style>
@@ -179,6 +206,7 @@
                     <option value="gemini-3-flash-preview">3 Flash Preview</option>
                 </select>
                 <input id="user-api-key" type="password" placeholder="Gemini key" class="hidden w-24 border-b border-[#dcd4ca] bg-transparent pb-1 text-[10px] outline-none md:block" aria-label="Gemini API key">
+                <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch theme"><i class="fa-solid fa-moon"></i><i class="fa-solid fa-sun"></i></button>
                 <button id="auth-btn" class="icon-button" type="button"><i class="fa-regular fa-circle-user text-base"></i><span>Connect</span></button>
                 <button id="favorites-btn" class="icon-button" type="button"><i class="fa-regular fa-bookmark text-base"></i><span class="hidden sm:inline">Favorites</span></button>
             </div>
@@ -255,7 +283,7 @@
     </main>
 
     <div id="favorites-modal" class="fixed inset-0 z-[60] hidden items-center justify-center p-5" role="dialog" aria-modal="true" aria-labelledby="favorites-title">
-        <div class="absolute inset-0 bg-[#201b35]/55 backdrop-blur-sm" data-close-favorites></div>
+        <div class="absolute inset-0 backdrop-blur-sm" style="background: var(--backdrop)" data-close-favorites></div>
         <section class="relative max-h-[85vh] w-full max-w-4xl overflow-y-auto rounded-[25px] border p-7 md:p-10">
             <div class="mb-8 flex items-start justify-between gap-6"><div><span class="eyebrow">Your saved energy</span><h2 id="favorites-title" class="mt-2 text-3xl font-bold tracking-[-.06em]">Favorite outfits</h2></div><button type="button" data-close-favorites class="text-xl text-[#9b92a0] hover:text-[#201b35]" aria-label="Close favorites"><i class="fa-solid fa-xmark"></i></button></div>
             <div id="favorites-list" class="grid grid-cols-1 gap-5 sm:grid-cols-2"></div>
@@ -263,7 +291,7 @@
         </section>
     </div>
     <div id="item-inspector-modal" class="fixed inset-0 z-[70] hidden items-center justify-center p-5" role="dialog" aria-modal="true" aria-labelledby="item-inspector-title">
-        <div class="absolute inset-0 bg-[#201b35]/55 backdrop-blur-sm" data-close-item-inspector></div>
+        <div class="absolute inset-0 backdrop-blur-sm" style="background: var(--backdrop)" data-close-item-inspector></div>
         <section class="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-[25px] border p-7 md:p-10">
             <div class="mb-8 flex items-start justify-between gap-6"><div><span class="eyebrow">The ingredients</span><h2 id="item-inspector-title" class="mt-2 text-3xl font-bold tracking-[-.06em]"></h2></div><button type="button" data-close-item-inspector class="text-xl text-[#9b92a0] hover:text-[#201b35]" aria-label="Close item details"><i class="fa-solid fa-xmark"></i></button></div>
             <div id="item-inspector-list" class="space-y-3"></div>

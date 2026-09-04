@@ -16,6 +16,27 @@ let favoriteOutfits = [];
 let consultationItems = [];
 let nextItemReference = 1;
 
+function applyTheme(theme) {
+    const isDark = theme === 'dark';
+    document.body.classList.toggle('dark-mode', isDark);
+    const toggle = document.getElementById('theme-toggle');
+    if (toggle) {
+        toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+        toggle.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+    }
+}
+
+function initializeTheme() {
+    const savedTheme = localStorage.getItem('curato-theme');
+    const systemPrefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+    applyTheme(savedTheme || (systemPrefersDark ? 'dark' : 'light'));
+    document.getElementById('theme-toggle')?.addEventListener('click', () => {
+        const nextTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
+        localStorage.setItem('curato-theme', nextTheme);
+        applyTheme(nextTheme);
+    });
+}
+
 function getOutfitItems(itemReferences) {
     const references = new Set(itemReferences);
     return consultationItems
@@ -631,6 +652,7 @@ async function uploadImageToStorage(base64Data) {
 // ========================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    initializeTheme();
 
     const authBtn =
         document.getElementById('auth-btn');
