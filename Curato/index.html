@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <style>
         :root {
@@ -41,7 +41,7 @@
             min-height: 100vh;
             color: var(--ink);
             background: var(--paper);
-            font-family: "Space Grotesk", sans-serif;
+            font-family: "Manrope", sans-serif;
             letter-spacing: -0.015em;
         }
         body::before {
@@ -55,6 +55,7 @@
             z-index: -1;
         }
         .mono { font-family: "DM Mono", monospace; }
+        .accent-font { font-family: "Space Grotesk", sans-serif; }
         .topbar {
             background: color-mix(in srgb, var(--paper) 88%, transparent);
             border-bottom: 1px solid var(--line);
@@ -115,7 +116,7 @@
             background: var(--card);
             color: var(--ink);
             cursor: pointer;
-            font: 500 12px/1.2 "DM Mono", monospace;
+            font: 600 12px/1.2 "Space Grotesk", sans-serif;
             transition: .2s ease;
         }
         .suggestion-chip:hover, .chip:hover, .cat-opt.active, .sort-opt.active {
@@ -129,7 +130,7 @@
             align-items: center;
             gap: 9px;
             color: var(--ink);
-            font: 500 12px/1.2 "DM Mono", monospace;
+            font: 600 12px/1.2 "Space Grotesk", sans-serif;
             letter-spacing: .08em;
             text-transform: uppercase;
         }
@@ -163,7 +164,7 @@
         #catalog-grid .text-\[11px\] { font-size: 13px; color: var(--ink); }
         #catalog-grid .text-\[9px\] { font-size: 12px; color: var(--muted); }
         #item-count { color: var(--purple); font: 500 13px "DM Mono", monospace; }
-        .icon-button { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); font: 500 12px "DM Mono", monospace; text-transform: uppercase; transition: .2s; }
+        .icon-button { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); font: 600 12px "Space Grotesk", sans-serif; text-transform: uppercase; transition: .2s; }
         .icon-button:hover { color: var(--ink); }
         .ai-render-area { color: var(--ink); text-align: left; line-height: 1.8; }
         .ai-render-area h2 { color: var(--ink); font-size: clamp(1.75rem, 4vw, 2.5rem); font-weight: 700; line-height: 1.02; letter-spacing: -.06em; margin: 0 0 1.6rem; }
@@ -190,26 +191,28 @@
         .ai-render-area .text-white, .ai-render-area .text-white\/90, .ai-render-area .text-white\/75, .ai-render-area .text-white\/70, .ai-render-area .text-white\/50 { color: var(--ink); }
         .ai-render-area .text-white\/70, .ai-render-area .text-white\/50 { color: var(--muted); }
         .ai-render-area .border-\[\#d4ff6a\]\/50 { border-color: var(--orange); }
-        .favorite-stack { position: relative; height: 210px; overflow: hidden; border: 1px solid var(--line); border-radius: 17px; background: color-mix(in srgb, var(--line) 48%, var(--paper)); }
+        .favorite-stack { position: relative; height: 210px; overflow: hidden; border: 1px solid var(--line); border-radius: 19px; background: linear-gradient(135deg, color-mix(in srgb, var(--purple) 10%, var(--card)), color-mix(in srgb, var(--orange) 8%, var(--paper))); }
         .favorite-card { position: absolute; width: 112px; height: 154px; left: 50%; top: 50%; margin: -77px 0 0 -56px; overflow: hidden; border: 4px solid var(--card); border-radius: 10px; box-shadow: 0 12px 24px rgba(54,38,84,.2); transform: translate(var(--x),var(--y)) rotate(var(--r)); transition: transform .35s cubic-bezier(.2,.8,.2,1); }
         .favorite-card img { width: 100%; height: 100%; object-fit: cover; }
         .favorite-stack:hover .favorite-card, .favorite-stack.is-revealed .favorite-card { transform: translate(calc(var(--x) + var(--hover-x)),calc(var(--y) + var(--hover-y))) rotate(var(--hover-r)); }
-        .favorite-name { position: absolute; right: 12px; bottom: 10px; left: 12px; color: var(--ink); font: 500 10px "DM Mono", monospace; text-transform: uppercase; }
-        .favorite-panel { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 10px; box-shadow: 0 10px 28px var(--shadow); }
+        .favorite-name { position: absolute; right: 14px; bottom: 12px; left: 14px; color: var(--ink); font: 600 13px/1.25 "Space Grotesk", sans-serif; letter-spacing: .02em; }
+        .favorite-panel { background: color-mix(in srgb, var(--card) 96%, transparent); border: 1px solid var(--line); border-radius: 22px; padding: 12px; box-shadow: 0 14px 34px var(--shadow); }
         .favorite-actions { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 0 3px; }
-        .favorite-action, .inspector-action { display: inline-flex; align-items: center; gap: 7px; min-height: 32px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 10px; color: var(--muted); background: transparent; font: 500 10px "DM Mono", monospace; text-transform: uppercase; transition: .2s ease; }
+        .favorite-action, .inspector-action { display: inline-flex; align-items: center; gap: 7px; min-height: 36px; padding: 8px 11px; border: 1px solid var(--line); border-radius: 11px; color: var(--ink); background: color-mix(in srgb, var(--paper) 60%, transparent); font: 600 11px "Space Grotesk", sans-serif; text-transform: uppercase; transition: .2s ease; }
         .favorite-action:hover, .inspector-action:hover { color: var(--ink); border-color: var(--purple); background: color-mix(in srgb, var(--purple) 9%, var(--card)); }
         .favorite-action.danger:hover { color: #c34f55; border-color: #c34f55; background: color-mix(in srgb, #c34f55 8%, var(--card)); }
-        .favorite-title { min-width: 0; flex: 1; color: var(--ink); border-bottom: 1px solid var(--line); background: transparent; padding: 8px 2px; font-size: 12px; }
+        .favorite-title { min-width: 0; flex: 1; color: var(--ink); border-bottom: 1px solid var(--line); background: transparent; padding: 8px 2px; font: 600 14px "Manrope", sans-serif; }
         .favorite-title:focus { border-color: var(--purple); outline: none; }
-        .favorite-items { margin-top: 12px; padding: 10px; border-radius: 13px; background: color-mix(in srgb, var(--paper) 65%, var(--card)); }
-        .favorite-items li { color: var(--muted); }
+        .favorite-items { margin-top: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--paper) 65%, var(--card)); }
+        .favorite-items li { color: var(--ink); font-size: 13px; }
         .inspector-item { display: flex; align-items: center; gap: 14px; padding: 10px; border: 1px solid var(--line); border-radius: 16px; background: var(--card); }
         .inspector-item img { width: 66px; height: 80px; border-radius: 11px; object-fit: cover; border: 1px solid var(--line); }
         .inspector-item-name { color: var(--ink); font-size: 17px; font-weight: 700; line-height: 1.3; }
         .inspector-meta { margin-top: 7px; color: var(--muted); font: 500 12px/1.4 "DM Mono", monospace; letter-spacing: .04em; text-transform: uppercase; }
         button:focus-visible, input:focus-visible, select:focus-visible, [tabindex="0"]:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
         #favorites-modal section, #item-inspector-modal section { background: var(--paper); border-color: var(--line); }
+        #favorites-modal section { box-shadow: 0 24px 70px rgba(18, 14, 30, .24); }
+        #favorites-modal .text-\[9px\], #favorites-modal .text-xs { color: var(--ink); }
         #favorites-modal .text-white\/80, #favorites-modal .text-white\/70, #favorites-modal .text-white\/65, #favorites-modal .text-white\/40, #favorites-modal .text-white\/30,
         #item-inspector-modal .text-white\/90, #item-inspector-modal .text-white\/40, #item-inspector-modal .text-white\/30 { color: var(--ink); }
         #favorites-modal .text-white\/70, #favorites-modal .text-white\/65, #favorites-modal .text-white\/40, #favorites-modal .text-white\/30,
@@ -254,7 +257,7 @@
 
     <main class="mx-auto max-w-7xl px-5 pb-24 pt-32 md:px-8">
         <section class="mx-auto mb-24 max-w-5xl">
-            <h1 class="hero-title max-w-4xl font-bold">Get dressed<br><em>for the plot.</em></h1>
+            <h1 class="hero-title max-w-4xl font-bold">Get dressed<br><em>to impress.</em></h1>
             <div class="prompt-wrap mt-9">
                 <input id="occasion-input" class="w-full border-0 bg-transparent px-5 pb-5 pt-4 outline-none" placeholder="Where are we going?" aria-label="Tell Curato what you need an outfit for">
                 <div class="flex flex-col items-stretch justify-between gap-3 px-2 pb-2 sm:flex-row sm:items-center">
