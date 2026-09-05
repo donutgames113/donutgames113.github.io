@@ -16,24 +16,33 @@ let favoriteOutfits = [];
 let consultationItems = [];
 let nextItemReference = 1;
 
-function applyTheme(theme) {
+function applyTheme(theme, colorTheme = localStorage.getItem('curato-color-theme') || 'violet') {
     const isDark = theme === 'dark';
     document.body.classList.toggle('dark-mode', isDark);
+    document.body.dataset.colorTheme = colorTheme;
     const toggle = document.getElementById('theme-toggle');
     if (toggle) {
         toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
         toggle.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
     }
+    const colorSelect = document.getElementById('color-theme');
+    if (colorSelect) colorSelect.value = colorTheme;
 }
 
 function initializeTheme() {
     const savedTheme = localStorage.getItem('curato-theme');
+    const savedColorTheme = localStorage.getItem('curato-color-theme') || 'violet';
     const systemPrefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
-    applyTheme(savedTheme || (systemPrefersDark ? 'dark' : 'light'));
+    applyTheme(savedTheme || (systemPrefersDark ? 'dark' : 'light'), savedColorTheme);
     document.getElementById('theme-toggle')?.addEventListener('click', () => {
         const nextTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
         localStorage.setItem('curato-theme', nextTheme);
-        applyTheme(nextTheme);
+        applyTheme(nextTheme, document.body.dataset.colorTheme);
+    });
+    document.getElementById('color-theme')?.addEventListener('change', event => {
+        const colorTheme = event.target.value;
+        localStorage.setItem('curato-color-theme', colorTheme);
+        applyTheme(document.body.classList.contains('dark-mode') ? 'dark' : 'light', colorTheme);
     });
 }
 

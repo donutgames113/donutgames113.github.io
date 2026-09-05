@@ -35,6 +35,12 @@
             --shadow: rgba(0, 0, 0, .28);
             --backdrop: rgba(0, 0, 0, .72);
         }
+        body[data-color-theme="coral"] { --purple: #d85d72; --orange: #f29a62; --mint: #b8e3d3; --yellow: #ffd47a; }
+        body.dark-mode[data-color-theme="coral"] { --purple: #f17c91; --orange: #ffab72; --mint: #3c756a; --yellow: #f2cf70; }
+        body[data-color-theme="ocean"] { --purple: #3478c5; --orange: #48a9a6; --mint: #b9e4f0; --yellow: #f5d77b; }
+        body.dark-mode[data-color-theme="ocean"] { --purple: #6da8ed; --orange: #66c9c3; --mint: #285d68; --yellow: #eed274; }
+        body[data-color-theme="lime"] { --purple: #6f8f36; --orange: #d89445; --mint: #cfe6a4; --yellow: #f0dc75; }
+        body.dark-mode[data-color-theme="lime"] { --purple: #a8c85d; --orange: #eeb16a; --mint: #496a46; --yellow: #e9d36c; }
         * { box-sizing: border-box; }
         body {
             margin: 0;
@@ -212,6 +218,9 @@
         button:focus-visible, input:focus-visible, select:focus-visible, [tabindex="0"]:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
         #favorites-modal section, #item-inspector-modal section { background: var(--paper); border-color: var(--line); }
         #favorites-modal section { box-shadow: 0 24px 70px rgba(18, 14, 30, .24); }
+        #favorites-modal section { background: color-mix(in srgb, var(--card) 96%, transparent); border-radius: 25px; }
+        #favorites-modal #favorites-title { color: var(--ink); }
+        #favorites-modal #favorites-empty { color: var(--muted); font-size: 15px; }
         #favorites-modal .text-\[9px\], #favorites-modal .text-xs { color: var(--ink); }
         #favorites-modal .text-white\/80, #favorites-modal .text-white\/70, #favorites-modal .text-white\/65, #favorites-modal .text-white\/40, #favorites-modal .text-white\/30,
         #item-inspector-modal .text-white\/90, #item-inspector-modal .text-white\/40, #item-inspector-modal .text-white\/30 { color: var(--ink); }
@@ -223,6 +232,8 @@
         #favorites-modal input::placeholder { color: var(--muted); }
         .theme-toggle { width: 34px; height: 34px; display: inline-grid; place-items: center; border: 1px solid var(--line); border-radius: 11px; color: var(--muted); transition: .2s ease; }
         .theme-toggle:hover { color: var(--ink); border-color: var(--purple); transform: rotate(-8deg); }
+        .color-theme-select { max-width: 88px; border: 1px solid var(--line); border-radius: 11px; padding: 8px 9px; color: var(--ink); background: var(--card); font: 600 11px "Space Grotesk", sans-serif; outline: none; }
+        .color-theme-select:focus { border-color: var(--purple); box-shadow: 0 0 0 3px color-mix(in srgb, var(--purple) 18%, transparent); }
         .dark-mode .fa-sun { display: inline-block; }
         .dark-mode .fa-moon { display: none; }
         body:not(.dark-mode) .theme-toggle .fa-sun { display: none; }
@@ -248,6 +259,12 @@
                     <option value="gemini-3-flash-preview">3 Flash Preview</option>
                 </select>
                 <input id="user-api-key" type="password" placeholder="Gemini key" class="hidden w-24 border-b border-[#dcd4ca] bg-transparent pb-1 text-[10px] outline-none md:block" aria-label="Gemini API key">
+                <select id="color-theme" class="color-theme-select hidden md:block" aria-label="Choose color theme" title="Choose color theme">
+                    <option value="violet">Violet</option>
+                    <option value="coral">Coral</option>
+                    <option value="ocean">Ocean</option>
+                    <option value="lime">Lime</option>
+                </select>
                 <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch theme"><i class="fa-solid fa-moon"></i><i class="fa-solid fa-sun"></i></button>
                 <button id="auth-btn" class="icon-button" type="button"><i class="fa-regular fa-circle-user text-base"></i><span>Connect</span></button>
                 <button id="favorites-btn" class="icon-button" type="button"><i class="fa-regular fa-bookmark text-base"></i><span class="hidden sm:inline">Favorites</span></button>
