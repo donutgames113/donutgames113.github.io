@@ -748,6 +748,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('auth-btn');
     const authModal = document.getElementById('auth-modal');
     const googleAuthBtn = document.getElementById('google-auth-btn');
+    const appleAuthBtn = document.getElementById('apple-auth-btn');
     const discordAuthBtn = document.getElementById('discord-auth-btn');
     const emailAuthForm = document.getElementById('email-auth-form');
     const authEmail = document.getElementById('auth-email');
@@ -892,6 +893,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     googleAuthBtn?.addEventListener('click', () => signInWithProvider('google'));
+    appleAuthBtn?.addEventListener('click', () => signInWithProvider('apple'));
     discordAuthBtn?.addEventListener('click', () => signInWithProvider('discord'));
 
     emailAuthForm?.addEventListener('submit', async event => {
