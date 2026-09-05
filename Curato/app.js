@@ -746,6 +746,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const authBtn =
         document.getElementById('auth-btn');
+    const authModal = document.getElementById('auth-modal');
+    const googleAuthBtn = document.getElementById('google-auth-btn');
+    const discordAuthBtn = document.getElementById('discord-auth-btn');
+    const emailAuthForm = document.getElementById('email-auth-form');
+    const authEmail = document.getElementById('auth-email');
+    const authStatus = document.getElementById('auth-status');
 
     const keyInput =
         document.getElementById('user-api-key');
@@ -852,6 +858,60 @@ document.addEventListener('DOMContentLoaded', () => {
     // AUTH
     // ========================================
 
+    const setAuthStatus = message => {
+        if (!authStatus) return;
+        authStatus.textContent = message;
+        authStatus.classList.toggle('hidden', !message);
+    };
+
+    const closeAuthModal = () => {
+        authModal?.classList.add('hidden');
+        authModal?.classList.remove('flex');
+        setAuthStatus('');
+    };
+
+    const openAuthModal = () => {
+        authModal?.classList.remove('hidden');
+        authModal?.classList.add('flex');
+        authEmail?.focus();
+    };
+
+    document.querySelectorAll('[data-close-auth]').forEach(button => {
+        button.addEventListener('click', closeAuthModal);
+    });
+
+    const signInWithProvider = async provider => {
+        setAuthStatus('Opening sign in...');
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider,
+            options: { redirectTo: REDIRECT_URL }
+        });
+        if (error) {
+            setAuthStatus(error.message);
+        }
+    };
+
+    googleAuthBtn?.addEventListener('click', () => signInWithProvider('google'));
+    discordAuthBtn?.addEventListener('click', () => signInWithProvider('discord'));
+
+    emailAuthForm?.addEventListener('submit', async event => {
+        event.preventDefault();
+        const email = authEmail?.value.trim();
+        if (!email) return;
+
+        const submitButton = emailAuthForm.querySelector('button[type="submit"]');
+        if (submitButton) submitButton.disabled = true;
+        setAuthStatus('Sending your sign-in link...');
+
+        const { error } = await supabase.auth.signInWithOtp({
+            email,
+            options: { emailRedirectTo: REDIRECT_URL }
+        });
+
+        if (submitButton) submitButton.disabled = false;
+        setAuthStatus(error ? error.message : 'Check your inbox for your sign-in link.');
+    });
+
     if (authBtn) {
 
         authBtn.onclick = async () => {
@@ -861,20 +921,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (session) {
 
-                await supabase.auth.signOut();
+                const { error } = await supabase.auth.signOut();
+                if (error) {
+                    alert(`Sign out failed: ${error.message}`);
+                    return;
+                }
 
                 window.location.reload();
 
             } else {
-
-                await supabase.auth.signInWithOAuth({
-
-                    provider: 'discord',
-
-                    options: {
-                        redirectTo: REDIRECT_URL
-                    }
-                });
+                openAuthModal();
             }
         };
     }
@@ -933,11 +989,12 @@ document.addEventListener('DOMContentLoaded', () => {
     supabase.auth.onAuthStateChange((_, session) => {
 
         if (session) {
+            closeAuthModal();
 
             if (authBtn) {
 
                 authBtn.innerText =
-                    `LOGOUT (${session.user.user_metadata.full_name || 'USER'})`;
+                    `LOGOUT (${session.user.user_metadata.full_name || session.user.email || 'USER'})`;
             }
 
             if (keyInput) {

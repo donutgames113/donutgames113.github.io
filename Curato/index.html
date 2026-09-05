@@ -242,6 +242,8 @@
         #item-inspector-title, #favorites-title { font-size: clamp(1.8rem, 4vw, 2.5rem); line-height: 1.1; }
         #item-inspector-modal .inspector-item, #item-inspector-modal .consultation-inspector-item { font-size: 15px; }
         #item-inspector-modal .item-detail-row { min-height: 38px; }
+        #auth-modal input { color: var(--ink); border-color: var(--line); background: var(--card); }
+        #auth-modal input::placeholder { color: var(--muted); }
         @media (max-width: 640px) { .hero-title { font-size: 3.6rem; } .prompt-wrap { box-shadow: 6px 8px 0 var(--mint); } .response-copy { font-size: 15px; } }
     </style>
 </head>
@@ -354,6 +356,31 @@
             <div id="item-inspector-list" class="space-y-3"></div>
         </section>
     </div>
+
+    <div id="auth-modal" class="fixed inset-0 z-[80] hidden items-center justify-center p-5" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+        <div class="absolute inset-0 backdrop-blur-sm" style="background: var(--backdrop)" data-close-auth></div>
+        <section class="relative w-full max-w-md rounded-[25px] border p-7 md:p-9" style="background: var(--card); border-color: var(--line); color: var(--ink);">
+            <div class="mb-7 flex items-start justify-between gap-6">
+                <div>
+                    <p class="section-label mb-2">Welcome back</p>
+                    <h2 id="auth-title" class="text-3xl font-bold tracking-[-.06em]">Connect to Curato</h2>
+                </div>
+                <button type="button" data-close-auth class="text-xl text-[#9b92a0] hover:text-[#201b35]" aria-label="Close sign in"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="grid gap-3">
+                <button id="google-auth-btn" type="button" class="rounded-[15px] border px-4 py-3 text-sm font-semibold transition hover:border-[var(--purple)]"><i class="fa-brands fa-google mr-2"></i>Continue with Google</button>
+                <button id="discord-auth-btn" type="button" class="rounded-[15px] border px-4 py-3 text-sm font-semibold transition hover:border-[var(--purple)]"><i class="fa-brands fa-discord mr-2"></i>Continue with Discord</button>
+            </div>
+            <div class="my-6 flex items-center gap-3 text-[10px] uppercase tracking-[.12em] text-[var(--muted)]"><span class="h-px flex-1 bg-[var(--line)]"></span>or email<span class="h-px flex-1 bg-[var(--line)]"></span></div>
+            <form id="email-auth-form" class="space-y-3">
+                <label class="sr-only" for="auth-email">Email address</label>
+                <input id="auth-email" type="email" required autocomplete="email" placeholder="you@example.com" class="w-full rounded-[15px] border px-4 py-3 text-sm outline-none focus:border-[var(--purple)]">
+                <button type="submit" class="primary-button w-full rounded-[15px] py-3 text-[11px] uppercase tracking-[.1em]"><i class="fa-solid fa-envelope mr-2"></i>Email me a sign-in link</button>
+            </form>
+            <p id="auth-status" class="mt-4 hidden text-center text-sm text-[var(--muted)]" role="status"></p>
+        </section>
+    </div>
+
     <script type="module" src="app.js"></script>
 </body>
 </html>
