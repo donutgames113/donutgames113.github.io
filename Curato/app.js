@@ -15,6 +15,8 @@ let latestSuggestion = null;
 let favoriteOutfits = [];
 let consultationItems = [];
 let nextItemReference = 1;
+let editingItemId = null;
+let editingImageData = null;
 
 function applyTheme(theme, colorTheme = localStorage.getItem('curato-color-theme') || 'violet') {
     const isDark = theme === 'dark';
@@ -581,7 +583,7 @@ async function fetchItems() {
             `).join('');
 
         return `
-            <article class="item-card group" data-item-card tabindex="0" aria-expanded="false">
+            <article class="item-card group" data-item-card data-item-id="${escapeHTML(String(item.id))}" tabindex="0" aria-expanded="false">
                 <div class="img-container">
                     <img src="${escapeHTML(item.image_url)}" loading="lazy" alt="${escapeHTML(item.name)}">
                 </div>
@@ -603,6 +605,10 @@ async function fetchItems() {
                         </div>
                     ` : ''}
                     ${detailEntries}
+                    <div class="item-card-actions">
+                        <button type="button" class="item-card-action" data-edit-item="${escapeHTML(String(item.id))}"><i class="fa-solid fa-pen"></i> Edit</button>
+                        <button type="button" class="item-card-action danger" data-delete-item="${escapeHTML(String(item.id))}"><i class="fa-solid fa-trash-can"></i> Delete</button>
+                    </div>
                 </div>
             </article>
         `;
@@ -623,6 +629,45 @@ async function fetchItems() {
             }
         });
     });
+
+    catalogGrid.querySelectorAll('[data-edit-item]').forEach(button => {
+        button.addEventListener('click', event => {
+            event.stopPropagation();
+            openItemEditor(data.find(item => String(item.id) === button.dataset.editItem));
+        });
+    });
+
+    catalogGrid.querySelectorAll('[data-delete-item]').forEach(button => {
+        button.addEventListener('click', async event => {
+            event.stopPropagation();
+            await deleteItem(button.dataset.deleteItem);
+        });
+    });
+}
+
+function openItemEditor(item) {
+    if (!item) return;
+    editingItemId = item.id;
+    editingImageData = null;
+    document.getElementById('edit-item-name').value = item.name || '';
+    document.getElementById('edit-item-brand').value = item.tags?.brand || '';
+    const preview = document.getElementById('edit-item-preview');
+    preview.src = item.image_url;
+    preview.classList.remove('hidden');
+    const modal = document.getElementById('item-editor-modal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+async function deleteItem(id) {
+    if (!window.confirm('Delete this piece from your library?')) return;
+    const { error } = await supabase.from('items').delete().eq('id', id);
+    if (error) {
+        console.error(error);
+        alert(`Delete failed: ${error.message}`);
+        return;
+    }
+    await fetchItems();
 }
 
 // ========================================
@@ -795,6 +840,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const itemInspectorModal =
         document.getElementById('item-inspector-modal');
+    const itemEditorModal = document.getElementById('item-editor-modal');
+    const itemEditorForm = document.getElementById('item-editor-form');
+    const editItemFile = document.getElementById('edit-item-file');
+    const editItemPreview = document.getElementById('edit-item-preview');
+    const editItemSubmit = document.getElementById('edit-item-submit');
 
     const openFavorites = async () => {
         try {
@@ -818,6 +868,56 @@ document.addEventListener('DOMContentLoaded', () => {
         button.addEventListener('click', () => {
             itemInspectorModal?.classList.add('hidden');
             itemInspectorModal?.classList.remove('flex');
+        });
+        document.querySelectorAll('[data-close-item-editor]').forEach(button => {
+            button.addEventListener('click', () => {
+                itemEditorModal?.classList.add('hidden');
+                itemEditorModal?.classList.remove('flex');
+                editingItemId = null;
+                editingImageData = null;
+            });
+        });
+
+        editItemFile?.addEventListener('change', async event => {
+            const file = event.target.files[0];
+            if (!file) return;
+            editingImageData = await compressImage(file, 900, 0.75);
+            editItemPreview.src = editingImageData;
+            editItemPreview.classList.remove('hidden');
+        });
+
+        itemEditorForm?.addEventListener('submit', async event => {
+            event.preventDefault();
+            if (!editingItemId) return;
+            editItemSubmit.disabled = true;
+            editItemSubmit.innerText = 'SAVING...';
+            try {
+                let imageUrl;
+                if (editingImageData) {
+                    imageUrl = await uploadImageToStorage(editingImageData);
+                }
+                const currentItem = await supabase.from('items').select('tags').eq('id', editingItemId).single();
+                if (currentItem.error) throw currentItem.error;
+                const tags = { ...(currentItem.data.tags || {}), brand: document.getElementById('edit-item-brand').value.trim() };
+                const updates = {
+                    name: document.getElementById('edit-item-name').value.trim(),
+                    tags
+                };
+                if (imageUrl) updates.image_url = imageUrl;
+                const { error } = await supabase.from('items').update(updates).eq('id', editingItemId);
+                if (error) throw error;
+                itemEditorModal.classList.add('hidden');
+                itemEditorModal.classList.remove('flex');
+                editingItemId = null;
+                editingImageData = null;
+                await fetchItems();
+            } catch (err) {
+                console.error(err);
+                alert(`Update failed: ${err.message}`);
+            } finally {
+                editItemSubmit.disabled = false;
+                editItemSubmit.innerText = 'SAVE CHANGES';
+            }
         });
     });
 
