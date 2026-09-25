@@ -89,6 +89,18 @@
             transform: rotate(-6deg);
             box-shadow: 4px 4px 0 var(--yellow);
         }
+        .curato-wordmark {
+            display: block;
+            height: 20px;
+            width: auto;
+            max-width: 120px;
+            object-fit: contain;
+            filter: brightness(0) saturate(100%);
+            transition: filter .2s ease;
+        }
+        body.dark-mode .curato-wordmark {
+            filter: brightness(0) invert(1);
+        }
         .surface {
             background: color-mix(in srgb, var(--card) 92%, transparent);
             border: 1px solid var(--line);
@@ -269,7 +281,7 @@
         <div class="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-5 md:px-8">
             <a href="#" class="flex items-center gap-3 no-underline" aria-label="Curato home">
                 <img src="IconTransparent.png" alt="Curato logo" class="h-11 w-11 object-contain" />
-                <strong class="text-lg font-bold leading-none tracking-[-.06em]">curato</strong>
+                <img src="CuratoText.png" alt="Curato" class="curato-wordmark" />
             </a>
             <div class="flex items-center gap-4">
                 <select id="model-select" class="hidden border-b border-[#dcd4ca] bg-transparent pb-1 text-[10px] text-[#756d89] outline-none md:block">
