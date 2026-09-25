@@ -297,10 +297,18 @@
             <div class="prompt-wrap mt-9">
                 <input id="occasion-input" class="w-full border-0 bg-transparent px-5 pb-5 pt-4 outline-none" placeholder="Where are we going?" aria-label="Tell Curato what you need an outfit for">
                 <div class="flex flex-col items-stretch justify-between gap-3 px-2 pb-2 sm:flex-row sm:items-center">
-                    <div class="flex flex-wrap gap-2">
-                        <button onclick="document.getElementById('occasion-input').value = this.innerText" class="suggestion-chip"><i class="fa-solid fa-plane-departure"></i> Tokyo solo trip</button>
-                        <button onclick="document.getElementById('occasion-input').value = this.innerText" class="suggestion-chip"><i class="fa-solid fa-sun"></i> Meeting the family</button>
-                        <button onclick="document.getElementById('occasion-input').value = this.innerText" class="suggestion-chip"><i class="fa-solid fa-moon"></i> Late night in Soho</button>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <label class="sr-only" for="prompt-type">Consultation type</label>
+                        <select id="prompt-type" class="rounded-full border border-white/20 bg-[#201b35] px-3 py-2 text-xs font-semibold text-white outline-none focus:border-white/60">
+                            <option value="outfit">Outfit</option>
+                            <option value="item">Style a piece</option>
+                            <option value="wardrobe">Wardrobe advice</option>
+                            <option value="packing">Packing list</option>
+                            <option value="general">General style</option>
+                        </select>
+                        <button type="button" class="suggestion-chip" data-prompt-example><i class="fa-solid fa-plane-departure"></i><span>Tokyo solo trip</span></button>
+                        <button type="button" class="suggestion-chip" data-prompt-example><i class="fa-solid fa-sun"></i><span>Meeting the family</span></button>
+                        <button type="button" class="suggestion-chip" data-prompt-example><i class="fa-solid fa-moon"></i><span>Late night in Soho</span></button>
                     </div>
                     <button id="ask-btn" class="prompt-submit rounded-[17px] px-5 py-3 text-[11px] uppercase tracking-[.08em]"><i class="fa-solid fa-sparkles mr-2"></i> Consult</button>
                 </div>
