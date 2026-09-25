@@ -793,6 +793,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('auth-btn');
     const authModal = document.getElementById('auth-modal');
     const githubAuthBtn = document.getElementById('github-auth-btn');
+    const discordAuthBtn = document.getElementById('discord-auth-btn');
     const emailAuthForm = document.getElementById('email-auth-form');
     const authEmail = document.getElementById('auth-email');
     const authStatus = document.getElementById('auth-status');
@@ -995,7 +996,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderAccountProviders = user => {
         if (!accountProviders) return;
         const providerNames = {
-            github: 'GitHub'
+            github: 'GitHub',
+            discord: 'Discord'
         };
         const connectedProviders = new Set(
             (user.identities || [])
@@ -1162,6 +1164,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     githubAuthBtn?.addEventListener('click', () => signInWithProvider('github'));
+    discordAuthBtn?.addEventListener('click', () => signInWithProvider('discord'));
 
     emailAuthForm?.addEventListener('submit', async event => {
         event.preventDefault();
