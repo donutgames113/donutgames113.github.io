@@ -64,6 +64,7 @@ let selectedCategory = "Other";
 let selectedSubCategory = null;
 let currentImageData = null;
 let currentSortClass = "ALL";
+let searchQuery = "";
 let latestSuggestion = null;
 let favoriteOutfits = [];
 let consultationItems = [];
@@ -615,19 +616,40 @@ async function callGeminiAPI(base64, mimeType, promptText, responseFormat = 'jso
 // ========================================
 
 function sortItems(items) {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    let filtered = items;
 
-    if (currentSortClass === "ALL") {
-        return items;
+    if (normalizedQuery) {
+        filtered = filtered.filter(item => {
+            const haystack = [
+                item.name,
+                item.tags?.brand,
+                item.tags?.category,
+                item.tags?.subcategory,
+                item.tags?.color,
+                item.tags?.material,
+                ...(Object.values(item.tags || {}))
+            ]
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase();
+
+            return haystack.includes(normalizedQuery);
+        });
     }
 
-    return items.filter(i => {
+    if (currentSortClass === "ALL") {
+        return filtered;
+    }
+
+    return filtered.filter(i => {
 
         if (currentSortClass === "TOPS") {
-            return i.tags?.subcategory === "Top";
+            return i.tags?.subcategory === "Top" || i.tags?.category === "Top";
         }
 
         if (currentSortClass === "BOTTOMS") {
-            return i.tags?.subcategory === "Bottom";
+            return i.tags?.subcategory === "Bottom" || i.tags?.category === "Bottom";
         }
 
         return i.tags?.category === currentSortClass;
@@ -1471,6 +1493,23 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchItems();
         };
     });
+
+    const searchInput = document.getElementById('item-search-input');
+    const searchButton = document.getElementById('search-items-btn');
+
+    const applySearch = () => {
+        searchQuery = searchInput?.value.trim() || '';
+        fetchItems();
+    };
+
+    searchInput?.addEventListener('input', applySearch);
+    searchInput?.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            applySearch();
+        }
+    });
+    searchButton?.addEventListener('click', applySearch);
 
     // ========================================
     // FILE INPUT

@@ -365,6 +365,11 @@
                     <div><h2 class="text-3xl font-bold tracking-[-.06em]">Your wardrobe, <span class="text-[#7455f5]">your rules.</span></h2></div>
                     <div id="item-count" class="self-start rounded-full bg-[#eeeaff] px-3 py-2">00 ITEMS</div>
                 </div>
+                <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <label class="sr-only" for="item-search-input">Search wardrobe items</label>
+                    <input id="item-search-input" type="search" placeholder="Search items" class="field w-full max-w-md py-3 text-sm" aria-label="Search wardrobe items">
+                    <button id="search-items-btn" type="button" class="primary-button rounded-[15px] px-4 py-3 text-[10px] uppercase tracking-[.1em]"><i class="fa-solid fa-magnifying-glass mr-2"></i>Search items</button>
+                </div>
                 <div class="filter-box mb-9 flex flex-wrap gap-1">
                     <button class="chip sort-opt active" data-sort="ALL">Everything</button>
                     <button class="chip sort-opt" data-sort="TOPS">Tops</button>
