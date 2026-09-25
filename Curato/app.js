@@ -793,7 +793,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('auth-btn');
     const authModal = document.getElementById('auth-modal');
     const githubAuthBtn = document.getElementById('github-auth-btn');
-    const discordAuthBtn = document.getElementById('discord-auth-btn');
     const emailAuthForm = document.getElementById('email-auth-form');
     const authEmail = document.getElementById('auth-email');
     const authStatus = document.getElementById('auth-status');
@@ -996,20 +995,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderAccountProviders = user => {
         if (!accountProviders) return;
         const providerNames = {
-            github: 'GitHub',
-            discord: 'Discord'
+            github: 'GitHub'
         };
         const connectedProviders = new Set(
-            (user.identities || []).map(identity => identity.provider)
+            (user.identities || [])
+                .filter(identity => Object.hasOwn(providerNames, identity.provider))
+                .map(identity => identity.provider)
         );
-        const connected = (user.identities || []).map(identity => {
+        const connected = (user.identities || [])
+            .filter(identity => Object.hasOwn(providerNames, identity.provider))
+            .map(identity => {
             const name = providerNames[identity.provider] || identity.provider;
             const identityEmail = identity.identity_data?.email;
             return `<div class="account-provider">
                 <span class="text-sm font-semibold">${escapeHTML(name)}</span>
                 <span class="text-xs text-[var(--muted)]">${escapeHTML(identityEmail || 'Connected')}</span>
             </div>`;
-        });
+            });
         if (user.email && !connectedProviders.has('email')) {
             connected.unshift(`<div class="account-provider">
                 <span class="text-sm font-semibold">Email sign-in</span>
@@ -1160,7 +1162,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     githubAuthBtn?.addEventListener('click', () => signInWithProvider('github'));
-    discordAuthBtn?.addEventListener('click', () => signInWithProvider('discord'));
 
     emailAuthForm?.addEventListener('submit', async event => {
         event.preventDefault();
