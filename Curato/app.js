@@ -355,7 +355,7 @@ function renderAIResponse(text, itemReferences = []) {
 
             html += `
                 <h2 class="text-3xl font-extralight text-[#d4ff6a] mb-6 mt-2 tracking-tight">
-                    ${line.replace('## ', '')}
+                    ${escapeHTML(line.replace('## ', ''))}
                 </h2>
             `;
 
@@ -372,7 +372,7 @@ function renderAIResponse(text, itemReferences = []) {
 
             html += `
                 <h3 class="text-[10px] uppercase tracking-[0.3em] text-white/40 mt-10 mb-4">
-                    ${line.replace('### ', '')}
+                    ${escapeHTML(line.replace('### ', ''))}
                 </h3>
             `;
 
@@ -390,8 +390,7 @@ function renderAIResponse(text, itemReferences = []) {
                 inList = true;
             }
 
-            const clean = line
-            .replace(/^[-*]\s/, '')
+            const clean = escapeHTML(line.replace(/^[-*]\s/, ''))
             .replace(
                 /\*\*(.*?)\*\*/g,
                 '<strong class="text-white font-medium">$1</strong>'
@@ -419,7 +418,7 @@ function renderAIResponse(text, itemReferences = []) {
 
             html += `
                 <blockquote class="border-l border-[#d4ff6a]/50 pl-6 py-2 mt-8 text-white/50 italic text-sm leading-relaxed">
-                    ${line.replace('> ', '')}
+                    ${escapeHTML(line.replace('> ', ''))}
                 </blockquote>
             `;
 
@@ -434,7 +433,7 @@ function renderAIResponse(text, itemReferences = []) {
 
         html += `
             <p class="response-copy">
-                ${line.replace(
+                ${escapeHTML(line).replace(
                     /\*\*(.*?)\*\*/g,
                     '<strong class="text-white font-medium">$1</strong>'
                 )}
@@ -449,11 +448,60 @@ function renderAIResponse(text, itemReferences = []) {
     return html;
 }
 
+function decodeConsultationTags(taggedResponse) {
+    const source = taggedResponse
+        .replace(/```(?:text|xml)?\s*/gi, '')
+        .replace(/```/g, '')
+        .trim();
+    const tagPattern = /<(header|text|item)>([\s\S]*?)<\/\1>/g;
+    const sections = [];
+    const itemReferences = [];
+    let cursor = 0;
+
+    for (const match of source.matchAll(tagPattern)) {
+        if (source.slice(cursor, match.index).trim()) {
+            throw new Error("Consultant returned content outside the allowed tags.");
+        }
+
+        const [, tag, value] = match;
+        const content = value.trim();
+        if (!content) {
+            throw new Error("Consultant returned an empty tagged section.");
+        }
+
+        if (tag === 'header') {
+            sections.push(`## ${content}`);
+        } else if (tag === 'text') {
+            sections.push(content);
+        } else {
+            if (!/^\d+$/.test(content)) {
+                throw new Error("Consultant returned an invalid archive item reference.");
+            }
+            const reference = Number(content);
+            if (!Number.isSafeInteger(reference) || itemReferences.includes(reference)) {
+                throw new Error("Consultant returned an invalid or duplicate archive item reference.");
+            }
+            itemReferences.push(reference);
+        }
+
+        cursor = match.index + match[0].length;
+    }
+
+    if (!sections.length || source.slice(cursor).trim()) {
+        throw new Error("Consultant returned an incomplete tagged response.");
+    }
+
+    return {
+        response: sections.join('\n\n'),
+        item_references: itemReferences
+    };
+}
+
 // ========================================
 // GEMINI
 // ========================================
 
-async function callGeminiAPI(base64, mimeType, promptText) {
+async function callGeminiAPI(base64, mimeType, promptText, responseFormat = 'json') {
 
     const keyInput =
         document.getElementById('user-api-key');
@@ -530,7 +578,7 @@ async function callGeminiAPI(base64, mimeType, promptText) {
     const resultText =
         result.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
-    if (promptText.includes("JSON")) {
+    if (responseFormat === 'json') {
 
         try {
 
@@ -1713,7 +1761,7 @@ Your tone is:
 
 Use the user's archive as the source of truth for owned items.
 
-Use archive items accurately; never invent an item or details that are not present in the archive. When naming an archived item, use its exact name and include its reference in item_references. If an item has multiple parts, they do not necessarily need to be worn together. If an item has a detachable part (such as a pendant, strap, lining, hood, or charm), explain both attached and detached styling when relevant.
+Use archive items accurately; never invent an item or details that are not present in the archive. When naming an archived item, use its exact name and include its wardrobe reference using an item tag. If an item has multiple parts, they do not necessarily need to be worn together. If an item has a detachable part (such as a pendant, strap, lining, hood, or charm), explain both attached and detached styling when relevant.
 
 SELECTED CONSULTATION TYPE: ${promptType.toUpperCase()}
 ${promptMode.instruction}
@@ -1727,32 +1775,34 @@ USER REQUEST:
 "${userPrompt}"
 
 OUTPUT CONTRACT — FOLLOW EXACTLY:
-1. Return one JSON object and nothing else.
-2. Do not wrap the JSON in markdown fences.
-3. Use exactly these two keys: "response" and "item_references".
-4. "response" must be a string containing the polished user-facing answer in markdown.
-5. "item_references" must be an array of unique integer indexes from the WARDROBE list.
-6. Include the index of every archived item named or recommended in the response. Never include an index for an item not used or discussed.
-7. Never put indexes, bracketed numbers, JSON, or implementation details in "response".
-8. If no archived item is relevant, return "item_references": [].
-9. Make the selected consultation type visibly shape the answer: outfit = one complete look; item = advice anchored on the requested piece; wardrobe = direct archive-based answer; packing = a grouped packing list; general = a direct style answer. Do not substitute one format for another just because the request mentions clothes.
-10. Use concise, useful markdown headings appropriate to the selected type. Keep advice elegant and practical, and do not use emojis.
+1. Return only the tags described here, with no preamble, wrapper, or markdown code fence.
+2. Use <header>...</header> for a section heading, <text>...</text> for user-facing prose or markdown, and <item>...</item> for a wardrobe reference number.
+3. Tags must be properly closed and have no attributes or nested tags. Text contents may use simple markdown and line breaks.
+4. Use one or more header/text sections in a natural reading order. Keep headings concise and match the selected consultation type.
+5. After the user-facing sections, add one <item>NUMBER</item> tag for each archived item named or recommended. NUMBER must exactly match that item's bracketed reference in WARDROBE. Never add a tag for an item not mentioned.
+6. Do not include reference numbers in header or text contents. If no archived items are relevant, omit item tags.
+7. Make the selected consultation type visibly shape the answer: outfit = one complete look; item = advice anchored on the requested piece; wardrobe = direct archive-based answer; packing = a grouped packing list; general = a direct style answer. Do not substitute one format for another just because the request mentions clothes.
+8. Keep advice elegant and practical, and do not use emojis.
+
+Example format only:
+<header>The Look</header>
+<text>Wear the archived navy jacket with the clean white shirt for a balanced, versatile combination.</text>
+<item>2</item>
 
 FINAL CHECK BEFORE ANSWERING:
-- Valid JSON only.
-- Exactly two keys.
-- Every item_references value is an integer from the WARDROBE list.
-- No duplicate indexes.
-- Every archived item named or recommended is represented by its index.
-- No indexes appear in response.
+- Every tag is properly closed and contains only its intended value.
+- Each archive item mentioned in the text has exactly one matching item tag.
+- No wardrobe reference numbers appear in user-facing text.
 `;
 
-                const result =
+                const taggedResult =
                     await callGeminiAPI(
                         null,
                         null,
-                        finalPrompt
+                        finalPrompt,
+                        'text'
                     );
+                const result = decodeConsultationTags(taggedResult);
                 const references = result?.item_references;
                 const uniqueReferences = Array.isArray(references)
                     ? new Set(references)
