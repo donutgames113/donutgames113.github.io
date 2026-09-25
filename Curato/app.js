@@ -798,6 +798,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const emailAuthForm = document.getElementById('email-auth-form');
     const authEmail = document.getElementById('auth-email');
     const authStatus = document.getElementById('auth-status');
+    const accountModal = document.getElementById('account-modal');
+    const accountEmail = document.getElementById('account-email');
+    const accountName = document.getElementById('account-name');
+    const accountApiKey = document.getElementById('account-api-key');
+    const accountModel = document.getElementById('account-model');
+    const accountForm = document.getElementById('account-settings-form');
+    const accountSaveButton = document.getElementById('account-save-btn');
+    const accountProviders = document.getElementById('account-providers');
+    const accountStatus = document.getElementById('account-status');
+    const accountExportButton = document.getElementById('account-export-btn');
+    const accountSignOutButton = document.getElementById('account-sign-out-btn');
 
     const keyInput =
         document.getElementById('user-api-key');
@@ -971,11 +982,169 @@ document.addEventListener('DOMContentLoaded', () => {
         setAuthStatus('');
     };
 
+    const setAccountStatus = message => {
+        if (!accountStatus) return;
+        accountStatus.textContent = message;
+        accountStatus.classList.toggle('hidden', !message);
+    };
+
+    const closeAccountModal = () => {
+        accountModal?.classList.add('hidden');
+        accountModal?.classList.remove('flex');
+        setAccountStatus('');
+    };
+
+    const renderAccountProviders = user => {
+        if (!accountProviders) return;
+        const providerNames = {
+            google: 'Google',
+            apple: 'Apple',
+            discord: 'Discord'
+        };
+        const connectedProviders = new Set(
+            (user.identities || []).map(identity => identity.provider)
+        );
+        const connected = (user.identities || []).map(identity => {
+            const name = providerNames[identity.provider] || identity.provider;
+            const identityEmail = identity.identity_data?.email;
+            return `<div class="account-provider">
+                <span class="text-sm font-semibold">${escapeHTML(name)}</span>
+                <span class="text-xs text-[var(--muted)]">${escapeHTML(identityEmail || 'Connected')}</span>
+            </div>`;
+        });
+        if (user.email && !connectedProviders.has('email')) {
+            connected.unshift(`<div class="account-provider">
+                <span class="text-sm font-semibold">Email sign-in</span>
+                <span class="text-xs text-[var(--muted)]">${escapeHTML(user.email)}</span>
+            </div>`);
+        }
+        const available = Object.entries(providerNames)
+            .filter(([provider]) => !connectedProviders.has(provider))
+            .map(([provider, name]) => `<button type="button" class="account-provider text-left transition hover:border-[var(--purple)]" data-link-provider="${provider}">
+                <span class="text-sm font-semibold"><i class="fa-solid fa-plus mr-2 text-[var(--purple)]"></i>${name}</span>
+                <span class="text-xs text-[var(--muted)]">Add</span>
+            </button>`);
+
+        accountProviders.innerHTML = [...connected, ...available].join('') ||
+            '<p class="text-sm text-[var(--muted)]">No sign-in methods are available.</p>';
+
+        accountProviders.querySelectorAll('[data-link-provider]').forEach(button => {
+            button.addEventListener('click', async () => {
+                const provider = button.dataset.linkProvider;
+                if (!provider) return;
+                button.disabled = true;
+                setAccountStatus(`Connecting ${providerNames[provider]}...`);
+                const { error } = await supabase.auth.linkIdentity({
+                    provider,
+                    options: { redirectTo: REDIRECT_URL }
+                });
+                if (error) {
+                    setAccountStatus(`Could not connect ${providerNames[provider]}: ${error.message}`);
+                    button.disabled = false;
+                }
+            });
+        });
+    };
+
+    const openAccountModal = session => {
+        if (!session || !accountModal) return;
+        const metadata = session.user.user_metadata || {};
+        if (accountEmail) accountEmail.textContent = session.user.email || '';
+        if (accountName) accountName.value = metadata.full_name || '';
+        if (accountApiKey) accountApiKey.value = metadata.gemini_api_key || '';
+        if (accountModel) {
+            accountModel.value = metadata.preferred_model || modelSelect?.value || accountModel.options[0].value;
+        }
+        renderAccountProviders(session.user);
+        accountModal.classList.remove('hidden');
+        accountModal.classList.add('flex');
+        setAccountStatus('');
+    };
+
     const openAuthModal = () => {
         authModal?.classList.remove('hidden');
         authModal?.classList.add('flex');
         authEmail?.focus();
     };
+
+    document.querySelectorAll('[data-close-account]').forEach(button => {
+        button.addEventListener('click', closeAccountModal);
+    });
+
+    accountForm?.addEventListener('submit', async event => {
+        event.preventDefault();
+        accountSaveButton.disabled = true;
+        setAccountStatus('Saving account settings...');
+        const { data, error } = await supabase.auth.updateUser({
+            data: {
+                full_name: accountName?.value.trim() || '',
+                gemini_api_key: accountApiKey?.value.trim() || '',
+                preferred_model: accountModel?.value || ''
+            }
+        });
+        accountSaveButton.disabled = false;
+        if (error) {
+            setAccountStatus(`Could not save settings: ${error.message}`);
+            return;
+        }
+        if (keyInput) keyInput.value = accountApiKey?.value.trim() || '';
+        if (modelSelect && accountModel) modelSelect.value = accountModel.value;
+        if (data.user) renderAccountProviders(data.user);
+        setAccountStatus('Account settings saved.');
+    });
+
+    accountExportButton?.addEventListener('click', async () => {
+        accountExportButton.disabled = true;
+        setAccountStatus('Preparing your data export...');
+        try {
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            if (sessionError) throw sessionError;
+            if (!session) throw new Error('Sign in again to export your data.');
+
+            const [itemsResult, favoritesResult] = await Promise.all([
+                supabase.from('items').select('*').eq('user_id', session.user.id),
+                supabase.from('favorite_outfits').select('*').eq('user_id', session.user.id)
+            ]);
+            if (itemsResult.error) throw itemsResult.error;
+            if (favoritesResult.error) throw favoritesResult.error;
+
+            const exportData = {
+                exported_at: new Date().toISOString(),
+                account: {
+                    email: session.user.email,
+                    display_name: session.user.user_metadata?.full_name || null,
+                    preferred_model: session.user.user_metadata?.preferred_model || null
+                },
+                items: itemsResult.data || [],
+                favorite_outfits: favoritesResult.data || []
+            };
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const downloadUrl = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = `curato-data-${new Date().toISOString().slice(0, 10)}.json`;
+            link.click();
+            window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+            setAccountStatus('Your data export has been downloaded.');
+        } catch (error) {
+            console.error(error);
+            setAccountStatus(`Export failed: ${error.message}`);
+        } finally {
+            accountExportButton.disabled = false;
+        }
+    });
+
+    accountSignOutButton?.addEventListener('click', async () => {
+        accountSignOutButton.disabled = true;
+        const { error } = await supabase.auth.signOut();
+        accountSignOutButton.disabled = false;
+        if (error) {
+            setAccountStatus(`Sign out failed: ${error.message}`);
+            return;
+        }
+        closeAccountModal();
+        window.location.reload();
+    });
 
     document.querySelectorAll('[data-close-auth]').forEach(button => {
         button.addEventListener('click', closeAuthModal);
@@ -1022,15 +1191,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await supabase.auth.getSession();
 
             if (session) {
-
-                const { error } = await supabase.auth.signOut();
-                if (error) {
-                    alert(`Sign out failed: ${error.message}`);
-                    return;
-                }
-
-                window.location.reload();
-
+                openAccountModal(session);
             } else {
                 openAuthModal();
             }
@@ -1094,9 +1255,11 @@ document.addEventListener('DOMContentLoaded', () => {
             closeAuthModal();
 
             if (authBtn) {
-
-                authBtn.innerText =
-                    `LOGOUT (${session.user.user_metadata.full_name || session.user.email || 'USER'})`;
+                const displayName = session.user.user_metadata?.full_name || session.user.email || 'Account';
+                const label = authBtn.querySelector('span');
+                if (label) label.textContent = displayName.length > 20 ? `${displayName.slice(0, 17)}...` : displayName;
+                authBtn.setAttribute('aria-label', `Open account for ${displayName}`);
+                authBtn.title = 'Manage account';
             }
 
             if (keyInput) {
@@ -1117,8 +1280,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
 
             if (authBtn) {
-                authBtn.innerText = "CONNECT";
+                const label = authBtn.querySelector('span');
+                if (label) label.textContent = 'Connect';
+                authBtn.setAttribute('aria-label', 'Connect your account');
+                authBtn.title = 'Connect your account';
             }
+            closeAccountModal();
 
         }
     });
