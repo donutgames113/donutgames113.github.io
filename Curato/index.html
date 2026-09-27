@@ -181,9 +181,13 @@
         .item-card { position: relative; cursor: pointer; transition: transform .25s ease; }
         .item-card:hover { transform: translateY(-6px) rotate(-.6deg); }
         .item-card:focus-visible { outline: 3px solid var(--yellow); outline-offset: 5px; }
-        .img-container { overflow: hidden; aspect-ratio: 4 / 5; border: 1px solid var(--line); border-radius: 19px; background: var(--card); box-shadow: 5px 6px 0 var(--line); }
+        .img-container { position: relative; overflow: hidden; aspect-ratio: 4 / 5; border: 1px solid var(--line); border-radius: 19px; background: var(--card); box-shadow: 5px 6px 0 var(--line); }
         .item-card img { width: 100%; height: 100%; object-fit: cover; transition: transform .45s ease; }
         .item-card:hover img { transform: scale(1.06); }
+        .item-card.is-selected .img-container { border-color: var(--purple); box-shadow: 0 0 0 3px color-mix(in srgb, var(--purple) 35%, transparent), 5px 6px 0 var(--line); }
+        .item-select-button { position: absolute; top: 10px; left: 10px; z-index: 1; display: none; align-items: center; gap: 7px; min-height: 34px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); background: color-mix(in srgb, var(--card) 92%, transparent); box-shadow: 0 3px 10px rgba(32,27,53,.14); font: 600 11px "Space Grotesk", sans-serif; }
+        #catalog-grid.selection-mode .item-select-button { display: inline-flex; }
+        .item-select-button[aria-pressed="true"] { border-color: var(--purple); color: var(--ink); background: color-mix(in srgb, var(--purple) 20%, var(--card)); }
         .item-details { max-height: 0; overflow: hidden; opacity: 0; margin-top: 0; padding: 0 12px; border: 1px solid transparent; border-radius: 14px; background: color-mix(in srgb, var(--card) 86%, transparent); transition: max-height .3s ease, opacity .2s ease, margin-top .3s ease, padding .3s ease, border-color .3s ease; }
         .item-card[aria-expanded="true"] .item-details { max-height: 300px; opacity: 1; margin-top: 14px; padding: 12px; border-color: var(--line); }
         .item-detail-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent); color: var(--muted); font: 500 12px/1.35 "DM Mono", monospace; text-transform: capitalize; }
@@ -378,6 +382,14 @@
                     <button class="chip sort-opt" data-sort="Fragrance">Scent</button>
                     <button class="chip sort-opt" data-sort="Shoes">Shoes</button>
                     <button class="chip sort-opt" data-sort="Other">Other</button>
+                </div>
+                <div class="mb-5 flex flex-wrap items-center gap-3">
+                    <button id="toggle-selection-btn" type="button" class="chip" aria-pressed="false"><i class="fa-regular fa-square-check"></i>Select items</button>
+                    <div id="selection-actions" class="hidden flex flex-wrap items-center gap-2" aria-live="polite">
+                        <span id="selection-count" class="mono px-2 text-xs text-[var(--muted)]">0 selected</span>
+                        <button id="clear-selection-btn" type="button" class="item-card-action">Cancel</button>
+                        <button id="save-selection-btn" type="button" class="primary-button rounded-[12px] px-4 py-2 text-[10px] uppercase tracking-[.1em]" disabled><i class="fa-regular fa-bookmark mr-2"></i>Save as outfit</button>
+                    </div>
                 </div>
                 <div id="catalog-grid" class="grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-3 md:gap-x-7"></div>
             </section>

@@ -68,6 +68,9 @@ let searchQuery = "";
 let latestSuggestion = null;
 let favoriteOutfits = [];
 let consultationItems = [];
+let wardrobeItems = [];
+let selectedWardrobeItems = new Set();
+let wardrobeSelectionMode = false;
 let nextItemReference = 1;
 let editingItemId = null;
 let editingImageData = null;
@@ -107,6 +110,26 @@ function getOutfitItems(itemReferences) {
     return consultationItems
         .filter(item => references.has(item.reference))
         .map(({ reference, ...item }) => item);
+}
+
+function updateWardrobeSelectionUI() {
+    const catalogGrid = document.getElementById('catalog-grid');
+    const toggleButton = document.getElementById('toggle-selection-btn');
+    const actions = document.getElementById('selection-actions');
+    const count = document.getElementById('selection-count');
+    const saveButton = document.getElementById('save-selection-btn');
+    const selectedCount = selectedWardrobeItems.size;
+
+    catalogGrid?.classList.toggle('selection-mode', wardrobeSelectionMode);
+    if (toggleButton) {
+        toggleButton.setAttribute('aria-pressed', String(wardrobeSelectionMode));
+        toggleButton.innerHTML = wardrobeSelectionMode
+            ? '<i class="fa-solid fa-check mr-1"></i>Done selecting'
+            : '<i class="fa-regular fa-square-check mr-1"></i>Select items';
+    }
+    actions?.classList.toggle('hidden', !wardrobeSelectionMode && selectedCount === 0);
+    if (count) count.textContent = `${selectedCount} selected`;
+    if (saveButton) saveButton.disabled = selectedCount === 0;
 }
 
 function renderFavorites() {
@@ -674,7 +697,12 @@ async function fetchItems() {
         return;
     }
 
-    const filtered = sortItems(data);
+    wardrobeItems = data || [];
+    const availableIds = new Set(wardrobeItems.map(item => String(item.id)));
+    selectedWardrobeItems = new Set(
+        [...selectedWardrobeItems].filter(id => availableIds.has(id))
+    );
+    const filtered = sortItems(wardrobeItems);
 
     const countEl =
         document.getElementById('item-count');
@@ -693,9 +721,12 @@ async function fetchItems() {
 
     if (!catalogGrid) return;
 
+    catalogGrid.classList.toggle('selection-mode', wardrobeSelectionMode);
     catalogGrid.innerHTML = filtered.map(item => {
         const tags = item.tags || {};
         const category = tags.subcategory || tags.category || 'Item';
+        const itemId = String(item.id);
+        const isSelected = selectedWardrobeItems.has(itemId);
         const detailEntries = Object.entries(tags)
             .filter(([key, value]) => value !== null && value !== undefined && value !== '' && key !== 'brand' && key !== 'category' && key !== 'subcategory')
             .map(([key, value]) => `
@@ -706,9 +737,13 @@ async function fetchItems() {
             `).join('');
 
         return `
-            <article class="item-card group" data-item-card data-item-id="${escapeHTML(String(item.id))}" tabindex="0" aria-expanded="false">
+            <article class="item-card group${isSelected ? ' is-selected' : ''}" data-item-card data-item-id="${escapeHTML(itemId)}" tabindex="0" aria-expanded="false">
                 <div class="img-container">
                     <img src="${escapeHTML(item.image_url)}" loading="lazy" alt="${escapeHTML(item.name)}">
+                    <button type="button" class="item-select-button" data-select-wardrobe-item="${escapeHTML(itemId)}" aria-pressed="${isSelected}" aria-label="${isSelected ? 'Remove' : 'Select'} ${escapeHTML(item.name)}">
+                        <i class="${isSelected ? 'fa-solid fa-check' : 'fa-regular fa-square'}" aria-hidden="true"></i>
+                        <span>${isSelected ? 'Selected' : 'Select'}</span>
+                    </button>
                 </div>
                 <div class="mt-5">
                     <p class="text-[11px] font-medium uppercase tracking-widest text-white/90">${escapeHTML(item.name)}</p>
@@ -738,7 +773,28 @@ async function fetchItems() {
     }).join('');
 
     catalogGrid.querySelectorAll('[data-item-card]').forEach(card => {
+        const itemId = card.dataset.itemId;
+        const selectButton = card.querySelector('[data-select-wardrobe-item]');
+        const toggleSelection = () => {
+            if (selectedWardrobeItems.has(itemId)) {
+                selectedWardrobeItems.delete(itemId);
+            } else {
+                selectedWardrobeItems.add(itemId);
+            }
+            const isSelected = selectedWardrobeItems.has(itemId);
+            card.classList.toggle('is-selected', isSelected);
+            selectButton?.setAttribute('aria-pressed', String(isSelected));
+            selectButton?.setAttribute('aria-label', `${isSelected ? 'Remove' : 'Select'} ${card.querySelector('img')?.alt || 'item'}`);
+            if (selectButton) {
+                selectButton.innerHTML = `<i class="${isSelected ? 'fa-solid fa-check' : 'fa-regular fa-square'}" aria-hidden="true"></i><span>${isSelected ? 'Selected' : 'Select'}</span>`;
+            }
+            updateWardrobeSelectionUI();
+        };
         const toggle = () => {
+            if (wardrobeSelectionMode) {
+                toggleSelection();
+                return;
+            }
             const expanded = card.getAttribute('aria-expanded') === 'true';
             card.setAttribute('aria-expanded', String(!expanded));
             card.querySelector('.item-details')?.setAttribute('aria-hidden', String(expanded));
@@ -746,10 +802,15 @@ async function fetchItems() {
 
         card.addEventListener('click', toggle);
         card.addEventListener('keydown', event => {
+            if (event.target !== card) return;
             if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
                 toggle();
             }
+        });
+        selectButton?.addEventListener('click', event => {
+            event.stopPropagation();
+            toggleSelection();
         });
     });
 
@@ -766,6 +827,7 @@ async function fetchItems() {
             await deleteItem(button.dataset.deleteItem);
         });
     });
+    updateWardrobeSelectionUI();
 }
 
 function openItemEditor(item) {
@@ -1510,6 +1572,68 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     searchButton?.addEventListener('click', applySearch);
+
+    const selectionToggleButton = document.getElementById('toggle-selection-btn');
+    const clearSelectionButton = document.getElementById('clear-selection-btn');
+    const saveSelectionButton = document.getElementById('save-selection-btn');
+
+    selectionToggleButton?.addEventListener('click', () => {
+        wardrobeSelectionMode = !wardrobeSelectionMode;
+        updateWardrobeSelectionUI();
+    });
+
+    clearSelectionButton?.addEventListener('click', () => {
+        selectedWardrobeItems.clear();
+        wardrobeSelectionMode = false;
+        fetchItems();
+    });
+
+    saveSelectionButton?.addEventListener('click', async () => {
+        if (selectedWardrobeItems.size === 0) return;
+
+        try {
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            if (sessionError) throw sessionError;
+            if (!session) {
+                alert("Connect your account to save favorite outfits.");
+                return;
+            }
+
+            const title = window.prompt('Name this outfit', 'My outfit')?.trim();
+            if (!title) {
+                if (title === '') alert("Outfit name cannot be empty.");
+                return;
+            }
+
+            const outfitItems = wardrobeItems
+                .filter(item => selectedWardrobeItems.has(String(item.id)))
+                .map(({ id, name, image_url, tags }) => ({ id, name, image_url, tags }));
+            if (!outfitItems.length) {
+                alert("Select at least one wardrobe item to save.");
+                return;
+            }
+
+            saveSelectionButton.disabled = true;
+            saveSelectionButton.innerText = 'SAVING...';
+            const { error } = await supabase.from('favorite_outfits').insert([{
+                user_id: session.user.id,
+                title: title.length > 60 ? `${title.slice(0, 60)}...` : title,
+                items: outfitItems
+            }]);
+            if (error) throw error;
+
+            selectedWardrobeItems.clear();
+            wardrobeSelectionMode = false;
+            updateWardrobeSelectionUI();
+            alert("Outfit saved to favorites.");
+        } catch (err) {
+            console.error(err);
+            alert("Outfit save failed: " + err.message);
+        } finally {
+            saveSelectionButton.disabled = selectedWardrobeItems.size === 0;
+            saveSelectionButton.innerHTML = '<i class="fa-regular fa-bookmark mr-2"></i>Save as outfit';
+        }
+    });
 
     // ========================================
     // FILE INPUT
