@@ -74,11 +74,91 @@ let wardrobeSelectionMode = false;
 let nextItemReference = 1;
 let editingItemId = null;
 let editingImageData = null;
+let brandIconSource = null;
+
+function recolorBrandIcon() {
+    const canvas = document.getElementById('brand-icon');
+    if (!canvas || !brandIconSource) return;
+
+    const context = canvas.getContext('2d');
+    if (!context) {
+        console.error('Unable to render the Curato brand icon: canvas is unavailable.');
+        return;
+    }
+
+    const imageData = context.createImageData(brandIconSource.width, brandIconSource.height);
+    imageData.data.set(brandIconSource.data);
+    if (document.body.dataset.colorTheme !== 'violet') {
+        const styles = getComputedStyle(document.body);
+        const primary = styles.getPropertyValue('--logo-primary').trim();
+        const secondary = styles.getPropertyValue('--logo-secondary').trim();
+        const primaryRgb = primary.match(/^#([\da-f]{6})$/i);
+        const secondaryRgb = secondary.match(/^#([\da-f]{6})$/i);
+        if (!primaryRgb || !secondaryRgb) {
+            console.error('Unable to recolor the Curato brand icon: theme colors must be six-digit hex values.');
+            return;
+        }
+
+        const parseRgb = match => [
+            parseInt(match[1].slice(0, 2), 16),
+            parseInt(match[1].slice(2, 4), 16),
+            parseInt(match[1].slice(4, 6), 16)
+        ];
+        const primaryColor = parseRgb(primaryRgb);
+        const secondaryColor = parseRgb(secondaryRgb);
+        const violetSource = [116, 85, 244];
+        const yellowSource = [239, 205, 100];
+        const pixels = imageData.data;
+
+        for (let index = 0; index < pixels.length; index += 4) {
+            if (pixels[index + 3] === 0) continue;
+
+            const red = pixels[index];
+            const green = pixels[index + 1];
+            const blue = pixels[index + 2];
+            if (Math.min(red, green, blue) > 235 && Math.max(red, green, blue) - Math.min(red, green, blue) < 16) continue;
+
+            const violetDistance = (red - violetSource[0]) ** 2 + (green - violetSource[1]) ** 2 + (blue - violetSource[2]) ** 2;
+            const yellowDistance = (red - yellowSource[0]) ** 2 + (green - yellowSource[1]) ** 2 + (blue - yellowSource[2]) ** 2;
+            const color = violetDistance <= yellowDistance ? primaryColor : secondaryColor;
+            pixels[index] = color[0];
+            pixels[index + 1] = color[1];
+            pixels[index + 2] = color[2];
+        }
+    }
+
+    context.putImageData(imageData, 0, 0);
+}
+
+function initializeBrandIcon() {
+    const canvas = document.getElementById('brand-icon');
+    if (!canvas) return;
+
+    const context = canvas.getContext('2d', { willReadFrequently: true });
+    if (!context) {
+        console.error('Unable to load the Curato brand icon: canvas is unavailable.');
+        return;
+    }
+
+    const image = new Image();
+    image.addEventListener('load', () => {
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
+        context.drawImage(image, 0, 0);
+        brandIconSource = context.getImageData(0, 0, canvas.width, canvas.height);
+        recolorBrandIcon();
+    });
+    image.addEventListener('error', () => {
+        console.error('Unable to load the Curato brand icon image.');
+    });
+    image.src = new URL('./IconTransparent.png', import.meta.url).href;
+}
 
 function applyTheme(theme, colorTheme = localStorage.getItem('curato-color-theme') || 'violet') {
     const isDark = theme === 'dark';
     document.body.classList.toggle('dark-mode', isDark);
     document.body.dataset.colorTheme = colorTheme;
+    recolorBrandIcon();
     const toggle = document.getElementById('theme-toggle');
     if (toggle) {
         toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
@@ -89,6 +169,7 @@ function applyTheme(theme, colorTheme = localStorage.getItem('curato-color-theme
 }
 
 function initializeTheme() {
+    initializeBrandIcon();
     const savedTheme = localStorage.getItem('curato-theme');
     const savedColorTheme = localStorage.getItem('curato-color-theme') || 'violet';
     const systemPrefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;

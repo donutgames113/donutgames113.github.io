@@ -20,6 +20,8 @@
             --line: #e6e0d7;
             --purple: #7455f5;
             --purple-soft: #e9e4ff;
+            --logo-primary: #7455f4;
+            --logo-secondary: #efcd64;
             --orange: #ff8a5b;
             --orange-hover: #ff9d75;
             --mint: #b9eed9;
@@ -42,37 +44,37 @@
         }
         body[data-color-theme="coral"] {
             --ink: #43242d; --muted: #936b73; --paper: #fff2ec; --card: #fffaf6; --line: #edd8d1;
-            --purple: #c84d63; --purple-soft: #f8dde0; --orange: #e77d45; --orange-hover: #f59c70;
+            --purple: #c84d63; --purple-soft: #f8dde0; --logo-primary: var(--purple); --logo-secondary: var(--yellow); --orange: #e77d45; --orange-hover: #f59c70;
             --mint: #f1c4b6; --yellow: #f4d17e; --prompt-surface: #63313d; --drop-border: #dfb8ad;
             --shadow: rgba(111, 53, 56, .1); --backdrop: rgba(55, 25, 35, .58);
         }
         body.dark-mode[data-color-theme="coral"] {
             --ink: #fff1e9; --muted: #d6aab0; --paper: #241820; --card: #34232c; --line: #62404a;
-            --purple: #ff8797; --purple-soft: #58313e; --orange: #ffad72; --orange-hover: #ffc08f;
+            --purple: #ff8797; --purple-soft: #58313e; --logo-primary: var(--purple); --logo-secondary: var(--yellow); --orange: #ffad72; --orange-hover: #ffc08f;
             --mint: #754452; --yellow: #f0cf78; --prompt-surface: #512b36; --drop-border: #77505a;
             --shadow: rgba(0, 0, 0, .3); --backdrop: rgba(0, 0, 0, .72);
         }
         body[data-color-theme="ocean"] {
             --ink: #172d42; --muted: #58738a; --paper: #edf6fb; --card: #f9fcff; --line: #d2e2eb;
-            --purple: #286ea5; --purple-soft: #d8eaf6; --orange: #278e91; --orange-hover: #47a5a6;
+            --purple: #286ea5; --purple-soft: #d8eaf6; --logo-primary: var(--purple); --logo-secondary: var(--yellow); --orange: #278e91; --orange-hover: #47a5a6;
             --mint: #b4dbe8; --yellow: #f0d27b; --prompt-surface: #173a53; --drop-border: #b5cad6;
             --shadow: rgba(24, 70, 100, .1); --backdrop: rgba(13, 34, 51, .6);
         }
         body.dark-mode[data-color-theme="ocean"] {
             --ink: #e8f4f8; --muted: #a7c2d2; --paper: #111f2d; --card: #1a2e3e; --line: #385263;
-            --purple: #71b8e6; --purple-soft: #254359; --orange: #62c9bd; --orange-hover: #83d9cf;
+            --purple: #71b8e6; --purple-soft: #254359; --logo-primary: var(--purple); --logo-secondary: var(--yellow); --orange: #62c9bd; --orange-hover: #83d9cf;
             --mint: #28576a; --yellow: #e8cf78; --prompt-surface: #102d42; --drop-border: #476274;
             --shadow: rgba(0, 0, 0, .3); --backdrop: rgba(0, 0, 0, .74);
         }
         body[data-color-theme="lime"] {
             --ink: #29351d; --muted: #717d5c; --paper: #f4f6e8; --card: #fbfcef; --line: #dfe5c8;
-            --purple: #627a2d; --purple-soft: #e8edcd; --orange: #b9792b; --orange-hover: #d39546;
+            --purple: #627a2d; --purple-soft: #e8edcd; --logo-primary: var(--purple); --logo-secondary: var(--yellow); --orange: #b9792b; --orange-hover: #d39546;
             --mint: #d5e4a8; --yellow: #efcf6e; --prompt-surface: #35451f; --drop-border: #c8d0aa;
             --shadow: rgba(54, 68, 34, .1); --backdrop: rgba(28, 37, 20, .62);
         }
         body.dark-mode[data-color-theme="lime"] {
             --ink: #f0f2dc; --muted: #c1c9a2; --paper: #1e2518; --card: #2c3522; --line: #4c5a3b;
-            --purple: #b3cf69; --purple-soft: #3b4829; --orange: #e4aa5c; --orange-hover: #f0bf78;
+            --purple: #b3cf69; --purple-soft: #3b4829; --logo-primary: var(--purple); --logo-secondary: var(--yellow); --orange: #e4aa5c; --orange-hover: #f0bf78;
             --mint: #50633d; --yellow: #e9d16f; --prompt-surface: #354322; --drop-border: #5b6945;
             --shadow: rgba(0, 0, 0, .3); --backdrop: rgba(0, 0, 0, .74);
         }
@@ -318,7 +320,7 @@
     <nav class="topbar fixed top-0 z-50 w-full">
         <div class="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-5 md:px-8">
             <a href="#" class="flex items-center gap-1 no-underline" aria-label="Curato home">
-                <img src="IconTransparent.png" alt="Curato logo" class="h-11 w-11 object-contain" />
+                <canvas id="brand-icon" width="1080" height="1080" role="img" aria-label="Curato logo" class="h-11 w-11 object-contain"></canvas>
                 <img src="CuratoText.png" alt="Curato" class="curato-wordmark" />
             </a>
             <div class="flex items-center gap-4">
