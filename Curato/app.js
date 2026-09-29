@@ -78,12 +78,12 @@ let brandIconSource = null;
 
 function recolorBrandIcon() {
     const canvas = document.getElementById('brand-icon');
-    if (!canvas || !brandIconSource) return;
+    if (!canvas || !brandIconSource) return false;
 
     const context = canvas.getContext('2d');
     if (!context) {
         console.error('Unable to render the Curato brand icon: canvas is unavailable.');
-        return;
+        return false;
     }
 
     const imageData = context.createImageData(brandIconSource.width, brandIconSource.height);
@@ -96,7 +96,7 @@ function recolorBrandIcon() {
         const secondaryRgb = secondary.match(/^#([\da-f]{6})$/i);
         if (!primaryRgb || !secondaryRgb) {
             console.error('Unable to recolor the Curato brand icon: theme colors must be six-digit hex values.');
-            return;
+            return false;
         }
 
         const parseRgb = match => [
@@ -128,11 +128,13 @@ function recolorBrandIcon() {
     }
 
     context.putImageData(imageData, 0, 0);
+    return true;
 }
 
 function initializeBrandIcon() {
     const canvas = document.getElementById('brand-icon');
-    if (!canvas) return;
+    const fallback = document.getElementById('brand-icon-fallback');
+    if (!canvas || !fallback) return;
 
     const context = canvas.getContext('2d', { willReadFrequently: true });
     if (!context) {
@@ -146,7 +148,10 @@ function initializeBrandIcon() {
         canvas.height = image.naturalHeight;
         context.drawImage(image, 0, 0);
         brandIconSource = context.getImageData(0, 0, canvas.width, canvas.height);
-        recolorBrandIcon();
+        if (recolorBrandIcon()) {
+            canvas.classList.remove('hidden');
+            fallback.classList.add('hidden');
+        }
     });
     image.addEventListener('error', () => {
         console.error('Unable to load the Curato brand icon image.');
