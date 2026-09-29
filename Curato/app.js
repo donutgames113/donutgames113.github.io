@@ -184,6 +184,9 @@ function applyTheme(
     document.querySelectorAll('#palette-modal [data-ui-style]').forEach(option => {
         option.setAttribute('aria-pressed', String(option.dataset.uiStyle === selectedUiStyle));
     });
+    const styleLabel = document.querySelector(`#palette-modal [data-ui-style="${selectedUiStyle}"] .style-choice-name`);
+    const styleModeLabel = document.getElementById('style-mode-label');
+    if (styleLabel && styleModeLabel) styleModeLabel.textContent = styleLabel.textContent;
 }
 
 function initializeTheme() {
@@ -208,7 +211,7 @@ function initializeTheme() {
     paletteToggle?.addEventListener('click', () => {
         paletteModal?.classList.remove('hidden');
         paletteModal?.classList.add('flex');
-        paletteModal?.querySelector('[data-ui-style][aria-pressed="true"]')?.focus();
+        paletteModal?.querySelector('#style-picker-summary')?.focus();
     });
     document.querySelectorAll('[data-close-palette]').forEach(button => {
         button.addEventListener('click', closePalette);

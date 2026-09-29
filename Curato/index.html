@@ -370,11 +370,15 @@
                     <i class="theme-toggle-icon fa-solid fa-sun" aria-hidden="true"></i>
                 </span>
             </button>
-            <div class="style-section">
-                <div class="mb-3">
-                    <h3 class="style-section-title">Interface style</h3>
-                    <p class="style-section-description">Give Curato a different look and feel.</p>
-                </div>
+            <details class="style-section">
+                <summary id="style-picker-summary" class="style-picker-summary">
+                    <span>
+                        <span class="style-section-title">Interface style</span>
+                        <span id="style-mode-label" class="style-picker-current">Curato Studio</span>
+                    </span>
+                    <i class="style-picker-chevron fa-solid fa-chevron-down" aria-hidden="true"></i>
+                </summary>
+                <p class="style-section-description mb-3">Give Curato a different look and feel.</p>
                 <div class="style-choice-grid" aria-label="Interface styles">
                     <button type="button" class="style-choice" data-ui-style="curato" aria-pressed="false">
                         <span class="style-choice-name">Curato Studio</span>
@@ -412,7 +416,7 @@
                         <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
                     </button>
                 </div>
-            </div>
+            </details>
             <div class="palette-section">
                 <div class="mb-3">
                     <h3 class="style-section-title">Color palette</h3>

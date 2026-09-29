@@ -3,6 +3,46 @@
     margin-top: 18px;
 }
 
+.style-picker-summary {
+    display: flex;
+    min-height: 58px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 15px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    color: var(--ink);
+    background: color-mix(in srgb, var(--paper) 60%, var(--card));
+    cursor: pointer;
+    list-style: none;
+}
+
+.style-picker-summary::-webkit-details-marker {
+    display: none;
+}
+
+.style-picker-summary:hover,
+.style-section[open] .style-picker-summary {
+    border-color: var(--purple);
+}
+
+.style-picker-current {
+    display: block;
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.style-picker-chevron {
+    color: var(--purple);
+    transition: transform .2s ease;
+}
+
+.style-section[open] .style-picker-chevron {
+    transform: rotate(180deg);
+}
+
 .style-section-title {
     color: var(--ink);
     font: 700 15px/1.3 "Space Grotesk", sans-serif;
