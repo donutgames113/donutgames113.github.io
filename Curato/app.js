@@ -168,9 +168,11 @@ function applyTheme(theme, colorTheme = localStorage.getItem('curato-color-theme
     if (toggle) {
         toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
         toggle.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+        toggle.querySelector('#theme-mode-label').textContent = isDark ? 'Dark mode' : 'Light mode';
     }
-    const colorSelect = document.getElementById('color-theme');
-    if (colorSelect) colorSelect.value = colorTheme;
+    document.querySelectorAll('#palette-modal [data-color-theme]').forEach(option => {
+        option.setAttribute('aria-pressed', String(option.dataset.colorTheme === colorTheme));
+    });
 }
 
 function initializeTheme() {
@@ -179,15 +181,39 @@ function initializeTheme() {
     const savedColorTheme = localStorage.getItem('curato-color-theme') || 'violet';
     const systemPrefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
     applyTheme(savedTheme || (systemPrefersDark ? 'dark' : 'light'), savedColorTheme);
+    const paletteToggle = document.getElementById('palette-toggle');
+    const paletteModal = document.getElementById('palette-modal');
+    const closePalette = () => {
+        paletteModal?.classList.add('hidden');
+        paletteModal?.classList.remove('flex');
+        paletteToggle?.focus();
+    };
+
     document.getElementById('theme-toggle')?.addEventListener('click', () => {
         const nextTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
         localStorage.setItem('curato-theme', nextTheme);
         applyTheme(nextTheme, document.body.dataset.colorTheme);
     });
-    document.getElementById('color-theme')?.addEventListener('change', event => {
-        const colorTheme = event.target.value;
-        localStorage.setItem('curato-color-theme', colorTheme);
-        applyTheme(document.body.classList.contains('dark-mode') ? 'dark' : 'light', colorTheme);
+    paletteToggle?.addEventListener('click', () => {
+        paletteModal?.classList.remove('hidden');
+        paletteModal?.classList.add('flex');
+        paletteModal?.querySelector('[data-color-theme][aria-pressed="true"]')?.focus();
+    });
+    document.querySelectorAll('[data-close-palette]').forEach(button => {
+        button.addEventListener('click', closePalette);
+    });
+    document.querySelectorAll('#palette-modal [data-color-theme]').forEach(option => {
+        option.addEventListener('click', () => {
+            const colorTheme = option.dataset.colorTheme;
+            if (!colorTheme) return;
+            localStorage.setItem('curato-color-theme', colorTheme);
+            applyTheme(document.body.classList.contains('dark-mode') ? 'dark' : 'light', colorTheme);
+        });
+    });
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && paletteModal && !paletteModal.classList.contains('hidden')) {
+            closePalette();
+        }
     });
 }
 

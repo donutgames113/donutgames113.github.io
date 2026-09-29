@@ -298,8 +298,19 @@
         #favorites-modal input::placeholder { color: var(--muted); }
         .theme-toggle { width: 34px; height: 34px; display: inline-grid; place-items: center; border: 1px solid var(--line); border-radius: 11px; color: var(--muted); transition: .2s ease; }
         .theme-toggle:hover { color: var(--ink); border-color: var(--purple); transform: rotate(-8deg); }
-        .color-theme-select { max-width: 88px; border: 1px solid var(--line); border-radius: 11px; padding: 8px 9px; color: var(--ink); background: var(--card); font: 600 11px "Space Grotesk", sans-serif; outline: none; }
-        .color-theme-select:focus { border-color: var(--purple); box-shadow: 0 0 0 3px color-mix(in srgb, var(--purple) 18%, transparent); }
+        .palette-modal-panel { background: var(--card); border-color: var(--line); color: var(--ink); box-shadow: 0 24px 70px var(--shadow); }
+        .appearance-toggle { display: flex; width: 100%; min-height: 58px; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 15px; color: var(--ink); background: color-mix(in srgb, var(--paper) 60%, var(--card)); text-align: left; transition: .2s ease; }
+        .appearance-toggle:hover { border-color: var(--purple); background: color-mix(in srgb, var(--purple) 9%, var(--card)); }
+        .appearance-toggle .theme-toggle-icon { color: var(--purple); }
+        body:not(.dark-mode) .appearance-toggle .fa-sun { display: none; }
+        .palette-choice { display: flex; min-height: 76px; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 15px; color: var(--ink); background: color-mix(in srgb, var(--paper) 60%, var(--card)); text-align: left; transition: .2s ease; }
+        .palette-choice:hover, .palette-choice[aria-pressed="true"] { border-color: var(--purple); background: color-mix(in srgb, var(--purple) 9%, var(--card)); }
+        .palette-choice[aria-pressed="true"] { box-shadow: 0 0 0 2px color-mix(in srgb, var(--purple) 18%, transparent); }
+        .palette-swatches { display: inline-flex; align-items: center; }
+        .palette-swatches span { width: 17px; height: 17px; margin-left: -4px; border: 2px solid var(--card); border-radius: 50%; }
+        .palette-swatches span:first-child { margin-left: 0; }
+        .palette-choice-check { color: var(--purple); opacity: 0; }
+        .palette-choice[aria-pressed="true"] .palette-choice-check { opacity: 1; }
         .dark-mode .fa-sun { display: inline-block; }
         .dark-mode .fa-moon { display: none; }
         body:not(.dark-mode) .theme-toggle .fa-sun { display: none; }
@@ -332,18 +343,52 @@
                     <option value="gemini-2.0-flash">2.0 Flash</option>
                 </select>
                 <input id="user-api-key" type="password" placeholder="Gemini key" class="hidden w-24 border-b border-[var(--line)] bg-transparent pb-1 text-[10px] text-[var(--ink)] outline-none md:block" aria-label="Gemini API key">
-                <select id="color-theme" class="color-theme-select hidden md:block" aria-label="Choose color theme" title="Choose color theme">
-                    <option value="violet">Violet</option>
-                    <option value="coral">Coral</option>
-                    <option value="ocean">Ocean</option>
-                    <option value="lime">Lime</option>
-                </select>
-                <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to dark mode" title="Switch theme"><i class="fa-solid fa-moon"></i><i class="fa-solid fa-sun"></i></button>
+                <button id="palette-toggle" class="theme-toggle" type="button" aria-label="Choose color palette" title="Choose color palette" aria-haspopup="dialog" aria-controls="palette-modal"><i class="fa-solid fa-palette" aria-hidden="true"></i></button>
                 <button id="auth-btn" class="icon-button" type="button" aria-label="Connect your account" title="Connect your account"><i class="fa-regular fa-circle-user text-base" aria-hidden="true"></i></button>
                 <button id="favorites-btn" class="icon-button" type="button" aria-label="Favorites" title="Favorites"><i class="fa-regular fa-bookmark text-base" aria-hidden="true"></i></button>
             </div>
         </div>
     </nav>
+
+    <div id="palette-modal" class="fixed inset-0 z-[80] hidden items-center justify-center p-5" role="dialog" aria-modal="true" aria-labelledby="palette-title" aria-describedby="palette-description">
+        <div class="absolute inset-0 backdrop-blur-sm" style="background: var(--backdrop)" data-close-palette></div>
+        <section class="palette-modal-panel relative w-full max-w-md rounded-[25px] border p-6 md:p-8">
+            <div class="mb-6 flex items-start justify-between gap-6">
+                <div>
+                    <p class="section-label mb-2">Make it yours</p>
+                    <h2 id="palette-title" class="text-3xl font-bold tracking-[-.06em]">Color palette</h2>
+                    <p id="palette-description" class="mt-2 text-sm text-[var(--muted)]">Choose the colors Curato wears.</p>
+                </div>
+                <button type="button" data-close-palette class="text-xl text-[var(--muted)] hover:text-[var(--ink)]" aria-label="Close color palettes"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <button id="theme-toggle" class="appearance-toggle" type="button" aria-label="Switch to dark mode" title="Switch theme">
+                <span class="font-semibold">Appearance</span>
+                <span class="flex items-center gap-3">
+                    <span id="theme-mode-label" class="text-sm text-[var(--muted)]">Light mode</span>
+                    <i class="theme-toggle-icon fa-solid fa-moon" aria-hidden="true"></i>
+                    <i class="theme-toggle-icon fa-solid fa-sun" aria-hidden="true"></i>
+                </span>
+            </button>
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2" aria-label="Color palettes">
+                <button type="button" class="palette-choice" data-color-theme="violet" aria-pressed="false">
+                    <span class="font-semibold">Violet</span>
+                    <span class="flex items-center gap-3"><span class="palette-swatches" aria-hidden="true"><span style="background:#7455f5"></span><span style="background:#ff8a5b"></span><span style="background:#b9eed9"></span></span><i class="palette-choice-check fa-solid fa-check" aria-hidden="true"></i></span>
+                </button>
+                <button type="button" class="palette-choice" data-color-theme="coral" aria-pressed="false">
+                    <span class="font-semibold">Coral</span>
+                    <span class="flex items-center gap-3"><span class="palette-swatches" aria-hidden="true"><span style="background:#c84d63"></span><span style="background:#e77d45"></span><span style="background:#f1c4b6"></span></span><i class="palette-choice-check fa-solid fa-check" aria-hidden="true"></i></span>
+                </button>
+                <button type="button" class="palette-choice" data-color-theme="ocean" aria-pressed="false">
+                    <span class="font-semibold">Ocean</span>
+                    <span class="flex items-center gap-3"><span class="palette-swatches" aria-hidden="true"><span style="background:#286ea5"></span><span style="background:#278e91"></span><span style="background:#b4dbe8"></span></span><i class="palette-choice-check fa-solid fa-check" aria-hidden="true"></i></span>
+                </button>
+                <button type="button" class="palette-choice" data-color-theme="lime" aria-pressed="false">
+                    <span class="font-semibold">Lime</span>
+                    <span class="flex items-center gap-3"><span class="palette-swatches" aria-hidden="true"><span style="background:#627a2d"></span><span style="background:#b9792b"></span><span style="background:#d5e4a8"></span></span><i class="palette-choice-check fa-solid fa-check" aria-hidden="true"></i></span>
+                </button>
+            </div>
+        </section>
+    </div>
 
     <main class="mx-auto max-w-7xl px-5 pb-24 pt-32 md:px-8">
         <section class="mx-auto mb-24 max-w-5xl">
