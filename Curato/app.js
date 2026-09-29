@@ -1,6 +1,7 @@
 const SUPABASE_URL = 'https://wyvliczohxpyptwxnvfi.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5';
 const REDIRECT_URL = 'https://donutgames113.github.io/Curato/index.html';
+const UI_STYLES = new Set(['curato', 'flat', 'frutiger', 'liquid', 'retro', 'brutalist', 'editorial']);
 
 const promptModes = {
     outfit: {
@@ -159,19 +160,29 @@ function initializeBrandIcon() {
     image.src = new URL('./IconTransparent.png', import.meta.url).href;
 }
 
-function applyTheme(theme, colorTheme = localStorage.getItem('curato-color-theme') || 'violet') {
+function applyTheme(
+    theme,
+    colorTheme = localStorage.getItem('curato-color-theme') || 'violet',
+    uiStyle = localStorage.getItem('curato-ui-style') || 'curato'
+) {
     const isDark = theme === 'dark';
+    const selectedUiStyle = UI_STYLES.has(uiStyle) ? uiStyle : 'curato';
     document.body.classList.toggle('dark-mode', isDark);
     document.body.dataset.colorTheme = colorTheme;
+    document.body.dataset.uiStyle = selectedUiStyle;
     recolorBrandIcon();
     const toggle = document.getElementById('theme-toggle');
     if (toggle) {
         toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
         toggle.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
-        toggle.querySelector('#theme-mode-label').textContent = isDark ? 'Dark mode' : 'Light mode';
+        const modeLabel = toggle.querySelector('#theme-mode-label');
+        if (modeLabel) modeLabel.textContent = isDark ? 'Dark mode' : 'Light mode';
     }
     document.querySelectorAll('#palette-modal [data-color-theme]').forEach(option => {
         option.setAttribute('aria-pressed', String(option.dataset.colorTheme === colorTheme));
+    });
+    document.querySelectorAll('#palette-modal [data-ui-style]').forEach(option => {
+        option.setAttribute('aria-pressed', String(option.dataset.uiStyle === selectedUiStyle));
     });
 }
 
@@ -197,7 +208,7 @@ function initializeTheme() {
     paletteToggle?.addEventListener('click', () => {
         paletteModal?.classList.remove('hidden');
         paletteModal?.classList.add('flex');
-        paletteModal?.querySelector('[data-color-theme][aria-pressed="true"]')?.focus();
+        paletteModal?.querySelector('[data-ui-style][aria-pressed="true"]')?.focus();
     });
     document.querySelectorAll('[data-close-palette]').forEach(button => {
         button.addEventListener('click', closePalette);
@@ -208,6 +219,18 @@ function initializeTheme() {
             if (!colorTheme) return;
             localStorage.setItem('curato-color-theme', colorTheme);
             applyTheme(document.body.classList.contains('dark-mode') ? 'dark' : 'light', colorTheme);
+        });
+    });
+    document.querySelectorAll('#palette-modal [data-ui-style]').forEach(option => {
+        option.addEventListener('click', () => {
+            const uiStyle = option.dataset.uiStyle;
+            if (!uiStyle || !UI_STYLES.has(uiStyle)) return;
+            localStorage.setItem('curato-ui-style', uiStyle);
+            applyTheme(
+                document.body.classList.contains('dark-mode') ? 'dark' : 'light',
+                document.body.dataset.colorTheme,
+                uiStyle
+            );
         });
     });
     document.addEventListener('keydown', event => {

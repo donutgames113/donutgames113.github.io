@@ -1,0 +1,386 @@
+.style-section,
+.palette-section {
+    margin-top: 18px;
+}
+
+.style-section-title {
+    color: var(--ink);
+    font: 700 15px/1.3 "Space Grotesk", sans-serif;
+}
+
+.style-section-description {
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.style-choice-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+}
+
+.style-choice {
+    position: relative;
+    display: flex;
+    min-height: 74px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    padding: 11px 34px 11px 13px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    color: var(--ink);
+    background: color-mix(in srgb, var(--paper) 60%, var(--card));
+    text-align: left;
+    transition: .2s ease;
+}
+
+.style-choice:hover,
+.style-choice[aria-pressed="true"] {
+    border-color: var(--purple);
+    background: color-mix(in srgb, var(--purple) 9%, var(--card));
+}
+
+.style-choice[aria-pressed="true"] {
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--purple) 18%, transparent);
+}
+
+.style-choice-name {
+    font: 700 12px/1.3 "Space Grotesk", sans-serif;
+}
+
+.style-choice-description {
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.35;
+}
+
+.style-choice-check {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    color: var(--purple);
+    opacity: 0;
+}
+
+.style-choice[aria-pressed="true"] .style-choice-check {
+    opacity: 1;
+}
+
+body[data-ui-style="flat"] {
+    letter-spacing: 0;
+}
+
+body[data-ui-style="flat"]::before {
+    opacity: 0;
+}
+
+body[data-ui-style="flat"] .surface,
+body[data-ui-style="flat"] .glass,
+body[data-ui-style="flat"] .palette-modal-panel,
+body[data-ui-style="flat"] #favorites-modal section,
+body[data-ui-style="flat"] #item-inspector-modal section,
+body[data-ui-style="flat"] #item-editor-modal section,
+body[data-ui-style="flat"] #auth-modal section,
+body[data-ui-style="flat"] #account-modal section {
+    border-radius: 4px !important;
+    box-shadow: none !important;
+}
+
+body[data-ui-style="flat"] .prompt-wrap,
+body[data-ui-style="flat"] .drop-zone,
+body[data-ui-style="flat"] .img-container,
+body[data-ui-style="flat"] .item-card-action,
+body[data-ui-style="flat"] .chip,
+body[data-ui-style="flat"] .suggestion-chip,
+body[data-ui-style="flat"] .primary-button,
+body[data-ui-style="flat"] .prompt-submit,
+body[data-ui-style="flat"] .palette-choice,
+body[data-ui-style="flat"] .style-choice,
+body[data-ui-style="flat"] .appearance-toggle {
+    border-radius: 4px !important;
+    box-shadow: none !important;
+}
+
+body[data-ui-style="flat"] .item-card:hover,
+body[data-ui-style="flat"] .item-card:hover img,
+body[data-ui-style="flat"] .primary-button:hover,
+body[data-ui-style="flat"] .prompt-submit:hover {
+    transform: none;
+}
+
+body[data-ui-style="frutiger"] {
+    background:
+        radial-gradient(ellipse at 8% 8%, color-mix(in srgb, var(--mint) 70%, transparent), transparent 38%),
+        radial-gradient(ellipse at 92% 30%, color-mix(in srgb, var(--purple) 20%, transparent), transparent 42%),
+        linear-gradient(145deg, var(--paper), color-mix(in srgb, var(--mint) 28%, var(--paper)));
+}
+
+body[data-ui-style="frutiger"]::before {
+    opacity: .26;
+    background-image:
+        radial-gradient(ellipse at 18% 24%, color-mix(in srgb, white 52%, transparent) 0 1px, transparent 2px),
+        radial-gradient(ellipse at 76% 72%, color-mix(in srgb, white 34%, transparent) 0 2px, transparent 3px);
+    background-size: 40px 40px, 68px 68px;
+}
+
+body[data-ui-style="frutiger"] .topbar,
+body[data-ui-style="frutiger"] .surface,
+body[data-ui-style="frutiger"] .glass,
+body[data-ui-style="frutiger"] .palette-modal-panel,
+body[data-ui-style="frutiger"] #favorites-modal section,
+body[data-ui-style="frutiger"] #item-inspector-modal section,
+body[data-ui-style="frutiger"] #item-editor-modal section,
+body[data-ui-style="frutiger"] #auth-modal section,
+body[data-ui-style="frutiger"] #account-modal section {
+    border: 1px solid color-mix(in srgb, white 72%, var(--line));
+    background: linear-gradient(145deg, color-mix(in srgb, white 78%, var(--card)), color-mix(in srgb, var(--mint) 15%, var(--card)));
+    box-shadow: 0 18px 38px color-mix(in srgb, var(--purple) 18%, transparent), inset 0 2px 0 color-mix(in srgb, white 88%, transparent);
+    backdrop-filter: blur(14px);
+}
+
+body[data-ui-style="frutiger"] .prompt-wrap,
+body[data-ui-style="frutiger"] .prompt-submit,
+body[data-ui-style="frutiger"] .primary-button {
+    background-image: linear-gradient(160deg, color-mix(in srgb, white 32%, transparent), transparent 48%);
+    box-shadow: inset 0 2px 0 color-mix(in srgb, white 62%, transparent), 0 8px 18px color-mix(in srgb, var(--purple) 18%, transparent);
+}
+
+body[data-ui-style="frutiger"] .chip,
+body[data-ui-style="frutiger"] .suggestion-chip,
+body[data-ui-style="frutiger"] .palette-choice,
+body[data-ui-style="frutiger"] .style-choice,
+body[data-ui-style="frutiger"] .appearance-toggle,
+body[data-ui-style="frutiger"] .item-card-action {
+    border-color: color-mix(in srgb, white 65%, var(--line));
+    background-image: linear-gradient(160deg, color-mix(in srgb, white 65%, transparent), transparent 58%);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 80%, transparent), 0 4px 10px color-mix(in srgb, var(--purple) 9%, transparent);
+}
+
+body[data-ui-style="frutiger"] .img-container,
+body[data-ui-style="frutiger"] .item-card img {
+    border-radius: 24px;
+}
+
+body[data-ui-style="liquid"] {
+    background:
+        radial-gradient(ellipse at 14% 18%, color-mix(in srgb, var(--purple) 24%, transparent), transparent 43%),
+        radial-gradient(ellipse at 84% 32%, color-mix(in srgb, var(--mint) 48%, transparent), transparent 42%),
+        radial-gradient(ellipse at 52% 92%, color-mix(in srgb, var(--orange) 13%, transparent), transparent 38%),
+        var(--paper);
+    background-attachment: fixed;
+}
+
+body[data-ui-style="liquid"]::before {
+    opacity: .12;
+    background-image: radial-gradient(color-mix(in srgb, white 35%, transparent) 1px, transparent 1px);
+    background-size: 22px 22px;
+}
+
+body[data-ui-style="liquid"] .topbar,
+body[data-ui-style="liquid"] .surface,
+body[data-ui-style="liquid"] .glass,
+body[data-ui-style="liquid"] .palette-modal-panel,
+body[data-ui-style="liquid"] #favorites-modal section,
+body[data-ui-style="liquid"] #item-inspector-modal section,
+body[data-ui-style="liquid"] #item-editor-modal section,
+body[data-ui-style="liquid"] #auth-modal section,
+body[data-ui-style="liquid"] #account-modal section,
+body[data-ui-style="liquid"] .filter-box,
+body[data-ui-style="liquid"] .favorite-panel {
+    border-color: color-mix(in srgb, white 44%, var(--line));
+    background: color-mix(in srgb, var(--card) 68%, transparent);
+    box-shadow: 0 18px 44px color-mix(in srgb, var(--ink) 12%, transparent), inset 0 1px 0 color-mix(in srgb, white 58%, transparent);
+    backdrop-filter: blur(24px) saturate(145%);
+}
+
+body[data-ui-style="liquid"] .chip,
+body[data-ui-style="liquid"] .suggestion-chip,
+body[data-ui-style="liquid"] .palette-choice,
+body[data-ui-style="liquid"] .style-choice,
+body[data-ui-style="liquid"] .appearance-toggle,
+body[data-ui-style="liquid"] .item-card-action,
+body[data-ui-style="liquid"] .icon-button,
+body[data-ui-style="liquid"] .theme-toggle {
+    border-color: color-mix(in srgb, white 42%, var(--line));
+    background-color: color-mix(in srgb, var(--card) 66%, transparent);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 62%, transparent), 0 5px 14px color-mix(in srgb, var(--ink) 9%, transparent);
+    backdrop-filter: blur(14px);
+}
+
+body[data-ui-style="liquid"] .prompt-wrap {
+    border: 1px solid color-mix(in srgb, white 28%, var(--line));
+    box-shadow: 0 20px 42px color-mix(in srgb, var(--purple) 22%, transparent), inset 0 1px 0 color-mix(in srgb, white 35%, transparent);
+}
+
+body[data-ui-style="liquid"] .img-container {
+    box-shadow: 0 14px 30px color-mix(in srgb, var(--ink) 14%, transparent);
+}
+
+body[data-ui-style="retro"] {
+    font-family: "DM Mono", "Courier New", monospace;
+    letter-spacing: 0;
+}
+
+body[data-ui-style="retro"]::before {
+    opacity: .13;
+    background-image: repeating-linear-gradient(0deg, transparent 0 3px, color-mix(in srgb, var(--ink) 28%, transparent) 4px);
+    background-size: 100% 4px;
+}
+
+body[data-ui-style="retro"] .hero-title,
+body[data-ui-style="retro"] h2,
+body[data-ui-style="retro"] h3,
+body[data-ui-style="retro"] .section-label,
+body[data-ui-style="retro"] button {
+    font-family: "DM Mono", "Courier New", monospace !important;
+    letter-spacing: 0 !important;
+}
+
+body[data-ui-style="retro"] .hero-title {
+    line-height: 1.08;
+    text-transform: uppercase;
+}
+
+body[data-ui-style="retro"] .surface,
+body[data-ui-style="retro"] .glass,
+body[data-ui-style="retro"] .palette-modal-panel,
+body[data-ui-style="retro"] #favorites-modal section,
+body[data-ui-style="retro"] #item-inspector-modal section,
+body[data-ui-style="retro"] #item-editor-modal section,
+body[data-ui-style="retro"] #auth-modal section,
+body[data-ui-style="retro"] #account-modal section,
+body[data-ui-style="retro"] .prompt-wrap,
+body[data-ui-style="retro"] .drop-zone,
+body[data-ui-style="retro"] .img-container,
+body[data-ui-style="retro"] .chip,
+body[data-ui-style="retro"] .suggestion-chip,
+body[data-ui-style="retro"] .primary-button,
+body[data-ui-style="retro"] .prompt-submit,
+body[data-ui-style="retro"] .palette-choice,
+body[data-ui-style="retro"] .style-choice,
+body[data-ui-style="retro"] .appearance-toggle {
+    border: 2px solid var(--ink);
+    border-radius: 0 !important;
+    box-shadow: 4px 4px 0 var(--ink) !important;
+}
+
+body[data-ui-style="retro"] .filter-box {
+    border: 2px dashed var(--ink);
+    border-radius: 0;
+}
+
+body[data-ui-style="retro"] .item-card:hover,
+body[data-ui-style="retro"] .primary-button:hover,
+body[data-ui-style="retro"] .prompt-submit:hover {
+    transform: translate(-2px, -2px);
+}
+
+body[data-ui-style="brutalist"] {
+    letter-spacing: 0;
+}
+
+body[data-ui-style="brutalist"] .hero-title,
+body[data-ui-style="brutalist"] h2 {
+    text-transform: uppercase;
+    letter-spacing: -.04em !important;
+}
+
+body[data-ui-style="brutalist"] .surface,
+body[data-ui-style="brutalist"] .glass,
+body[data-ui-style="brutalist"] .palette-modal-panel,
+body[data-ui-style="brutalist"] #favorites-modal section,
+body[data-ui-style="brutalist"] #item-inspector-modal section,
+body[data-ui-style="brutalist"] #item-editor-modal section,
+body[data-ui-style="brutalist"] #auth-modal section,
+body[data-ui-style="brutalist"] #account-modal section {
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    box-shadow: 7px 7px 0 var(--ink);
+}
+
+body[data-ui-style="brutalist"] .prompt-wrap,
+body[data-ui-style="brutalist"] .drop-zone,
+body[data-ui-style="brutalist"] .img-container,
+body[data-ui-style="brutalist"] .chip,
+body[data-ui-style="brutalist"] .suggestion-chip,
+body[data-ui-style="brutalist"] .primary-button,
+body[data-ui-style="brutalist"] .prompt-submit,
+body[data-ui-style="brutalist"] .palette-choice,
+body[data-ui-style="brutalist"] .style-choice,
+body[data-ui-style="brutalist"] .appearance-toggle,
+body[data-ui-style="brutalist"] .item-card-action {
+    border: 2px solid var(--ink);
+    border-radius: 8px !important;
+    box-shadow: 4px 4px 0 var(--ink) !important;
+}
+
+body[data-ui-style="brutalist"] .prompt-wrap {
+    box-shadow: 9px 9px 0 var(--orange) !important;
+}
+
+body[data-ui-style="brutalist"] .item-card:hover,
+body[data-ui-style="brutalist"] .primary-button:hover,
+body[data-ui-style="brutalist"] .prompt-submit:hover {
+    transform: translate(-2px, -2px);
+}
+
+body[data-ui-style="editorial"] {
+    font-family: "Manrope", Georgia, serif;
+    letter-spacing: 0;
+}
+
+body[data-ui-style="editorial"] .hero-title,
+body[data-ui-style="editorial"] h2,
+body[data-ui-style="editorial"] #favorites-title,
+body[data-ui-style="editorial"] #item-inspector-title {
+    font-family: Georgia, "Times New Roman", serif !important;
+    font-weight: 500 !important;
+    letter-spacing: -.045em !important;
+}
+
+body[data-ui-style="editorial"] .hero-title {
+    line-height: .98;
+}
+
+body[data-ui-style="editorial"] .topbar {
+    backdrop-filter: none;
+    background: var(--paper);
+}
+
+body[data-ui-style="editorial"] .surface,
+body[data-ui-style="editorial"] .glass,
+body[data-ui-style="editorial"] .palette-modal-panel,
+body[data-ui-style="editorial"] #favorites-modal section,
+body[data-ui-style="editorial"] #item-inspector-modal section,
+body[data-ui-style="editorial"] #item-editor-modal section,
+body[data-ui-style="editorial"] #auth-modal section,
+body[data-ui-style="editorial"] #account-modal section {
+    border-color: color-mix(in srgb, var(--line) 72%, var(--ink));
+    border-radius: 8px;
+    box-shadow: 0 10px 28px color-mix(in srgb, var(--ink) 7%, transparent);
+}
+
+body[data-ui-style="editorial"] .prompt-wrap {
+    border-radius: 8px;
+    box-shadow: 4px 5px 0 var(--mint);
+}
+
+body[data-ui-style="editorial"] .section-label,
+body[data-ui-style="editorial"] .eyebrow {
+    letter-spacing: .16em;
+}
+
+@media (max-width: 480px) {
+    .style-choice-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .style-choice,
+    .palette-choice {
+        transition: none;
+    }
+}

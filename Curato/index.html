@@ -326,6 +326,7 @@
         .account-provider { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--paper) 55%, var(--card)); }
         @media (max-width: 640px) { .hero-title { font-size: 3.6rem; } .prompt-wrap { box-shadow: 6px 8px 0 var(--mint); } .response-copy { font-size: 15px; } }
     </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <nav class="topbar fixed top-0 z-50 w-full">
@@ -352,12 +353,12 @@
 
     <div id="palette-modal" class="fixed inset-0 z-[80] hidden items-center justify-center p-5" role="dialog" aria-modal="true" aria-labelledby="palette-title" aria-describedby="palette-description">
         <div class="absolute inset-0 backdrop-blur-sm" style="background: var(--backdrop)" data-close-palette></div>
-        <section class="palette-modal-panel relative w-full max-w-md rounded-[25px] border p-6 md:p-8">
+        <section class="palette-modal-panel relative max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-[25px] border p-6 md:p-8">
             <div class="mb-6 flex items-start justify-between gap-6">
                 <div>
                     <p class="section-label mb-2">Make it yours</p>
-                    <h2 id="palette-title" class="text-3xl font-bold tracking-[-.06em]">Color palette</h2>
-                    <p id="palette-description" class="mt-2 text-sm text-[var(--muted)]">Choose the colors Curato wears.</p>
+                    <h2 id="palette-title" class="text-3xl font-bold tracking-[-.06em]">Personalize Curato</h2>
+                    <p id="palette-description" class="mt-2 text-sm text-[var(--muted)]">Choose a style, color palette, and appearance.</p>
                 </div>
                 <button type="button" data-close-palette class="text-xl text-[var(--muted)] hover:text-[var(--ink)]" aria-label="Close color palettes"><i class="fa-solid fa-xmark"></i></button>
             </div>
@@ -369,6 +370,54 @@
                     <i class="theme-toggle-icon fa-solid fa-sun" aria-hidden="true"></i>
                 </span>
             </button>
+            <div class="style-section">
+                <div class="mb-3">
+                    <h3 class="style-section-title">Interface style</h3>
+                    <p class="style-section-description">Give Curato a different look and feel.</p>
+                </div>
+                <div class="style-choice-grid" aria-label="Interface styles">
+                    <button type="button" class="style-choice" data-ui-style="curato" aria-pressed="false">
+                        <span class="style-choice-name">Curato Studio</span>
+                        <span class="style-choice-description">The original warm, playful look</span>
+                        <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="style-choice" data-ui-style="flat" aria-pressed="false">
+                        <span class="style-choice-name">Flat</span>
+                        <span class="style-choice-description">Clean shapes, no shadows</span>
+                        <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="style-choice" data-ui-style="frutiger" aria-pressed="false">
+                        <span class="style-choice-name">Frutiger Aero</span>
+                        <span class="style-choice-description">Glossy gradients and fresh glass</span>
+                        <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="style-choice" data-ui-style="liquid" aria-pressed="false">
+                        <span class="style-choice-name">Liquid Glass</span>
+                        <span class="style-choice-description">Translucent, blurred layers</span>
+                        <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="style-choice" data-ui-style="retro" aria-pressed="false">
+                        <span class="style-choice-name">Retro</span>
+                        <span class="style-choice-description">Arcade type and pixel edges</span>
+                        <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="style-choice" data-ui-style="brutalist" aria-pressed="false">
+                        <span class="style-choice-name">Neo-Brutalist</span>
+                        <span class="style-choice-description">Bold borders and punchy shadows</span>
+                        <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="style-choice" data-ui-style="editorial" aria-pressed="false">
+                        <span class="style-choice-name">Editorial</span>
+                        <span class="style-choice-description">Refined type and quiet details</span>
+                        <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="palette-section">
+                <div class="mb-3">
+                    <h3 class="style-section-title">Color palette</h3>
+                    <p class="style-section-description">Choose the colors Curato wears.</p>
+                </div>
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2" aria-label="Color palettes">
                 <button type="button" class="palette-choice" data-color-theme="violet" aria-pressed="false">
                     <span class="font-semibold">Violet</span>
@@ -386,6 +435,7 @@
                     <span class="font-semibold">Lime</span>
                     <span class="flex items-center gap-3"><span class="palette-swatches" aria-hidden="true"><span style="background:#627a2d"></span><span style="background:#b9792b"></span><span style="background:#d5e4a8"></span></span><i class="palette-choice-check fa-solid fa-check" aria-hidden="true"></i></span>
                 </button>
+            </div>
             </div>
         </section>
     </div>
