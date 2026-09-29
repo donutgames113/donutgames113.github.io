@@ -216,17 +216,11 @@ function initializeTheme() {
     document.querySelectorAll('[data-close-palette]').forEach(button => {
         button.addEventListener('click', closePalette);
     });
-    document.querySelectorAll('#palette-modal [data-color-theme]').forEach(option => {
-        option.addEventListener('click', () => {
-            const colorTheme = option.dataset.colorTheme;
-            if (!colorTheme) return;
-            localStorage.setItem('curato-color-theme', colorTheme);
-            applyTheme(document.body.classList.contains('dark-mode') ? 'dark' : 'light', colorTheme);
-        });
-    });
-    document.querySelectorAll('#palette-modal [data-ui-style]').forEach(option => {
-        option.addEventListener('click', () => {
-            const uiStyle = option.dataset.uiStyle;
+    paletteModal?.addEventListener('click', event => {
+        if (!(event.target instanceof Element)) return;
+        const styleOption = event.target.closest('[data-ui-style]');
+        if (styleOption && paletteModal.contains(styleOption)) {
+            const uiStyle = styleOption.getAttribute('data-ui-style');
             if (!uiStyle || !UI_STYLES.has(uiStyle)) return;
             localStorage.setItem('curato-ui-style', uiStyle);
             applyTheme(
@@ -234,7 +228,15 @@ function initializeTheme() {
                 document.body.dataset.colorTheme,
                 uiStyle
             );
-        });
+            return;
+        }
+
+        const colorOption = event.target.closest('[data-color-theme]');
+        if (!colorOption || !paletteModal.contains(colorOption)) return;
+        const colorTheme = colorOption.getAttribute('data-color-theme');
+        if (!colorTheme) return;
+        localStorage.setItem('curato-color-theme', colorTheme);
+        applyTheme(document.body.classList.contains('dark-mode') ? 'dark' : 'light', colorTheme);
     });
     document.addEventListener('keydown', event => {
         if (event.key === 'Escape' && paletteModal && !paletteModal.classList.contains('hidden')) {
