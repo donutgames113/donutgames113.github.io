@@ -460,7 +460,7 @@ function escapeHTML(value) {
 const INSPIRE_WISHLIST_KEY = 'curato-inspire-wishlist';
 const INSPIRE_BRANDS_KEY = 'curato-inspire-brands';
 const INSPIRE_GENDER_KEY = 'curato-inspire-gender';
-const INSPIRE_CACHE_KEY = 'curato-inspire-cache';
+const INSPIRE_CACHE_KEY = 'curato-inspire-cache-v3';
 const INSPIRE_RESULT_LIMIT = 6;
 const INSPIRE_CACHE_TTL_MS = 30 * 60 * 1000;
 const INSPIRE_CATEGORIES = new Set(['Top', 'Bottom', 'Outerwear', 'Shoes', 'Bag', 'Accessory']);
@@ -525,13 +525,25 @@ function persistInspireWishlist(nextWishlist) {
 }
 
 function getInspireImageSrc(item) {
-    if (item?.image && /^https?:\/\//i.test(item.image)) return item.image;
+    if (item?.image && /^https?:\/\//i.test(item.image) && !/example\.com|placeholder|via\.placeholder/i.test(item.image)) {
+        return item.image;
+    }
     return '';
 }
 
 function getInspireFallbackShopUrl(product) {
-    const query = [product.brand, product.name].filter(Boolean).join(' ').trim() || product.name;
+    const query = [product.brand, product.name, product.retailer].filter(Boolean).join(' ').trim() || product.name;
     return `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(query)}`;
+}
+
+function isGenericSearchUrl(url) {
+    if (!url) return true;
+    try {
+        const host = new URL(url).hostname.replace(/^www\./, '');
+        return /google\./i.test(host) || /bing\./i.test(host) || /duckduckgo\./i.test(host);
+    } catch {
+        return true;
+    }
 }
 
 function getInspireProductUrl(product) {
@@ -539,6 +551,10 @@ function getInspireProductUrl(product) {
         return product.url;
     }
     return getInspireFallbackShopUrl(product);
+}
+
+function hashInspireString(value) {
+    return String(value || '').split('').reduce((total, character) => ((total << 5) - total) + character.charCodeAt(0), 0);
 }
 
 function getInspireWardrobePairings(idea) {
@@ -551,12 +567,13 @@ function getInspireWardrobePairings(idea) {
         Accessory: ['top', 'bottom']
     };
     const wanted = compatibleCategories[idea.category] || ['top', 'bottom'];
-    return wardrobeItems
-        .filter(item => {
-            const category = `${item.tags?.subcategory || ''} ${item.tags?.category || ''}`.toLowerCase();
-            return wanted.some(match => category.includes(match));
-        })
-        .slice(0, 2);
+    const matches = wardrobeItems.filter(item => {
+        const category = `${item.tags?.subcategory || ''} ${item.tags?.category || ''}`.toLowerCase();
+        return wanted.some(match => category.includes(match));
+    });
+    if (!matches.length) return [];
+    const start = Math.abs(hashInspireString(idea.id || idea.name)) % matches.length;
+    return [...matches.slice(start), ...matches.slice(0, start)].slice(0, 2);
 }
 
 function getInspireWardrobeBrief() {
@@ -665,67 +682,153 @@ function collectGroundingSources(result) {
 
 function pickBestSourceUrl(product, sources, usedUrls) {
     const direct = product.url && /^https?:\/\//i.test(product.url) ? product.url : '';
-    if (direct && !usedUrls.has(direct)) return direct;
+    if (direct && !usedUrls.has(direct) && !isGenericSearchUrl(direct)) return direct;
 
     const haystack = `${product.brand || ''} ${product.name || ''} ${product.retailer || ''}`.toLowerCase();
+    const terms = haystack.split(/\s+/).filter(term => term.length > 2);
     const ranked = sources
-        .filter(source => !usedUrls.has(source.url))
+        .filter(source => !usedUrls.has(source.url) && !isGenericSearchUrl(source.url))
         .map(source => {
             const title = source.title.toLowerCase();
             const host = (() => {
                 try { return new URL(source.url).hostname.toLowerCase(); } catch { return ''; }
             })();
             let score = 0;
-            haystack.split(/\s+/).filter(Boolean).forEach(term => {
-                if (term.length < 3) return;
-                if (title.includes(term)) score += 2;
-                if (host.includes(term)) score += 1;
+            terms.forEach(term => {
+                if (title.includes(term)) score += 3;
+                if (host.includes(term)) score += 2;
             });
-            if (/shop|buy|product|store|clothing|fashion|zara|asos|nike|adidas|uniqlo|hm\.|next\.|amazon|nordstrom|selfridges|farfetch|ssense|mrporter|net-a-porter|cos\.|arket|mango|reiss|massimo|gap\.|levis|johnlewis|marksandspencer|shein|prettylittlething|boohoo|schuh|office|flannels/.test(host + ' ' + title)) {
-                score += 1;
+            if (product.retailer && host.includes(String(product.retailer).toLowerCase().replace(/\s+/g, ''))) {
+                score += 4;
             }
             return { ...source, score };
         })
+        .filter(source => source.score >= 4)
         .sort((a, b) => b.score - a.score);
 
-    return ranked[0]?.url || direct || '';
+    if (ranked[0]) return ranked[0].url;
+    if (direct && !usedUrls.has(direct)) return direct;
+    return '';
+}
+
+function productIdentityKey(product) {
+    return `${String(product.brand || '').toLowerCase()}|${String(product.name || '').toLowerCase()}`
+        .replace(/[^a-z0-9|]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
 }
 
 function normalizeInspireProducts(rawProducts, sources) {
     const usedUrls = new Set();
+    const usedIdentities = new Set();
+    const usedRetailers = new Map();
     const products = [];
+
     (Array.isArray(rawProducts) ? rawProducts : []).forEach((raw, index) => {
         if (!raw || typeof raw !== 'object') return;
         const name = String(raw.name || '').trim();
         if (!name) return;
         const brand = String(raw.brand || '').trim();
+        const identity = productIdentityKey({ brand, name });
+        if (usedIdentities.has(identity)) return;
+
         const category = normalizeInspireCategory(raw.category);
         const detail = String(raw.detail || raw.why || raw.reason || '').trim()
             || 'A live find that could round out your wardrobe.';
         const price = String(raw.price || '').trim();
-        const image = String(raw.image || raw.imageUrl || '').trim();
-        const url = pickBestSourceUrl({
+        const image = String(raw.image || raw.imageUrl || raw.thumbnail || '').trim();
+        let retailer = String(raw.retailer || raw.store || '').trim();
+        const matchedUrl = pickBestSourceUrl({
             url: String(raw.url || raw.link || '').trim(),
             brand,
             name,
-            retailer: String(raw.retailer || raw.store || '').trim()
+            retailer
         }, sources, usedUrls);
-        if (url) usedUrls.add(url);
-        const retailer = String(raw.retailer || raw.store || '').trim()
-            || (url ? retailerFromUrl(url) : 'Web');
+
+        let url = matchedUrl || getInspireFallbackShopUrl({ brand, name, retailer });
+        if (usedUrls.has(url)) {
+            url = getInspireFallbackShopUrl({ brand, name, retailer: `${retailer} ${index + 1}` });
+        }
+        usedUrls.add(url);
+        usedIdentities.add(identity);
+
+        if (!retailer) retailer = isGenericSearchUrl(url) ? 'Google Shopping' : retailerFromUrl(url);
+        const retailerKey = retailer.toLowerCase();
+        usedRetailers.set(retailerKey, (usedRetailers.get(retailerKey) || 0) + 1);
+
         products.push({
-            id: `inspire-${slugifyInspireId(`${brand}-${name}-${index}`)}`,
+            id: `inspire-${slugifyInspireId(`${brand}-${name}-${index}`)}-${Math.abs(hashInspireString(url)).toString(36)}`,
             name,
             brand,
             category,
             detail,
             price,
             retailer: retailer.charAt(0).toUpperCase() + retailer.slice(1),
-            url: url || getInspireFallbackShopUrl({ brand, name }),
+            url,
             image: /^https?:\/\//i.test(image) ? image : ''
         });
     });
+
     return products.slice(0, INSPIRE_RESULT_LIMIT);
+}
+
+async function fetchOpenversePreview(product) {
+    const query = [product.brand, product.name, product.category, 'fashion product']
+        .filter(Boolean)
+        .join(' ')
+        .trim();
+    if (!query) return '';
+    try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 2500);
+        const response = await fetch(
+            `https://api.openverse.org/v1/images/?q=${encodeURIComponent(query)}&page_size=1&filter_mature=true`,
+            {
+                signal: controller.signal,
+                headers: { Accept: 'application/json' }
+            }
+        );
+        clearTimeout(timer);
+        if (!response.ok) return '';
+        const payload = await response.json();
+        const image = payload?.results?.[0]?.url || payload?.results?.[0]?.thumbnail || '';
+        return /^https?:\/\//i.test(image) ? image : '';
+    } catch (error) {
+        console.warn('Openverse preview skipped:', product.name, error);
+        return '';
+    }
+}
+
+async function enrichInspireProductImages(products) {
+    const enriched = await Promise.all(products.map(async product => {
+        if (getInspireImageSrc(product)) return product;
+
+        if (!isGenericSearchUrl(product.url)) {
+            try {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), 2800);
+                const response = await fetch(
+                    `https://api.microlink.io/?url=${encodeURIComponent(product.url)}&meta=false&palette=false`,
+                    { signal: controller.signal }
+                );
+                clearTimeout(timer);
+                if (response.ok) {
+                    const payload = await response.json();
+                    const image = payload?.data?.image?.url || '';
+                    if (image && /^https?:\/\//i.test(image)) {
+                        return { ...product, image, imageKind: 'product' };
+                    }
+                }
+            } catch (error) {
+                console.warn('Inspire image enrichment skipped:', product.name, error);
+            }
+        }
+
+        const preview = await fetchOpenversePreview(product);
+        if (preview) return { ...product, image: preview, imageKind: 'preview' };
+        return product;
+    }));
+    return enriched;
 }
 
 async function getInspireApiCredentials() {
@@ -736,7 +839,6 @@ async function getInspireApiCredentials() {
     const preferredModel = modelSelect?.value
         || session?.user?.user_metadata?.preferred_model
         || 'gemini-2.0-flash';
-    // Prefer a cheap flash model for Inspire; fall back to the user's choice.
     const inspireModel = /flash/i.test(preferredModel) ? preferredModel : 'gemini-2.0-flash';
     return { activeKey, inspireModel };
 }
@@ -752,8 +854,8 @@ async function callGeminiInspireSearch(promptText) {
         contents: [{ parts: [{ text: promptText }] }],
         tools: [{ google_search: {} }],
         generationConfig: {
-            temperature: 0.4,
-            maxOutputTokens: 1400
+            temperature: 0.95,
+            maxOutputTokens: 1800
         }
     };
 
@@ -786,7 +888,7 @@ async function callGeminiInspireSearch(promptText) {
     const rawProducts = Array.isArray(parsed)
         ? parsed
         : (parsed.products || parsed.items || parsed.results || []);
-    const products = normalizeInspireProducts(rawProducts, sources);
+    let products = normalizeInspireProducts(rawProducts, sources);
     if (!products.length) {
         throw new Error('No buyable listings came back. Try another search or category.');
     }
@@ -847,14 +949,18 @@ function renderInspireSearchSuggestions() {
 
 function renderInspireProductMedia(product) {
     const imageSrc = getInspireImageSrc(product);
+    const isPreview = product.imageKind === 'preview';
     const fallback = `<div class="inspire-image-fallback${imageSrc ? ' hidden' : ''}" aria-hidden="true">
             <span>${escapeHTML((product.brand || product.retailer || 'CURATO').slice(0, 18))}</span>
             <strong>${escapeHTML(product.category)}</strong>
         </div>`;
     const image = imageSrc
-        ? `<img src="${escapeHTML(imageSrc)}" alt="${escapeHTML(product.name)}" loading="lazy" referrerpolicy="no-referrer" data-inspire-image-src>${fallback}`
+        ? `<img src="${escapeHTML(imageSrc)}" alt="${escapeHTML(product.name)}" loading="lazy" referrerpolicy="no-referrer" crossorigin="anonymous" data-inspire-image-src>${fallback}`
         : fallback;
-    return `${image}<span class="inspire-image-label">${escapeHTML(product.category)}${product.price ? ` · ${escapeHTML(product.price)}` : ''}</span>`;
+    const labelBits = [product.category];
+    if (product.price) labelBits.push(product.price);
+    if (isPreview) labelBits.push('Preview');
+    return `${image}<span class="inspire-image-label">${escapeHTML(labelBits.join(' · '))}</span>`;
 }
 
 function renderInspireIdeas() {
@@ -976,32 +1082,41 @@ async function fetchInspireProducts({ force = false } = {}) {
         : `Only return products in the ${categoryFilter} category.`;
 
     const promptText = `You are Curato Inspire, a shopping scout.
-Use Google Search to find ${INSPIRE_RESULT_LIMIT} REAL clothing/fashion products that are currently listed for sale online.
+Use Google Search to find ${INSPIRE_RESULT_LIMIT} DIFFERENT real clothing/fashion products currently for sale.
 ${genderLine}
 User request: ${focus}
 ${categoryLine}
 ${brandLine}
 ${getInspireWardrobeBrief()}
 
-Rules:
-- Return ONLY JSON: {"products":[{"name":"","brand":"","category":"Top|Bottom|Outerwear|Shoes|Bag|Accessory","detail":"one short sentence on why it fits","price":"like £45 or empty","retailer":"shop name","url":"https direct product page if possible","image":"https product image if available or empty"}]}
-- Exactly ${INSPIRE_RESULT_LIMIT} products max.
-- Prefer direct product page URLs from real retailers over search pages or blogs.
-- Spread across different retailers when possible.
-- No invented products. If unsure of a URL, still include the best real listing URL from search.
-- Keep detail under 120 characters. No markdown.`;
+Hard rules:
+- Return ONLY JSON: {"products":[{"name":"exact product title","brand":"","category":"Top|Bottom|Outerwear|Shoes|Bag|Accessory","detail":"one short sentence","price":"£.. or empty","retailer":"shop name","url":"https://direct-product-page","image":"https://cdn-or-product-image.jpg"}]}
+- Exactly ${INSPIRE_RESULT_LIMIT} products.
+- EVERY product must be a different item. Never repeat the same product, colourway, or near-duplicate.
+- Use ${INSPIRE_RESULT_LIMIT} different retailers when possible. Never use the same retailer more than twice.
+- url MUST be a direct product page on a retailer site (not a Google/Bing search results page, not a homepage, not a blog).
+- image MUST be a direct https image URL for that product from the listing/CDN when search results show one. Prefer product photos ending in .jpg/.jpeg/.png/.webp.
+- If an image URL is unknown, set image to "".
+- No invented products. Keep detail under 110 characters. No markdown.`;
 
     setInspireStatus('Searching retailers for live listings…');
     setInspireLoading(true);
+    inspireProducts = [];
+    inspireSearchSuggestionsHtml = '';
     renderInspireIdeas();
 
     try {
         const { products, suggestionsHtml } = await callGeminiInspireSearch(promptText);
         inspireProducts = products;
         inspireSearchSuggestionsHtml = suggestionsHtml;
+        setInspireStatus('Fetching product photos…');
+        renderInspireIdeas();
+        const withPhotos = await enrichInspireProductImages(products);
+        inspireProducts = withPhotos;
         inspireCacheKey = fingerprint;
-        writeInspireCache(fingerprint, products, suggestionsHtml);
-        setInspireStatus(`Found ${products.length} live listing${products.length === 1 ? '' : 's'} across the web.`);
+        writeInspireCache(fingerprint, withPhotos, suggestionsHtml);
+        const photoCount = withPhotos.filter(product => getInspireImageSrc(product)).length;
+        setInspireStatus(`Found ${withPhotos.length} listings · ${photoCount} with photos.`);
     } catch (error) {
         console.error('Inspire search failed:', error);
         setInspireStatus(error.message || 'Inspire search failed.', true);
