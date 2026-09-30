@@ -501,8 +501,13 @@ function isSafeProductUrl(value) {
     try {
         const url = new URL(value);
         const address = `${url.hostname}${url.pathname}`.toLowerCase();
+        const query = url.search.toLowerCase();
+        const finalSegment = url.pathname.split('/').filter(Boolean).at(-1)?.toLowerCase() || '';
         return url.protocol === 'https:'
             && url.pathname.length > 1
+            && finalSegment.length > 2
+            && !/^(men|women|kids|sale|new-in|clothing|accessories|shoes|bags|home)$/i.test(finalSegment)
+            && !/(^|[?&])(utm_[^=]*|gclid|fbclid|affiliate|ref)=/i.test(query)
             && !/google\.com\/search|googleadservices\.com|\/search(?:\/|$)|\/collections?(?:\/|$)|\/categories?(?:\/|$)|\/products?\?(?!.*(?:sku|id|product))/i.test(address);
     } catch (_) {
         return false;
@@ -527,14 +532,15 @@ function normaliseInspireProducts(products, context, groundedUrls = null) {
         // not discard a safe direct product URL merely because its path was canonicalised.
         if (groundedUrls?.exact?.size && !groundedUrls.exact.has(normalizedUrl)
             && groundedUrls.origins.size && !groundedUrls.origins.has(new URL(url).origin.toLowerCase())) return null;
-        const id = `live-${btoa(unescape(encodeURIComponent(`${name}|${url}`))).replace(/[^a-z0-9]/gi, '').slice(0, 32)}`;
-        if (seen.has(url)) return null;
-        seen.add(url);
+        const productUrl = groundedUrls?.byCanonical?.get(normalizedUrl) || url;
+        const id = `live-${btoa(unescape(encodeURIComponent(`${name}|${productUrl}`))).replace(/[^a-z0-9]/gi, '').slice(0, 32)}`;
+        if (seen.has(productUrl)) return null;
+        seen.add(productUrl);
         return {
             id,
             name: name.slice(0, 120),
-            retailer: String(product.retailer || product.store || product.brand || new URL(url).hostname.replace(/^www\./, '')).slice(0, 60),
-            url,
+            retailer: String(product.retailer || product.store || product.brand || new URL(productUrl).hostname.replace(/^www\./, '')).slice(0, 60),
+            url: productUrl,
             price: String(product.price || '').slice(0, 40),
             category: ['Top', 'Bottom', 'Outerwear', 'Shoes', 'Bag', 'Accessory'].includes(product.category) ? product.category : (context.category === 'All' ? 'Style find' : context.category),
             detail: String(product.reason || 'A live product match for your brief.').slice(0, 220),
@@ -599,7 +605,8 @@ Use Google Search to verify each item. Return only a JSON object with a "product
     const groundedSourceUrls = groundedSources.map(source => new URL(source.url));
     const groundedUrls = {
         exact: new Set(groundedSourceUrls.map(url => normaliseProductUrl(url))),
-        origins: new Set(groundedSourceUrls.map(url => url.origin.toLowerCase()))
+        origins: new Set(groundedSourceUrls.map(url => url.origin.toLowerCase())),
+        byCanonical: new Map(groundedSources.map(source => [normaliseProductUrl(source.url), source.url]))
     };
     const text = result.candidates?.[0]?.content?.parts?.map(part => part.text || '').join('') || '';
     const cleaned = text.replace(/```json|```/g, '').trim();

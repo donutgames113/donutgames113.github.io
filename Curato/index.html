@@ -211,6 +211,11 @@
         .field { color: var(--ink); border-bottom: 1px solid var(--line); background: transparent; }
         .field::placeholder { color: var(--muted); opacity: .9; }
         .field:focus { border-color: var(--purple) !important; outline: none; }
+        .inspire-select { min-height: 48px; appearance: none; -webkit-appearance: none; padding: 0 44px 0 15px !important; border: 1px solid var(--line) !important; border-radius: 14px; background-color: color-mix(in srgb, var(--paper) 52%, var(--card)) !important; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23756d89' stroke-width='1.8'%3E%3Cpath d='m5 7.5 5 5 5-5'/%3E%3C/svg%3E") !important; background-position: right 15px center !important; background-repeat: no-repeat !important; background-size: 17px !important; box-shadow: inset 0 1px 0 color-mix(in srgb, white 20%, transparent); cursor: pointer; transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease; }
+        .inspire-select:hover { border-color: color-mix(in srgb, var(--purple) 58%, var(--line)) !important; background-color: color-mix(in srgb, var(--purple) 7%, var(--card)) !important; }
+        .inspire-select:focus { border-color: var(--purple) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--purple) 18%, transparent); }
+        .inspire-select option { color: var(--ink); background: var(--card); font: 500 14px "Manrope", sans-serif; }
+        body.dark-mode .inspire-select { color-scheme: dark; }
         .filter-box { background: color-mix(in srgb, var(--line) 48%, var(--paper)); border-radius: 15px; padding: 5px; }
         .filter-box .chip { border-color: transparent; background: transparent; }
         .filter-box .chip.active { background: var(--card); box-shadow: 0 2px 8px rgba(32,27,53,.08); }
@@ -473,7 +478,7 @@
                     </label>
                     <label class="md:col-span-3">
                         <span class="sr-only">Filter by item type</span>
-                        <select id="inspire-category" class="field w-full py-3 text-sm">
+                        <select id="inspire-category" class="field inspire-select w-full text-sm">
                             <option value="All">All item types</option>
                             <option value="Top">Tops</option>
                             <option value="Bottom">Bottoms</option>
@@ -485,7 +490,7 @@
                     </label>
                     <label class="md:col-span-4">
                         <span class="sr-only">Number of products to find</span>
-                        <select id="inspire-result-limit" class="field w-full py-3 text-sm">
+                        <select id="inspire-result-limit" class="field inspire-select w-full text-sm">
                             <option value="6">Find 6 products</option>
                             <option value="9">Find 9 products</option>
                             <option value="12">Find 12 products</option>
