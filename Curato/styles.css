@@ -636,3 +636,267 @@ body[data-ui-style="editorial"] .eyebrow {
         transition: none;
     }
 }
+
+.inspire-tabs {
+    width: fit-content;
+    padding: 5px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--card) 78%, transparent);
+}
+
+.inspire-tab {
+    min-height: 42px;
+    padding: 0 18px;
+    border-radius: 999px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+    transition: color .2s ease, background .2s ease;
+}
+
+.inspire-tab:hover,
+.inspire-tab[aria-selected="true"] {
+    color: var(--ink);
+    background: color-mix(in srgb, var(--purple) 13%, var(--card));
+}
+
+.inspire-tab[aria-selected="true"] {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--purple) 28%, transparent);
+}
+
+.inspire-tab:focus-visible,
+.inspire-card button:focus-visible,
+.inspire-wishlist-card button:focus-visible {
+    outline: 3px solid var(--yellow);
+    outline-offset: 3px;
+}
+
+.inspire-segmented-control {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    min-height: 48px;
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--paper) 55%, var(--card));
+}
+
+.inspire-segmented-control button {
+    min-width: 0;
+    border-radius: 10px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    transition: background .2s ease, color .2s ease, box-shadow .2s ease;
+}
+
+.inspire-segmented-control button:hover,
+.inspire-segmented-control button.is-active {
+    color: var(--ink);
+    background: var(--card);
+}
+
+.inspire-segmented-control button.is-active {
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
+.inspire-segmented-control button:focus-visible {
+    outline: 3px solid var(--yellow);
+    outline-offset: 2px;
+}
+
+.inspire-count {
+    display: inline-grid;
+    min-width: 24px;
+    height: 24px;
+    place-items: center;
+    padding: 0 6px;
+    border-radius: 999px;
+    color: var(--ink);
+    background: color-mix(in srgb, var(--card) 62%, transparent);
+    font: 500 11px/1 "DM Mono", monospace;
+}
+
+.inspire-card,
+.inspire-wishlist-card {
+    overflow: hidden;
+    border-radius: 22px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    box-shadow: 0 14px 45px var(--shadow);
+}
+
+.inspire-image {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4 / 4.7;
+    background: color-mix(in srgb, var(--purple) 11%, var(--paper));
+}
+
+.inspire-image img,
+.inspire-wishlist-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.inspire-image img {
+    transition: transform .45s ease;
+}
+
+.inspire-card:hover .inspire-image img {
+    transform: scale(1.035);
+}
+
+.inspire-image-label {
+    position: absolute;
+    left: 14px;
+    bottom: 14px;
+    padding: 7px 10px;
+    border: 1px solid color-mix(in srgb, white 50%, transparent);
+    border-radius: 999px;
+    color: var(--ink);
+    background: color-mix(in srgb, var(--card) 86%, transparent);
+    backdrop-filter: blur(12px);
+    font: 500 9px/1 "DM Mono", monospace;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.inspire-card-body {
+    padding: 19px;
+}
+
+.inspire-live-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.inspire-live-source {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 76px;
+    padding: 18px 19px;
+    color: var(--ink);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--purple) 18%, var(--card)), color-mix(in srgb, var(--yellow) 26%, var(--card)));
+    font: 600 10px/1.2 "DM Mono", monospace;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+}
+
+.inspire-live-source span:last-child {
+    margin-left: auto;
+    max-width: 42%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--muted);
+}
+
+.inspire-pairing {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    margin-top: 14px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    color: var(--muted);
+    background: color-mix(in srgb, var(--paper) 55%, var(--card));
+    font-size: 10px;
+}
+
+.inspire-pairing img {
+    width: 30px;
+    height: 36px;
+    flex: 0 0 30px;
+    border-radius: 7px;
+    object-fit: cover;
+}
+
+.inspire-actions {
+    display: flex;
+    gap: 9px;
+    margin-top: 15px;
+}
+
+.inspire-shop-link,
+.inspire-save-button,
+.inspire-remove-button {
+    display: inline-flex;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 0 13px;
+    font-size: 10px;
+    font-weight: 700;
+    transition: border-color .2s ease, background .2s ease, color .2s ease;
+}
+
+.inspire-shop-link {
+    flex: 1;
+    border-color: var(--orange);
+    color: var(--ink);
+    background: var(--orange);
+}
+
+.inspire-shop-link:hover {
+    background: var(--orange-hover);
+}
+
+.inspire-save-button:hover,
+.inspire-save-button[aria-pressed="true"],
+.inspire-remove-button:hover {
+    border-color: var(--purple);
+    color: var(--purple);
+    background: color-mix(in srgb, var(--purple) 8%, var(--card));
+}
+
+.inspire-wishlist-card {
+    display: grid;
+    grid-template-columns: 86px minmax(0, 1fr);
+    box-shadow: none;
+}
+
+.inspire-wishlist-image {
+    min-height: 128px;
+}
+
+.inspire-wishlist-content {
+    min-width: 0;
+    padding: 13px;
+}
+
+@media (max-width: 480px) {
+    .inspire-tabs {
+        width: 100%;
+    }
+
+    .inspire-tab {
+        flex: 1;
+    }
+
+    .inspire-card-body {
+        padding: 15px;
+    }
+
+    .inspire-actions {
+        flex-wrap: wrap;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inspire-tab,
+    .inspire-image img,
+    .inspire-shop-link,
+    .inspire-save-button,
+    .inspire-remove-button {
+        transition: none;
+    }
+}
