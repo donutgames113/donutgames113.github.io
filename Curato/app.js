@@ -471,6 +471,7 @@ const inspireIdeas = [
 
 let inspireProducts = [];
 let inspireStyle = 'all';
+let inspireSearchError = '';
 
 function getInspireSearchContext() {
     const search = document.getElementById('inspire-search')?.value.trim() || '';
@@ -517,8 +518,8 @@ function normaliseInspireProducts(products, context, groundedUrls = null) {
     if (!Array.isArray(products)) return [];
     const seen = new Set();
     return products.map((product, index) => {
-        const name = String(product?.name || '').trim();
-        const url = String(product?.url || '').trim();
+        const name = String(product?.name || product?.title || product?.productName || '').trim();
+        const url = String(product?.url || product?.link || product?.productUrl || product?.product_url || '').trim();
         if (!name || !isSafeProductUrl(url)) return null;
         const normalizedUrl = normaliseProductUrl(url);
         // Google can cite a redirected, canonical, or collection URL while the model
@@ -532,7 +533,7 @@ function normaliseInspireProducts(products, context, groundedUrls = null) {
         return {
             id,
             name: name.slice(0, 120),
-            retailer: String(product.retailer || new URL(url).hostname.replace(/^www\./, '')).slice(0, 60),
+            retailer: String(product.retailer || product.store || product.brand || new URL(url).hostname.replace(/^www\./, '')).slice(0, 60),
             url,
             price: String(product.price || '').slice(0, 40),
             category: ['Top', 'Bottom', 'Outerwear', 'Shoes', 'Bag', 'Accessory'].includes(product.category) ? product.category : (context.category === 'All' ? 'Style find' : context.category),
@@ -604,7 +605,13 @@ Use Google Search to verify each item. Return only a JSON object with a "product
     const cleaned = text.replace(/```json|```/g, '').trim();
     let parsedProducts = [];
     try {
-        parsedProducts = JSON.parse(cleaned.slice(cleaned.indexOf('{'), cleaned.lastIndexOf('}') + 1)).products || [];
+        const jsonStart = Math.min(...['{', '['].map(character => {
+            const index = cleaned.indexOf(character);
+            return index < 0 ? Number.MAX_SAFE_INTEGER : index;
+        }));
+        const jsonEnd = cleaned.lastIndexOf(cleaned[jsonStart] === '[' ? ']' : '}');
+        const parsed = JSON.parse(cleaned.slice(jsonStart, jsonEnd + 1));
+        parsedProducts = Array.isArray(parsed) ? parsed : parsed.products || [];
     } catch (error) {
         console.warn('Inspire returned an unstructured response; using cited retailer pages instead.', error);
     }
@@ -675,7 +682,9 @@ function renderInspireIdeas() {
 
     if (!inspireProducts.length) {
         if (resultCount) resultCount.textContent = 'Ready to search live retailers';
-        grid.innerHTML = `<div class="surface col-span-full rounded-[20px] p-8 text-center text-sm text-[var(--muted)]"><i class="fa-solid fa-bag-shopping mb-3 block text-xl text-[var(--purple)]" aria-hidden="true"></i>Describe a piece you want, choose how many results you need, then select <strong class="text-[var(--ink)]">Find real products</strong>. Curato will return direct retailer pages only.</div>`;
+        grid.innerHTML = inspireSearchError
+            ? `<div class="surface col-span-full rounded-[20px] p-8 text-center text-sm text-[var(--muted)]"><i class="fa-solid fa-circle-exclamation mb-3 block text-xl text-[var(--orange)]" aria-hidden="true"></i><strong class="mb-2 block text-[var(--ink)]">The live search could not return product pages.</strong>${escapeHTML(inspireSearchError)} Check that a Gemini key is saved in Account, then try a specific item such as “black leather loafers”.</div>`
+            : `<div class="surface col-span-full rounded-[20px] p-8 text-center text-sm text-[var(--muted)]"><i class="fa-solid fa-bag-shopping mb-3 block text-xl text-[var(--purple)]" aria-hidden="true"></i>Describe a piece you want, choose how many results you need, then select <strong class="text-[var(--ink)]">Find real products</strong>. Curato will return direct retailer pages only.</div>`;
         return;
     }
 
@@ -1511,6 +1520,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('refresh-inspire')?.addEventListener('click', async event => {
         const button = event.currentTarget;
         const context = getInspireSearchContext();
+        inspireSearchError = '';
         const cached = readInspireCache(context);
         if (cached.length) {
             inspireProducts = cached;
@@ -1521,6 +1531,8 @@ document.addEventListener('DOMContentLoaded', () => {
         button.disabled = true;
         button.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>Finding products';
         setInspireStatus(`Searching broadly for ${context.limit} direct product pages…`);
+        const grid = document.getElementById('inspire-grid');
+        if (grid) grid.innerHTML = '<div class="surface col-span-full rounded-[20px] p-8 text-center text-sm text-[var(--muted)]"><i class="fa-solid fa-spinner fa-spin mb-3 block text-xl text-[var(--purple)]" aria-hidden="true"></i>Searching live retailers for direct product pages…</div>';
         try {
             const products = await fetchInspireProducts(context);
             inspireProducts = products;
@@ -1529,7 +1541,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Inspire product search failed:', error);
             inspireProducts = [];
-            setInspireStatus(error.message || 'Could not find live products right now. Try again shortly.');
+            inspireSearchError = error.message || 'Could not find live products right now. Try again shortly.';
+            setInspireStatus(inspireSearchError);
         } finally {
             button.disabled = false;
             button.innerHTML = '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>Find real products';
