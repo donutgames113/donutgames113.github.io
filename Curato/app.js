@@ -71,7 +71,6 @@ let favoriteOutfits = [];
 let consultationItems = [];
 let wardrobeItems = [];
 let inspireWishlist = [];
-let inspireOffset = 0;
 let selectedWardrobeItems = new Set();
 let wardrobeSelectionMode = false;
 let nextItemReference = 1;
@@ -455,26 +454,147 @@ function escapeHTML(value) {
 
 const INSPIRE_WISHLIST_KEY = 'curato-inspire-wishlist';
 const INSPIRE_BRANDS_KEY = 'curato-inspire-brands';
-const INSPIRE_PRESENTATION_KEY = 'curato-inspire-presentation';
-const INSPIRE_LIVE_CACHE_KEY = 'curato-inspire-live-cache';
-const INSPIRE_LIVE_CACHE_MS = 30 * 60 * 1000;
-let inspirePresentation = 'feminine';
-let liveInspireProducts = [];
+const INSPIRE_STYLE_KEY = 'curato-inspire-style';
+const INSPIRE_CACHE_KEY = 'curato-inspire-product-cache-v2';
+const INSPIRE_CACHE_TTL = 20 * 60 * 1000;
 
 const inspireIdeas = [
-    { id: 'poplin-shirt', name: 'Relaxed cotton poplin shirt', category: 'Top', detail: 'A crisp, easy layer for everyday rotation.', keywords: 'white cotton shirt crisp spring layering', image: 'photo-1596755094514-f87e34085b2c' },
-    { id: 'wide-leg-jeans', name: 'Wide-leg denim', category: 'Bottom', detail: 'A new silhouette that works with your familiar favourites.', keywords: 'denim jeans blue relaxed wide leg', image: 'photo-1542272604-787c3835535d' },
-    { id: 'lightweight-jacket', name: 'Lightweight utility jacket', category: 'Outerwear', detail: 'A practical top layer for changeable days.', keywords: 'jacket utility lightweight olive spring coat layer', image: 'photo-1591047139829-d91aecb6caea' },
-    { id: 'everyday-trainers', name: 'Minimal everyday trainers', category: 'Shoes', detail: 'A clean finishing touch for relaxed looks.', keywords: 'trainers sneakers shoes white everyday casual', image: 'photo-1542291026-7eec264c27ff' },
-    { id: 'leather-loafers', name: 'Polished leather loafers', category: 'Shoes', detail: 'An understated way to dress up your daily uniform.', keywords: 'loafers leather shoes black smart', image: 'photo-1543163521-1bf539c55dd2' },
-    { id: 'shoulder-bag', name: 'Soft shoulder bag', category: 'Bag', detail: 'A useful shape with room for the everyday essentials.', keywords: 'bag shoulder handbag brown leather accessory', image: 'photo-1584917865442-de89df76afd3' },
-    { id: 'fine-knit', name: 'Fine-knit crew neck', category: 'Top', detail: 'An easy mid-layer that slips into your existing outfits.', keywords: 'knit sweater jumper crew neck soft layer', image: 'photo-1620799140408-edc6dcb6d633' },
-    { id: 'linen-trousers', name: 'Relaxed linen trousers', category: 'Bottom', detail: 'A breathable option for warmer days and laid-back plans.', keywords: 'linen trousers pants relaxed summer beige', image: 'photo-1506629905607-d9aa6b4e66df' },
-    { id: 'structured-blazer', name: 'Soft-shoulder blazer', category: 'Outerwear', detail: 'A versatile layer to bring a little structure to a look.', keywords: 'blazer jacket tailored navy smart layer', image: 'photo-1591047139829-d91aecb6caea' },
-    { id: 'leather-belt', name: 'Everyday leather belt', category: 'Accessory', detail: 'A small finishing detail that earns its place.', keywords: 'belt leather accessory brown black', image: 'photo-1624222247344-550fb8f9a72b' },
-    { id: 'silver-watch', name: 'Clean-lined silver watch', category: 'Accessory', detail: 'A considered everyday accessory, kept simple.', keywords: 'watch silver minimal accessory wrist', image: 'photo-1523275335684-37898b6baf30' },
-    { id: 'canvas-tote', name: 'Structured canvas tote', category: 'Bag', detail: 'A roomy everyday carryall with a relaxed feel.', keywords: 'tote bag canvas everyday carryall', image: 'photo-1590874103328-eac38a683ce7' }
+    { id: 'poplin-shirt', name: 'Relaxed cotton poplin shirt', category: 'Top', detail: 'A crisp, easy layer for everyday rotation.', keywords: 'cotton shirt crisp spring layering', image: 'photo-1596755094514-f87e34085b2c' },
+    { id: 'wide-leg-jeans', name: 'Relaxed denim', category: 'Bottom', detail: 'An easy silhouette that works with familiar favourites.', keywords: 'denim jeans relaxed wide leg', image: 'photo-1542272604-787c3835535d' },
+    { id: 'lightweight-jacket', name: 'Lightweight utility jacket', category: 'Outerwear', detail: 'A practical top layer for changeable days.', keywords: 'jacket utility lightweight spring coat', image: 'photo-1591047139829-d91aecb6caea' },
+    { id: 'everyday-trainers', name: 'Minimal everyday trainers', category: 'Shoes', detail: 'A clean finishing touch for relaxed looks.', keywords: 'trainers sneakers shoes everyday casual', image: 'photo-1542291026-7eec264c27ff' },
+    { id: 'leather-loafers', name: 'Polished leather loafers', category: 'Shoes', detail: 'An understated way to dress up a daily uniform.', keywords: 'loafers leather shoes smart', image: 'photo-1543163521-1bf539c55dd2' },
+    { id: 'fine-knit', name: 'Fine-knit crew neck', category: 'Top', detail: 'An easy mid-layer for cooler days.', keywords: 'knit sweater jumper crew neck layer', image: 'photo-1620799140408-edc6dcb6d633' },
+    { id: 'linen-trousers', name: 'Relaxed linen trousers', category: 'Bottom', detail: 'A breathable option for warmer days.', keywords: 'linen trousers pants relaxed summer', image: 'photo-1506629905607-d9aa6b4e66df' },
+    { id: 'structured-blazer', name: 'Soft-shoulder blazer', category: 'Outerwear', detail: 'A versatile layer with a little structure.', keywords: 'blazer jacket tailored smart layer', image: 'photo-1591047139829-d91aecb6caea' }
 ];
+
+let inspireProducts = [];
+let inspireStyle = 'all';
+
+function getInspireSearchContext() {
+    const search = document.getElementById('inspire-search')?.value.trim() || '';
+    const category = document.getElementById('inspire-category')?.value || 'All';
+    const limit = Number(document.getElementById('inspire-result-limit')?.value || 6);
+    const brands = document.getElementById('inspire-brands')?.value.trim() || '';
+    return { search, category, limit: [6, 9, 12].includes(limit) ? limit : 6, brands, style: inspireStyle };
+}
+
+function getInspireCacheKey(context) {
+    return JSON.stringify({ ...context, search: context.search.toLowerCase(), brands: context.brands.toLowerCase() });
+}
+
+function getInspireFallbackUrl(productName, context) {
+    const styleTerm = context.style === 'all' ? '' : `${context.style} `;
+    const query = [context.brands, styleTerm, productName, context.search].filter(Boolean).join(' ');
+    return `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(query)}`;
+}
+
+function getInspireReferenceImage(idea) {
+    if (idea?.image && !/^https?:/i.test(idea.image)) return idea.image;
+    const category = idea?.category || '';
+    return inspireIdeas.find(item => item.category === category)?.image || inspireIdeas[0].image;
+}
+
+function isSafeProductUrl(value) {
+    try {
+        const url = new URL(value);
+        return url.protocol === 'https:' && !/google\.com\/search|googleadservices\.com/i.test(url.hostname + url.pathname);
+    } catch (_) {
+        return false;
+    }
+}
+
+function normaliseProductUrl(value) {
+    const url = new URL(value);
+    return `${url.origin}${url.pathname}`.replace(/\/$/, '').toLowerCase();
+}
+
+function normaliseInspireProducts(products, context, groundedUrls = null) {
+    if (!Array.isArray(products)) return [];
+    const seen = new Set();
+    return products.map((product, index) => {
+        const name = String(product?.name || '').trim();
+        const url = String(product?.url || '').trim();
+        if (!name || !isSafeProductUrl(url)) return null;
+        const normalizedUrl = normaliseProductUrl(url);
+        if (groundedUrls && !groundedUrls.has(normalizedUrl)) return null;
+        const id = `live-${btoa(unescape(encodeURIComponent(`${name}|${url}`))).replace(/[^a-z0-9]/gi, '').slice(0, 32)}`;
+        if (seen.has(url)) return null;
+        seen.add(url);
+        return {
+            id,
+            name: name.slice(0, 120),
+            retailer: String(product.retailer || new URL(url).hostname.replace(/^www\./, '')).slice(0, 60),
+            url,
+            price: String(product.price || '').slice(0, 40),
+            category: ['Top', 'Bottom', 'Outerwear', 'Shoes', 'Bag', 'Accessory'].includes(product.category) ? product.category : (context.category === 'All' ? 'Style find' : context.category),
+            detail: String(product.reason || 'A live product match for your brief.').slice(0, 220),
+            keywords: `${name} ${context.search}`,
+            image: String(product.image || ''),
+            live: true,
+            sourceIndex: index
+        };
+    }).filter(Boolean).slice(0, context.limit);
+}
+
+function readInspireCache(context) {
+    try {
+        const cached = JSON.parse(localStorage.getItem(INSPIRE_CACHE_KEY) || 'null');
+        if (!cached || cached.key !== getInspireCacheKey(context) || Date.now() - cached.savedAt > INSPIRE_CACHE_TTL) return [];
+        return normaliseInspireProducts(cached.products, context);
+    } catch (_) {
+        return [];
+    }
+}
+
+function saveInspireCache(context, products) {
+    try {
+        localStorage.setItem(INSPIRE_CACHE_KEY, JSON.stringify({ key: getInspireCacheKey(context), savedAt: Date.now(), products }));
+    } catch (error) {
+        console.warn('Unable to cache Inspire products:', error);
+    }
+}
+
+function setInspireStatus(message) {
+    const status = document.getElementById('inspire-search-status');
+    if (status) status.textContent = message;
+}
+
+async function fetchInspireProducts(context) {
+    const keyInput = document.getElementById('user-api-key');
+    const modelSelect = document.getElementById('model-select');
+    const { data: { session } } = await supabase.auth.getSession();
+    const activeKey = keyInput?.value.trim() || session?.user?.user_metadata?.gemini_api_key;
+    const activeModel = modelSelect?.value || session?.user?.user_metadata?.preferred_model || 'gemini-2.0-flash';
+    if (!activeKey) throw new Error('Add a Gemini API key in your account settings to search live products.');
+
+    const styleInstruction = context.style === 'all' ? 'any gender expression' : `${context.style} styling`;
+    const prompt = `Find exactly ${context.limit} currently purchasable fashion products for this brief: "${context.search || 'versatile wardrobe additions'}". Item type: ${context.category}. Style direction: ${styleInstruction}. ${context.brands ? `Prioritise these brands when they have suitable products, but still search broadly: ${context.brands}.` : 'Search across a broad mix of relevant retailers; do not concentrate on one store.'}
+
+Use Google Search to verify each item. Return only a JSON object with a "products" array. Each product must have: name, retailer, url (the retailer's direct product page, never a category/search/affiliate/tracking URL), price (only if visible), category (Top, Bottom, Outerwear, Shoes, Bag, or Accessory), reason (one short sentence), and image (a direct image URL only if confidently available; otherwise an empty string). Exclude unavailable products, marketplace listings, search pages, and any URL you did not verify. Do not invent URLs. Keep the answer concise.`;
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${activeModel}:generateContent?key=${activeKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            tools: [{ google_search: {} }],
+            generationConfig: { temperature: 0.1, maxOutputTokens: 2800, responseMimeType: 'application/json' }
+        })
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error?.message || 'Live product search failed.');
+    const text = result.candidates?.[0]?.content?.parts?.map(part => part.text || '').join('') || '';
+    const cleaned = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(cleaned.slice(cleaned.indexOf('{'), cleaned.lastIndexOf('}') + 1));
+    const groundedUrls = new Set((result.candidates?.[0]?.groundingMetadata?.groundingChunks || [])
+        .map(chunk => chunk.web?.uri)
+        .filter(isSafeProductUrl)
+        .map(normaliseProductUrl));
+    const products = normaliseInspireProducts(parsed.products, context, groundedUrls);
+    if (!products.length) throw new Error('No verified direct product links were returned. Please try a more specific search.');
+    return products;
+}
 
 function loadInspireWishlist() {
     try {
@@ -488,11 +608,9 @@ function loadInspireWishlist() {
             && typeof item.name === 'string'
             && typeof item.category === 'string'
             && typeof item.detail === 'string'
-            && typeof item.store === 'string'
+            && (typeof item.store === 'string' || typeof item.retailer === 'string')
             && typeof item.image === 'string'
             && (item.brands === undefined || typeof item.brands === 'string')
-            && (item.url === undefined || typeof item.url === 'string')
-            && (item.retailer === undefined || typeof item.retailer === 'string')
         );
     } catch (error) {
         console.error('Unable to read the Inspire wishlist:', error);
@@ -502,134 +620,6 @@ function loadInspireWishlist() {
 
 function persistInspireWishlist(nextWishlist) {
     localStorage.setItem(INSPIRE_WISHLIST_KEY, JSON.stringify(nextWishlist));
-}
-
-function getInspireShopUrl(store, productName, brandNames) {
-    const preferredBrands = brandNames.split(',').map(brand => brand.trim()).filter(Boolean);
-    const query = store === 'Your brands' && preferredBrands.length
-        ? `${preferredBrands.join(' ')} ${productName}`
-        : productName;
-    const encodedQuery = encodeURIComponent(query);
-
-    return `https://www.google.com/search?tbm=shop&q=${encodedQuery}`;
-}
-
-function getInspireSearchContext() {
-    return {
-        category: document.getElementById('inspire-category')?.value || 'All',
-        query: document.getElementById('inspire-search')?.value.trim() || '',
-        brands: document.getElementById('inspire-brands')?.value.trim() || '',
-        presentation: inspirePresentation
-    };
-}
-
-function getInspireCacheKey(context) {
-    return JSON.stringify(context).toLowerCase();
-}
-
-function isSafeRetailerUrl(value) {
-    try {
-        const url = new URL(value);
-        return url.protocol === 'https:' && !/^(www\.)?(google|bing|yahoo)\./i.test(url.hostname);
-    } catch {
-        return false;
-    }
-}
-
-function retailerNameFromUrl(value) {
-    try {
-        return new URL(value).hostname.replace(/^www\./, '').split('.')[0].replace(/[-_]/g, ' ');
-    } catch {
-        return 'Retailer';
-    }
-}
-
-function renderLiveInspireProducts() {
-    const grid = document.getElementById('inspire-grid');
-    const resultCount = document.getElementById('inspire-results-count');
-    if (!grid || !liveInspireProducts.length) return false;
-    if (resultCount) resultCount.textContent = `${liveInspireProducts.length} live ${liveInspireProducts.length === 1 ? 'product' : 'products'} · checked sources`;
-    grid.innerHTML = liveInspireProducts.map(product => {
-        const saved = inspireWishlist.some(item => item.id === product.id);
-        const pairings = getInspireWardrobePairings(product);
-        const pairingMarkup = pairings.length
-            ? pairings.map(item => `<span class="flex min-w-0 items-center gap-2"><img src="${escapeHTML(item.image_url)}" alt="" loading="lazy"><span class="truncate"><strong class="text-[var(--ink)]">${escapeHTML(item.name)}</strong><span class="block text-[9px]">from your wardrobe</span></span></span>`).join('')
-            : '<span class="min-w-0"><strong class="text-[var(--ink)]">Your wardrobe, next</strong><span class="block">Add pieces to see how they pair.</span></span>';
-        return `<article class="inspire-card inspire-live-card">
-            <div class="inspire-live-source"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><span>Live retailer listing</span><span>${escapeHTML(product.retailer)}</span></div>
-            <div class="inspire-card-body">
-                <p class="eyebrow mb-2">${escapeHTML(product.category)} · ${escapeHTML(product.presentation)}</p>
-                <h3 class="accent-font text-lg font-bold leading-snug tracking-[-.04em]">${escapeHTML(product.name)}</h3>
-                <p class="mt-2 text-xs leading-5 text-[var(--muted)]">${escapeHTML(product.detail)}</p>
-                <div class="inspire-pairing"><i class="fa-solid fa-link text-[var(--purple)]" aria-hidden="true"></i><div class="flex min-w-0 flex-wrap gap-x-4 gap-y-2">${pairingMarkup}</div></div>
-                <div class="inspire-actions">
-                    <a class="inspire-shop-link" href="${escapeHTML(product.url)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>View product</a>
-                    <button type="button" class="inspire-save-button" data-save-inspire="${escapeHTML(product.id)}" data-inspire-name="${escapeHTML(product.name)}" data-inspire-category="${escapeHTML(product.category)}" data-inspire-detail="${escapeHTML(product.detail)}" data-inspire-keywords="${escapeHTML(product.keywords)}" data-inspire-image="${escapeHTML(product.image)}" data-inspire-url="${escapeHTML(product.url)}" data-inspire-retailer="${escapeHTML(product.retailer)}" aria-pressed="${saved}" aria-label="${saved ? 'Remove' : 'Add'} ${escapeHTML(product.name)} ${saved ? 'from' : 'to'} wishlist"><i class="fa-${saved ? 'solid' : 'regular'} fa-heart" aria-hidden="true"></i>${saved ? 'Saved' : 'Save'}</button>
-                </div>
-            </div>
-        </article>`;
-    }).join('');
-    return true;
-}
-
-async function findLiveInspireProducts() {
-    const button = document.getElementById('find-live-products');
-    const note = document.getElementById('inspire-search-note');
-    const context = getInspireSearchContext();
-    const cacheKey = getInspireCacheKey(context);
-    try {
-        const cached = JSON.parse(localStorage.getItem(INSPIRE_LIVE_CACHE_KEY) || '{}');
-        if (cached.key === cacheKey && Date.now() - cached.createdAt < INSPIRE_LIVE_CACHE_MS && Array.isArray(cached.products)) {
-            liveInspireProducts = cached.products;
-            renderLiveInspireProducts();
-            if (note) note.textContent = 'Showing your recent live search. Product availability is confirmed by the retailer when you open it.';
-            return;
-        }
-    } catch { /* A failed cache should never block a fresh search. */ }
-
-    const keyInput = document.getElementById('user-api-key');
-    const { data: { session } } = await supabase.auth.getSession();
-    const activeKey = keyInput?.value.trim() || session?.user?.user_metadata?.gemini_api_key;
-    const activeModel = document.getElementById('model-select')?.value || session?.user?.user_metadata?.preferred_model || 'gemini-2.0-flash';
-    if (!activeKey) {
-        alert('Add your Gemini API key in Account to search live products. You can still browse the style edit without it.');
-        return;
-    }
-    if (button) { button.disabled = true; button.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>Searching live products'; }
-    if (note) note.textContent = 'Searching current retailer pages. This is one short, grounded request…';
-    const style = context.presentation === 'all' ? 'a balanced mix of feminine and masculine presentations' : `${context.presentation} presentation`;
-    const category = context.category === 'All' ? 'clothing, shoes, bags, or accessories that best match the request' : context.category;
-    const prompt = `Use Google Search to find 6–8 CURRENT, INDIVIDUAL, BUYABLE product pages from a range of retailers, not search-result pages or editorial pages. The shopper wants: ${context.query || 'versatile wardrobe upgrades'}. Category: ${category}. Style presentation: ${style}. Preferred brands, if useful: ${context.brands || 'none'}.
-Return a short JSON array only. Each entry must have: name, category, detail (one short practical sentence), url. Only include a URL if the exact product page was found in your grounded web sources. Do not make up URLs, prices, stock status, or product names.`;
-    try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${activeModel}:generateContent?key=${activeKey}`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], tools: [{ google_search: {} }], generationConfig: { temperature: 0.1, maxOutputTokens: 900 } })
-        });
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.error?.message || 'Live product search failed.');
-        const text = result.candidates?.[0]?.content?.parts?.map(part => part.text || '').join('') || '[]';
-        const citedUrls = new Set((result.candidates?.[0]?.groundingMetadata?.groundingChunks || [])
-            .map(chunk => chunk.web?.uri).filter(isSafeRetailerUrl));
-        const requestedProducts = JSON.parse(text.replace(/^```json\s*|\s*```$/g, ''));
-        const seenUrls = new Set();
-        liveInspireProducts = (Array.isArray(requestedProducts) ? requestedProducts : [])
-            .filter(item => item && typeof item.url === 'string' && citedUrls.has(item.url) && !seenUrls.has(item.url) && (seenUrls.add(item.url), true))
-            .slice(0, 8).map((item, index) => ({
-                id: `live-${Date.now()}-${index}`, name: String(item.name || 'Retailer product'), category: String(item.category || context.category),
-                detail: String(item.detail || 'A live retailer listing selected for this search.'), keywords: context.query, image: inspireIdeas[index % inspireIdeas.length].image,
-                url: item.url, retailer: retailerNameFromUrl(item.url), presentation: context.presentation
-            }));
-        if (!liveInspireProducts.length) throw new Error('No cited product pages were returned. Please try a more specific search.');
-        localStorage.setItem(INSPIRE_LIVE_CACHE_KEY, JSON.stringify({ key: cacheKey, createdAt: Date.now(), products: liveInspireProducts }));
-        renderLiveInspireProducts();
-        if (note) note.textContent = 'Live links come from the search’s retailer sources. Availability and checkout stay with each retailer.';
-    } catch (error) {
-        console.error('Live Inspire search failed:', error);
-        if (note) note.textContent = error.message || 'We could not verify live product pages for that search. Try a more specific phrase.';
-    } finally {
-        if (button) { button.disabled = false; button.innerHTML = '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>Find live products'; }
-    }
 }
 
 function getInspireWardrobePairings(idea) {
@@ -654,45 +644,30 @@ function renderInspireIdeas() {
     const grid = document.getElementById('inspire-grid');
     const resultCount = document.getElementById('inspire-results-count');
     const categoryFilter = document.getElementById('inspire-category')?.value || 'All';
-    const searchTerm = document.getElementById('inspire-search')?.value.trim().toLowerCase() || '';
-    const store = 'All retailers';
-    const brandNames = document.getElementById('inspire-brands')?.value || '';
+    const context = getInspireSearchContext();
     if (!grid) return;
 
-    const searchTerms = searchTerm.split(/\s+/).filter(term => !['a', 'an', 'and', 'for', 'in', 'of', 'the', 'to', 'with'].includes(term));
-    const matchingIdeas = inspireIdeas.map(idea => {
+    if (!inspireProducts.length) {
+        if (resultCount) resultCount.textContent = 'Ready to search live retailers';
+        grid.innerHTML = `<div class="surface col-span-full rounded-[20px] p-8 text-center text-sm text-[var(--muted)]"><i class="fa-solid fa-bag-shopping mb-3 block text-xl text-[var(--purple)]" aria-hidden="true"></i>Describe a piece you want, choose how many results you need, then select <strong class="text-[var(--ink)]">Find real products</strong>. Curato will return direct retailer pages only.</div>`;
+        return;
+    }
+
+    const sourceIdeas = inspireProducts;
+    const matchingIdeas = sourceIdeas.map(idea => {
         const matchesCategory = categoryFilter === 'All' || idea.category === categoryFilter;
-        const searchableText = `${idea.name} ${idea.category} ${idea.detail} ${idea.keywords}`.toLowerCase();
-        const score = searchTerms.reduce((total, term) => total + Number(searchableText.includes(term)), 0);
-        return { idea, matchesCategory, score };
-    }).filter(result => result.matchesCategory && (!searchTerms.length || result.score > 0))
+        return { idea, matchesCategory, score: 0 };
+    }).filter(result => result.matchesCategory)
         .sort((first, second) => second.score - first.score)
         .map(result => result.idea);
     let ideas = matchingIdeas;
-    if (searchTerm && ideas.length === 0) {
-        const category = categoryFilter !== 'All'
-            ? categoryFilter
-            : /shoe|trainer|loafer|boot/.test(searchTerm) ? 'Shoes'
-                : /bag|tote|purse/.test(searchTerm) ? 'Bag'
-                    : /coat|jacket|blazer|layer/.test(searchTerm) ? 'Outerwear'
-                        : /trouser|jean|skirt|bottom/.test(searchTerm) ? 'Bottom' : 'Top';
-        const safeId = searchTerm.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'style-search';
-        ideas = [{
-            id: `search-${safeId}`,
-            name: searchTerm.replace(/\b\w/g, letter => letter.toUpperCase()),
-            category,
-            detail: 'A style direction based on your search. Explore current retailer results to find your version.',
-            keywords: searchTerm,
-            image: inspireIdeas.find(idea => idea.category === category)?.image || inspireIdeas[0].image
-        }];
-    } else if (!searchTerm && ideas.length > 0) {
-        const start = inspireOffset % ideas.length;
-        ideas = [...ideas.slice(start), ...ideas.slice(0, start)].slice(0, 6);
+    if (!searchTerm && ideas.length > 0) {
+        ideas = ideas.slice(0, context.limit);
     }
 
-    if (resultCount) resultCount.textContent = `${ideas.length} ${ideas.length === 1 ? 'idea' : 'ideas'}`;
+    if (resultCount) resultCount.textContent = `${ideas.length} ${ideas.length === 1 ? 'product' : 'products'}${inspireProducts.length ? ' · verified links' : ' · search to see live products'}`;
     if (ideas.length === 0) {
-        grid.innerHTML = '<div class="surface col-span-full rounded-[20px] p-8 text-center text-sm text-[var(--muted)]">No ideas match those filters yet. Try another item type or search.</div>';
+        grid.innerHTML = '<div class="surface col-span-full rounded-[20px] p-8 text-center text-sm text-[var(--muted)]">No live products match those filters. Update the brief and search again for a new edit.</div>';
         return;
     }
 
@@ -702,21 +677,23 @@ function renderInspireIdeas() {
         const pairingMarkup = pairings.length
             ? pairings.map(item => `<span class="flex min-w-0 items-center gap-2"><img src="${escapeHTML(item.image_url)}" alt="" loading="lazy"><span class="truncate"><strong class="text-[var(--ink)]">${escapeHTML(item.name)}</strong><span class="block text-[9px]">from your wardrobe</span></span></span>`).join('')
             : '<span class="min-w-0"><strong class="text-[var(--ink)]">Your wardrobe, next</strong><span class="block">Add pieces to see how they pair.</span></span>';
-        const hasBrands = brandNames.split(',').some(brand => brand.trim());
-        const shopLabel = hasBrands ? 'Search preferred brands' : 'Search all retailers';
+        const productUrl = idea.url || getInspireFallbackUrl(idea.name, context);
+        const retailer = idea.retailer || 'Live web search';
+        const imageUrl = idea.live && isSafeProductUrl(idea.image) ? idea.image : `https://images.unsplash.com/${escapeHTML(getInspireReferenceImage(idea))}?auto=format&fit=crop&w=900&q=82`;
+        const imageLabel = idea.live ? 'Live product' : 'Search starting point';
         return `<article class="inspire-card">
             <div class="inspire-image">
-                <img src="https://images.unsplash.com/${escapeHTML(idea.image)}?auto=format&fit=crop&w=900&q=82" alt="Style reference for ${escapeHTML(idea.name)}" loading="lazy">
-                <span class="inspire-image-label">Style reference · ${escapeHTML(idea.category)}</span>
+                <img src="${escapeHTML(imageUrl)}" alt="${escapeHTML(idea.live ? idea.name : `Style reference for ${idea.name}`)}" loading="lazy" referrerpolicy="no-referrer">
+                <span class="inspire-image-label">${imageLabel} · ${escapeHTML(idea.category)}</span>
             </div>
             <div class="inspire-card-body">
-                <p class="eyebrow mb-2">${escapeHTML(hasBrands ? brandNames.split(',').map(brand => brand.trim()).filter(Boolean).slice(0, 2).join(' · ') : store)}</p>
+                <p class="eyebrow mb-2">${escapeHTML(retailer)}${idea.price ? ` · ${escapeHTML(idea.price)}` : ''}</p>
                 <h3 class="accent-font text-lg font-bold leading-snug tracking-[-.04em]">${escapeHTML(idea.name)}</h3>
                 <p class="mt-2 text-xs leading-5 text-[var(--muted)]">${escapeHTML(idea.detail)}</p>
                 <div class="inspire-pairing"><i class="fa-solid fa-link text-[var(--purple)]" aria-hidden="true"></i><div class="flex min-w-0 flex-wrap gap-x-4 gap-y-2">${pairingMarkup}</div></div>
                 <div class="inspire-actions">
-                    <a class="inspire-shop-link" href="${escapeHTML(getInspireShopUrl(store, idea.name, brandNames))}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>${escapeHTML(shopLabel)}</a>
-                    <button type="button" class="inspire-save-button" data-save-inspire="${escapeHTML(idea.id)}" data-inspire-name="${escapeHTML(idea.name)}" data-inspire-category="${escapeHTML(idea.category)}" data-inspire-detail="${escapeHTML(idea.detail)}" data-inspire-keywords="${escapeHTML(idea.keywords)}" data-inspire-image="${escapeHTML(idea.image)}" aria-pressed="${saved}" aria-label="${saved ? 'Remove' : 'Add'} ${escapeHTML(idea.name)} ${saved ? 'from' : 'to'} wishlist"><i class="fa-${saved ? 'solid' : 'regular'} fa-heart" aria-hidden="true"></i>${saved ? 'Saved' : 'Save'}</button>
+                    <a class="inspire-shop-link" href="${escapeHTML(productUrl)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>${idea.live ? 'View product' : 'Search live'}</a>
+                    <button type="button" class="inspire-save-button" data-save-inspire="${escapeHTML(idea.id)}" data-inspire-name="${escapeHTML(idea.name)}" data-inspire-category="${escapeHTML(idea.category)}" data-inspire-detail="${escapeHTML(idea.detail)}" data-inspire-keywords="${escapeHTML(idea.keywords)}" data-inspire-image="${escapeHTML(idea.image)}" data-inspire-url="${escapeHTML(productUrl)}" data-inspire-retailer="${escapeHTML(retailer)}" data-inspire-price="${escapeHTML(idea.price || '')}" aria-pressed="${saved}" aria-label="${saved ? 'Remove' : 'Add'} ${escapeHTML(idea.name)} ${saved ? 'from' : 'to'} wishlist"><i class="fa-${saved ? 'solid' : 'regular'} fa-heart" aria-hidden="true"></i>${saved ? 'Saved' : 'Save'}</button>
                 </div>
             </div>
         </article>`;
@@ -732,12 +709,12 @@ function renderInspireWishlist() {
     if (!grid) return;
 
     grid.innerHTML = inspireWishlist.map(item => `<article class="inspire-wishlist-card">
-        <img class="inspire-wishlist-image" src="https://images.unsplash.com/${escapeHTML(item.image)}?auto=format&fit=crop&w=300&q=75" alt="Style reference for ${escapeHTML(item.name)}" loading="lazy">
+        <img class="inspire-wishlist-image" src="${escapeHTML(isSafeProductUrl(item.image) ? item.image : `https://images.unsplash.com/${getInspireReferenceImage(item)}?auto=format&fit=crop&w=300&q=75`)}" alt="${escapeHTML(item.name)}" loading="lazy" referrerpolicy="no-referrer">
         <div class="inspire-wishlist-content">
-            <p class="eyebrow mb-1">${escapeHTML(item.category)} · ${escapeHTML(item.store)}</p>
+            <p class="eyebrow mb-1">${escapeHTML(item.category)} · ${escapeHTML(item.retailer || item.store)}${item.price ? ` · ${escapeHTML(item.price)}` : ''}</p>
             <h3 class="accent-font text-sm font-bold leading-snug">${escapeHTML(item.name)}</h3>
             <div class="mt-3 flex flex-wrap gap-2">
-                <a class="inspire-shop-link min-h-[34px] px-3" href="${escapeHTML(isSafeRetailerUrl(item.url) ? item.url : getInspireShopUrl(item.store, item.name, item.brands || ''))}" target="_blank" rel="noopener noreferrer">${isSafeRetailerUrl(item.url) ? 'View product' : 'Shop search'}<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
+                <a class="inspire-shop-link min-h-[34px] px-3" href="${escapeHTML(item.url || getInspireFallbackUrl(item.name, { search: '', brands: item.brands || '', style: 'all' }))}" target="_blank" rel="noopener noreferrer">View product<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
                 <button class="inspire-remove-button min-h-[34px] px-3" type="button" data-remove-inspire="${escapeHTML(item.id)}" aria-label="Remove ${escapeHTML(item.name)} from wishlist">Remove</button>
             </div>
         </div>
@@ -1407,12 +1384,16 @@ async function uploadImageToStorage(base64Data) {
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeTheme();
-    inspireWishlist = loadInspireWishlist();
     try {
-        inspirePresentation = localStorage.getItem(INSPIRE_PRESENTATION_KEY) || 'feminine';
-    } catch { /* Default presentation is intentionally safe. */ }
-    renderInspireWishlist();
-    renderInspireIdeas();
+        inspireStyle = localStorage.getItem(INSPIRE_STYLE_KEY) || 'all';
+    } catch (_) {
+        inspireStyle = 'all';
+    }
+    document.querySelectorAll('[data-inspire-style]').forEach(button => {
+        const selected = button.dataset.inspireStyle === inspireStyle;
+        button.setAttribute('aria-pressed', String(selected));
+    });
+    inspireWishlist = loadInspireWishlist();
 
     const inspireBrandsInput = document.getElementById('inspire-brands');
     if (inspireBrandsInput) {
@@ -1425,7 +1406,8 @@ document.addEventListener('DOMContentLoaded', () => {
         inspireBrandsInput.addEventListener('change', () => {
             try {
                 localStorage.setItem(INSPIRE_BRANDS_KEY, inspireBrandsInput.value.trim());
-                liveInspireProducts = [];
+                inspireProducts = [];
+                setInspireStatus('Brand priorities updated. Press Find real products to search the live web.');
                 renderInspireIdeas();
                 renderInspireWishlist();
             } catch (error) {
@@ -1434,23 +1416,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
-    document.querySelectorAll('[data-inspire-presentation]').forEach(button => {
-        const active = button.dataset.inspirePresentation === inspirePresentation;
-        button.classList.toggle('is-active', active);
-        button.setAttribute('aria-pressed', String(active));
-        button.addEventListener('click', () => {
-            inspirePresentation = button.dataset.inspirePresentation;
-            try { localStorage.setItem(INSPIRE_PRESENTATION_KEY, inspirePresentation); } catch { /* Preference persistence is optional. */ }
-            document.querySelectorAll('[data-inspire-presentation]').forEach(control => {
-                const selected = control === button;
-                control.classList.toggle('is-active', selected);
-                control.setAttribute('aria-pressed', String(selected));
-            });
-            liveInspireProducts = [];
-            renderInspireIdeas();
-        });
-    });
+    inspireProducts = readInspireCache(getInspireSearchContext());
+    if (inspireProducts.length) setInspireStatus('Showing your recent live results. Search again when you want a fresh edit.');
+    renderInspireWishlist();
+    renderInspireIdeas();
 
     const appTabs = Array.from(document.querySelectorAll('[data-show-view]'));
     appTabs.forEach((button, index) => {
@@ -1465,7 +1434,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tab.setAttribute('aria-selected', String(selected));
                 tab.tabIndex = selected ? 0 : -1;
             });
-            if (target === 'inspire') (liveInspireProducts.length ? renderLiveInspireProducts() : renderInspireIdeas());
+            if (target === 'inspire') renderInspireIdeas();
         });
         button.addEventListener('keydown', event => {
             let nextIndex = index;
@@ -1480,20 +1449,67 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    const resetLiveInspireResults = () => { liveInspireProducts = []; renderInspireIdeas(); };
-    document.getElementById('inspire-category')?.addEventListener('change', resetLiveInspireResults);
-    document.getElementById('inspire-search')?.addEventListener('input', resetLiveInspireResults);
+    document.getElementById('inspire-category')?.addEventListener('change', () => {
+        inspireProducts = [];
+        setInspireStatus('Item type updated. Press Find real products to search the live web.');
+        renderInspireIdeas();
+    });
+    document.getElementById('inspire-result-limit')?.addEventListener('change', () => {
+        inspireProducts = [];
+        setInspireStatus('Result count updated. Press Find real products to search the live web.');
+        renderInspireIdeas();
+    });
+    document.getElementById('inspire-search')?.addEventListener('input', () => {
+        inspireProducts = [];
+        setInspireStatus('Press Find real products to search the live web.');
+        renderInspireIdeas();
+    });
     document.getElementById('inspire-search')?.addEventListener('keydown', event => {
         if (event.key === 'Enter') {
             event.preventDefault();
-            resetLiveInspireResults();
+            document.getElementById('refresh-inspire')?.click();
         }
     });
-    document.getElementById('refresh-inspire')?.addEventListener('click', () => {
-        inspireOffset += 3;
-        resetLiveInspireResults();
+    document.querySelectorAll('[data-inspire-style]').forEach(button => {
+        button.addEventListener('click', () => {
+            inspireStyle = button.dataset.inspireStyle || 'all';
+            document.querySelectorAll('[data-inspire-style]').forEach(choice => {
+                choice.setAttribute('aria-pressed', String(choice === button));
+            });
+            try { localStorage.setItem(INSPIRE_STYLE_KEY, inspireStyle); } catch (_) { /* preference remains for this session */ }
+            inspireProducts = [];
+            setInspireStatus('Style direction updated. Press Find real products to search the live web.');
+            renderInspireIdeas();
+        });
     });
-    document.getElementById('find-live-products')?.addEventListener('click', findLiveInspireProducts);
+    document.getElementById('refresh-inspire')?.addEventListener('click', async event => {
+        const button = event.currentTarget;
+        const context = getInspireSearchContext();
+        const cached = readInspireCache(context);
+        if (cached.length) {
+            inspireProducts = cached;
+            setInspireStatus('Showing a recent live search—no extra AI request used. Change the brief or try again after 20 minutes for fresh results.');
+            renderInspireIdeas();
+            return;
+        }
+        button.disabled = true;
+        button.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>Finding products';
+        setInspireStatus(`Searching broadly for ${context.limit} direct product pages…`);
+        try {
+            const products = await fetchInspireProducts(context);
+            inspireProducts = products;
+            saveInspireCache(context, products);
+            setInspireStatus(`${products.length} verified product links found. Availability and price can change at the retailer.`);
+        } catch (error) {
+            console.error('Inspire product search failed:', error);
+            inspireProducts = [];
+            setInspireStatus(error.message || 'Could not find live products right now. Try again shortly.');
+        } finally {
+            button.disabled = false;
+            button.innerHTML = '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>Find real products';
+            renderInspireIdeas();
+        }
+    });
 
     const inspireWishlistModal = document.getElementById('inspire-wishlist-modal');
     document.getElementById('open-inspire-wishlist')?.addEventListener('click', () => {
@@ -1519,7 +1535,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 keywords: saveButton.dataset.inspireKeywords,
                 image: saveButton.dataset.inspireImage,
                 url: saveButton.dataset.inspireUrl,
-                retailer: saveButton.dataset.inspireRetailer
+                retailer: saveButton.dataset.inspireRetailer,
+                price: saveButton.dataset.inspirePrice
             };
             if (!idea) return;
             const alreadySaved = inspireWishlist.some(item => item.id === idea.id);
@@ -1527,13 +1544,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? inspireWishlist.filter(item => item.id !== idea.id)
                 : [...inspireWishlist, {
                     ...idea,
-                    store: saveButton.dataset.inspireRetailer || 'All retailers',
+                    store: idea.retailer || 'Live web search',
                     brands: document.getElementById('inspire-brands')?.value || ''
                 }];
             try {
                 persistInspireWishlist(nextWishlist);
                 inspireWishlist = nextWishlist;
-                liveInspireProducts.length ? renderLiveInspireProducts() : renderInspireIdeas();
+                renderInspireIdeas();
                 renderInspireWishlist();
             } catch (error) {
                 console.error('Unable to update the Inspire wishlist:', error);
@@ -1548,7 +1565,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 persistInspireWishlist(nextWishlist);
                 inspireWishlist = nextWishlist;
-                liveInspireProducts.length ? renderLiveInspireProducts() : renderInspireIdeas();
+                renderInspireIdeas();
                 renderInspireWishlist();
             } catch (error) {
                 console.error('Unable to update the Inspire wishlist:', error);
