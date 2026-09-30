@@ -152,7 +152,8 @@
         .hero-title { font-size: clamp(2.7rem, 7vw, 6.5rem); line-height: .93; letter-spacing: -.08em; }
         .hero-title em { color: var(--purple); font-style: normal; }
         .prompt-wrap { background: var(--prompt-surface); border-radius: 25px; padding: 8px; box-shadow: 10px 12px 0 var(--mint); }
-        #occasion-input {
+        #occasion-input,
+        #inspire-search {
             min-height: 100px;
             color: white;
             font-size: clamp(1.35rem, 3vw, 2.5rem);
@@ -160,7 +161,8 @@
             line-height: 1.05;
             letter-spacing: -.055em;
         }
-        #occasion-input::placeholder { color: rgba(255,255,255,.38); }
+        #occasion-input::placeholder,
+        #inspire-search::placeholder { color: rgba(255,255,255,.38); }
         .prompt-submit, .primary-button {
             background: var(--orange);
             color: var(--ink);
@@ -326,7 +328,7 @@
         .account-provider { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--paper) 55%, var(--card)); }
         @media (max-width: 640px) { .hero-title { font-size: 3.6rem; } .prompt-wrap { box-shadow: 6px 8px 0 var(--mint); } .response-copy { font-size: 15px; } }
     </style>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=inspire3">
 </head>
 <body>
     <nav class="topbar fixed top-0 z-50 w-full">
@@ -450,64 +452,63 @@
             <button id="inspire-tab" class="inspire-tab" type="button" role="tab" aria-selected="false" aria-controls="inspire-view" data-show-view="inspire"><i class="fa-solid fa-wand-magic-sparkles mr-2" aria-hidden="true"></i>Inspire</button>
         </div>
         <section id="inspire-view" data-app-view="inspire" class="hidden" role="tabpanel" aria-labelledby="inspire-tab">
-            <div class="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-                <div class="max-w-2xl">
-                    <p class="eyebrow mb-4">Live finds across the web</p>
-                    <h1 class="hero-title max-w-3xl font-bold">Find your next<br><em>favourite.</em></h1>
-                    <p class="mt-5 max-w-xl text-sm leading-7 text-[var(--muted)]">Ask for a piece, and Curato searches retailers for real listings you can buy. Results pair with what you already own. Your wishlist stays in this browser.</p>
-                </div>
-                <button id="open-inspire-wishlist" class="primary-button flex shrink-0 items-center justify-center gap-3 rounded-[15px] px-5 py-4 text-sm" type="button" aria-haspopup="dialog" aria-controls="inspire-wishlist-modal">
-                    <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><span>Your wishlist</span><span id="inspire-wishlist-count" class="inspire-count">0</span>
-                </button>
-            </div>
-
-            <section class="surface mb-12 rounded-[25px] p-5 md:p-7" aria-labelledby="inspire-controls-title">
-                <div class="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <section class="mx-auto mb-16 max-w-5xl">
+                <div class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                        <h2 id="inspire-controls-title" class="accent-font text-xl font-bold tracking-[-.04em]">Set the mood</h2>
-                        <p class="mt-1 text-xs text-[var(--muted)]">Describe a gap, pick a lean, then find a handful of buyable pieces.</p>
+                        <p class="eyebrow mb-4">Shop the gap</p>
+                        <h1 class="hero-title max-w-4xl font-bold">Find your next<br><em>favourite.</em></h1>
                     </div>
-                    <div class="inspire-gender" role="radiogroup" aria-label="Masculine or feminine lean">
-                        <button type="button" class="inspire-gender-option" role="radio" aria-checked="false" data-inspire-gender="masculine">Masculine</button>
-                        <button type="button" class="inspire-gender-option" role="radio" aria-checked="true" data-inspire-gender="feminine">Feminine</button>
-                        <button type="button" class="inspire-gender-option" role="radio" aria-checked="false" data-inspire-gender="either">Either</button>
+                    <button id="open-inspire-wishlist" class="primary-button flex shrink-0 items-center justify-center gap-3 rounded-[15px] px-5 py-4 text-sm" type="button" aria-haspopup="dialog" aria-controls="inspire-wishlist-modal">
+                        <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><span>Wishlist</span><span id="inspire-wishlist-count" class="inspire-count">0</span>
+                    </button>
+                </div>
+
+                <div class="prompt-wrap mt-2">
+                    <input id="inspire-search" type="search" maxlength="120" class="w-full border-0 bg-transparent px-5 pb-4 pt-4 outline-none" placeholder="What are we looking for?" aria-label="Describe the piece you want to find">
+                    <div class="flex flex-col gap-3 px-2 pb-2">
+                        <div class="flex flex-wrap items-center gap-2" role="radiogroup" aria-label="Masculine or feminine lean">
+                            <button type="button" class="suggestion-chip" role="radio" aria-checked="false" data-inspire-gender="masculine"><i class="fa-solid fa-mars" aria-hidden="true"></i><span>Masculine</span></button>
+                            <button type="button" class="suggestion-chip" role="radio" aria-checked="true" data-inspire-gender="feminine"><i class="fa-solid fa-venus" aria-hidden="true"></i><span>Feminine</span></button>
+                            <button type="button" class="suggestion-chip" role="radio" aria-checked="false" data-inspire-gender="either"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i><span>Either</span></button>
+                        </div>
+                        <div class="flex flex-col items-stretch justify-between gap-3 sm:flex-row sm:items-center">
+                            <div id="inspire-category-chips" class="flex flex-wrap items-center gap-2" role="group" aria-label="Item type">
+                                <button type="button" class="suggestion-chip active" data-inspire-category="All">All</button>
+                                <button type="button" class="suggestion-chip" data-inspire-category="Top">Tops</button>
+                                <button type="button" class="suggestion-chip" data-inspire-category="Bottom">Bottoms</button>
+                                <button type="button" class="suggestion-chip" data-inspire-category="Outerwear">Outerwear</button>
+                                <button type="button" class="suggestion-chip" data-inspire-category="Shoes">Shoes</button>
+                                <button type="button" class="suggestion-chip" data-inspire-category="Bag">Bags</button>
+                                <button type="button" class="suggestion-chip" data-inspire-category="Accessory">Accessories</button>
+                            </div>
+                            <button id="refresh-inspire" class="prompt-submit rounded-[17px] px-5 py-3 text-[11px] uppercase tracking-[.08em]" type="button"><i class="fa-solid fa-sparkles mr-2" aria-hidden="true"></i><span id="refresh-inspire-label">Find</span></button>
+                        </div>
                     </div>
                 </div>
-                <div class="grid gap-3 md:grid-cols-12">
-                    <label class="md:col-span-7">
-                        <span class="sr-only">Search for a style or wardrobe gap</span>
-                        <input id="inspire-search" type="search" maxlength="100" class="field w-full py-3 text-sm" placeholder="Try “a light layer for spring” or “black loafers”">
-                    </label>
-                    <label class="md:col-span-5">
-                        <span class="sr-only">Filter by item type</span>
-                        <select id="inspire-category" class="field w-full py-3 text-sm">
-                            <option value="All">All item types</option>
-                            <option value="Top">Tops</option>
-                            <option value="Bottom">Bottoms</option>
-                            <option value="Outerwear">Outerwear</option>
-                            <option value="Shoes">Shoes</option>
-                            <option value="Bag">Bags</option>
-                            <option value="Accessory">Accessories</option>
-                        </select>
-                    </label>
-                </div>
-                <div class="mt-3 flex flex-col gap-3 sm:flex-row">
-                    <label class="min-w-0 flex-1">
-                        <span class="sr-only">Your favourite brands</span>
-                        <input id="inspire-brands" type="text" maxlength="160" class="field w-full py-3 text-sm" placeholder="Preferred brands (optional, comma separated)">
-                    </label>
-                    <button id="refresh-inspire" class="primary-button justify-center gap-2 rounded-[12px] px-5 py-3 text-sm" type="button"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i><span id="refresh-inspire-label">Find pieces</span></button>
-                </div>
-                <p class="mt-3 text-xs leading-5 text-[var(--muted)]">Uses one short AI search for up to six live listings across many shops. Prices and stock come from each retailer. Needs your Gemini API key.</p>
+
+                <label class="mt-5 block">
+                    <span class="sr-only">Preferred brands</span>
+                    <input id="inspire-brands" type="text" maxlength="160" class="field w-full max-w-xl py-3 text-sm" placeholder="Preferred brands (optional, comma separated)">
+                </label>
+                <p class="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted)]">One AI search. Up to six live listings across retailers. Buy opens the real product page. Needs your Gemini key.</p>
             </section>
 
             <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
-                <div><p class="eyebrow mb-2">The edit</p><h2 class="accent-font text-2xl font-bold tracking-[-.05em]">Pieces with potential</h2></div>
+                <div class="section-label"><span>Pieces with potential</span></div>
                 <p id="inspire-results-count" class="text-xs text-[var(--muted)]" aria-live="polite"></p>
             </div>
             <div id="inspire-status" class="inspire-status hidden mb-5" role="status" aria-live="polite"></div>
             <div id="inspire-search-suggestions" class="inspire-search-suggestions mb-5 hidden"></div>
-            <div id="inspire-grid" class="inspire-grid grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3" aria-live="polite"></div>
+            <div id="inspire-grid" class="grid grid-cols-1 gap-8 sm:grid-cols-2 xl:grid-cols-3" aria-live="polite"></div>
+            <select id="inspire-category" class="hidden" aria-hidden="true" tabindex="-1">
+                <option value="All" selected>All</option>
+                <option value="Top">Tops</option>
+                <option value="Bottom">Bottoms</option>
+                <option value="Outerwear">Outerwear</option>
+                <option value="Shoes">Shoes</option>
+                <option value="Bag">Bags</option>
+                <option value="Accessory">Accessories</option>
+            </select>
         </section>
         <div id="wardrobe-view" data-app-view="wardrobe" role="tabpanel" aria-labelledby="wardrobe-tab">
         <section class="mx-auto mb-24 max-w-5xl">
@@ -719,6 +720,6 @@
         </section>
     </div>
 
-    <script type="module" src="app.js"></script>
+    <script type="module" src="app.js?v=inspire3"></script>
 </body>
 </html>

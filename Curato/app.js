@@ -813,14 +813,23 @@ function setInspireLoading(isLoading) {
     const button = document.getElementById('refresh-inspire');
     const label = document.getElementById('refresh-inspire-label');
     if (button) button.disabled = isLoading;
-    if (label) label.textContent = isLoading ? 'Searching…' : (inspireProducts.length ? 'Find more' : 'Find pieces');
+    if (label) label.textContent = isLoading ? 'Searching' : 'Find';
 }
 
 function syncInspireGenderUi() {
     document.querySelectorAll('[data-inspire-gender]').forEach(button => {
         const selected = button.dataset.inspireGender === inspireGender;
         button.setAttribute('aria-checked', String(selected));
-        button.classList.toggle('is-active', selected);
+        button.classList.toggle('active', selected);
+    });
+}
+
+function syncInspireCategoryUi() {
+    const category = document.getElementById('inspire-category')?.value || 'All';
+    document.querySelectorAll('[data-inspire-category]').forEach(button => {
+        const selected = button.dataset.inspireCategory === category;
+        button.classList.toggle('active', selected);
+        button.setAttribute('aria-pressed', String(selected));
     });
 }
 
@@ -843,11 +852,9 @@ function renderInspireProductMedia(product) {
             <strong>${escapeHTML(product.category)}</strong>
         </div>`;
     const image = imageSrc
-        ? `<img src="${escapeHTML(imageSrc)}" alt="${escapeHTML(product.name)}" loading="lazy" referrerpolicy="no-referrer" data-inspire-image-src>
-            ${fallback}`
+        ? `<img src="${escapeHTML(imageSrc)}" alt="${escapeHTML(product.name)}" loading="lazy" referrerpolicy="no-referrer" data-inspire-image-src>${fallback}`
         : fallback;
-    return `${image}
-        <span class="inspire-image-label">${escapeHTML(product.category)}${product.price ? ` · ${escapeHTML(product.price)}` : ''}</span>`;
+    return `${image}<span class="inspire-image-label">${escapeHTML(product.category)}${product.price ? ` · ${escapeHTML(product.price)}` : ''}</span>`;
 }
 
 function renderInspireIdeas() {
@@ -856,24 +863,24 @@ function renderInspireIdeas() {
     if (!grid) return;
 
     renderInspireSearchSuggestions();
+    syncInspireCategoryUi();
 
     if (inspireLoading) {
         if (resultCount) resultCount.textContent = 'Searching…';
-        grid.innerHTML = Array.from({ length: 3 }, () => `<article class="inspire-card inspire-card-skeleton" aria-hidden="true">
-            <div class="inspire-image"></div>
-            <div class="inspire-card-body space-y-3">
-                <div class="inspire-skeleton-line w-1/3"></div>
-                <div class="inspire-skeleton-line w-4/5"></div>
-                <div class="inspire-skeleton-line w-2/3"></div>
-            </div>
+        grid.innerHTML = Array.from({ length: 3 }, () => `<article class="inspire-piece inspire-card-skeleton" aria-hidden="true">
+            <div class="img-container"></div>
+            <div class="inspire-skeleton-line w-1/3"></div>
+            <div class="inspire-skeleton-line w-4/5"></div>
+            <div class="inspire-skeleton-line w-2/3"></div>
         </article>`).join('');
         return;
     }
 
     if (!inspireProducts.length) {
-        if (resultCount) resultCount.textContent = 'No finds yet';
-        grid.innerHTML = `<div class="surface col-span-full rounded-[20px] p-8 text-center text-sm leading-7 text-[var(--muted)]">
-            Pick masculine or feminine, describe what you want, then press <strong class="text-[var(--ink)]">Find pieces</strong>. Curato will search across retailers and return up to six live listings.
+        if (resultCount) resultCount.textContent = '';
+        grid.innerHTML = `<div class="inspire-empty">
+            Pick masculine or feminine, describe a piece, then hit <strong class="text-[var(--ink)]">Find</strong>.<br>
+            Curato will search retailers and bring back up to six buyable listings.
         </div>`;
         return;
     }
@@ -889,20 +896,20 @@ function renderInspireIdeas() {
             ? pairings.map(item => `<span class="flex min-w-0 items-center gap-2"><img src="${escapeHTML(item.image_url)}" alt="" loading="lazy"><span class="truncate"><strong class="text-[var(--ink)]">${escapeHTML(item.name)}</strong><span class="block text-[9px]">from your wardrobe</span></span></span>`).join('')
             : '<span class="min-w-0"><strong class="text-[var(--ink)]">Your wardrobe, next</strong><span class="block">Add pieces to see how they pair.</span></span>';
         const shopUrl = getInspireProductUrl(product);
-        const eyebrow = [product.brand, product.retailer].filter(Boolean).filter((value, index, list) => list.findIndex(entry => entry.toLowerCase() === value.toLowerCase()) === index).slice(0, 2).join(' · ');
-        return `<article class="inspire-card">
-            <div class="inspire-image">
+        const metaBits = [product.brand, product.retailer].filter(Boolean)
+            .filter((value, index, list) => list.findIndex(entry => entry.toLowerCase() === value.toLowerCase()) === index)
+            .slice(0, 2);
+        return `<article class="inspire-piece item-card">
+            <div class="img-container">
                 ${renderInspireProductMedia(product)}
             </div>
-            <div class="inspire-card-body">
-                <p class="eyebrow mb-2">${escapeHTML(eyebrow || 'Across the web')}</p>
-                <h3 class="accent-font text-lg font-bold leading-snug tracking-[-.04em]">${escapeHTML(product.name)}</h3>
-                <p class="mt-2 text-xs leading-5 text-[var(--muted)]">${escapeHTML(product.detail)}</p>
-                <div class="inspire-pairing"><i class="fa-solid fa-link text-[var(--purple)]" aria-hidden="true"></i><div class="flex min-w-0 flex-wrap gap-x-4 gap-y-2">${pairingMarkup}</div></div>
-                <div class="inspire-actions">
-                    <a class="inspire-shop-link" href="${escapeHTML(shopUrl)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>Buy${product.price ? ` · ${escapeHTML(product.price)}` : ''}</a>
-                    <button type="button" class="inspire-save-button" data-save-inspire="${escapeHTML(product.id)}" data-inspire-name="${escapeHTML(product.name)}" data-inspire-category="${escapeHTML(product.category)}" data-inspire-detail="${escapeHTML(product.detail)}" data-inspire-brand="${escapeHTML(product.brand || '')}" data-inspire-retailer="${escapeHTML(product.retailer || '')}" data-inspire-price="${escapeHTML(product.price || '')}" data-inspire-url="${escapeHTML(shopUrl)}" data-inspire-image="${escapeHTML(product.image || '')}" aria-pressed="${saved}" aria-label="${saved ? 'Remove' : 'Add'} ${escapeHTML(product.name)} ${saved ? 'from' : 'to'} wishlist"><i class="fa-${saved ? 'solid' : 'regular'} fa-heart" aria-hidden="true"></i>${saved ? 'Saved' : 'Save'}</button>
-                </div>
+            <div class="inspire-piece-meta">${metaBits.map(bit => `<span>${escapeHTML(bit)}</span>`).join('') || '<span>Across the web</span>'}</div>
+            <h3 class="inspire-piece-title">${escapeHTML(product.name)}</h3>
+            <p class="inspire-piece-detail">${escapeHTML(product.detail)}</p>
+            <div class="inspire-pairing"><i class="fa-solid fa-link text-[var(--purple)]" aria-hidden="true"></i><div class="flex min-w-0 flex-wrap gap-x-4 gap-y-2">${pairingMarkup}</div></div>
+            <div class="inspire-actions">
+                <a class="inspire-shop-link" href="${escapeHTML(shopUrl)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>Buy${product.price ? ` · ${escapeHTML(product.price)}` : ''}</a>
+                <button type="button" class="inspire-save-button" data-save-inspire="${escapeHTML(product.id)}" data-inspire-name="${escapeHTML(product.name)}" data-inspire-category="${escapeHTML(product.category)}" data-inspire-detail="${escapeHTML(product.detail)}" data-inspire-brand="${escapeHTML(product.brand || '')}" data-inspire-retailer="${escapeHTML(product.retailer || '')}" data-inspire-price="${escapeHTML(product.price || '')}" data-inspire-url="${escapeHTML(shopUrl)}" data-inspire-image="${escapeHTML(product.image || '')}" aria-pressed="${saved}" aria-label="${saved ? 'Remove' : 'Add'} ${escapeHTML(product.name)} ${saved ? 'from' : 'to'} wishlist"><i class="fa-${saved ? 'solid' : 'regular'} fa-heart" aria-hidden="true"></i>${saved ? 'Saved' : 'Save'}</button>
             </div>
         </article>`;
     }).join('');
@@ -1671,6 +1678,7 @@ document.addEventListener('DOMContentLoaded', () => {
     inspireGender = loadInspireGender();
     inspireWishlist = loadInspireWishlist();
     syncInspireGenderUi();
+    syncInspireCategoryUi();
     renderInspireWishlist();
     renderInspireIdeas();
 
@@ -1699,6 +1707,15 @@ document.addEventListener('DOMContentLoaded', () => {
             inspireGender = nextGender;
             persistInspireGender(inspireGender);
             syncInspireGenderUi();
+        });
+    });
+
+    document.querySelectorAll('[data-inspire-category]').forEach(button => {
+        button.addEventListener('click', () => {
+            const select = document.getElementById('inspire-category');
+            const nextCategory = button.dataset.inspireCategory || 'All';
+            if (select) select.value = nextCategory;
+            syncInspireCategoryUi();
         });
     });
 

@@ -637,6 +637,7 @@ body[data-ui-style="editorial"] .eyebrow {
     }
 }
 
+/* ——— Inspire (matches wardrobe language) ——— */
 .inspire-tabs {
     width: fit-content;
     padding: 5px;
@@ -665,14 +666,6 @@ body[data-ui-style="editorial"] .eyebrow {
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--purple) 28%, transparent);
 }
 
-.inspire-tab:focus-visible,
-.inspire-card button:focus-visible,
-.inspire-wishlist-card button:focus-visible,
-.inspire-gender-option:focus-visible {
-    outline: 3px solid var(--yellow);
-    outline-offset: 3px;
-}
-
 .inspire-count {
     display: inline-grid;
     min-width: 24px;
@@ -685,149 +678,76 @@ body[data-ui-style="editorial"] .eyebrow {
     font: 500 11px/1 "DM Mono", monospace;
 }
 
-.inspire-gender {
-    display: inline-flex;
-    gap: 4px;
-    padding: 4px;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--paper) 55%, var(--card));
+#inspire-view .prompt-wrap .suggestion-chip {
+    color: rgba(255, 255, 255, .78);
+    border-color: rgba(255, 255, 255, .18);
+    background: rgba(255, 255, 255, .06);
 }
 
-.inspire-gender-option {
-    min-height: 34px;
-    padding: 0 14px;
-    border-radius: 999px;
-    color: var(--muted);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .02em;
-    transition: color .2s ease, background .2s ease;
-}
-
-.inspire-gender-option:hover,
-.inspire-gender-option.is-active,
-.inspire-gender-option[aria-checked="true"] {
+#inspire-view .prompt-wrap .suggestion-chip:hover,
+#inspire-view .prompt-wrap .suggestion-chip.active,
+#inspire-view .prompt-wrap .suggestion-chip[aria-checked="true"] {
     color: var(--ink);
-    background: color-mix(in srgb, var(--purple) 14%, var(--card));
+    border-color: transparent;
+    background: color-mix(in srgb, var(--yellow) 88%, white);
+    transform: translateY(-1px);
+}
+
+#inspire-view .prompt-wrap .prompt-submit {
+    flex-shrink: 0;
 }
 
 .inspire-status {
-    padding: 12px 14px;
+    padding: 14px 16px;
     border: 1px solid var(--line);
     border-radius: 14px;
     color: var(--muted);
-    background: color-mix(in srgb, var(--paper) 58%, var(--card));
-    font-size: 12px;
-    line-height: 1.5;
+    background: color-mix(in srgb, var(--card) 86%, transparent);
+    font-size: 13px;
+    line-height: 1.6;
 }
 
 .inspire-status.is-error {
-    border-color: color-mix(in srgb, #c45c4a 45%, var(--line));
-    color: color-mix(in srgb, #8f3b2e 70%, var(--ink));
-    background: color-mix(in srgb, #c45c4a 8%, var(--card));
+    border-color: color-mix(in srgb, #c34f55 40%, var(--line));
+    color: #c34f55;
+    background: color-mix(in srgb, #c34f55 8%, var(--card));
 }
 
 .inspire-search-suggestions {
     overflow: auto;
 }
 
-.inspire-card,
-.inspire-wishlist-card {
-    overflow: hidden;
-    border-radius: 22px;
-    background: var(--card);
-    border: 1px solid var(--line);
-    box-shadow: 0 14px 45px var(--shadow);
-}
-
-.inspire-card-skeleton .inspire-image,
-.inspire-skeleton-line {
-    background: linear-gradient(90deg,
-        color-mix(in srgb, var(--line) 55%, var(--card)),
-        color-mix(in srgb, var(--paper) 70%, var(--card)),
-        color-mix(in srgb, var(--line) 55%, var(--card)));
-    background-size: 200% 100%;
-    animation: inspire-shimmer 1.2s ease-in-out infinite;
-}
-
-.inspire-skeleton-line {
-    height: 10px;
-    border-radius: 999px;
-}
-
-@keyframes inspire-shimmer {
-    0% { background-position: 100% 0; }
-    100% { background-position: -100% 0; }
-}
-
-.inspire-image {
+.inspire-piece {
     position: relative;
-    overflow: hidden;
-    aspect-ratio: 4 / 4.7;
-    background: color-mix(in srgb, var(--purple) 11%, var(--paper));
 }
 
-.inspire-image img,
-.inspire-wishlist-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.inspire-piece .img-container {
+    margin-bottom: 14px;
 }
 
-.inspire-image img {
-    transition: transform .45s ease;
-}
-
-.inspire-card:hover .inspire-image img {
-    transform: scale(1.035);
-}
-
-.inspire-image-fallback {
-    display: grid;
-    place-content: center;
-    gap: 8px;
-    width: 100%;
-    height: 100%;
-    padding: 24px;
-    text-align: center;
-    background:
-        radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--orange) 28%, transparent), transparent 45%),
-        linear-gradient(160deg, color-mix(in srgb, var(--purple) 18%, var(--paper)), var(--card));
-}
-
-.inspire-image-fallback span {
+.inspire-piece-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    margin-top: 6px;
     color: var(--muted);
-    font: 500 10px/1 "DM Mono", monospace;
-    letter-spacing: .12em;
+    font: 500 11px/1.4 "DM Mono", monospace;
+    letter-spacing: .04em;
     text-transform: uppercase;
 }
 
-.inspire-image-fallback strong {
+.inspire-piece-title {
+    margin-top: 8px;
     color: var(--ink);
-    font-family: "Space Grotesk", sans-serif;
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: -.04em;
+    font: 700 17px/1.25 "Space Grotesk", sans-serif;
+    letter-spacing: -.03em;
 }
 
-.inspire-image-label {
-    position: absolute;
-    left: 14px;
-    bottom: 14px;
-    padding: 7px 10px;
-    border: 1px solid color-mix(in srgb, white 50%, transparent);
-    border-radius: 999px;
-    color: var(--ink);
-    background: color-mix(in srgb, var(--card) 86%, transparent);
-    backdrop-filter: blur(12px);
-    font: 500 9px/1 "DM Mono", monospace;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-}
-
-.inspire-card-body {
-    padding: 19px;
+.inspire-piece-detail {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
 }
 
 .inspire-pairing {
@@ -850,67 +770,161 @@ body[data-ui-style="editorial"] .eyebrow {
     flex: 0 0 30px;
     border-radius: 7px;
     object-fit: cover;
+    border: 1px solid var(--line);
 }
 
 .inspire-actions {
     display: flex;
-    gap: 9px;
-    margin-top: 15px;
-}
-
-.inspire-shop-link,
-.inspire-save-button,
-.inspire-remove-button {
-    display: inline-flex;
-    min-height: 42px;
-    align-items: center;
-    justify-content: center;
     gap: 8px;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 0 13px;
-    font-size: 10px;
-    font-weight: 700;
-    transition: border-color .2s ease, background .2s ease, color .2s ease;
+    margin-top: 14px;
 }
 
 .inspire-shop-link {
+    display: inline-flex;
     flex: 1;
-    border-color: var(--orange);
+    min-height: 36px;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 8px 12px;
+    border: 1px solid var(--orange);
+    border-radius: 11px;
     color: var(--ink);
     background: var(--orange);
+    font: 600 11px "Space Grotesk", sans-serif;
+    text-transform: uppercase;
+    transition: .2s ease;
 }
 
 .inspire-shop-link:hover {
     background: var(--orange-hover);
 }
 
-#refresh-inspire:disabled {
-    opacity: .65;
-    cursor: wait;
+.inspire-save-button,
+.inspire-remove-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 36px;
+    padding: 8px 11px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    color: var(--ink);
+    background: color-mix(in srgb, var(--paper) 60%, transparent);
+    font: 600 11px "Space Grotesk", sans-serif;
+    text-transform: uppercase;
+    transition: .2s ease;
 }
 
 .inspire-save-button:hover,
 .inspire-save-button[aria-pressed="true"],
 .inspire-remove-button:hover {
     border-color: var(--purple);
-    color: var(--purple);
-    background: color-mix(in srgb, var(--purple) 8%, var(--card));
+    background: color-mix(in srgb, var(--purple) 9%, var(--card));
+}
+
+.inspire-image-fallback {
+    display: grid;
+    place-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 100%;
+    padding: 24px;
+    text-align: center;
+    background:
+        radial-gradient(circle at 18% 18%, color-mix(in srgb, var(--orange) 26%, transparent), transparent 42%),
+        linear-gradient(155deg, color-mix(in srgb, var(--purple) 16%, var(--paper)), var(--card));
+}
+
+.inspire-image-fallback span {
+    color: var(--muted);
+    font: 500 10px/1 "DM Mono", monospace;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.inspire-image-fallback strong {
+    color: var(--ink);
+    font: 700 22px/1.1 "Space Grotesk", sans-serif;
+    letter-spacing: -.04em;
+}
+
+.inspire-image-label {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    z-index: 1;
+    padding: 7px 10px;
+    border: 1px solid color-mix(in srgb, var(--card) 70%, transparent);
+    border-radius: 999px;
+    color: var(--ink);
+    background: color-mix(in srgb, var(--card) 88%, transparent);
+    backdrop-filter: blur(10px);
+    font: 500 9px/1 "DM Mono", monospace;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.inspire-empty {
+    grid-column: 1 / -1;
+    padding: 2.5rem 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    box-shadow: 0 14px 45px var(--shadow);
+    color: var(--muted);
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.inspire-card-skeleton .img-container,
+.inspire-skeleton-line {
+    background: linear-gradient(90deg,
+        color-mix(in srgb, var(--line) 55%, var(--card)),
+        color-mix(in srgb, var(--paper) 70%, var(--card)),
+        color-mix(in srgb, var(--line) 55%, var(--card)));
+    background-size: 200% 100%;
+    animation: inspire-shimmer 1.2s ease-in-out infinite;
+}
+
+.inspire-skeleton-line {
+    height: 11px;
+    margin-top: 10px;
+    border-radius: 999px;
+}
+
+@keyframes inspire-shimmer {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
 }
 
 .inspire-wishlist-card {
     display: grid;
     grid-template-columns: 86px minmax(0, 1fr);
-    box-shadow: none;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--card);
 }
 
 .inspire-wishlist-image {
+    width: 100%;
     min-height: 128px;
+    height: 100%;
+    object-fit: cover;
+    background: color-mix(in srgb, var(--purple) 10%, var(--paper));
 }
 
 .inspire-wishlist-content {
     min-width: 0;
     padding: 13px;
+}
+
+#refresh-inspire:disabled {
+    opacity: .55;
+    cursor: wait;
 }
 
 @media (max-width: 480px) {
@@ -922,19 +936,6 @@ body[data-ui-style="editorial"] .eyebrow {
         flex: 1;
     }
 
-    .inspire-gender {
-        width: 100%;
-    }
-
-    .inspire-gender-option {
-        flex: 1;
-        padding: 0 10px;
-    }
-
-    .inspire-card-body {
-        padding: 15px;
-    }
-
     .inspire-actions {
         flex-wrap: wrap;
     }
@@ -942,12 +943,10 @@ body[data-ui-style="editorial"] .eyebrow {
 
 @media (prefers-reduced-motion: reduce) {
     .inspire-tab,
-    .inspire-image img,
     .inspire-shop-link,
     .inspire-save-button,
     .inspire-remove-button,
-    .inspire-gender-option,
-    .inspire-card-skeleton .inspire-image,
+    .inspire-card-skeleton .img-container,
     .inspire-skeleton-line {
         transition: none;
         animation: none;
