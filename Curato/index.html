@@ -152,8 +152,7 @@
         .hero-title { font-size: clamp(2.7rem, 7vw, 6.5rem); line-height: .93; letter-spacing: -.08em; }
         .hero-title em { color: var(--purple); font-style: normal; }
         .prompt-wrap { background: var(--prompt-surface); border-radius: 25px; padding: 8px; box-shadow: 10px 12px 0 var(--mint); }
-        #occasion-input,
-        #inspire-search {
+        #occasion-input {
             min-height: 100px;
             color: white;
             font-size: clamp(1.35rem, 3vw, 2.5rem);
@@ -161,8 +160,7 @@
             line-height: 1.05;
             letter-spacing: -.055em;
         }
-        #occasion-input::placeholder,
-        #inspire-search::placeholder { color: rgba(255,255,255,.38); }
+        #occasion-input::placeholder { color: rgba(255,255,255,.38); }
         .prompt-submit, .primary-button {
             background: var(--orange);
             color: var(--ink);
@@ -328,7 +326,7 @@
         .account-provider { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--paper) 55%, var(--card)); }
         @media (max-width: 640px) { .hero-title { font-size: 3.6rem; } .prompt-wrap { box-shadow: 6px 8px 0 var(--mint); } .response-copy { font-size: 15px; } }
     </style>
-    <link rel="stylesheet" href="styles.css?v=inspire4">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <nav class="topbar fixed top-0 z-50 w-full">
@@ -446,71 +444,7 @@
         </section>
     </div>
 
-    <main class="mx-auto max-w-7xl px-5 pb-24 pt-28 md:px-8">
-        <div class="inspire-tabs mb-10 flex gap-2" role="tablist" aria-label="Curato sections">
-            <button id="wardrobe-tab" class="inspire-tab" type="button" role="tab" aria-selected="true" aria-controls="wardrobe-view" data-show-view="wardrobe"><i class="fa-solid fa-shirt mr-2" aria-hidden="true"></i>Wardrobe</button>
-            <button id="inspire-tab" class="inspire-tab" type="button" role="tab" aria-selected="false" aria-controls="inspire-view" data-show-view="inspire"><i class="fa-solid fa-wand-magic-sparkles mr-2" aria-hidden="true"></i>Inspire</button>
-        </div>
-        <section id="inspire-view" data-app-view="inspire" class="hidden" role="tabpanel" aria-labelledby="inspire-tab">
-            <section class="mx-auto mb-16 max-w-5xl">
-                <div class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                        <p class="eyebrow mb-4">Shop the gap</p>
-                        <h1 class="hero-title max-w-4xl font-bold">Find your next<br><em>favourite.</em></h1>
-                    </div>
-                    <button id="open-inspire-wishlist" class="primary-button flex shrink-0 items-center justify-center gap-3 rounded-[15px] px-5 py-4 text-sm" type="button" aria-haspopup="dialog" aria-controls="inspire-wishlist-modal">
-                        <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><span>Wishlist</span><span id="inspire-wishlist-count" class="inspire-count">0</span>
-                    </button>
-                </div>
-
-                <div class="prompt-wrap mt-2">
-                    <input id="inspire-search" type="search" maxlength="120" class="w-full border-0 bg-transparent px-5 pb-4 pt-4 outline-none" placeholder="What are we looking for?" aria-label="Describe the piece you want to find">
-                    <div class="flex flex-col gap-3 px-2 pb-2">
-                        <div class="flex flex-wrap items-center gap-2" role="radiogroup" aria-label="Masculine or feminine lean">
-                            <button type="button" class="suggestion-chip" role="radio" aria-checked="false" data-inspire-gender="masculine"><i class="fa-solid fa-mars" aria-hidden="true"></i><span>Masculine</span></button>
-                            <button type="button" class="suggestion-chip" role="radio" aria-checked="true" data-inspire-gender="feminine"><i class="fa-solid fa-venus" aria-hidden="true"></i><span>Feminine</span></button>
-                            <button type="button" class="suggestion-chip" role="radio" aria-checked="false" data-inspire-gender="either"><i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i><span>Either</span></button>
-                        </div>
-                        <div class="flex flex-col items-stretch justify-between gap-3 sm:flex-row sm:items-center">
-                            <div id="inspire-category-chips" class="flex flex-wrap items-center gap-2" role="group" aria-label="Item type">
-                                <button type="button" class="suggestion-chip active" data-inspire-category="All">All</button>
-                                <button type="button" class="suggestion-chip" data-inspire-category="Top">Tops</button>
-                                <button type="button" class="suggestion-chip" data-inspire-category="Bottom">Bottoms</button>
-                                <button type="button" class="suggestion-chip" data-inspire-category="Outerwear">Outerwear</button>
-                                <button type="button" class="suggestion-chip" data-inspire-category="Shoes">Shoes</button>
-                                <button type="button" class="suggestion-chip" data-inspire-category="Bag">Bags</button>
-                                <button type="button" class="suggestion-chip" data-inspire-category="Accessory">Accessories</button>
-                            </div>
-                            <button id="refresh-inspire" class="prompt-submit rounded-[17px] px-5 py-3 text-[11px] uppercase tracking-[.08em]" type="button"><i class="fa-solid fa-sparkles mr-2" aria-hidden="true"></i><span id="refresh-inspire-label">Find</span></button>
-                        </div>
-                    </div>
-                </div>
-
-                <label class="mt-5 block">
-                    <span class="sr-only">Preferred brands</span>
-                    <input id="inspire-brands" type="text" maxlength="160" class="field w-full max-w-xl py-3 text-sm" placeholder="Preferred brands (optional, comma separated)">
-                </label>
-                <p class="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted)]">One AI search. Up to six live listings across retailers. Buy opens the real product page. Needs your Gemini key.</p>
-            </section>
-
-            <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
-                <div class="section-label"><span>Pieces with potential</span></div>
-                <p id="inspire-results-count" class="text-xs text-[var(--muted)]" aria-live="polite"></p>
-            </div>
-            <div id="inspire-status" class="inspire-status hidden mb-5" role="status" aria-live="polite"></div>
-            <div id="inspire-search-suggestions" class="inspire-search-suggestions mb-5 hidden"></div>
-            <div id="inspire-grid" class="grid grid-cols-1 gap-8 sm:grid-cols-2 xl:grid-cols-3" aria-live="polite"></div>
-            <select id="inspire-category" class="hidden" aria-hidden="true" tabindex="-1">
-                <option value="All" selected>All</option>
-                <option value="Top">Tops</option>
-                <option value="Bottom">Bottoms</option>
-                <option value="Outerwear">Outerwear</option>
-                <option value="Shoes">Shoes</option>
-                <option value="Bag">Bags</option>
-                <option value="Accessory">Accessories</option>
-            </select>
-        </section>
-        <div id="wardrobe-view" data-app-view="wardrobe" role="tabpanel" aria-labelledby="wardrobe-tab">
+    <main class="mx-auto max-w-7xl px-5 pb-24 pt-32 md:px-8">
         <section class="mx-auto mb-24 max-w-5xl">
             <h1 class="hero-title max-w-4xl font-bold">Get dressed<br><em>to impress.</em></h1>
             <div class="prompt-wrap mt-9">
@@ -596,20 +530,8 @@
                 <div id="catalog-grid" class="grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-3 md:gap-x-7"></div>
             </section>
         </div>
-        </div>
     </main>
 
-    <div id="inspire-wishlist-modal" class="fixed inset-0 z-[65] hidden items-center justify-center p-5" role="dialog" aria-modal="true" aria-labelledby="inspire-wishlist-title">
-        <div class="absolute inset-0 backdrop-blur-sm" style="background: var(--backdrop)" data-close-inspire-wishlist></div>
-        <section class="relative max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-[25px] border p-6 md:p-9" style="background: var(--card); border-color: var(--line); color: var(--ink);">
-            <div class="mb-7 flex items-start justify-between gap-6">
-                <div><p class="eyebrow mb-2">Saved for later</p><h2 id="inspire-wishlist-title" class="accent-font text-3xl font-bold tracking-[-.06em]">Your wishlist</h2></div>
-                <button type="button" data-close-inspire-wishlist class="text-xl text-[var(--muted)] hover:text-[var(--ink)]" aria-label="Close wishlist"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
-            </div>
-            <div id="inspire-wishlist-list" class="grid gap-4 sm:grid-cols-2"></div>
-            <p id="inspire-wishlist-empty" class="py-10 text-center text-sm text-[var(--muted)]">Your wishlist is ready for a little inspiration. Save a piece to see it here.</p>
-        </section>
-    </div>
     <div id="favorites-modal" class="fixed inset-0 z-[60] hidden items-center justify-center p-5" role="dialog" aria-modal="true" aria-labelledby="favorites-title">
         <div class="absolute inset-0 backdrop-blur-sm" style="background: var(--backdrop)" data-close-favorites></div>
         <section class="relative max-h-[85vh] w-full max-w-4xl overflow-y-auto rounded-[25px] border p-7 md:p-10">
@@ -720,6 +642,6 @@
         </section>
     </div>
 
-    <script type="module" src="app.js?v=inspire4"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
