@@ -452,9 +452,9 @@
         <section id="inspire-view" data-app-view="inspire" class="hidden" role="tabpanel" aria-labelledby="inspire-tab">
             <div class="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
                 <div class="max-w-2xl">
-                    <p class="eyebrow mb-4">Curated for your wardrobe</p>
+                    <p class="eyebrow mb-4">Live finds across the web</p>
                     <h1 class="hero-title max-w-3xl font-bold">Find your next<br><em>favourite.</em></h1>
-                    <p class="mt-5 max-w-xl text-sm leading-7 text-[var(--muted)]">Fresh pieces to fill the gaps and make more of what you already own. Save ideas for later, then find current listings at your favourite shops. Your wishlist stays saved in this browser.</p>
+                    <p class="mt-5 max-w-xl text-sm leading-7 text-[var(--muted)]">Ask for a piece, and Curato searches retailers for real listings you can buy. Results pair with what you already own. Your wishlist stays in this browser.</p>
                 </div>
                 <button id="open-inspire-wishlist" class="primary-button flex shrink-0 items-center justify-center gap-3 rounded-[15px] px-5 py-4 text-sm" type="button" aria-haspopup="dialog" aria-controls="inspire-wishlist-modal">
                     <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><span>Your wishlist</span><span id="inspire-wishlist-count" class="inspire-count">0</span>
@@ -462,16 +462,23 @@
             </div>
 
             <section class="surface mb-12 rounded-[25px] p-5 md:p-7" aria-labelledby="inspire-controls-title">
-                <div class="mb-5">
-                    <h2 id="inspire-controls-title" class="accent-font text-xl font-bold tracking-[-.04em]">Set the mood</h2>
-                    <p class="mt-1 text-xs text-[var(--muted)]">Tell us what you’re looking for and where you like to shop.</p>
+                <div class="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <h2 id="inspire-controls-title" class="accent-font text-xl font-bold tracking-[-.04em]">Set the mood</h2>
+                        <p class="mt-1 text-xs text-[var(--muted)]">Describe a gap, pick a lean, then find a handful of buyable pieces.</p>
+                    </div>
+                    <div class="inspire-gender" role="radiogroup" aria-label="Masculine or feminine lean">
+                        <button type="button" class="inspire-gender-option" role="radio" aria-checked="false" data-inspire-gender="masculine">Masculine</button>
+                        <button type="button" class="inspire-gender-option" role="radio" aria-checked="true" data-inspire-gender="feminine">Feminine</button>
+                        <button type="button" class="inspire-gender-option" role="radio" aria-checked="false" data-inspire-gender="either">Either</button>
+                    </div>
                 </div>
                 <div class="grid gap-3 md:grid-cols-12">
-                    <label class="md:col-span-5">
+                    <label class="md:col-span-7">
                         <span class="sr-only">Search for a style or wardrobe gap</span>
-                        <input id="inspire-search" type="search" maxlength="100" class="field w-full py-3 text-sm" placeholder="Try “a light layer for spring”">
+                        <input id="inspire-search" type="search" maxlength="100" class="field w-full py-3 text-sm" placeholder="Try “a light layer for spring” or “black loafers”">
                     </label>
-                    <label class="md:col-span-3">
+                    <label class="md:col-span-5">
                         <span class="sr-only">Filter by item type</span>
                         <select id="inspire-category" class="field w-full py-3 text-sm">
                             <option value="All">All item types</option>
@@ -483,31 +490,23 @@
                             <option value="Accessory">Accessories</option>
                         </select>
                     </label>
-                    <label class="md:col-span-4">
-                        <span class="sr-only">Choose a shop for your search</span>
-                        <select id="inspire-store" class="field w-full py-3 text-sm">
-                            <option value="Zara">Shop Zara</option>
-                            <option value="Amazon">Shop Amazon</option>
-                            <option value="Next">Shop Next</option>
-                            <option value="Your brands">Shop your brands</option>
-                            <option value="Google Shopping">Search all shops</option>
-                        </select>
-                    </label>
                 </div>
                 <div class="mt-3 flex flex-col gap-3 sm:flex-row">
                     <label class="min-w-0 flex-1">
                         <span class="sr-only">Your favourite brands</span>
-                        <input id="inspire-brands" type="text" maxlength="160" class="field w-full py-3 text-sm" placeholder="Your brands (optional, comma separated)">
+                        <input id="inspire-brands" type="text" maxlength="160" class="field w-full py-3 text-sm" placeholder="Preferred brands (optional, comma separated)">
                     </label>
-                    <button id="refresh-inspire" class="item-card-action justify-center px-5 py-3" type="button"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>Refresh ideas</button>
+                    <button id="refresh-inspire" class="primary-button justify-center gap-2 rounded-[12px] px-5 py-3 text-sm" type="button"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i><span id="refresh-inspire-label">Find pieces</span></button>
                 </div>
-                <p class="mt-3 text-xs leading-5 text-[var(--muted)]">Shop links open live search results. Prices and availability are set by each retailer; preview photos are style references.</p>
+                <p class="mt-3 text-xs leading-5 text-[var(--muted)]">Uses one short AI search for up to six live listings across many shops. Prices and stock come from each retailer. Needs your Gemini API key.</p>
             </section>
 
             <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
                 <div><p class="eyebrow mb-2">The edit</p><h2 class="accent-font text-2xl font-bold tracking-[-.05em]">Pieces with potential</h2></div>
                 <p id="inspire-results-count" class="text-xs text-[var(--muted)]" aria-live="polite"></p>
             </div>
+            <div id="inspire-status" class="inspire-status hidden mb-5" role="status" aria-live="polite"></div>
+            <div id="inspire-search-suggestions" class="inspire-search-suggestions mb-5 hidden"></div>
             <div id="inspire-grid" class="inspire-grid grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3" aria-live="polite"></div>
         </section>
         <div id="wardrobe-view" data-app-view="wardrobe" role="tabpanel" aria-labelledby="wardrobe-tab">
