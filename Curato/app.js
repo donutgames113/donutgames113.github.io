@@ -499,7 +499,10 @@ function getInspireReferenceImage(idea) {
 function isSafeProductUrl(value) {
     try {
         const url = new URL(value);
-        return url.protocol === 'https:' && !/google\.com\/search|googleadservices\.com/i.test(url.hostname + url.pathname);
+        const address = `${url.hostname}${url.pathname}`.toLowerCase();
+        return url.protocol === 'https:'
+            && url.pathname.length > 1
+            && !/google\.com\/search|googleadservices\.com|\/search(?:\/|$)|\/collections?(?:\/|$)|\/categories?(?:\/|$)|\/products?\?(?!.*(?:sku|id|product))/i.test(address);
     } catch (_) {
         return false;
     }
@@ -518,7 +521,11 @@ function normaliseInspireProducts(products, context, groundedUrls = null) {
         const url = String(product?.url || '').trim();
         if (!name || !isSafeProductUrl(url)) return null;
         const normalizedUrl = normaliseProductUrl(url);
-        if (groundedUrls && !groundedUrls.has(normalizedUrl)) return null;
+        // Google can cite a redirected, canonical, or collection URL while the model
+        // returns the retailer's clean product URL. Prefer an exact citation, but do
+        // not discard a safe direct product URL merely because its path was canonicalised.
+        if (groundedUrls?.exact?.size && !groundedUrls.exact.has(normalizedUrl)
+            && groundedUrls.origins.size && !groundedUrls.origins.has(new URL(url).origin.toLowerCase())) return null;
         const id = `live-${btoa(unescape(encodeURIComponent(`${name}|${url}`))).replace(/[^a-z0-9]/gi, '').slice(0, 32)}`;
         if (seen.has(url)) return null;
         seen.add(url);
@@ -578,21 +585,40 @@ Use Google Search to verify each item. Return only a JSON object with a "product
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            tools: [{ google_search: {} }],
+            tools: [{ googleSearch: {} }],
             generationConfig: { temperature: 0.1, maxOutputTokens: 2800, responseMimeType: 'application/json' }
         })
     });
     const result = await response.json();
     if (!response.ok) throw new Error(result.error?.message || 'Live product search failed.');
+    const groundingChunks = result.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+    const groundedSources = groundingChunks
+        .map(chunk => ({ url: chunk.web?.uri, title: chunk.web?.title }))
+        .filter(source => isSafeProductUrl(source.url));
+    const groundedSourceUrls = groundedSources.map(source => new URL(source.url));
+    const groundedUrls = {
+        exact: new Set(groundedSourceUrls.map(url => normaliseProductUrl(url))),
+        origins: new Set(groundedSourceUrls.map(url => url.origin.toLowerCase()))
+    };
     const text = result.candidates?.[0]?.content?.parts?.map(part => part.text || '').join('') || '';
     const cleaned = text.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(cleaned.slice(cleaned.indexOf('{'), cleaned.lastIndexOf('}') + 1));
-    const groundedUrls = new Set((result.candidates?.[0]?.groundingMetadata?.groundingChunks || [])
-        .map(chunk => chunk.web?.uri)
-        .filter(isSafeProductUrl)
-        .map(normaliseProductUrl));
-    const products = normaliseInspireProducts(parsed.products, context, groundedUrls);
-    if (!products.length) throw new Error('No verified direct product links were returned. Please try a more specific search.');
+    let parsedProducts = [];
+    try {
+        parsedProducts = JSON.parse(cleaned.slice(cleaned.indexOf('{'), cleaned.lastIndexOf('}') + 1)).products || [];
+    } catch (error) {
+        console.warn('Inspire returned an unstructured response; using cited retailer pages instead.', error);
+    }
+    let products = normaliseInspireProducts(parsedProducts, context, groundedUrls);
+    if (!products.length && groundedSources.length) {
+        products = normaliseInspireProducts(groundedSources.map(source => ({
+            name: source.title || new URL(source.url).hostname.replace(/^www\./, ''),
+            retailer: new URL(source.url).hostname.replace(/^www\./, ''),
+            url: source.url,
+            category: context.category,
+            reason: 'Cited retailer page found in the live search.'
+        })), context, groundedUrls);
+    }
+    if (!products.length) throw new Error('No direct retailer pages were found for that search. Try a different description.');
     return products;
 }
 
@@ -1499,7 +1525,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const products = await fetchInspireProducts(context);
             inspireProducts = products;
             saveInspireCache(context, products);
-            setInspireStatus(`${products.length} verified product links found. Availability and price can change at the retailer.`);
+            setInspireStatus(`${products.length} direct product links found. Availability and price can change at the retailer.`);
         } catch (error) {
             console.error('Inspire product search failed:', error);
             inspireProducts = [];
