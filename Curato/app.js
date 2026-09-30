@@ -676,7 +676,6 @@ function getInspireWardrobePairings(idea) {
 function renderInspireIdeas() {
     const grid = document.getElementById('inspire-grid');
     const resultCount = document.getElementById('inspire-results-count');
-    const categoryFilter = document.getElementById('inspire-category')?.value || 'All';
     const context = getInspireSearchContext();
     if (!grid) return;
 
@@ -688,17 +687,10 @@ function renderInspireIdeas() {
         return;
     }
 
-    const sourceIdeas = inspireProducts;
-    const matchingIdeas = sourceIdeas.map(idea => {
-        const matchesCategory = categoryFilter === 'All' || idea.category === categoryFilter;
-        return { idea, matchesCategory, score: 0 };
-    }).filter(result => result.matchesCategory)
-        .sort((first, second) => second.score - first.score)
-        .map(result => result.idea);
-    let ideas = matchingIdeas;
-    if (!searchTerm && ideas.length > 0) {
-        ideas = ideas.slice(0, context.limit);
-    }
+    // The product request already includes the active brief, item type, and style
+    // direction. Do not apply a second local filter here: retailer terminology is
+    // inconsistent (for example, “sneaker” versus “shoe”) and could hide valid finds.
+    const ideas = inspireProducts.slice(0, context.limit);
 
     if (resultCount) resultCount.textContent = `${ideas.length} ${ideas.length === 1 ? 'product' : 'products'}${inspireProducts.length ? ' · verified links' : ' · search to see live products'}`;
     if (ideas.length === 0) {
