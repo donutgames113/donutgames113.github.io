@@ -673,13 +673,14 @@ function getInspireWardrobePairings(idea) {
         .slice(0, 2);
 }
 
-function renderInspireIdeas() {
+function renderInspireIdeas(productSet = inspireProducts) {
     const grid = document.getElementById('inspire-grid');
     const resultCount = document.getElementById('inspire-results-count');
     const context = getInspireSearchContext();
+    const visibleProducts = Array.isArray(productSet) ? productSet : [];
     if (!grid) return;
 
-    if (!inspireProducts.length) {
+    if (!visibleProducts.length) {
         if (resultCount) resultCount.textContent = 'Ready to search live retailers';
         grid.innerHTML = inspireSearchError
             ? `<div class="surface col-span-full rounded-[20px] p-8 text-center text-sm text-[var(--muted)]"><i class="fa-solid fa-circle-exclamation mb-3 block text-xl text-[var(--orange)]" aria-hidden="true"></i><strong class="mb-2 block text-[var(--ink)]">The live search could not return product pages.</strong>${escapeHTML(inspireSearchError)} Check that a Gemini key is saved in Account, then try a specific item such as “black leather loafers”.</div>`
@@ -690,9 +691,9 @@ function renderInspireIdeas() {
     // The product request already includes the active brief, item type, and style
     // direction. Do not apply a second local filter here: retailer terminology is
     // inconsistent (for example, “sneaker” versus “shoe”) and could hide valid finds.
-    const ideas = inspireProducts.slice(0, context.limit);
+    const ideas = visibleProducts.slice(0, context.limit);
 
-    if (resultCount) resultCount.textContent = `${ideas.length} ${ideas.length === 1 ? 'product' : 'products'}${inspireProducts.length ? ' · verified links' : ' · search to see live products'}`;
+    if (resultCount) resultCount.textContent = `${ideas.length} ${ideas.length === 1 ? 'product' : 'products'} · direct retailer links`;
     if (ideas.length === 0) {
         grid.innerHTML = '<div class="surface col-span-full rounded-[20px] p-8 text-center text-sm text-[var(--muted)]">No live products match those filters. Update the brief and search again for a new edit.</div>';
         return;
@@ -1512,6 +1513,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('refresh-inspire')?.addEventListener('click', async event => {
         const button = event.currentTarget;
         const context = getInspireSearchContext();
+        let resolvedProducts = null;
         inspireSearchError = '';
         const cached = readInspireCache(context);
         if (cached.length) {
@@ -1528,6 +1530,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const products = await fetchInspireProducts(context);
             inspireProducts = products;
+            resolvedProducts = products;
             saveInspireCache(context, products);
             setInspireStatus(`${products.length} direct product links found. Availability and price can change at the retailer.`);
         } catch (error) {
@@ -1538,7 +1541,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             button.disabled = false;
             button.innerHTML = '<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>Find real products';
-            renderInspireIdeas();
+            renderInspireIdeas(resolvedProducts || inspireProducts);
         }
     });
 
