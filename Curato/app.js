@@ -70,6 +70,8 @@ let latestSuggestion = null;
 let favoriteOutfits = [];
 let consultationItems = [];
 let wardrobeItems = [];
+let inspireWishlist = [];
+let inspireOffset = 0;
 let selectedWardrobeItems = new Set();
 let wardrobeSelectionMode = false;
 let nextItemReference = 1;
@@ -449,6 +451,175 @@ function escapeHTML(value) {
         "'": '&#39;',
         '"': '&quot;'
     })[character]);
+}
+
+const INSPIRE_WISHLIST_KEY = 'curato-inspire-wishlist';
+const INSPIRE_BRANDS_KEY = 'curato-inspire-brands';
+
+const inspireIdeas = [
+    { id: 'poplin-shirt', name: 'Relaxed cotton poplin shirt', category: 'Top', detail: 'A crisp, easy layer for everyday rotation.', keywords: 'white cotton shirt crisp spring layering', image: 'photo-1596755094514-f87e34085b2c' },
+    { id: 'wide-leg-jeans', name: 'Wide-leg denim', category: 'Bottom', detail: 'A new silhouette that works with your familiar favourites.', keywords: 'denim jeans blue relaxed wide leg', image: 'photo-1542272604-787c3835535d' },
+    { id: 'lightweight-jacket', name: 'Lightweight utility jacket', category: 'Outerwear', detail: 'A practical top layer for changeable days.', keywords: 'jacket utility lightweight olive spring coat layer', image: 'photo-1591047139829-d91aecb6caea' },
+    { id: 'everyday-trainers', name: 'Minimal everyday trainers', category: 'Shoes', detail: 'A clean finishing touch for relaxed looks.', keywords: 'trainers sneakers shoes white everyday casual', image: 'photo-1542291026-7eec264c27ff' },
+    { id: 'leather-loafers', name: 'Polished leather loafers', category: 'Shoes', detail: 'An understated way to dress up your daily uniform.', keywords: 'loafers leather shoes black smart', image: 'photo-1543163521-1bf539c55dd2' },
+    { id: 'shoulder-bag', name: 'Soft shoulder bag', category: 'Bag', detail: 'A useful shape with room for the everyday essentials.', keywords: 'bag shoulder handbag brown leather accessory', image: 'photo-1584917865442-de89df76afd3' },
+    { id: 'fine-knit', name: 'Fine-knit crew neck', category: 'Top', detail: 'An easy mid-layer that slips into your existing outfits.', keywords: 'knit sweater jumper crew neck soft layer', image: 'photo-1620799140408-edc6dcb6d633' },
+    { id: 'linen-trousers', name: 'Relaxed linen trousers', category: 'Bottom', detail: 'A breathable option for warmer days and laid-back plans.', keywords: 'linen trousers pants relaxed summer beige', image: 'photo-1506629905607-d9aa6b4e66df' },
+    { id: 'structured-blazer', name: 'Soft-shoulder blazer', category: 'Outerwear', detail: 'A versatile layer to bring a little structure to a look.', keywords: 'blazer jacket tailored navy smart layer', image: 'photo-1591047139829-d91aecb6caea' },
+    { id: 'leather-belt', name: 'Everyday leather belt', category: 'Accessory', detail: 'A small finishing detail that earns its place.', keywords: 'belt leather accessory brown black', image: 'photo-1624222247344-550fb8f9a72b' },
+    { id: 'silver-watch', name: 'Clean-lined silver watch', category: 'Accessory', detail: 'A considered everyday accessory, kept simple.', keywords: 'watch silver minimal accessory wrist', image: 'photo-1523275335684-37898b6baf30' },
+    { id: 'canvas-tote', name: 'Structured canvas tote', category: 'Bag', detail: 'A roomy everyday carryall with a relaxed feel.', keywords: 'tote bag canvas everyday carryall', image: 'photo-1590874103328-eac38a683ce7' }
+];
+
+function loadInspireWishlist() {
+    try {
+        const storedWishlist = localStorage.getItem(INSPIRE_WISHLIST_KEY);
+        if (!storedWishlist) return [];
+        const parsedWishlist = JSON.parse(storedWishlist);
+        if (!Array.isArray(parsedWishlist)) throw new Error('Saved wishlist must be a list.');
+        return parsedWishlist.filter(item =>
+            item
+            && typeof item.id === 'string'
+            && typeof item.name === 'string'
+            && typeof item.category === 'string'
+            && typeof item.detail === 'string'
+            && typeof item.store === 'string'
+            && typeof item.image === 'string'
+            && (item.brands === undefined || typeof item.brands === 'string')
+        );
+    } catch (error) {
+        console.error('Unable to read the Inspire wishlist:', error);
+        return [];
+    }
+}
+
+function persistInspireWishlist(nextWishlist) {
+    localStorage.setItem(INSPIRE_WISHLIST_KEY, JSON.stringify(nextWishlist));
+}
+
+function getInspireShopUrl(store, productName, brandNames) {
+    const preferredBrands = brandNames.split(',').map(brand => brand.trim()).filter(Boolean);
+    const query = store === 'Your brands' && preferredBrands.length
+        ? `${preferredBrands.join(' ')} ${productName}`
+        : productName;
+    const encodedQuery = encodeURIComponent(query);
+
+    if (store === 'Zara') return `https://www.zara.com/uk/en/search?searchTerm=${encodedQuery}`;
+    if (store === 'Amazon') return `https://www.amazon.co.uk/s?k=${encodedQuery}`;
+    if (store === 'Next') return `https://www.next.co.uk/search?w=${encodedQuery}`;
+    return `https://www.google.com/search?tbm=shop&q=${encodedQuery}`;
+}
+
+function getInspireWardrobePairings(idea) {
+    const compatibleCategories = {
+        Top: ['bottom', 'shoe'],
+        Bottom: ['top', 'shoe'],
+        Outerwear: ['top', 'bottom'],
+        Shoes: ['top', 'bottom'],
+        Bag: ['top', 'bottom'],
+        Accessory: ['top', 'bottom']
+    };
+    const wanted = compatibleCategories[idea.category] || ['top', 'bottom'];
+    return wardrobeItems
+        .filter(item => {
+            const category = `${item.tags?.subcategory || ''} ${item.tags?.category || ''}`.toLowerCase();
+            return wanted.some(match => category.includes(match));
+        })
+        .slice(0, 2);
+}
+
+function renderInspireIdeas() {
+    const grid = document.getElementById('inspire-grid');
+    const resultCount = document.getElementById('inspire-results-count');
+    const categoryFilter = document.getElementById('inspire-category')?.value || 'All';
+    const searchTerm = document.getElementById('inspire-search')?.value.trim().toLowerCase() || '';
+    const store = document.getElementById('inspire-store')?.value || 'Zara';
+    const brandNames = document.getElementById('inspire-brands')?.value || '';
+    if (!grid) return;
+
+    const searchTerms = searchTerm.split(/\s+/).filter(term => !['a', 'an', 'and', 'for', 'in', 'of', 'the', 'to', 'with'].includes(term));
+    const matchingIdeas = inspireIdeas.map(idea => {
+        const matchesCategory = categoryFilter === 'All' || idea.category === categoryFilter;
+        const searchableText = `${idea.name} ${idea.category} ${idea.detail} ${idea.keywords}`.toLowerCase();
+        const score = searchTerms.reduce((total, term) => total + Number(searchableText.includes(term)), 0);
+        return { idea, matchesCategory, score };
+    }).filter(result => result.matchesCategory && (!searchTerms.length || result.score > 0))
+        .sort((first, second) => second.score - first.score)
+        .map(result => result.idea);
+    let ideas = matchingIdeas;
+    if (searchTerm && ideas.length === 0) {
+        const category = categoryFilter !== 'All'
+            ? categoryFilter
+            : /shoe|trainer|loafer|boot/.test(searchTerm) ? 'Shoes'
+                : /bag|tote|purse/.test(searchTerm) ? 'Bag'
+                    : /coat|jacket|blazer|layer/.test(searchTerm) ? 'Outerwear'
+                        : /trouser|jean|skirt|bottom/.test(searchTerm) ? 'Bottom' : 'Top';
+        const safeId = searchTerm.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'style-search';
+        ideas = [{
+            id: `search-${safeId}`,
+            name: searchTerm.replace(/\b\w/g, letter => letter.toUpperCase()),
+            category,
+            detail: 'A style direction based on your search. Explore current retailer results to find your version.',
+            keywords: searchTerm,
+            image: inspireIdeas.find(idea => idea.category === category)?.image || inspireIdeas[0].image
+        }];
+    } else if (!searchTerm && ideas.length > 0) {
+        const start = inspireOffset % ideas.length;
+        ideas = [...ideas.slice(start), ...ideas.slice(0, start)].slice(0, 6);
+    }
+
+    if (resultCount) resultCount.textContent = `${ideas.length} ${ideas.length === 1 ? 'idea' : 'ideas'}`;
+    if (ideas.length === 0) {
+        grid.innerHTML = '<div class="surface col-span-full rounded-[20px] p-8 text-center text-sm text-[var(--muted)]">No ideas match those filters yet. Try another item type or search.</div>';
+        return;
+    }
+
+    grid.innerHTML = ideas.map(idea => {
+        const saved = inspireWishlist.some(item => item.id === idea.id);
+        const pairings = getInspireWardrobePairings(idea);
+        const pairingMarkup = pairings.length
+            ? pairings.map(item => `<span class="flex min-w-0 items-center gap-2"><img src="${escapeHTML(item.image_url)}" alt="" loading="lazy"><span class="truncate"><strong class="text-[var(--ink)]">${escapeHTML(item.name)}</strong><span class="block text-[9px]">from your wardrobe</span></span></span>`).join('')
+            : '<span class="min-w-0"><strong class="text-[var(--ink)]">Your wardrobe, next</strong><span class="block">Add pieces to see how they pair.</span></span>';
+        const hasBrands = brandNames.split(',').some(brand => brand.trim());
+        const shopLabel = store === 'Your brands' && !hasBrands ? 'Search shops' : `Find at ${store}`;
+        return `<article class="inspire-card">
+            <div class="inspire-image">
+                <img src="https://images.unsplash.com/${escapeHTML(idea.image)}?auto=format&fit=crop&w=900&q=82" alt="Style reference for ${escapeHTML(idea.name)}" loading="lazy">
+                <span class="inspire-image-label">Style reference · ${escapeHTML(idea.category)}</span>
+            </div>
+            <div class="inspire-card-body">
+                <p class="eyebrow mb-2">${escapeHTML(store === 'Your brands' && hasBrands ? brandNames.split(',').map(brand => brand.trim()).filter(Boolean).slice(0, 2).join(' · ') : store)}</p>
+                <h3 class="accent-font text-lg font-bold leading-snug tracking-[-.04em]">${escapeHTML(idea.name)}</h3>
+                <p class="mt-2 text-xs leading-5 text-[var(--muted)]">${escapeHTML(idea.detail)}</p>
+                <div class="inspire-pairing"><i class="fa-solid fa-link text-[var(--purple)]" aria-hidden="true"></i><div class="flex min-w-0 flex-wrap gap-x-4 gap-y-2">${pairingMarkup}</div></div>
+                <div class="inspire-actions">
+                    <a class="inspire-shop-link" href="${escapeHTML(getInspireShopUrl(store, idea.name, brandNames))}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>${escapeHTML(shopLabel)}</a>
+                    <button type="button" class="inspire-save-button" data-save-inspire="${escapeHTML(idea.id)}" data-inspire-name="${escapeHTML(idea.name)}" data-inspire-category="${escapeHTML(idea.category)}" data-inspire-detail="${escapeHTML(idea.detail)}" data-inspire-keywords="${escapeHTML(idea.keywords)}" data-inspire-image="${escapeHTML(idea.image)}" aria-pressed="${saved}" aria-label="${saved ? 'Remove' : 'Add'} ${escapeHTML(idea.name)} ${saved ? 'from' : 'to'} wishlist"><i class="fa-${saved ? 'solid' : 'regular'} fa-heart" aria-hidden="true"></i>${saved ? 'Saved' : 'Save'}</button>
+                </div>
+            </div>
+        </article>`;
+    }).join('');
+}
+
+function renderInspireWishlist() {
+    const grid = document.getElementById('inspire-wishlist-list');
+    const emptyMessage = document.getElementById('inspire-wishlist-empty');
+    const count = document.getElementById('inspire-wishlist-count');
+    if (count) count.textContent = String(inspireWishlist.length);
+    if (emptyMessage) emptyMessage.classList.toggle('hidden', inspireWishlist.length > 0);
+    if (!grid) return;
+
+    grid.innerHTML = inspireWishlist.map(item => `<article class="inspire-wishlist-card">
+        <img class="inspire-wishlist-image" src="https://images.unsplash.com/${escapeHTML(item.image)}?auto=format&fit=crop&w=300&q=75" alt="Style reference for ${escapeHTML(item.name)}" loading="lazy">
+        <div class="inspire-wishlist-content">
+            <p class="eyebrow mb-1">${escapeHTML(item.category)} · ${escapeHTML(item.store)}</p>
+            <h3 class="accent-font text-sm font-bold leading-snug">${escapeHTML(item.name)}</h3>
+            <div class="mt-3 flex flex-wrap gap-2">
+                <a class="inspire-shop-link min-h-[34px] px-3" href="${escapeHTML(getInspireShopUrl(item.store, item.name, item.brands || ''))}" target="_blank" rel="noopener noreferrer">Shop search<i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
+                <button class="inspire-remove-button min-h-[34px] px-3" type="button" data-remove-inspire="${escapeHTML(item.id)}" aria-label="Remove ${escapeHTML(item.name)} from wishlist">Remove</button>
+            </div>
+        </div>
+    </article>`).join('');
 }
 
 // ========================================
@@ -968,6 +1139,7 @@ async function fetchItems() {
         });
     });
     updateWardrobeSelectionUI();
+    renderInspireIdeas();
 }
 
 function openItemEditor(item) {
@@ -1113,6 +1285,131 @@ async function uploadImageToStorage(base64Data) {
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeTheme();
+    inspireWishlist = loadInspireWishlist();
+    renderInspireWishlist();
+    renderInspireIdeas();
+
+    const inspireBrandsInput = document.getElementById('inspire-brands');
+    if (inspireBrandsInput) {
+        try {
+            inspireBrandsInput.value = localStorage.getItem(INSPIRE_BRANDS_KEY) || '';
+        } catch (error) {
+            console.error('Unable to read your favourite brands:', error);
+            alert('Your favourite brands could not be loaded from this browser.');
+        }
+        inspireBrandsInput.addEventListener('change', () => {
+            try {
+                localStorage.setItem(INSPIRE_BRANDS_KEY, inspireBrandsInput.value.trim());
+                renderInspireIdeas();
+                renderInspireWishlist();
+            } catch (error) {
+                console.error('Unable to save your favourite brands:', error);
+                alert('Your favourite brands could not be saved in this browser.');
+            }
+        });
+    }
+
+    const appTabs = Array.from(document.querySelectorAll('[data-show-view]'));
+    appTabs.forEach((button, index) => {
+        button.tabIndex = button.getAttribute('aria-selected') === 'true' ? 0 : -1;
+        button.addEventListener('click', () => {
+            const target = button.dataset.showView;
+            document.querySelectorAll('[data-app-view]').forEach(view => {
+                view.classList.toggle('hidden', view.dataset.appView !== target);
+            });
+            appTabs.forEach(tab => {
+                const selected = tab === button;
+                tab.setAttribute('aria-selected', String(selected));
+                tab.tabIndex = selected ? 0 : -1;
+            });
+            if (target === 'inspire') renderInspireIdeas();
+        });
+        button.addEventListener('keydown', event => {
+            let nextIndex = index;
+            if (event.key === 'ArrowRight') nextIndex = (index + 1) % appTabs.length;
+            else if (event.key === 'ArrowLeft') nextIndex = (index + appTabs.length - 1) % appTabs.length;
+            else if (event.key === 'Home') nextIndex = 0;
+            else if (event.key === 'End') nextIndex = appTabs.length - 1;
+            else return;
+            event.preventDefault();
+            appTabs[nextIndex].focus();
+            appTabs[nextIndex].click();
+        });
+    });
+
+    document.getElementById('inspire-category')?.addEventListener('change', renderInspireIdeas);
+    document.getElementById('inspire-store')?.addEventListener('change', renderInspireIdeas);
+    document.getElementById('inspire-search')?.addEventListener('input', renderInspireIdeas);
+    document.getElementById('inspire-search')?.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            renderInspireIdeas();
+        }
+    });
+    document.getElementById('refresh-inspire')?.addEventListener('click', () => {
+        inspireOffset += 3;
+        renderInspireIdeas();
+    });
+
+    const inspireWishlistModal = document.getElementById('inspire-wishlist-modal');
+    document.getElementById('open-inspire-wishlist')?.addEventListener('click', () => {
+        renderInspireWishlist();
+        inspireWishlistModal?.classList.remove('hidden');
+        inspireWishlistModal?.classList.add('flex');
+    });
+    document.querySelectorAll('[data-close-inspire-wishlist]').forEach(button => {
+        button.addEventListener('click', () => {
+            inspireWishlistModal?.classList.add('hidden');
+            inspireWishlistModal?.classList.remove('flex');
+        });
+    });
+
+    document.addEventListener('click', event => {
+        const saveButton = event.target.closest('[data-save-inspire]');
+        if (saveButton) {
+            const idea = inspireIdeas.find(item => item.id === saveButton.dataset.saveInspire) || {
+                id: saveButton.dataset.saveInspire,
+                name: saveButton.dataset.inspireName,
+                category: saveButton.dataset.inspireCategory,
+                detail: saveButton.dataset.inspireDetail,
+                keywords: saveButton.dataset.inspireKeywords,
+                image: saveButton.dataset.inspireImage
+            };
+            if (!idea) return;
+            const alreadySaved = inspireWishlist.some(item => item.id === idea.id);
+            const nextWishlist = alreadySaved
+                ? inspireWishlist.filter(item => item.id !== idea.id)
+                : [...inspireWishlist, {
+                    ...idea,
+                    store: document.getElementById('inspire-store')?.value || 'Zara',
+                    brands: document.getElementById('inspire-brands')?.value || ''
+                }];
+            try {
+                persistInspireWishlist(nextWishlist);
+                inspireWishlist = nextWishlist;
+                renderInspireIdeas();
+                renderInspireWishlist();
+            } catch (error) {
+                console.error('Unable to update the Inspire wishlist:', error);
+                alert('Your wishlist could not be saved in this browser. Check your browser storage settings and try again.');
+            }
+            return;
+        }
+
+        const removeButton = event.target.closest('[data-remove-inspire]');
+        if (removeButton) {
+            const nextWishlist = inspireWishlist.filter(item => item.id !== removeButton.dataset.removeInspire);
+            try {
+                persistInspireWishlist(nextWishlist);
+                inspireWishlist = nextWishlist;
+                renderInspireIdeas();
+                renderInspireWishlist();
+            } catch (error) {
+                console.error('Unable to update the Inspire wishlist:', error);
+                alert('Your wishlist could not be updated in this browser. Check your browser storage settings and try again.');
+            }
+        }
+    });
 
     const authBtn =
         document.getElementById('auth-btn');
