@@ -657,7 +657,7 @@ function persistInspireWishlist(nextWishlist) {
     localStorage.setItem(INSPIRE_WISHLIST_KEY, JSON.stringify(nextWishlist));
 }
 
-function getInspireWardrobePairings(idea) {
+function getInspireWardrobePairings(idea, usageCounts) {
     const compatibleCategories = {
         Top: ['bottom', 'shoe'],
         Bottom: ['top', 'shoe'],
@@ -667,12 +667,46 @@ function getInspireWardrobePairings(idea) {
         Accessory: ['top', 'bottom']
     };
     const wanted = compatibleCategories[idea.category] || ['top', 'bottom'];
-    return wardrobeItems
-        .filter(item => {
-            const category = `${item.tags?.subcategory || ''} ${item.tags?.category || ''}`.toLowerCase();
-            return wanted.some(match => category.includes(match));
-        })
-        .slice(0, 2);
+    const candidates = wardrobeItems.filter(item => {
+        const category = `${item.tags?.subcategory || ''} ${item.tags?.category || ''}`.toLowerCase();
+        return wanted.some(match => category.includes(match));
+    });
+    const selected = [];
+    const rotation = Number(idea.sourceIndex || 0);
+    const choose = pool => pool
+        .filter(item => !selected.includes(item))
+        .sort((first, second) => {
+            const firstUsage = usageCounts.get(String(first.id)) || 0;
+            const secondUsage = usageCounts.get(String(second.id)) || 0;
+            if (firstUsage !== secondUsage) return firstUsage - secondUsage;
+            const firstIndex = candidates.indexOf(first);
+            const secondIndex = candidates.indexOf(second);
+            const firstRank = (firstIndex - rotation + candidates.length) % candidates.length;
+            const secondRank = (secondIndex - rotation + candidates.length) % candidates.length;
+            return firstRank - secondRank;
+        })[0];
+
+    // When only two compatible pieces exist, rotate between them instead of
+    // displaying the same pair on every product card.
+    if (candidates.length <= 2) {
+        const item = choose(candidates);
+        return item ? [item] : [];
+    }
+
+    wanted.forEach(category => {
+        const item = choose(candidates.filter(candidate => {
+            const itemCategory = `${candidate.tags?.subcategory || ''} ${candidate.tags?.category || ''}`.toLowerCase();
+            return itemCategory.includes(category);
+        }));
+        if (item) selected.push(item);
+    });
+
+    while (selected.length < 2) {
+        const item = choose(candidates);
+        if (!item) break;
+        selected.push(item);
+    }
+    return selected.slice(0, 2);
 }
 
 function renderInspireIdeas(productSet = inspireProducts) {
@@ -701,9 +735,14 @@ function renderInspireIdeas(productSet = inspireProducts) {
         return;
     }
 
+    const pairingUsageCounts = new Map();
     grid.innerHTML = ideas.map(idea => {
         const saved = inspireWishlist.some(item => item.id === idea.id);
-        const pairings = getInspireWardrobePairings(idea);
+        const pairings = getInspireWardrobePairings(idea, pairingUsageCounts);
+        pairings.forEach(item => {
+            const id = String(item.id);
+            pairingUsageCounts.set(id, (pairingUsageCounts.get(id) || 0) + 1);
+        });
         const pairingMarkup = pairings.length
             ? pairings.map(item => `<span class="flex min-w-0 items-center gap-2"><img src="${escapeHTML(item.image_url)}" alt="" loading="lazy"><span class="truncate"><strong class="text-[var(--ink)]">${escapeHTML(item.name)}</strong><span class="block text-[9px]">from your wardrobe</span></span></span>`).join('')
             : '<span class="min-w-0"><strong class="text-[var(--ink)]">Your wardrobe, next</strong><span class="block">Add pieces to see how they pair.</span></span>';
