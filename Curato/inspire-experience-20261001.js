@@ -232,7 +232,10 @@ function normaliseProduct(product, sources, context, index) {
         price: String(product.price || '').slice(0, 40),
         category,
         reason: String(product.reason || 'A retailer product page verified in Google Search.').slice(0, 180),
-        imageSearchUrl: googleImagesUrl({ name, retailer }),
+        imageSearchUrl: googleImagesUrl(
+            { name, retailer },
+            product.image || product.google_image_link || product.googleImagesLink || ''
+        ),
         index
     };
 }
@@ -266,6 +269,16 @@ function normaliseCitedSource(source, context, index, suggestedProducts = []) {
 
 function parseProducts(text) {
     const cleaned = String(text || '').replace(/```(?:json)?/gi, '').trim();
+    const taggedProducts = [...cleaned.matchAll(/<name>\s*([\s\S]*?)\s*<link>\s*([\s\S]*?)\s*<image>\s*([\s\S]*?)(?=\s*<name>|$)/gi)]
+        .map(([, name, link, image]) => ({
+            name: name.trim(),
+            link: link.trim(),
+            image: image.trim()
+        }))
+        .filter(product => product.name && product.link);
+    if (taggedProducts.length) return taggedProducts;
+
+    // Accept the previous JSON response shape during model or cached-prompt transitions.
     const start = cleaned.indexOf('{');
     const end = cleaned.lastIndexOf('}');
     if (start < 0 || end < start) throw new Error('The product search returned an unreadable response. Please try again.');
@@ -285,7 +298,9 @@ async function searchProducts(context, supabase) {
 
     const prompt = `Find up to ${context.limit} relevant fashion products for this request: "${context.search || 'versatile wardrobe additions'}". Item type: ${context.category}. Style direction: ${context.style === 'all' ? 'any' : context.style}. ${context.brands ? `Prioritise these brands: ${context.brands}.` : ''}
 
-Use Google Search. Return only JSON: {"products":[{"product":"exact product name","link":"URL copied from a cited retailer product page","google_image_link":"Google Images search URL for this exact product and retailer","retailer":"retailer name","price":"visible price or empty string","category":"Top|Bottom|Outerwear|Shoes|Bag|Accessory","reason":"short reason tied to the request"}]}. Only include a product when its product page is among the Google Search grounding sources; use the exact cited URL, never invent or rewrite URLs. Image links must search for the exact product and retailer. Never guess product names, stock or prices. Exclude search pages, category pages, marketplaces and unavailable items. Prioritise relevance to the request over filling the result limit; return fewer rather than unrelated products.`;
+Use Google Search and return only records in exactly this format, with no JSON, markdown, numbering, or extra text:
+<name>EXACT PRODUCT NAME<link>DIRECT PRODUCT PAGE URL COPIED FROM A GOOGLE SEARCH GROUNDING SOURCE<image>GOOGLE IMAGES SEARCH URL FOR THAT EXACT PRODUCT
+Repeat the three tags for each product. Keep each field on one line and never include the tag text inside a value. The image URL must be an HTTPS Google Images search URL (tbm=isch) whose query includes the exact product name and retailer/brand, so it opens relevant photos. Only include products whose retailer product page is in the Google Search grounding sources. Never guess, alter, or invent a product URL, name, image URL, availability or price. Exclude search pages, category pages, marketplaces and unavailable items. Prioritise relevance to this request over filling the result limit; return fewer records rather than unrelated products.`;
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
