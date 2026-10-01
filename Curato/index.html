@@ -331,7 +331,7 @@
         .account-provider { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--paper) 55%, var(--card)); }
         @media (max-width: 640px) { .hero-title { font-size: 3.6rem; } .prompt-wrap { box-shadow: 6px 8px 0 var(--mint); } .response-copy { font-size: 15px; } }
     </style>
-    <link rel="stylesheet" href="styles.css?v=20261001-inspire-rebuild-2">
+    <link rel="stylesheet" href="styles.css?v=20261001-formality-slider-2">
 </head>
 <body>
     <nav class="topbar fixed top-0 z-50 w-full">
@@ -524,7 +524,12 @@
                         <label for="formality-slider" class="font-semibold">Formality</label>
                         <output id="formality-value" for="formality-slider" aria-live="polite">Smart casual</output>
                     </div>
-                    <input id="formality-slider" class="w-full cursor-pointer" style="accent-color: var(--orange)" type="range" min="0" max="4" step="1" value="2" aria-label="Outfit formality">
+                    <div class="formality-range-wrap">
+                        <div class="formality-ticks" aria-hidden="true">
+                            <span></span><span></span><span></span><span></span><span></span>
+                        </div>
+                        <input id="formality-slider" class="formality-slider" type="range" min="0" max="4" step="1" value="2" aria-label="Outfit formality">
+                    </div>
                     <div class="mt-1 flex justify-between text-[10px] text-white/60" aria-hidden="true">
                         <span>Casual</span>
                         <span>Formal</span>

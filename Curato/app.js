@@ -1211,6 +1211,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateFormalityValue = () => {
         if (formalityValue && formalitySlider) {
             formalityValue.textContent = formalityLevels[Number(formalitySlider.value)];
+            formalitySlider.style.setProperty(
+                '--formality-progress',
+                `${Number(formalitySlider.value) / (formalityLevels.length - 1) * 100}%`
+            );
         }
     };
 
