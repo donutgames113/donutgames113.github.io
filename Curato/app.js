@@ -1210,11 +1210,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const updateFormalityValue = () => {
         if (formalityValue && formalitySlider) {
-            formalityValue.textContent = formalityLevels[Number(formalitySlider.value)];
-            formalitySlider.style.setProperty(
-                '--formality-progress',
-                `${Number(formalitySlider.value) / (formalityLevels.length - 1) * 100}%`
-            );
+            const value = Number(formalitySlider.value);
+            formalityValue.textContent = formalityLevels[value];
+            const width = formalitySlider.clientWidth;
+            if (width > 0) {
+                const thumbRadius = 14;
+                const position = value / (formalityLevels.length - 1);
+                const progress = (thumbRadius + (width - thumbRadius * 2) * position) / width * 100;
+                formalitySlider.style.setProperty('--formality-progress', `${progress}%`);
+            }
         }
     };
 
@@ -1234,6 +1238,7 @@ document.addEventListener('DOMContentLoaded', () => {
         promptInput.setAttribute('aria-label', mode.ariaLabel);
         formalityControl?.classList.toggle('hidden', !isOutfitMode);
         if (formalitySlider) formalitySlider.disabled = !isOutfitMode;
+        updateFormalityValue();
         promptExamples.forEach((button, index) => {
             const example = mode.examples[index];
             button.querySelector('i').className = `fa-solid ${example[0]}`;
@@ -1244,6 +1249,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     formalitySlider?.addEventListener('input', updateFormalityValue);
+    window.addEventListener('resize', updateFormalityValue);
     promptTypeSelect?.addEventListener('change', updatePromptMode);
     promptExamples.forEach(button => {
         button.addEventListener('click', () => {
@@ -2079,8 +2085,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const promptType = promptTypeSelect.value;
                 const promptMode = promptModes[promptType] || promptModes.outfit;
+                const formality = formalityLevels[Number(formalitySlider.value)];
+                const formalityGuidance = {
+                    Casual: 'Choose relaxed everyday pieces; avoid tailoring and dress shoes unless the occasion requires them.',
+                    Relaxed: 'Keep the look easy and informal, with at most one polished element.',
+                    'Smart casual': 'Balance polished and relaxed pieces; avoid both very casual basics and full business tailoring.',
+                    Business: 'Favor polished, structured separates and refined footwear; do not make the look black-tie formal.',
+                    Formal: 'Choose the most elevated suitable pieces in the archive, such as tailoring or occasionwear where available.'
+                };
                 const formalityInstruction = promptType === 'outfit'
-                    ? `\nFORMALITY PREFERENCE: ${formalityLevels[Number(formalitySlider.value)]}. Aim for this level of formality while respecting the occasion and any stated dress code.\n`
+                    ? `\nFORMALITY REQUIREMENT: ${formality}. ${formalityGuidance[formality]} Treat this as a core constraint for every recommended item, not a casual suggestion. Do not drift toward a more or less formal look. Only override it when the user explicitly states a conflicting mandatory dress code; if that happens, briefly explain the conflict. If the archive cannot support this level, say so and give the closest available look without claiming it meets the requested level.\n`
                     : '';
 
                 const { data: items, error: dbError } =
