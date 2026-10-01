@@ -519,6 +519,17 @@
             <h1 class="hero-title max-w-4xl font-bold">Get dressed<br><em>to impress.</em></h1>
             <div class="prompt-wrap mt-9">
                 <input id="occasion-input" class="w-full border-0 bg-transparent px-5 pb-5 pt-4 outline-none" placeholder="Where are we going?" aria-label="Tell Curato what you need an outfit for">
+                <div id="formality-control" class="hidden px-5 pb-4">
+                    <div class="mb-2 flex items-center justify-between gap-4 text-xs text-white">
+                        <label for="formality-slider" class="font-semibold">Formality</label>
+                        <output id="formality-value" for="formality-slider" aria-live="polite">Smart casual</output>
+                    </div>
+                    <input id="formality-slider" class="w-full cursor-pointer" style="accent-color: var(--orange)" type="range" min="0" max="4" step="1" value="2" aria-label="Outfit formality">
+                    <div class="mt-1 flex justify-between text-[10px] text-white/60" aria-hidden="true">
+                        <span>Casual</span>
+                        <span>Formal</span>
+                    </div>
+                </div>
                 <div class="flex flex-col items-stretch justify-between gap-3 px-2 pb-2 sm:flex-row sm:items-center">
                     <div class="flex flex-wrap items-center gap-2">
                         <label class="sr-only" for="prompt-type">Consultation type</label>
@@ -724,6 +735,6 @@
         </section>
     </div>
 
-    <script type="module" src="app.js?v=20261001-inspire-rebuild-3"></script>
+    <script type="module" src="app.js?v=20261001-formality-slider-1"></script>
 </body>
 </html>

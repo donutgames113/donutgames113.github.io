@@ -1197,6 +1197,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const promptInput =
         document.getElementById('occasion-input');
 
+    const formalityControl =
+        document.getElementById('formality-control');
+
+    const formalitySlider =
+        document.getElementById('formality-slider');
+
+    const formalityValue =
+        document.getElementById('formality-value');
+
+    const formalityLevels = ['Casual', 'Relaxed', 'Smart casual', 'Business', 'Formal'];
+
+    const updateFormalityValue = () => {
+        if (formalityValue && formalitySlider) {
+            formalityValue.textContent = formalityLevels[Number(formalitySlider.value)];
+        }
+    };
+
     const promptExamples =
         Array.from(document.querySelectorAll('[data-prompt-example]'));
 
@@ -1208,8 +1225,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const updatePromptMode = () => {
         const mode = promptModes[promptTypeSelect.value] || promptModes.outfit;
+        const isOutfitMode = promptTypeSelect.value === 'outfit';
         promptInput.placeholder = mode.placeholder;
         promptInput.setAttribute('aria-label', mode.ariaLabel);
+        formalityControl?.classList.toggle('hidden', !isOutfitMode);
+        if (formalitySlider) formalitySlider.disabled = !isOutfitMode;
         promptExamples.forEach((button, index) => {
             const example = mode.examples[index];
             button.querySelector('i').className = `fa-solid ${example[0]}`;
@@ -1219,6 +1239,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveOutfitBtn?.classList.add('hidden');
     };
 
+    formalitySlider?.addEventListener('input', updateFormalityValue);
     promptTypeSelect?.addEventListener('change', updatePromptMode);
     promptExamples.forEach(button => {
         button.addEventListener('click', () => {
@@ -1226,6 +1247,7 @@ document.addEventListener('DOMContentLoaded', () => {
             promptInput.focus();
         });
     });
+    updateFormalityValue();
     updatePromptMode();
 
     const favoritesBtn =
@@ -2045,6 +2067,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             askBtn.disabled = true;
             promptTypeSelect.disabled = true;
+            if (formalitySlider) formalitySlider.disabled = true;
             latestSuggestion = null;
             saveOutfitBtn?.classList.add('hidden');
 
@@ -2052,6 +2075,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const promptType = promptTypeSelect.value;
                 const promptMode = promptModes[promptType] || promptModes.outfit;
+                const formalityInstruction = promptType === 'outfit'
+                    ? `\nFORMALITY PREFERENCE: ${formalityLevels[Number(formalitySlider.value)]}. Aim for this level of formality while respecting the occasion and any stated dress code.\n`
+                    : '';
 
                 const { data: items, error: dbError } =
                     await supabase
@@ -2098,6 +2124,7 @@ Use archive items accurately; never invent an item or details that are not prese
 
 SELECTED CONSULTATION TYPE: ${promptType.toUpperCase()}
 ${promptMode.instruction}
+${formalityInstruction}
 
 WARDROBE:
 
@@ -2213,6 +2240,9 @@ FINAL CHECK BEFORE ANSWERING:
 
                 askBtn.disabled = false;
                 promptTypeSelect.disabled = false;
+                if (formalitySlider) {
+                    formalitySlider.disabled = promptTypeSelect.value !== 'outfit';
+                }
             }
         };
     }
