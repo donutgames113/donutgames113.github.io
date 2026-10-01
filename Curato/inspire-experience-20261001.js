@@ -73,17 +73,24 @@ function safeProductUrl(value) {
         const parts = path.split('/').filter(Boolean);
         const last = parts[parts.length - 1] || '';
         return url.protocol === 'https:'
-            && !/(^|\.)google\.com$/i.test(url.hostname)
+            && (!/(^|\.)google\.com$/i.test(url.hostname) || isGroundingRedirect(url.toString()))
             && !/googleadservices\.com$/i.test(url.hostname)
             && parts.length > 0
             && last.length > 2
             && !/^(men|women|kids|sale|new-in|clothing|accessories|shoes|bags|home|search|collections?|categories?)$/i.test(last)
             && !/\/(?:search|collections?|categories?)(?:\/|$)/i.test(path)
-            && !/^\/products?\/?$/i.test(path)
-            && !/(^|[?&])(utm_[^=]*|gclid|fbclid|affiliate|ref)=/i.test(url.search);
+            && !/^\/products?\/?$/i.test(path);
     } catch (_) {
         return false;
     }
+}
+
+function stripTrackingParams(value) {
+    const url = new URL(value);
+    [...url.searchParams.keys()].forEach(key => {
+        if (/^(utm_.*|gclid|fbclid|affiliate|ref)$/i.test(key)) url.searchParams.delete(key);
+    });
+    return url.toString();
 }
 
 function retailerPageUrl(value) {
@@ -92,10 +99,15 @@ function retailerPageUrl(value) {
         if (/(^|\.)google\.com$/i.test(url.hostname) && url.pathname === '/url') {
             const destination = url.searchParams.get('url') || url.searchParams.get('q');
             if (!destination) return '';
-            const retailerUrl = new URL(destination);
+            const retailerUrl = new URL(stripTrackingParams(destination));
             return safeProductUrl(retailerUrl.toString()) ? retailerUrl.toString() : '';
         }
-        return safeProductUrl(url.toString()) ? url.toString() : '';
+        if (url.hostname.toLowerCase() === 'vertexaisearch.cloud.google.com'
+            && url.pathname.toLowerCase().startsWith('/grounding-api-redirect/')) {
+            return url.toString();
+        }
+        const cleanUrl = stripTrackingParams(url.toString());
+        return safeProductUrl(cleanUrl) ? cleanUrl : '';
     } catch (_) {
         return '';
     }
@@ -104,6 +116,37 @@ function retailerPageUrl(value) {
 function productTokens(value) {
     return (String(value || '').toLowerCase().match(/[a-z0-9]+/g) || [])
         .filter(token => token.length > 2 && !['the', 'with', 'from', 'and', 'for'].includes(token));
+}
+
+function isGroundingRedirect(value) {
+    try {
+        const url = new URL(value);
+        return url.hostname.toLowerCase() === 'vertexaisearch.cloud.google.com'
+            && url.pathname.toLowerCase().startsWith('/grounding-api-redirect/');
+    } catch (_) {
+        return false;
+    }
+}
+
+function isSameRetailer(first, second) {
+    try {
+        const firstHost = new URL(first).hostname.toLowerCase().replace(/^www\./, '');
+        const secondHost = new URL(second).hostname.toLowerCase().replace(/^www\./, '');
+        return firstHost === secondHost;
+    } catch (_) {
+        return false;
+    }
+}
+
+function titleMatchesProduct(title, name, allowLooseMatch = false) {
+    const nameWords = new Set(productTokens(name));
+    const titleWords = new Set(productTokens(title));
+    if (!nameWords.size || !titleWords.size) return false;
+    const overlap = [...nameWords].filter(word => titleWords.has(word)).length;
+    const required = allowLooseMatch
+        ? Math.min(2, Math.max(1, Math.ceil(nameWords.size * 0.3)))
+        : Math.min(2, Math.max(1, Math.ceil(nameWords.size * 0.25)));
+    return overlap >= required;
 }
 
 function productSourceFor(product, sources) {
@@ -121,15 +164,18 @@ function productSourceFor(product, sources) {
         } catch (_) {
             return false;
         }
-        if (!safeProductUrl(source.url) || citedUrl.hostname.toLowerCase() !== productUrl.hostname.toLowerCase()) return false;
-        if (`${citedUrl.origin}${citedUrl.pathname}`.replace(/\/$/, '').toLowerCase()
-            === `${productUrl.origin}${productUrl.pathname}`.replace(/\/$/, '').toLowerCase()) return true;
+        if (!safeProductUrl(source.url)) return false;
+        if (isSameRetailer(source.url, product.url)
+            && citedUrl.pathname.replace(/\/$/, '').toLowerCase() === productUrl.pathname.replace(/\/$/, '').toLowerCase()) return true;
+        const sameRetailer = isSameRetailer(source.url, product.url);
+        if (!sameRetailer && !isGroundingRedirect(source.url)) return false;
+        if (titleMatchesProduct(source.title, product.name, isGroundingRedirect(source.url))) return true;
         const titleTokens = new Set(productTokens(source.title));
         const pathTokens = new Set(productTokens(citedUrl.pathname.replace(/[-_/]+/g, ' ')));
         const overlap = tokenSet => [...nameTokens].filter(token => tokenSet.has(token)).length;
         const titleMatch = nameTokens.size > 0 && overlap(titleTokens) >= Math.min(2, Math.ceil(nameTokens.size * 0.45));
         const pathMatch = nameTokens.size > 0 && overlap(pathTokens) >= Math.min(2, Math.ceil(nameTokens.size * 0.55));
-        return titleMatch || pathMatch;
+        return sameRetailer && (titleMatch || pathMatch);
     }) || null;
 }
 
@@ -145,13 +191,14 @@ function isSpecificCitedPage(source) {
     const path = url.pathname.toLowerCase();
     const pathWords = new Set(productTokens(path.replace(/[-_/]+/g, ' ')));
     const overlap = [...titleWords].filter(word => pathWords.has(word)).length;
+    if (isGroundingRedirect(source.url)) return titleWords.size >= 2;
     const productRoute = /(?:^|\/)(?:products?|dp|item|sku|product-detail)(?:\/|$)/i.test(path);
     return titleWords.size >= 2 && (productRoute || overlap >= Math.min(2, titleWords.size));
 }
 
 function normaliseProduct(product, sources, context, index) {
-    const name = String(product?.product || product?.name || product?.title || '').trim();
-    const url = retailerPageUrl(String(product?.link || product?.url || product?.productUrl || '').trim());
+    const name = String(product?.product || product?.name || product?.title || product?.productName || '').trim();
+    const url = retailerPageUrl(String(product?.link || product?.url || product?.productUrl || product?.product_url || '').trim());
     if (!name || !safeProductUrl(url)) return null;
     const source = productSourceFor({ name, url }, sources);
     if (!source) return null;
@@ -164,7 +211,7 @@ function normaliseProduct(product, sources, context, index) {
         id: `find-${encodeURIComponent(source.url).replace(/%/g, '').slice(-48)}`,
         name: name.slice(0, 120),
         retailer,
-        url: source.url,
+        url: isGroundingRedirect(source.url) ? url : source.url,
         price: String(product.price || '').slice(0, 40),
         category,
         reason: String(product.reason || 'A retailer product page verified in Google Search.').slice(0, 180),
@@ -182,7 +229,9 @@ function normaliseCitedSource(source, context, index) {
     if (!title || !url || !isSpecificCitedPage({ ...source, url })) return null;
     let retailer;
     try {
-        retailer = new URL(url).hostname.replace(/^www\./, '');
+        retailer = isGroundingRedirect(url)
+            ? title.split(/\s+[|–—:-]\s+/)[0].slice(0, 60)
+            : new URL(url).hostname.replace(/^www\./, '');
     } catch (_) {
         return null;
     }
@@ -234,11 +283,13 @@ Use Google Search. Return only JSON: {"products":[{"product":"exact product name
         throw new Error('The product search returned an unreadable response. Please try again.');
     }
     if (!response.ok) throw new Error(result.error?.message || 'The product search failed. Please try again.');
-    const candidate = result.candidates?.[0];
-    const sources = (candidate?.groundingMetadata?.groundingChunks || [])
+    const candidates = result.candidates || [];
+    const sources = candidates.flatMap(candidate => candidate.groundingMetadata?.groundingChunks || [])
         .map(chunk => ({ url: retailerPageUrl(chunk.web?.uri || ''), title: chunk.web?.title }))
         .filter(source => source.url);
-    const text = (candidate?.content?.parts || []).map(part => part.text || '').join('');
+    const text = candidates
+        .map(candidate => (candidate.content?.parts || []).map(part => part.text || '').join(''))
+        .find(value => value.trim()) || '';
     let parsed;
     try {
         parsed = parseProducts(text);
