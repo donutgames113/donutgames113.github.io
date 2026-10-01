@@ -149,15 +149,18 @@ function titleMatchesProduct(title, name, allowLooseMatch = false) {
     return overlap >= required;
 }
 
+function stronglyMatchesProductTitle(title, name) {
+    const nameWords = new Set(productTokens(name));
+    const titleWords = new Set(productTokens(title));
+    return nameWords.size > 0
+        && [...nameWords].filter(word => titleWords.has(word)).length >= Math.min(2, nameWords.size);
+}
+
 function productSourceFor(product, sources) {
-    let productUrl;
-    try {
-        productUrl = new URL(product.url);
-    } catch (_) {
-        return null;
-    }
+    let productUrl = null;
+    try { productUrl = new URL(product.url); } catch (_) {}
     const nameTokens = new Set(productTokens(product.name));
-    return sources.find(source => {
+    const exact = productUrl && sources.find(source => {
         let citedUrl;
         try {
             citedUrl = new URL(source.url);
@@ -165,11 +168,24 @@ function productSourceFor(product, sources) {
             return false;
         }
         if (!safeProductUrl(source.url)) return false;
-        if (isSameRetailer(source.url, product.url)
-            && citedUrl.pathname.replace(/\/$/, '').toLowerCase() === productUrl.pathname.replace(/\/$/, '').toLowerCase()) return true;
-        const sameRetailer = isSameRetailer(source.url, product.url);
-        if (!sameRetailer && !isGroundingRedirect(source.url)) return false;
-        if (titleMatchesProduct(source.title, product.name, isGroundingRedirect(source.url))) return true;
+        return isSameRetailer(source.url, product.url)
+            && citedUrl.pathname.replace(/\/$/, '').toLowerCase() === productUrl.pathname.replace(/\/$/, '').toLowerCase();
+    });
+    if (exact) return exact;
+    return sources.find(source => {
+        if (!safeProductUrl(source.url)) return false;
+        const sameRetailer = productUrl && isSameRetailer(source.url, product.url);
+        const groundingRedirect = isGroundingRedirect(source.url);
+        const nameMatch = titleMatchesProduct(source.title, product.name, groundingRedirect);
+        if (!sameRetailer && !groundingRedirect && !(nameMatch && isSpecificCitedPage(source))) return false;
+        if (nameMatch) return true;
+        if (!sameRetailer) return false;
+        let citedUrl;
+        try {
+            citedUrl = new URL(source.url);
+        } catch (_) {
+            return false;
+        }
         const titleTokens = new Set(productTokens(source.title));
         const pathTokens = new Set(productTokens(citedUrl.pathname.replace(/[-_/]+/g, ' ')));
         const overlap = tokenSet => [...nameTokens].filter(token => tokenSet.has(token)).length;
@@ -199,11 +215,12 @@ function isSpecificCitedPage(source) {
 function normaliseProduct(product, sources, context, index) {
     const name = String(product?.product || product?.name || product?.title || product?.productName || '').trim();
     const url = retailerPageUrl(String(product?.link || product?.url || product?.productUrl || product?.product_url || '').trim());
-    if (!name || !safeProductUrl(url)) return null;
+    if (!name) return null;
     const source = productSourceFor({ name, url }, sources);
     if (!source) return null;
-    const retailer = String(product.retailer || product.store || new URL(source.url).hostname.replace(/^www\./, ''))
-        .slice(0, 60);
+    const retailer = (isGroundingRedirect(source.url)
+        ? String(product.retailer || product.store || source.title || 'Retailer').split(/\s+[|–—:-]\s+/)[0]
+        : new URL(source.url).hostname.replace(/^www\./, '')).slice(0, 60);
     const category = PRODUCT_CATEGORIES.has(product.category)
         ? product.category
         : (context.category === 'All' ? 'Style find' : context.category);
@@ -211,22 +228,25 @@ function normaliseProduct(product, sources, context, index) {
         id: `find-${encodeURIComponent(source.url).replace(/%/g, '').slice(-48)}`,
         name: name.slice(0, 120),
         retailer,
-        url: isGroundingRedirect(source.url) ? url : source.url,
+        url: source.url,
         price: String(product.price || '').slice(0, 40),
         category,
         reason: String(product.reason || 'A retailer product page verified in Google Search.').slice(0, 180),
-        imageSearchUrl: googleImagesUrl(
-            { name, retailer },
-            product.google_image_link || product.googleImagesLink || ''
-        ),
+        imageSearchUrl: googleImagesUrl({ name, retailer }),
         index
     };
 }
 
-function normaliseCitedSource(source, context, index) {
+function normaliseCitedSource(source, context, index, suggestedProducts = []) {
     const title = String(source.title || '').trim();
     const url = retailerPageUrl(source.url);
     if (!title || !url || !isSpecificCitedPage({ ...source, url })) return null;
+    const suggestedProduct = suggestedProducts.find(product =>
+        stronglyMatchesProductTitle(title, String(product?.product || product?.name || product?.title || ''))
+    );
+    if (suggestedProduct) {
+        return normaliseProduct({ ...suggestedProduct, link: url }, [source], context, index);
+    }
     let retailer;
     try {
         retailer = isGroundingRedirect(url)
@@ -263,16 +283,16 @@ async function searchProducts(context, supabase) {
     const model = modelSelect?.value || session?.user?.user_metadata?.preferred_model || 'gemini-2.0-flash';
     if (!key) throw new Error('Add a Gemini API key in Account settings to search products.');
 
-    const prompt = `Find up to ${context.limit} real, currently available fashion products for this request: "${context.search || 'versatile wardrobe additions'}". Item type: ${context.category}. Style direction: ${context.style === 'all' ? 'any' : context.style}. ${context.brands ? `Prioritise these brands: ${context.brands}.` : ''}
+    const prompt = `Find up to ${context.limit} relevant fashion products for this request: "${context.search || 'versatile wardrobe additions'}". Item type: ${context.category}. Style direction: ${context.style === 'all' ? 'any' : context.style}. ${context.brands ? `Prioritise these brands: ${context.brands}.` : ''}
 
-Use Google Search. Return only JSON: {"products":[{"product":"exact product name","link":"direct retailer product page URL","google_image_link":"Google Images results link for this exact product and retailer, not an image file","retailer":"retailer name","price":"visible price or empty string","category":"Top|Bottom|Outerwear|Shoes|Bag|Accessory","reason":"short reason"}]}. Keep fields in the order shown. Only return products whose retailer product pages appear in Google Search grounding sources. Use each cited page's exact URL as link. Never guess links, names, stock, or prices. Exclude search pages, category pages, marketplaces and unavailable items. Return fewer results rather than inventing any.`;
+Use Google Search. Return only JSON: {"products":[{"product":"exact product name","link":"URL copied from a cited retailer product page","google_image_link":"Google Images search URL for this exact product and retailer","retailer":"retailer name","price":"visible price or empty string","category":"Top|Bottom|Outerwear|Shoes|Bag|Accessory","reason":"short reason tied to the request"}]}. Only include a product when its product page is among the Google Search grounding sources; use the exact cited URL, never invent or rewrite URLs. Image links must search for the exact product and retailer. Never guess product names, stock or prices. Exclude search pages, category pages, marketplaces and unavailable items. Prioritise relevance to the request over filling the result limit; return fewer rather than unrelated products.`;
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
             tools: [{ googleSearch: {} }],
-            generationConfig: { temperature: 0.1, maxOutputTokens: 2200, responseMimeType: 'application/json' }
+            generationConfig: { temperature: 0.1, maxOutputTokens: 4000 }
         })
     });
     let result;
@@ -286,7 +306,7 @@ Use Google Search. Return only JSON: {"products":[{"product":"exact product name
     const candidates = result.candidates || [];
     const sources = candidates.flatMap(candidate => candidate.groundingMetadata?.groundingChunks || [])
         .map(chunk => ({ url: retailerPageUrl(chunk.web?.uri || ''), title: chunk.web?.title }))
-        .filter(source => source.url);
+        .filter((source, index, list) => source.url && list.findIndex(item => item.url === source.url) === index);
     const text = candidates
         .map(candidate => (candidate.content?.parts || []).map(part => part.text || '').join(''))
         .find(value => value.trim()) || '';
@@ -306,14 +326,13 @@ Use Google Search. Return only JSON: {"products":[{"product":"exact product name
         seenUrls.add(normalized.url);
         found.push(normalized);
     });
-    if (!found.length) {
-        sources.forEach((source, index) => {
-            const citedProduct = normaliseCitedSource(source, context, index);
-            if (!citedProduct || seenUrls.has(citedProduct.url)) return;
-            seenUrls.add(citedProduct.url);
-            found.push(citedProduct);
-        });
-    }
+    sources.forEach((source, index) => {
+        if (found.length >= context.limit) return;
+        const citedProduct = normaliseCitedSource(source, context, index, parsed);
+        if (!citedProduct || seenUrls.has(citedProduct.url)) return;
+        seenUrls.add(citedProduct.url);
+        found.push(citedProduct);
+    });
     if (!found.length) {
         throw new Error('Search returned no retailer product pages we could verify. Try a specific item or brand.');
     }
@@ -378,12 +397,11 @@ function productImageTile(product) {
         Bag: 'fa-bag-shopping',
         Accessory: 'fa-gem'
     }[product.category] || 'fa-wand-magic-sparkles';
-    return `<a class="inspire-product-visual inspire-visual-${escapeHTML(product.category.toLowerCase().replace(/[^a-z]/g, ''))}" href="${escapeHTML(product.imageSearchUrl || googleImagesUrl(product))}" target="_blank" rel="noopener noreferrer" aria-label="View ${escapeHTML(product.name)} in Google Images">
-        <span class="inspire-visual-orbit inspire-visual-orbit-one" aria-hidden="true"></span>
-        <span class="inspire-visual-orbit inspire-visual-orbit-two" aria-hidden="true"></span>
-        <i class="fa-solid ${icon}" aria-hidden="true"></i>
+    return `<a class="inspire-product-visual inspire-visual-${escapeHTML(product.category.toLowerCase().replace(/[^a-z]/g, ''))}" href="${escapeHTML(product.imageSearchUrl || googleImagesUrl(product))}" target="_blank" rel="noopener noreferrer" aria-label="Find photos of ${escapeHTML(product.name)} by ${escapeHTML(product.retailer)}">
+        <span class="inspire-photo-label"><i class="fa-regular fa-images" aria-hidden="true"></i> Product photo search</span>
+        <span class="inspire-photo-emblem" aria-hidden="true"><i class="fa-solid ${icon}"></i><i class="fa-solid fa-sparkles"></i></span>
         <span class="inspire-visual-name">${escapeHTML(product.name)}</span>
-        <span class="inspire-visual-link"><i class="fa-regular fa-images" aria-hidden="true"></i> View product images</span>
+        <span class="inspire-visual-link">See photos <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></span>
     </a>`;
 }
 
@@ -405,7 +423,7 @@ function renderProducts() {
     if (lastError) {
         grid.innerHTML = `<section class="inspire-message inspire-message-error" role="alert">
             <span class="inspire-message-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
-            <div><h3>Couldn’t verify product pages</h3><p>${escapeHTML(lastError)}</p><button type="button" class="inspire-retry" data-inspire-retry><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Try again</button></div>
+            <div><h3>We couldn't find a verified match</h3><p>${escapeHTML(lastError)}</p><button type="button" class="inspire-retry" data-inspire-retry><i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Try again</button></div>
         </section>`;
         return;
     }

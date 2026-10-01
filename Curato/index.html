@@ -331,7 +331,7 @@
         .account-provider { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--paper) 55%, var(--card)); }
         @media (max-width: 640px) { .hero-title { font-size: 3.6rem; } .prompt-wrap { box-shadow: 6px 8px 0 var(--mint); } .response-copy { font-size: 15px; } }
     </style>
-    <link rel="stylesheet" href="styles.css?v=20261001-formality-slider-2">
+    <link rel="stylesheet" href="styles.css?v=20261001-inspire-editorial-1">
 </head>
 <body>
     <nav class="topbar fixed top-0 z-50 w-full">
@@ -456,26 +456,35 @@
         </div>
         <section id="inspire-view" data-app-view="inspire" class="inspire-page hidden" role="tabpanel" aria-labelledby="inspire-tab">
             <header class="inspire-hero">
-                <div>
-                    <p class="inspire-kicker"><span></span> A considered edit</p>
-                    <h1>Find a piece<br><em>that feels like you.</em></h1>
-                    <p>Real retailer finds, checked before they reach your edit. Every product image link is specific to the piece—no repeated stock photos.</p>
+                <div class="inspire-hero-copy">
+                    <p class="inspire-kicker"><span></span> Your personal style desk</p>
+                    <h1>Good finds.<br><em>Better outfits.</em></h1>
+                    <p>Tell us what you have in mind. Explore verified retailer pages and a tailored photo search for every find.</p>
+                    <a class="inspire-hero-scroll" href="#inspire-controls-title"><span>Start your edit</span><i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a>
+                </div>
+                <div class="inspire-hero-art" aria-hidden="true">
+                    <span class="inspire-art-orbit inspire-art-orbit-one"></span>
+                    <span class="inspire-art-orbit inspire-art-orbit-two"></span>
+                    <span class="inspire-art-tag"><i class="fa-solid fa-wand-magic-sparkles"></i> THE STYLE EDIT</span>
+                    <i class="fa-solid fa-shirt inspire-art-shirt"></i>
+                    <i class="fa-solid fa-bag-shopping inspire-art-bag"></i>
+                    <i class="fa-solid fa-sparkles inspire-art-sparkle"></i>
                 </div>
                 <button id="open-inspire-wishlist" class="inspire-wishlist-trigger" type="button" aria-haspopup="dialog" aria-controls="inspire-wishlist-modal">
-                    <i class="fa-regular fa-heart" aria-hidden="true"></i><span>Wishlist</span><span id="inspire-wishlist-count" class="inspire-count">0</span>
+                    <i class="fa-regular fa-heart" aria-hidden="true"></i><span>Saved</span><span id="inspire-wishlist-count" class="inspire-count">0</span>
                 </button>
-                <div class="inspire-hero-stamp" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i><span>YOUR<br>STYLE<br>EDIT</span></div>
             </header>
 
             <section class="inspire-search-panel" aria-labelledby="inspire-controls-title">
                 <div class="inspire-panel-heading">
-                    <span class="inspire-panel-icon"><i class="fa-solid fa-sliders" aria-hidden="true"></i></span>
-                    <div><p class="inspire-kicker">Make it yours</p><h2 id="inspire-controls-title">What are we looking for?</h2></div>
+                    <span class="inspire-panel-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
+                    <div><p class="inspire-kicker">Start with an idea</p><h2 id="inspire-controls-title">What would you love to find?</h2></div>
                 </div>
                 <label class="inspire-query">
                     <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                     <span class="sr-only">Describe what you are looking for</span>
-                    <input id="inspire-search" type="search" maxlength="100" placeholder="e.g. a soft leather tote for everyday" autocomplete="off">
+                    <input id="inspire-search" type="search" maxlength="100" placeholder="Try “a relaxed linen shirt for warm days”" autocomplete="off">
+                    <span class="inspire-query-hint">Be as specific as you like</span>
                 </label>
                 <div class="inspire-filter-row">
                     <label class="inspire-filter">
@@ -504,11 +513,12 @@
                     <button id="refresh-inspire" class="inspire-submit" type="button"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Find my edit</button>
                 </div>
                 <p id="inspire-search-status" class="inspire-status hidden" aria-live="polite"></p>
+                <p class="inspire-search-note"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Shop links come from cited retailer pages. Photo links are tailored to each find.</p>
             </section>
 
             <section class="inspire-results" aria-labelledby="inspire-results-title">
                 <header class="inspire-results-heading">
-                    <div><p class="inspire-kicker">Curated for you</p><h2 id="inspire-results-title">The edit</h2></div>
+                    <div><p class="inspire-kicker">A little inspiration</p><h2 id="inspire-results-title">Your edit</h2></div>
                     <p id="inspire-results-count" aria-live="polite"></p>
                 </header>
                 <div id="inspire-grid" class="inspire-grid" aria-live="polite"></div>

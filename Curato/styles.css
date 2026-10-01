@@ -1837,3 +1837,452 @@ body[data-ui-style="editorial"] .eyebrow {
         transition: none;
     }
 }
+
+.inspire-page {
+    --inspire-lilac: color-mix(in srgb, var(--purple) 76%, #c3b8ff);
+    --inspire-edge: color-mix(in srgb, var(--purple) 19%, var(--line));
+    max-width: 1120px;
+    margin: 0 auto;
+    padding-bottom: 56px;
+}
+
+.inspire-hero {
+    min-height: 360px;
+    margin-bottom: 22px;
+    padding: clamp(30px, 6vw, 68px);
+    border-color: color-mix(in srgb, var(--purple) 30%, var(--line));
+    border-radius: 28px;
+    background:
+        radial-gradient(ellipse at 83% 40%, color-mix(in srgb, var(--purple) 22%, transparent), transparent 35%),
+        radial-gradient(ellipse at 68% 95%, color-mix(in srgb, var(--orange) 17%, transparent), transparent 40%),
+        linear-gradient(122deg, color-mix(in srgb, var(--card) 96%, var(--paper)), color-mix(in srgb, var(--paper) 80%, var(--card)));
+}
+
+.inspire-hero-copy {
+    position: relative;
+    z-index: 2;
+    max-width: 590px;
+}
+
+.inspire-hero h1 {
+    margin-top: 19px;
+    font-size: clamp(46px, 6.5vw, 76px);
+    line-height: .99;
+}
+
+.inspire-hero h1 em {
+    color: var(--purple);
+}
+
+.inspire-hero > .inspire-hero-copy > p:not(.inspire-kicker) {
+    max-width: 435px;
+    margin-top: 18px;
+    font-size: 13px;
+}
+
+.inspire-hero-scroll {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+    color: var(--ink);
+    font-size: 11px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.inspire-hero-scroll > i {
+    display: grid;
+    width: 27px;
+    height: 27px;
+    place-items: center;
+    border: 1px solid var(--inspire-edge);
+    border-radius: 50%;
+    color: var(--purple);
+    transition: transform .2s ease;
+}
+
+.inspire-hero-scroll:hover > i {
+    transform: translateY(3px);
+}
+
+.inspire-hero-art {
+    position: absolute;
+    top: 50%;
+    right: 10%;
+    display: grid;
+    width: 270px;
+    height: 270px;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--purple) 15%, transparent);
+    border-radius: 50%;
+    color: var(--purple);
+    transform: translateY(-50%) rotate(-9deg);
+}
+
+.inspire-art-orbit {
+    position: absolute;
+    width: 80%;
+    height: 80%;
+    border: 1px solid color-mix(in srgb, var(--purple) 18%, transparent);
+    border-radius: 50%;
+    transform: rotate(35deg) scaleX(.68);
+}
+
+.inspire-art-orbit-two {
+    transform: rotate(-35deg) scaleX(.68);
+}
+
+.inspire-art-shirt {
+    position: absolute;
+    color: color-mix(in srgb, var(--purple) 75%, var(--ink));
+    font-size: 100px;
+    filter: drop-shadow(0 14px 12px color-mix(in srgb, var(--ink) 15%, transparent));
+    transform: rotate(9deg);
+}
+
+.inspire-art-bag {
+    position: absolute;
+    right: 14px;
+    bottom: 37px;
+    padding: 13px;
+    border: 1px solid color-mix(in srgb, var(--orange) 45%, transparent);
+    border-radius: 18px;
+    color: color-mix(in srgb, var(--orange) 75%, var(--ink));
+    background: color-mix(in srgb, var(--card) 86%, transparent);
+    font-size: 33px;
+    transform: rotate(12deg);
+}
+
+.inspire-art-sparkle {
+    position: absolute;
+    top: 38px;
+    right: 34px;
+    color: var(--orange);
+    font-size: 25px;
+}
+
+.inspire-art-tag {
+    position: absolute;
+    bottom: 8px;
+    left: 1px;
+    padding: 9px 12px;
+    border: 1px solid var(--inspire-edge);
+    border-radius: 999px;
+    color: var(--ink);
+    background: var(--card);
+    font: 700 8px/1 "DM Mono", monospace;
+    letter-spacing: .12em;
+    transform: rotate(9deg);
+}
+
+.inspire-art-tag > i {
+    margin-right: 5px;
+    color: var(--purple);
+}
+
+.inspire-wishlist-trigger {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    min-height: 42px;
+    border-radius: 999px;
+    background: var(--card);
+}
+
+.inspire-search-panel {
+    margin-bottom: 54px;
+    padding: clamp(22px, 4vw, 38px);
+    border-radius: 23px;
+    box-shadow: 0 14px 42px var(--shadow);
+}
+
+.inspire-panel-heading {
+    margin-bottom: 21px;
+}
+
+.inspire-panel-icon {
+    width: 48px;
+    height: 48px;
+    border: 1px solid color-mix(in srgb, var(--purple) 16%, transparent);
+    border-radius: 16px;
+}
+
+.inspire-query {
+    min-height: 64px;
+    border-radius: 15px;
+}
+
+.inspire-query input {
+    font-size: 14px;
+}
+
+.inspire-query-hint {
+    flex: 0 0 auto;
+    color: var(--muted);
+    font-size: 9px;
+}
+
+.inspire-filter {
+    min-height: 76px;
+    border-radius: 13px;
+}
+
+.inspire-search-footer {
+    margin-top: 20px;
+}
+
+.inspire-style-toggle {
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+}
+
+.inspire-style-toggle button {
+    min-height: 37px;
+    border-radius: 999px;
+    font-size: 10px;
+}
+
+.inspire-submit {
+    min-height: 48px;
+    border-radius: 999px;
+    box-shadow: none;
+}
+
+.inspire-submit:hover:not(:disabled) {
+    box-shadow: none;
+    transform: translateY(-2px);
+}
+
+.inspire-search-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 18px;
+    color: var(--muted);
+    font-size: 9px;
+}
+
+.inspire-search-note > i {
+    color: color-mix(in srgb, var(--mint) 60%, #357a5c);
+}
+
+.inspire-results-heading {
+    margin-bottom: 22px;
+}
+
+.inspire-results-heading h2 {
+    font-size: clamp(27px, 4vw, 36px);
+}
+
+.inspire-grid {
+    gap: 17px;
+}
+
+.inspire-product-card {
+    border-radius: 17px;
+    box-shadow: 0 8px 25px var(--shadow);
+}
+
+.inspire-product-card:hover {
+    transform: translateY(-3px);
+}
+
+.inspire-product-visual {
+    min-height: 235px;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0;
+    padding: 16px;
+    text-align: left;
+}
+
+.inspire-visual-top,
+.inspire-visual-outerwear,
+.inspire-visual-stylefind {
+    background:
+        radial-gradient(circle at 72% 54%, color-mix(in srgb, var(--purple) 22%, transparent), transparent 40%),
+        linear-gradient(145deg, color-mix(in srgb, var(--paper) 88%, var(--card)), color-mix(in srgb, var(--purple) 13%, var(--card)));
+}
+
+.inspire-visual-bottom,
+.inspire-visual-shoes {
+    background:
+        radial-gradient(circle at 72% 54%, color-mix(in srgb, var(--mint) 38%, transparent), transparent 42%),
+        linear-gradient(145deg, color-mix(in srgb, var(--paper) 88%, var(--card)), color-mix(in srgb, var(--mint) 19%, var(--card)));
+}
+
+.inspire-visual-bag,
+.inspire-visual-accessory {
+    background:
+        radial-gradient(circle at 72% 54%, color-mix(in srgb, var(--orange) 29%, transparent), transparent 42%),
+        linear-gradient(145deg, color-mix(in srgb, var(--paper) 88%, var(--card)), color-mix(in srgb, var(--orange) 14%, var(--card)));
+}
+
+.inspire-photo-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 9px;
+    border: 1px solid color-mix(in srgb, var(--line) 75%, transparent);
+    border-radius: 999px;
+    color: var(--muted);
+    background: color-mix(in srgb, var(--card) 82%, transparent);
+    font: 700 8px/1 "DM Mono", monospace;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    backdrop-filter: blur(8px);
+}
+
+.inspire-photo-label > i {
+    color: var(--purple);
+}
+
+.inspire-photo-emblem {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    width: 124px;
+    height: 124px;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--purple) 22%, transparent);
+    border-radius: 50%;
+    color: color-mix(in srgb, var(--purple) 75%, var(--ink));
+    background: color-mix(in srgb, var(--card) 34%, transparent);
+    box-shadow: inset 0 0 36px color-mix(in srgb, var(--card) 70%, transparent);
+    transform: translate(-50%, -50%);
+}
+
+.inspire-photo-emblem > i:first-child {
+    font-size: 52px;
+    filter: drop-shadow(0 8px 9px color-mix(in srgb, var(--ink) 13%, transparent));
+    transition: transform .25s ease;
+}
+
+.inspire-photo-emblem > i:last-child {
+    position: absolute;
+    top: 20px;
+    right: 8px;
+    color: var(--orange);
+    font-size: 17px;
+}
+
+.inspire-product-card:hover .inspire-photo-emblem > i:first-child {
+    transform: translateY(-4px) rotate(-4deg);
+}
+
+.inspire-visual-name {
+    position: absolute;
+    bottom: 43px;
+    left: 16px;
+    max-width: calc(100% - 32px);
+    color: var(--ink);
+    font-size: 12px;
+    text-align: left;
+}
+
+.inspire-visual-link {
+    right: 13px;
+    bottom: 11px;
+    color: var(--ink);
+    font-size: 8px;
+}
+
+.inspire-product-content {
+    padding: 17px;
+}
+
+.inspire-product-content h3 {
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+.inspire-product-reason {
+    min-height: 42px;
+    font-size: 10px;
+}
+
+.inspire-pairing-box {
+    border-radius: 12px;
+}
+
+.inspire-product-actions {
+    gap: 8px;
+}
+
+.inspire-shop-link,
+.inspire-save-button {
+    min-height: 40px;
+    border-radius: 999px;
+}
+
+.inspire-message,
+.inspire-loading {
+    min-height: 210px;
+    border-radius: 20px;
+    box-shadow: 0 12px 36px var(--shadow);
+}
+
+.inspire-message-error .inspire-message-icon {
+    color: var(--purple);
+    background: color-mix(in srgb, var(--purple) 12%, var(--card));
+}
+
+.inspire-retry {
+    min-height: 38px;
+    border-radius: 999px;
+}
+
+@media (max-width: 760px) {
+    .inspire-hero {
+        min-height: 330px;
+    }
+
+    .inspire-hero-art {
+        right: -36px;
+        opacity: .5;
+        transform: translateY(-43%) scale(.78) rotate(-9deg);
+    }
+}
+
+@media (max-width: 640px) {
+    .inspire-hero {
+        min-height: 345px;
+        padding: 78px 24px 28px;
+    }
+
+    .inspire-hero-copy {
+        max-width: 100%;
+    }
+
+    .inspire-hero h1 {
+        font-size: clamp(43px, 11vw, 61px);
+    }
+
+    .inspire-hero-art {
+        display: none;
+    }
+
+    .inspire-wishlist-trigger {
+        top: 18px;
+        right: 18px;
+    }
+
+    .inspire-query-hint {
+        display: none;
+    }
+
+    .inspire-search-note {
+        align-items: flex-start;
+        line-height: 1.5;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inspire-hero-scroll > i,
+    .inspire-photo-emblem > i:first-child {
+        transition: none;
+    }
+}
