@@ -1,4 +1,4 @@
-import { initializeInspire, refreshInspireWardrobe } from './inspire-experience-20261001.js?v=20261001-inspire-resilient-1';
+import { initializeInspire, refreshInspireWardrobe } from './inspire-experience-20261001.js?v=20261001-gemini-models-1';
 
 const SUPABASE_URL = 'https://wyvliczohxpyptwxnvfi.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5';
@@ -685,7 +685,7 @@ async function callGeminiAPI(base64, mimeType, promptText, responseFormat = 'jso
     const activeModel =
         modelSelect?.value ||
         session?.user?.user_metadata?.preferred_model ||
-        "gemini-2.0-flash";
+        "gemini-3.8-flash";
 
     if (!activeKey) {
 
@@ -1473,7 +1473,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (accountName) accountName.value = metadata.full_name || '';
         if (accountApiKey) accountApiKey.value = metadata.gemini_api_key || '';
         if (accountModel) {
-            accountModel.value = metadata.preferred_model || modelSelect?.value || accountModel.options[0].value;
+            const preferredModel = metadata.preferred_model;
+            const isAvailableModel = Array.from(accountModel.options).some(option => option.value === preferredModel);
+            accountModel.value = isAvailableModel
+                ? preferredModel
+                : modelSelect?.value || accountModel.options[0].value;
         }
         renderAccountProviders(session.user);
         accountModal.classList.remove('hidden');
@@ -1691,7 +1695,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 modelSelect.value =
                     session.user.user_metadata?.preferred_model ||
-                    "gemini-2.0-flash";
+                    "gemini-3.8-flash";
             }
 
             fetchItems();

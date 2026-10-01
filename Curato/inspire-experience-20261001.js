@@ -297,7 +297,7 @@ async function searchProducts(context, supabase) {
     const modelSelect = document.getElementById('model-select');
     const { data: { session } } = await supabase.auth.getSession();
     const key = keyInput?.value.trim() || session?.user?.user_metadata?.gemini_api_key;
-    const model = modelSelect?.value || session?.user?.user_metadata?.preferred_model || 'gemini-2.0-flash';
+    const model = modelSelect?.value || session?.user?.user_metadata?.preferred_model || 'gemini-3.8-flash';
     if (!key) throw new Error('Add a Gemini API key in Account settings to search products.');
 
     const prompt = `Find up to ${context.limit} relevant fashion products for this request: "${context.search || 'versatile wardrobe additions'}". Item type: ${context.category}. Style direction: ${context.style === 'all' ? 'any' : context.style}. ${context.brands ? `Prioritise these brands: ${context.brands}.` : ''}
