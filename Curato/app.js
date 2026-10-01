@@ -1,4 +1,4 @@
-import { initializeInspire, refreshInspireWardrobe } from './inspire-experience-20261001.js?v=20261001-gemini-models-1';
+import { initializeInspire } from './inspire-experience-20261001.js?v=20261001-product-images-2';
 
 const SUPABASE_URL = 'https://wyvliczohxpyptwxnvfi.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5';
@@ -970,7 +970,6 @@ async function fetchItems() {
         });
     });
     updateWardrobeSelectionUI();
-    refreshInspireWardrobe();
 }
 
 function openItemEditor(item) {
@@ -1116,7 +1115,7 @@ async function uploadImageToStorage(base64Data) {
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeTheme();
-    initializeInspire(supabase, () => wardrobeItems);
+    initializeInspire(supabase);
     const appTabs = Array.from(document.querySelectorAll('[data-show-view]'));
     appTabs.forEach((button, index) => {
         button.tabIndex = button.getAttribute('aria-selected') === 'true' ? 0 : -1;

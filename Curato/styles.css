@@ -822,6 +822,8 @@ body[data-ui-style="editorial"] .eyebrow {
 
 .inspire-image-search,
 .inspire-wishlist-image {
+    position: relative;
+    overflow: hidden;
     width: 100%;
     color: var(--ink);
     background:
@@ -913,28 +915,6 @@ body[data-ui-style="editorial"] .eyebrow {
 
 .inspire-card-body {
     padding: 19px;
-}
-
-.inspire-pairing {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 48px;
-    margin-top: 14px;
-    padding: 8px 10px;
-    border: 1px solid var(--line);
-    border-radius: 13px;
-    color: var(--muted);
-    background: color-mix(in srgb, var(--paper) 55%, var(--card));
-    font-size: 10px;
-}
-
-.inspire-pairing img {
-    width: 30px;
-    height: 36px;
-    flex: 0 0 30px;
-    border-radius: 7px;
-    object-fit: cover;
 }
 
 .inspire-actions {
@@ -1389,79 +1369,6 @@ body[data-ui-style="editorial"] .eyebrow {
     text-decoration: none;
 }
 
-.inspire-visual-bottom,
-.inspire-visual-shoes {
-    background:
-        radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--mint) 26%, transparent), transparent 42%),
-        linear-gradient(145deg, color-mix(in srgb, var(--paper) 84%, var(--card)), color-mix(in srgb, var(--mint) 14%, var(--card)));
-}
-
-.inspire-visual-bag,
-.inspire-visual-accessory {
-    background:
-        radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--orange) 21%, transparent), transparent 42%),
-        linear-gradient(145deg, color-mix(in srgb, var(--paper) 87%, var(--card)), color-mix(in srgb, var(--orange) 12%, var(--card)));
-}
-
-.inspire-product-visual > i {
-    position: relative;
-    z-index: 1;
-    color: color-mix(in srgb, var(--purple) 76%, var(--ink));
-    font-size: 56px;
-    filter: drop-shadow(0 9px 12px color-mix(in srgb, var(--ink) 13%, transparent));
-    transition: transform .3s ease;
-}
-
-.inspire-product-card:hover .inspire-product-visual > i {
-    transform: translateY(-5px) rotate(-4deg);
-}
-
-.inspire-visual-orbit {
-    position: absolute;
-    width: 175px;
-    height: 175px;
-    border: 1px solid color-mix(in srgb, var(--purple) 15%, transparent);
-    border-radius: 50%;
-}
-
-.inspire-visual-orbit-one {
-    transform: scaleX(1.45) rotate(30deg);
-}
-
-.inspire-visual-orbit-two {
-    transform: scaleX(.8) rotate(-35deg);
-}
-
-.inspire-visual-name {
-    position: relative;
-    z-index: 1;
-    max-width: 90%;
-    overflow: hidden;
-    color: var(--ink);
-    font: 700 13px/1.4 "Space Grotesk", sans-serif;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.inspire-visual-link {
-    position: absolute;
-    right: 12px;
-    bottom: 12px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 9px;
-    border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
-    border-radius: 999px;
-    color: var(--muted);
-    background: color-mix(in srgb, var(--card) 86%, transparent);
-    font-size: 8px;
-    font-weight: 700;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    backdrop-filter: blur(8px);
-}
-
 .inspire-product-content {
     display: flex;
     flex: 1;
@@ -1496,90 +1403,6 @@ body[data-ui-style="editorial"] .eyebrow {
     color: var(--ink);
     font-size: 12px;
     font-weight: 800;
-}
-
-.inspire-product-reason {
-    min-height: 36px;
-    margin-top: 8px;
-    color: var(--muted);
-    font-size: 10px;
-    line-height: 1.65;
-}
-
-.inspire-pairing-box {
-    margin-top: 14px;
-    padding: 11px;
-    border: 1px solid var(--line);
-    border-radius: 13px;
-    background: color-mix(in srgb, var(--paper) 35%, var(--card));
-}
-
-.inspire-pairing-heading {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    margin-bottom: 9px;
-    color: var(--purple);
-    font: 700 9px/1.3 "DM Mono", monospace;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-}
-
-.inspire-pairing-list {
-    display: grid;
-    gap: 8px;
-}
-
-.inspire-pairing-item {
-    display: flex;
-    min-width: 0;
-    align-items: center;
-    gap: 9px;
-}
-
-.inspire-pairing-item > img {
-    width: 34px;
-    height: 40px;
-    flex: 0 0 34px;
-    border: 1px solid var(--line);
-    border-radius: 7px;
-    background: var(--paper);
-    object-fit: cover;
-}
-
-.inspire-pairing-item > span {
-    min-width: 0;
-}
-
-.inspire-pairing-item strong,
-.inspire-pairing-item small {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.inspire-pairing-item strong {
-    color: var(--ink);
-    font-size: 9px;
-}
-
-.inspire-pairing-item small {
-    margin-top: 3px;
-    color: var(--muted);
-    font-size: 8px;
-}
-
-.inspire-pairing-empty {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--muted);
-    font-size: 9px;
-}
-
-.inspire-pairing-empty > i {
-    color: var(--purple);
 }
 
 .inspire-product-actions {
@@ -1728,6 +1551,18 @@ body[data-ui-style="editorial"] .eyebrow {
     min-height: 128px;
 }
 
+.inspire-wishlist-image > img {
+    width: 100%;
+    height: 100%;
+    min-height: 128px;
+    object-fit: cover;
+}
+
+.inspire-wishlist-no-image {
+    color: var(--muted);
+    background: color-mix(in srgb, var(--paper) 55%, var(--card));
+}
+
 .inspire-wishlist-content h3 {
     margin-top: 5px;
     color: var(--ink);
@@ -1830,7 +1665,6 @@ body[data-ui-style="editorial"] .eyebrow {
 @media (prefers-reduced-motion: reduce) {
     .inspire-submit,
     .inspire-product-card,
-    .inspire-product-visual > i,
     .inspire-wishlist-trigger,
     .inspire-spinner {
         animation: none;
@@ -2090,37 +1924,33 @@ body[data-ui-style="editorial"] .eyebrow {
 }
 
 .inspire-product-visual {
+    position: relative;
     min-height: 235px;
+    padding: 0;
     align-items: flex-start;
     justify-content: space-between;
     gap: 0;
-    padding: 16px;
     text-align: left;
 }
 
-.inspire-visual-top,
-.inspire-visual-outerwear,
-.inspire-visual-stylefind {
-    background:
-        radial-gradient(circle at 72% 54%, color-mix(in srgb, var(--purple) 22%, transparent), transparent 40%),
-        linear-gradient(145deg, color-mix(in srgb, var(--paper) 88%, var(--card)), color-mix(in srgb, var(--purple) 13%, var(--card)));
+.inspire-product-visual > img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .3s ease;
 }
 
-.inspire-visual-bottom,
-.inspire-visual-shoes {
-    background:
-        radial-gradient(circle at 72% 54%, color-mix(in srgb, var(--mint) 38%, transparent), transparent 42%),
-        linear-gradient(145deg, color-mix(in srgb, var(--paper) 88%, var(--card)), color-mix(in srgb, var(--mint) 19%, var(--card)));
-}
-
-.inspire-visual-bag,
-.inspire-visual-accessory {
-    background:
-        radial-gradient(circle at 72% 54%, color-mix(in srgb, var(--orange) 29%, transparent), transparent 42%),
-        linear-gradient(145deg, color-mix(in srgb, var(--paper) 88%, var(--card)), color-mix(in srgb, var(--orange) 14%, var(--card)));
+.inspire-product-card:hover .inspire-product-visual > img {
+    transform: scale(1.035);
 }
 
 .inspire-photo-label {
+    position: absolute;
+    z-index: 1;
+    top: 12px;
+    left: 12px;
     display: inline-flex;
     align-items: center;
     gap: 7px;
@@ -2139,57 +1969,6 @@ body[data-ui-style="editorial"] .eyebrow {
     color: var(--purple);
 }
 
-.inspire-photo-emblem {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    display: grid;
-    width: 124px;
-    height: 124px;
-    place-items: center;
-    border: 1px solid color-mix(in srgb, var(--purple) 22%, transparent);
-    border-radius: 50%;
-    color: color-mix(in srgb, var(--purple) 75%, var(--ink));
-    background: color-mix(in srgb, var(--card) 34%, transparent);
-    box-shadow: inset 0 0 36px color-mix(in srgb, var(--card) 70%, transparent);
-    transform: translate(-50%, -50%);
-}
-
-.inspire-photo-emblem > i:first-child {
-    font-size: 52px;
-    filter: drop-shadow(0 8px 9px color-mix(in srgb, var(--ink) 13%, transparent));
-    transition: transform .25s ease;
-}
-
-.inspire-photo-emblem > i:last-child {
-    position: absolute;
-    top: 20px;
-    right: 8px;
-    color: var(--orange);
-    font-size: 17px;
-}
-
-.inspire-product-card:hover .inspire-photo-emblem > i:first-child {
-    transform: translateY(-4px) rotate(-4deg);
-}
-
-.inspire-visual-name {
-    position: absolute;
-    bottom: 43px;
-    left: 16px;
-    max-width: calc(100% - 32px);
-    color: var(--ink);
-    font-size: 12px;
-    text-align: left;
-}
-
-.inspire-visual-link {
-    right: 13px;
-    bottom: 11px;
-    color: var(--ink);
-    font-size: 8px;
-}
-
 .inspire-product-content {
     padding: 17px;
 }
@@ -2197,15 +1976,6 @@ body[data-ui-style="editorial"] .eyebrow {
 .inspire-product-content h3 {
     margin-top: 10px;
     font-size: 16px;
-}
-
-.inspire-product-reason {
-    min-height: 42px;
-    font-size: 10px;
-}
-
-.inspire-pairing-box {
-    border-radius: 12px;
 }
 
 .inspire-product-actions {
@@ -2282,7 +2052,7 @@ body[data-ui-style="editorial"] .eyebrow {
 
 @media (prefers-reduced-motion: reduce) {
     .inspire-hero-scroll > i,
-    .inspire-photo-emblem > i:first-child {
+    .inspire-product-visual > img {
         transition: none;
     }
 }

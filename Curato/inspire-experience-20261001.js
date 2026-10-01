@@ -2,18 +2,9 @@ const WISHLIST_KEY = 'curato-inspire-wishlist';
 const STYLE_KEY = 'curato-inspire-style';
 const BRANDS_KEY = 'curato-inspire-brands';
 const PRODUCT_CATEGORIES = new Set(['Top', 'Bottom', 'Outerwear', 'Shoes', 'Bag', 'Accessory']);
-const CATEGORY_PAIRINGS = {
-    Top: ['bottom', 'shoe'],
-    Bottom: ['top', 'shoe'],
-    Outerwear: ['top', 'bottom'],
-    Shoes: ['top', 'bottom'],
-    Bag: ['top', 'bottom'],
-    Accessory: ['top', 'bottom']
-};
 
 let products = [];
 let wishlist = [];
-let wardrobeProvider = () => [];
 let activeStyle = 'all';
 let lastError = '';
 let searchInProgress = false;
@@ -49,21 +40,26 @@ function contextFromForm() {
     };
 }
 
-function googleImagesUrl(product, proposedUrl = '') {
+function directProductImageUrl(value) {
     try {
-        const url = new URL(proposedUrl);
-        const queryWords = new Set(productTokens(url.searchParams.get('q')));
-        const expectedWords = productTokens(product.name);
-        if (url.protocol === 'https:'
-            && ['google.com', 'www.google.com'].includes(url.hostname.toLowerCase())
-            && url.pathname === '/search'
-            && url.searchParams.get('tbm') === 'isch'
-            && expectedWords.length > 0
-            && expectedWords.every(word => queryWords.has(word))) return url.toString();
+        const url = new URL(value);
+        const host = url.hostname.toLowerCase();
+        const path = url.pathname.toLowerCase();
+        const imagePath = /\.(?:avif|gif|jpe?g|png|webp)$/i.test(url.pathname)
+            || /\/(?:dw\/image|is\/image|images?)\//i.test(path)
+            || host === 'images.unsplash.com';
+        return url.protocol === 'https:'
+            && !url.username
+            && !url.password
+            && !/(^|\.)google\.[a-z.]+$/i.test(host)
+            && !/(^|\.)googleusercontent\.com$/i.test(host)
+            && !/(^|\/)(?:search|gallery|collections?)(?:\/|$)/i.test(path)
+            && imagePath
+            ? url.toString()
+            : '';
     } catch (_) {
-        // Build a product-specific Google Images query when the model link is invalid.
+        return '';
     }
-    return `https://www.google.com/search?tbm=isch&q=${encodeURIComponent([product.name, product.retailer].filter(Boolean).join(' '))}`;
 }
 
 function safeProductUrl(value) {
@@ -218,7 +214,10 @@ function isSpecificCitedPage(source, productName = '') {
 function normaliseProduct(product, sources, context, index) {
     const name = String(product?.product || product?.name || product?.title || product?.productName || '').trim();
     const url = retailerPageUrl(String(product?.link || product?.url || product?.productUrl || product?.product_url || '').trim());
-    if (!name) return null;
+    const imageUrl = directProductImageUrl(String(
+        product?.image || product?.imageUrl || product?.image_url || product?.image_link || product?.google_image_link || ''
+    ).trim());
+    if (!name || !imageUrl) return null;
     const source = productSourceFor({ name, url }, sources);
     if (!source) return null;
     const retailer = (isGroundingRedirect(source.url)
@@ -232,13 +231,9 @@ function normaliseProduct(product, sources, context, index) {
         name: name.slice(0, 120),
         retailer,
         url: source.url,
+        imageUrl,
         price: String(product.price || '').slice(0, 40),
         category,
-        reason: String(product.reason || 'A retailer product page verified in Google Search.').slice(0, 180),
-        imageSearchUrl: googleImagesUrl(
-            { name, retailer },
-            product.image || product.google_image_link || product.googleImagesLink || ''
-        ),
         index
     };
 }
@@ -303,8 +298,8 @@ async function searchProducts(context, supabase) {
     const prompt = `Find up to ${context.limit} relevant fashion products for this request: "${context.search || 'versatile wardrobe additions'}". Item type: ${context.category}. Style direction: ${context.style === 'all' ? 'any' : context.style}. ${context.brands ? `Prioritise these brands: ${context.brands}.` : ''}
 
 Use Google Search and return only records in exactly this format, with no JSON, markdown, numbering, or extra text:
-<name>EXACT PRODUCT NAME<link>DIRECT PRODUCT PAGE URL COPIED FROM A GOOGLE SEARCH GROUNDING SOURCE<image>GOOGLE IMAGES SEARCH URL FOR THAT EXACT PRODUCT
-Repeat the three tags for each product. Keep each field on one line and never include the tag text inside a value. The image URL must be an HTTPS Google Images search URL (tbm=isch) whose query includes the exact product name and retailer/brand, so it opens relevant photos. Only include products whose retailer product page is in the Google Search grounding sources. Never guess, alter, or invent a product URL, name, image URL, availability or price. Exclude search pages, category pages, marketplaces and unavailable items. Prioritise relevance to this request over filling the result limit; return fewer records rather than unrelated products.`;
+<name>EXACT PRODUCT NAME<link>DIRECT PRODUCT PAGE URL COPIED FROM A GOOGLE SEARCH GROUNDING SOURCE<image>DIRECT URL TO ONE PRODUCT IMAGE FILE
+Repeat the three tags for each product. Keep each field on one line and never include the tag text inside a value. The <image> value must be exactly one direct HTTPS URL to one real product photo image file (for example, a retailer-hosted .jpg URL); do not return a Google Images/search page, product page, gallery, or multiple image URLs. Find the image URL through Google Search and make sure it depicts this exact product. Return a different matching image URL for each different product. The product link must be copied exactly from a Google Search grounding source. Never guess, alter, or invent product names or URLs. Exclude search pages, category pages, marketplaces and unavailable items. Prioritise relevance to this request over filling the result limit; return fewer records rather than unrelated products.`;
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -341,24 +336,27 @@ Repeat the three tags for each product. Keep each field on one line and never in
     }
     const found = [];
     const seenUrls = new Set();
+    const seenImageUrls = new Set();
     parsed.forEach((item, index) => {
         const normalized = normaliseProduct(item, sources, context, index);
-        if (!normalized || seenUrls.has(normalized.url)) return;
+        if (!normalized || seenUrls.has(normalized.url) || seenImageUrls.has(normalized.imageUrl)) return;
         seenUrls.add(normalized.url);
+        seenImageUrls.add(normalized.imageUrl);
         found.push(normalized);
     });
     sources.forEach((source, index) => {
         if (found.length >= context.limit) return;
         const citedProduct = normaliseCitedSource(source, context, index, parsed);
-        if (!citedProduct || seenUrls.has(citedProduct.url)) return;
+        if (!citedProduct || seenUrls.has(citedProduct.url) || seenImageUrls.has(citedProduct.imageUrl)) return;
         seenUrls.add(citedProduct.url);
+        seenImageUrls.add(citedProduct.imageUrl);
         found.push(citedProduct);
     });
     if (!found.length) {
         if (!sources.length) {
             throw new Error('Gemini returned no Google Search citations for this search. Choose a Gemini model with Google Search grounding enabled, then try again.');
         }
-        throw new Error('Google Search returned pages, but none could be identified as product pages for this request. Try adding a brand or a more specific item.');
+        throw new Error('Gemini did not return a direct product photo URL with the verified product page. Try again or include a brand to help it find a retailer image.');
     }
     return found.slice(0, context.limit);
 }
@@ -371,70 +369,11 @@ function validWishlist(value) {
         && safeProductUrl(item.url));
 }
 
-function pairingCandidates(product) {
-    const wanted = CATEGORY_PAIRINGS[product.category] || ['top', 'bottom'];
-    return (wardrobeProvider() || []).filter(item => {
-        const category = `${item.tags?.subcategory || ''} ${item.tags?.category || ''}`.toLowerCase();
-        return wanted.some(value => category.includes(value));
-    });
-}
-
-function buildPairings(product, usage, productNumber) {
-    const candidates = pairingCandidates(product);
-    const categoryOrder = CATEGORY_PAIRINGS[product.category] || ['top', 'bottom'];
-    const selected = [];
-    const choose = pool => pool
-        .filter(item => !selected.some(entry => String(entry.id) === String(item.id)))
-        .sort((first, second) => {
-            const firstUses = usage.get(String(first.id)) || 0;
-            const secondUses = usage.get(String(second.id)) || 0;
-            if (firstUses !== secondUses) return firstUses - secondUses;
-            const rotate = (item, list) => (list.indexOf(item) - productNumber + list.length) % list.length;
-            return rotate(first, candidates) - rotate(second, candidates);
-        })[0];
-    if (candidates.length <= 2) {
-        const item = choose(candidates);
-        if (item) usage.set(String(item.id), (usage.get(String(item.id)) || 0) + 1);
-        return item ? [item] : [];
-    }
-    categoryOrder.forEach(category => {
-        const item = choose(candidates.filter(candidate =>
-            `${candidate.tags?.subcategory || ''} ${candidate.tags?.category || ''}`.toLowerCase().includes(category)
-        ));
-        if (item) selected.push(item);
-    });
-    while (selected.length < 2) {
-        const item = choose(candidates);
-        if (!item) break;
-        selected.push(item);
-    }
-    selected.forEach(item => usage.set(String(item.id), (usage.get(String(item.id)) || 0) + 1));
-    return selected;
-}
-
 function productImageTile(product) {
-    const icon = {
-        Top: 'fa-shirt',
-        Bottom: 'fa-person',
-        Outerwear: 'fa-shirt',
-        Shoes: 'fa-shoe-prints',
-        Bag: 'fa-bag-shopping',
-        Accessory: 'fa-gem'
-    }[product.category] || 'fa-wand-magic-sparkles';
-    return `<a class="inspire-product-visual inspire-visual-${escapeHTML(product.category.toLowerCase().replace(/[^a-z]/g, ''))}" href="${escapeHTML(product.imageSearchUrl || googleImagesUrl(product))}" target="_blank" rel="noopener noreferrer" aria-label="Find photos of ${escapeHTML(product.name)} by ${escapeHTML(product.retailer)}">
-        <span class="inspire-photo-label"><i class="fa-regular fa-images" aria-hidden="true"></i> Product photo search</span>
-        <span class="inspire-photo-emblem" aria-hidden="true"><i class="fa-solid ${icon}"></i><i class="fa-solid fa-sparkles"></i></span>
-        <span class="inspire-visual-name">${escapeHTML(product.name)}</span>
-        <span class="inspire-visual-link">See photos <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></span>
+    return `<a class="inspire-product-visual" href="${escapeHTML(product.imageUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Open product photo for ${escapeHTML(product.name)}">
+        <img src="${escapeHTML(product.imageUrl)}" alt="${escapeHTML(product.name)}" loading="lazy">
+        <span class="inspire-photo-label"><i class="fa-regular fa-image" aria-hidden="true"></i> Product photo</span>
     </a>`;
-}
-
-function renderPairings(pairings) {
-    if (!pairings.length) return `<div class="inspire-pairing-empty"><i class="fa-solid fa-shirt" aria-hidden="true"></i><span>Add wardrobe items to see outfit pairings here.</span></div>`;
-    return `<div class="inspire-pairing-list">${pairings.map(item => `<span class="inspire-pairing-item">
-        <img src="${escapeHTML(item.image_url || '')}" alt="" loading="lazy">
-        <span><strong>${escapeHTML(item.name)}</strong><small>From your wardrobe</small></span>
-    </span>`).join('')}</div>`;
 }
 
 function renderProducts() {
@@ -454,25 +393,18 @@ function renderProducts() {
     if (!products.length) {
         grid.innerHTML = `<section class="inspire-message inspire-message-empty">
             <span class="inspire-message-icon"><i class="fa-solid fa-sparkles" aria-hidden="true"></i></span>
-            <div><h3>Your next favourite starts here</h3><p>Tell us what you’re looking for. We’ll return only products with a retailer page we can verify.</p></div>
+            <div><h3>Your next favourite starts here</h3><p>Tell us what you’re looking for. We’ll find verified retailer pages and direct product photos.</p></div>
         </section>`;
         return;
     }
-    const usage = new Map();
-    grid.innerHTML = products.map((product, index) => {
+    grid.innerHTML = products.map(product => {
         const saved = wishlist.some(item => item.id === product.id);
-        const pairings = buildPairings(product, usage, index);
         return `<article class="inspire-product-card">
             ${productImageTile(product)}
             <div class="inspire-product-content">
                 <div class="inspire-product-meta"><span>${escapeHTML(product.retailer)}</span><span>${escapeHTML(product.category)}</span></div>
                 <h3>${escapeHTML(product.name)}</h3>
                 ${product.price ? `<p class="inspire-product-price">${escapeHTML(product.price)}</p>` : ''}
-                <p class="inspire-product-reason">${escapeHTML(product.reason)}</p>
-                <section class="inspire-pairing-box" aria-label="Wardrobe pairings">
-                    <div class="inspire-pairing-heading"><i class="fa-solid fa-link" aria-hidden="true"></i><span>Pair it with</span></div>
-                    ${renderPairings(pairings)}
-                </section>
                 <div class="inspire-product-actions">
                     <a class="inspire-shop-link" href="${escapeHTML(product.url)}" target="_blank" rel="noopener noreferrer">Shop this piece <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
                     <button class="inspire-save-button" type="button" data-inspire-save="${escapeHTML(product.id)}" aria-pressed="${saved}" aria-label="${saved ? 'Remove from' : 'Save to'} wishlist">
@@ -492,9 +424,7 @@ function renderWishlist() {
     if (empty) empty.classList.toggle('hidden', wishlist.length > 0);
     if (!grid) return;
     grid.innerHTML = wishlist.map(item => `<article class="inspire-wishlist-card">
-        <a class="inspire-wishlist-image" href="${escapeHTML(googleImagesUrl(item))}" target="_blank" rel="noopener noreferrer" aria-label="View ${escapeHTML(item.name)} images">
-            <i class="fa-regular fa-images" aria-hidden="true"></i><span>Images</span>
-        </a>
+        ${directProductImageUrl(item.imageUrl) ? `<a class="inspire-wishlist-image" href="${escapeHTML(item.imageUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Open photo of ${escapeHTML(item.name)}"><img src="${escapeHTML(item.imageUrl)}" alt="${escapeHTML(item.name)}" loading="lazy"></a>` : `<div class="inspire-wishlist-image inspire-wishlist-no-image" aria-label="No product photo saved"><i class="fa-regular fa-image" aria-hidden="true"></i></div>`}
         <div class="inspire-wishlist-content"><p class="eyebrow">${escapeHTML(item.retailer || 'Saved find')}</p><h3>${escapeHTML(item.name)}</h3>
             <div class="inspire-product-actions">
                 <a class="inspire-shop-link" href="${escapeHTML(item.url)}" target="_blank" rel="noopener noreferrer">Shop this piece</a>
@@ -562,12 +492,7 @@ async function runSearch(supabase) {
     }
 }
 
-export function refreshInspireWardrobe() {
-    if (document.getElementById('inspire-grid')) renderProducts();
-}
-
-export function initializeInspire(supabase, getWardrobeItems) {
-    wardrobeProvider = getWardrobeItems;
+export function initializeInspire(supabase) {
     try {
         activeStyle = localStorage.getItem(STYLE_KEY) || 'all';
     } catch (error) {
@@ -628,7 +553,6 @@ export function initializeInspire(supabase, getWardrobeItems) {
             setStatus('Brand preferences could not be saved in this browser.', 'error');
         }
     });
-    window.addEventListener('curato:wardrobe-updated', refreshInspireWardrobe);
     document.getElementById('inspire-grid')?.addEventListener('click', event => {
         if (event.target.closest('[data-inspire-retry]')) {
             runSearch(supabase);
@@ -652,6 +576,12 @@ export function initializeInspire(supabase, getWardrobeItems) {
             setStatus('Your wishlist could not be saved in this browser.', 'error');
         }
     });
+    document.getElementById('inspire-grid')?.addEventListener('error', event => {
+        if (event.target instanceof HTMLImageElement && event.target.closest('.inspire-product-visual')) {
+            event.target.alt = 'This product photo could not be loaded.';
+            event.target.classList.add('inspire-image-unavailable');
+        }
+    }, true);
     document.getElementById('inspire-wishlist-list')?.addEventListener('click', event => {
         const button = event.target.closest('[data-inspire-remove]');
         if (!button) return;
