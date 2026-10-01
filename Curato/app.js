@@ -2087,14 +2087,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const promptMode = promptModes[promptType] || promptModes.outfit;
                 const formality = formalityLevels[Number(formalitySlider.value)];
                 const formalityGuidance = {
-                    Casual: 'Choose relaxed everyday pieces; avoid tailoring and dress shoes unless the occasion requires them.',
-                    Relaxed: 'Keep the look easy and informal, with at most one polished element.',
-                    'Smart casual': 'Balance polished and relaxed pieces; avoid both very casual basics and full business tailoring.',
-                    Business: 'Favor polished, structured separates and refined footwear; do not make the look black-tie formal.',
-                    Formal: 'Choose the most elevated suitable pieces in the archive, such as tailoring or occasionwear where available.'
+                    Casual: 'Use relaxed everyday pieces and casual footwear; do not recommend tailoring, dress shoes, or occasionwear.',
+                    Relaxed: 'Keep the whole look informal and easy; avoid business tailoring and formal footwear.',
+                    'Smart casual': 'Build a deliberately balanced look: polished but not business-formal, relaxed but not sloppy.',
+                    Business: 'Use polished, structured separates and refined footwear; avoid casual basics and black-tie/occasionwear.',
+                    Formal: 'Use the most elevated formal pieces and footwear available in the archive; do not downgrade the look to smart casual or business.'
                 };
                 const formalityInstruction = promptType === 'outfit'
-                    ? `\nFORMALITY REQUIREMENT: ${formality}. ${formalityGuidance[formality]} Treat this as a core constraint for every recommended item, not a casual suggestion. Do not drift toward a more or less formal look. Only override it when the user explicitly states a conflicting mandatory dress code; if that happens, briefly explain the conflict. If the archive cannot support this level, say so and give the closest available look without claiming it meets the requested level.\n`
+                    ? `\nNON-NEGOTIABLE OUTFIT FORMALITY: ${formality.toUpperCase()} (selected on the formality control). This setting is the user's explicit instruction and takes priority over any conflicting or implied formality in the free-text request or occasion. ${formalityGuidance[formality]} Keep every recommended piece, footwear choice, and styling detail consistent with ${formality.toLowerCase()} formality. Do not offer a different formality as an alternative and do not silently compromise. If the archive lacks enough appropriate pieces, say clearly that it cannot satisfy the selected level and identify only the closest available archive look; do not describe that look as meeting the requirement. Before responding, check the formality of the complete proposed outfit against this exact level and rewrite it if any piece or styling choice pulls it away from the target. A mandatory event dress code does not change the selected target: briefly flag any conflict, but still honor the selected formality as far as the archive allows.\n`
                     : '';
 
                 const { data: items, error: dbError } =
@@ -2159,7 +2159,7 @@ OUTPUT CONTRACT — FOLLOW EXACTLY:
 4. Use one or more header/text sections in a natural reading order. Keep headings concise and match the selected consultation type.
 5. After the user-facing sections, add one <item>NUMBER</item> tag for each archived item named or recommended. NUMBER must exactly match that item's bracketed reference in WARDROBE. Never add a tag for an item not mentioned.
 6. Do not include reference numbers in header or text contents. If no archived items are relevant, omit item tags.
-7. Make the selected consultation type visibly shape the answer: outfit = one complete look; item = advice anchored on the requested piece; wardrobe = direct archive-based answer; packing = a grouped packing list; general = a direct style answer. Do not substitute one format for another just because the request mentions clothes.
+7. Make the selected consultation type visibly shape the answer: outfit = one complete look; item = advice anchored on the requested piece; wardrobe = direct archive-based answer; packing = a grouped packing list; general = a direct style answer. Do not substitute one format for another just because the request mentions clothes. For outfit consultations, the NON-NEGOTIABLE OUTFIT FORMALITY setting outranks conflicting user-request wording and inferred occasion styling; explicitly flag archive or dress-code conflicts rather than changing the target.
 8. Keep advice elegant and practical, and do not use emojis.
 
 Example format only:
@@ -2171,6 +2171,7 @@ FINAL CHECK BEFORE ANSWERING:
 - Every tag is properly closed and contains only its intended value.
 - Each archive item mentioned in the text has exactly one matching item tag.
 - No wardrobe reference numbers appear in user-facing text.
+- For outfit consultations, the complete recommendation matches the selected formality level; if not, rewrite it before returning.
 `;
 
                 const taggedResult =
