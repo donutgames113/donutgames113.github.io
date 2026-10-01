@@ -1,4 +1,4 @@
-import { initializeInspire, refreshInspireWardrobe } from './inspire-experience-20261001.js?v=20261001-inspire-tagged-1';
+import { initializeInspire, refreshInspireWardrobe } from './inspire-experience-20261001.js?v=20261001-inspire-resilient-1';
 
 const SUPABASE_URL = 'https://wyvliczohxpyptwxnvfi.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5';

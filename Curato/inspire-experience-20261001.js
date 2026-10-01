@@ -53,7 +53,7 @@ function googleImagesUrl(product, proposedUrl = '') {
     try {
         const url = new URL(proposedUrl);
         const queryWords = new Set(productTokens(url.searchParams.get('q')));
-        const expectedWords = [...productTokens(product.name), ...productTokens(product.retailer)];
+        const expectedWords = productTokens(product.name);
         if (url.protocol === 'https:'
             && ['google.com', 'www.google.com'].includes(url.hostname.toLowerCase())
             && url.pathname === '/search'
@@ -177,7 +177,7 @@ function productSourceFor(product, sources) {
         const sameRetailer = productUrl && isSameRetailer(source.url, product.url);
         const groundingRedirect = isGroundingRedirect(source.url);
         const nameMatch = titleMatchesProduct(source.title, product.name, groundingRedirect);
-        if (!sameRetailer && !groundingRedirect && !(nameMatch && isSpecificCitedPage(source))) return false;
+        if (!sameRetailer && !groundingRedirect && !(nameMatch && isSpecificCitedPage(source, product.name))) return false;
         if (nameMatch) return true;
         if (!sameRetailer) return false;
         let citedUrl;
@@ -195,7 +195,7 @@ function productSourceFor(product, sources) {
     }) || null;
 }
 
-function isSpecificCitedPage(source) {
+function isSpecificCitedPage(source, productName = '') {
     if (!source.title || !safeProductUrl(source.url)) return false;
     const titleWords = new Set(productTokens(source.title));
     let url;
@@ -208,8 +208,11 @@ function isSpecificCitedPage(source) {
     const pathWords = new Set(productTokens(path.replace(/[-_/]+/g, ' ')));
     const overlap = [...titleWords].filter(word => pathWords.has(word)).length;
     if (isGroundingRedirect(source.url)) return titleWords.size >= 2;
-    const productRoute = /(?:^|\/)(?:products?|dp|item|sku|product-detail)(?:\/|$)/i.test(path);
-    return titleWords.size >= 2 && (productRoute || overlap >= Math.min(2, titleWords.size));
+    const productRoute = /(?:^|\/)(?:products?|dp|item|items|sku|product-detail|detail|itm|gp\/product|p)(?:\/|$)/i.test(path)
+        || /(?:-p-\d+|\/\d{5,})(?:\/|$)/i.test(path);
+    const matchesRequestedProduct = productName && stronglyMatchesProductTitle(source.title, productName);
+    return titleWords.size >= 2
+        && (productRoute || overlap >= Math.min(2, titleWords.size) || matchesRequestedProduct);
 }
 
 function normaliseProduct(product, sources, context, index) {
@@ -243,10 +246,11 @@ function normaliseProduct(product, sources, context, index) {
 function normaliseCitedSource(source, context, index, suggestedProducts = []) {
     const title = String(source.title || '').trim();
     const url = retailerPageUrl(source.url);
-    if (!title || !url || !isSpecificCitedPage({ ...source, url })) return null;
     const suggestedProduct = suggestedProducts.find(product =>
         stronglyMatchesProductTitle(title, String(product?.product || product?.name || product?.title || ''))
     );
+    const suggestedName = String(suggestedProduct?.product || suggestedProduct?.name || suggestedProduct?.title || '');
+    if (!title || !url || !isSpecificCitedPage({ ...source, url }, suggestedName)) return null;
     if (suggestedProduct) {
         return normaliseProduct({ ...suggestedProduct, link: url }, [source], context, index);
     }
@@ -271,9 +275,9 @@ function parseProducts(text) {
     const cleaned = String(text || '').replace(/```(?:json)?/gi, '').trim();
     const taggedProducts = [...cleaned.matchAll(/<name>\s*([\s\S]*?)\s*<link>\s*([\s\S]*?)\s*<image>\s*([\s\S]*?)(?=\s*<name>|$)/gi)]
         .map(([, name, link, image]) => ({
-            name: name.trim(),
-            link: link.trim(),
-            image: image.trim()
+            name: name.replace(/<\/?(?:name|link|image)>/gi, '').trim(),
+            link: link.replace(/<\/?(?:name|link|image)>/gi, '').trim(),
+            image: image.replace(/<\/?(?:name|link|image)>/gi, '').trim()
         }))
         .filter(product => product.name && product.link);
     if (taggedProducts.length) return taggedProducts;
@@ -329,8 +333,10 @@ Repeat the three tags for each product. Keep each field on one line and never in
     try {
         parsed = parseProducts(text);
     } catch (error) {
-        if (!sources.some(isSpecificCitedPage)) throw error;
-        console.warn('Inspire used verified retailer citations because the model response was not structured.');
+        if (!sources.length) {
+            throw new Error('Gemini returned no usable product list or Google Search citations. Check the API key and choose a Gemini model with Google Search grounding enabled.');
+        }
+        console.warn('Inspire used Google Search citations because the Gemini product response was not structured.', error);
         parsed = [];
     }
     const found = [];
@@ -349,7 +355,10 @@ Repeat the three tags for each product. Keep each field on one line and never in
         found.push(citedProduct);
     });
     if (!found.length) {
-        throw new Error('Search returned no retailer product pages we could verify. Try a specific item or brand.');
+        if (!sources.length) {
+            throw new Error('Gemini returned no Google Search citations for this search. Choose a Gemini model with Google Search grounding enabled, then try again.');
+        }
+        throw new Error('Google Search returned pages, but none could be identified as product pages for this request. Try adding a brand or a more specific item.');
     }
     return found.slice(0, context.limit);
 }
