@@ -331,7 +331,7 @@
         .account-provider { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--paper) 55%, var(--card)); }
         @media (max-width: 640px) { .hero-title { font-size: 3.6rem; } .prompt-wrap { box-shadow: 6px 8px 0 var(--mint); } .response-copy { font-size: 15px; } }
     </style>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=20261001-inspire-rebuild-2">
 </head>
 <body>
     <nav class="topbar fixed top-0 z-50 w-full">
@@ -454,72 +454,65 @@
             <button id="wardrobe-tab" class="inspire-tab" type="button" role="tab" aria-selected="true" aria-controls="wardrobe-view" data-show-view="wardrobe"><i class="fa-solid fa-shirt mr-2" aria-hidden="true"></i>Wardrobe</button>
             <button id="inspire-tab" class="inspire-tab" type="button" role="tab" aria-selected="false" aria-controls="inspire-view" data-show-view="inspire"><i class="fa-solid fa-wand-magic-sparkles mr-2" aria-hidden="true"></i>Inspire</button>
         </div>
-        <section id="inspire-view" data-app-view="inspire" class="hidden" role="tabpanel" aria-labelledby="inspire-tab">
-            <div class="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-                <div class="max-w-2xl">
-                    <p class="eyebrow mb-4">Curated for your wardrobe</p>
-                    <h1 class="hero-title max-w-3xl font-bold">Find your next<br><em>favourite.</em></h1>
-                    <p class="mt-5 max-w-xl text-sm leading-7 text-[var(--muted)]">Search the live web for pieces that fit your wardrobe. Curato checks retailer product pages and gives each find a Google Images link for that exact product—never an unrelated stock-photo placeholder. Your wishlist stays saved in this browser.</p>
+        <section id="inspire-view" data-app-view="inspire" class="inspire-page hidden" role="tabpanel" aria-labelledby="inspire-tab">
+            <header class="inspire-hero">
+                <div>
+                    <p class="inspire-kicker"><span></span> A considered edit</p>
+                    <h1>Find a piece<br><em>that feels like you.</em></h1>
+                    <p>Real retailer finds, checked before they reach your edit. Every product image link is specific to the piece—no repeated stock photos.</p>
                 </div>
-                <button id="open-inspire-wishlist" class="primary-button flex shrink-0 items-center justify-center gap-3 rounded-[15px] px-5 py-4 text-sm" type="button" aria-haspopup="dialog" aria-controls="inspire-wishlist-modal">
-                    <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><span>Your wishlist</span><span id="inspire-wishlist-count" class="inspire-count">0</span>
+                <button id="open-inspire-wishlist" class="inspire-wishlist-trigger" type="button" aria-haspopup="dialog" aria-controls="inspire-wishlist-modal">
+                    <i class="fa-regular fa-heart" aria-hidden="true"></i><span>Wishlist</span><span id="inspire-wishlist-count" class="inspire-count">0</span>
                 </button>
-            </div>
+                <div class="inspire-hero-stamp" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i><span>YOUR<br>STYLE<br>EDIT</span></div>
+            </header>
 
-            <section class="surface mb-12 rounded-[25px] p-5 md:p-7" aria-labelledby="inspire-controls-title">
-                <div class="mb-5">
-                    <h2 id="inspire-controls-title" class="accent-font text-xl font-bold tracking-[-.04em]">Set the mood</h2>
-                    <p class="mt-1 text-xs text-[var(--muted)]">Describe the gap. Curato searches across retailers and keeps the request compact.</p>
+            <section class="inspire-search-panel" aria-labelledby="inspire-controls-title">
+                <div class="inspire-panel-heading">
+                    <span class="inspire-panel-icon"><i class="fa-solid fa-sliders" aria-hidden="true"></i></span>
+                    <div><p class="inspire-kicker">Make it yours</p><h2 id="inspire-controls-title">What are we looking for?</h2></div>
                 </div>
-                <div class="grid gap-3 md:grid-cols-12">
-                    <label class="md:col-span-5">
-                        <span class="sr-only">Search for a style or wardrobe gap</span>
-                        <input id="inspire-search" type="search" maxlength="100" class="field w-full py-3 text-sm" placeholder="Try “a light layer for spring”" autocomplete="off">
-                    </label>
-                    <label class="md:col-span-3">
-                        <span class="sr-only">Filter by item type</span>
-                        <select id="inspire-category" class="field inspire-select w-full text-sm">
-                            <option value="All">All item types</option>
-                            <option value="Top">Tops</option>
-                            <option value="Bottom">Bottoms</option>
-                            <option value="Outerwear">Outerwear</option>
-                            <option value="Shoes">Shoes</option>
-                            <option value="Bag">Bags</option>
-                            <option value="Accessory">Accessories</option>
+                <label class="inspire-query">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    <span class="sr-only">Describe what you are looking for</span>
+                    <input id="inspire-search" type="search" maxlength="100" placeholder="e.g. a soft leather tote for everyday" autocomplete="off">
+                </label>
+                <div class="inspire-filter-row">
+                    <label class="inspire-filter">
+                        <span>Piece type</span>
+                        <select id="inspire-category" class="inspire-select">
+                            <option value="All">Anything</option><option value="Top">Tops</option><option value="Bottom">Bottoms</option><option value="Outerwear">Outerwear</option><option value="Shoes">Shoes</option><option value="Bag">Bags</option><option value="Accessory">Accessories</option>
                         </select>
                     </label>
-                    <label class="md:col-span-4">
-                        <span class="sr-only">Number of products to find</span>
-                        <select id="inspire-result-limit" class="field inspire-select w-full text-sm">
-                            <option value="6">Find 6 products</option>
-                            <option value="9">Find 9 products</option>
-                            <option value="12">Find 12 products</option>
+                    <label class="inspire-filter">
+                        <span>Number of finds</span>
+                        <select id="inspire-result-limit" class="inspire-select">
+                            <option value="6">6 finds</option><option value="9">9 finds</option><option value="12">12 finds</option>
                         </select>
                     </label>
-                </div>
-                <div class="mt-3 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
-                    <label class="min-w-0 flex-1">
-                        <span class="sr-only">Brands to prioritise</span>
-                        <input id="inspire-brands" type="text" maxlength="160" class="field w-full py-3 text-sm" placeholder="Brands to prioritise (optional, comma separated)">
+                    <label class="inspire-filter inspire-brand-filter">
+                        <span>Brands <small>optional</small></span>
+                        <input id="inspire-brands" type="text" maxlength="160" placeholder="Comma separated">
                     </label>
+                </div>
+                <div class="inspire-search-footer">
                     <div id="inspire-style-toggle" class="inspire-style-toggle" role="group" aria-label="Style direction">
                         <button type="button" data-inspire-style="masculine" aria-pressed="false">Masculine</button>
                         <button type="button" data-inspire-style="all" aria-pressed="true">Any style</button>
                         <button type="button" data-inspire-style="feminine" aria-pressed="false">Feminine</button>
                     </div>
+                    <button id="refresh-inspire" class="inspire-submit" type="button"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Find my edit</button>
                 </div>
-                <div class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <p class="text-xs leading-5 text-[var(--muted)]">Live searches use your Gemini key only when you choose <em>Find products</em>; recent results are reused for 20 minutes to reduce credits.</p>
-                    <button id="refresh-inspire" class="item-card-action shrink-0 justify-center px-5 py-3" type="button"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>Find real products</button>
-                </div>
-                <p id="inspire-search-status" class="mt-3 text-xs leading-5 text-[var(--muted)]" aria-live="polite"></p>
+                <p id="inspire-search-status" class="inspire-status hidden" aria-live="polite"></p>
             </section>
 
-            <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
-                <div><p class="eyebrow mb-2">The edit</p><h2 class="accent-font text-2xl font-bold tracking-[-.05em]">Pieces with potential</h2></div>
-                <p id="inspire-results-count" class="text-xs text-[var(--muted)]" aria-live="polite"></p>
-            </div>
-            <div id="inspire-grid" class="inspire-grid grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3" aria-live="polite"></div>
+            <section class="inspire-results" aria-labelledby="inspire-results-title">
+                <header class="inspire-results-heading">
+                    <div><p class="inspire-kicker">Curated for you</p><h2 id="inspire-results-title">The edit</h2></div>
+                    <p id="inspire-results-count" aria-live="polite"></p>
+                </header>
+                <div id="inspire-grid" class="inspire-grid" aria-live="polite"></div>
+            </section>
         </section>
         <div id="wardrobe-view" data-app-view="wardrobe" role="tabpanel" aria-labelledby="wardrobe-tab">
         <section class="mx-auto mb-24 max-w-5xl">
@@ -731,6 +724,6 @@
         </section>
     </div>
 
-    <script type="module" src="app.js?v=20261001-inspire-fix"></script>
+    <script type="module" src="app.js?v=20261001-inspire-rebuild-2"></script>
 </body>
 </html>
