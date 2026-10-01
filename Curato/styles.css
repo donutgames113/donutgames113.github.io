@@ -735,19 +735,75 @@ body[data-ui-style="editorial"] .eyebrow {
     background: color-mix(in srgb, var(--purple) 11%, var(--paper));
 }
 
-.inspire-image img,
+.inspire-image-search,
 .inspire-wishlist-image {
     width: 100%;
+    color: var(--ink);
+    background:
+        radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--purple) 18%, transparent), transparent 38%),
+        linear-gradient(145deg, color-mix(in srgb, var(--paper) 78%, var(--card)), color-mix(in srgb, var(--purple) 8%, var(--card)));
+    text-decoration: none;
+    transition: filter .2s ease;
+}
+
+.inspire-image-search {
+    display: flex;
     height: 100%;
-    object-fit: cover;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 9px;
+    text-align: center;
 }
 
-.inspire-image img {
-    transition: transform .45s ease;
+.inspire-image-search > i {
+    color: var(--purple);
+    font-size: 48px;
+    transition: transform .25s ease;
 }
 
-.inspire-card:hover .inspire-image img {
-    transform: scale(1.035);
+.inspire-image-search > strong {
+    font: 700 15px/1.3 "Space Grotesk", sans-serif;
+}
+
+.inspire-image-search > span:not(.inspire-image-label) {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.inspire-card:hover .inspire-image-search > i {
+    transform: scale(1.08);
+}
+
+.inspire-wishlist-image {
+    display: flex;
+    min-height: 128px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--purple);
+}
+
+.inspire-wishlist-image > i {
+    font-size: 24px;
+}
+
+.inspire-wishlist-image > span {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.inspire-image-search:hover,
+.inspire-wishlist-image:hover {
+    filter: brightness(.96);
+}
+
+.inspire-image-search:focus-visible,
+.inspire-wishlist-image:focus-visible {
+    outline: 3px solid var(--yellow);
+    outline-offset: -3px;
 }
 
 .inspire-image-label {
@@ -763,6 +819,11 @@ body[data-ui-style="editorial"] .eyebrow {
     font: 500 9px/1 "DM Mono", monospace;
     letter-spacing: .08em;
     text-transform: uppercase;
+}
+
+.inspire-image-search .inspire-image-label {
+    left: auto;
+    right: 14px;
 }
 
 .inspire-card-body {
@@ -843,10 +904,6 @@ body[data-ui-style="editorial"] .eyebrow {
     box-shadow: none;
 }
 
-.inspire-wishlist-image {
-    min-height: 128px;
-}
-
 .inspire-wishlist-content {
     min-width: 0;
     padding: 13px;
@@ -881,7 +938,7 @@ body[data-ui-style="editorial"] .eyebrow {
 
 @media (prefers-reduced-motion: reduce) {
     .inspire-tab,
-    .inspire-image img,
+    .inspire-image-search > i,
     .inspire-shop-link,
     .inspire-save-button,
     .inspire-remove-button {
