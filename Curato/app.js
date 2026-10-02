@@ -1,4 +1,4 @@
-import { initializeInspire } from './inspire-experience-20261001.js?v=20261001-product-images-2';
+import { initializeInspire } from './inspire-experience-20261001.js?v=20261001-inspire-products-only-2';
 
 const SUPABASE_URL = 'https://wyvliczohxpyptwxnvfi.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5';

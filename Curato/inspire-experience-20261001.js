@@ -40,28 +40,6 @@ function contextFromForm() {
     };
 }
 
-function directProductImageUrl(value) {
-    try {
-        const url = new URL(value);
-        const host = url.hostname.toLowerCase();
-        const path = url.pathname.toLowerCase();
-        const imagePath = /\.(?:avif|gif|jpe?g|png|webp)$/i.test(url.pathname)
-            || /\/(?:dw\/image|is\/image|images?)\//i.test(path)
-            || host === 'images.unsplash.com';
-        return url.protocol === 'https:'
-            && !url.username
-            && !url.password
-            && !/(^|\.)google\.[a-z.]+$/i.test(host)
-            && !/(^|\.)googleusercontent\.com$/i.test(host)
-            && !/(^|\/)(?:search|gallery|collections?)(?:\/|$)/i.test(path)
-            && imagePath
-            ? url.toString()
-            : '';
-    } catch (_) {
-        return '';
-    }
-}
-
 function safeProductUrl(value) {
     try {
         const url = new URL(value);
@@ -152,6 +130,15 @@ function stronglyMatchesProductTitle(title, name) {
         && [...nameWords].filter(word => titleWords.has(word)).length >= Math.min(2, nameWords.size);
 }
 
+function matchesProductRequest(name, context) {
+    const filler = new Set(['want', 'need', 'looking', 'find', 'something', 'anything', 'please', 'good', 'nice', 'item', 'items', 'piece', 'pieces', 'wear', 'outfit', 'style']);
+    const requestedWords = [...new Set(productTokens(context.search))]
+        .filter(word => !filler.has(word));
+    if (!requestedWords.length) return true;
+    const productWords = new Set(productTokens(name));
+    return requestedWords.some(word => productWords.has(word));
+}
+
 function productSourceFor(product, sources) {
     let productUrl = null;
     try { productUrl = new URL(product.url); } catch (_) {}
@@ -165,6 +152,8 @@ function productSourceFor(product, sources) {
         }
         if (!safeProductUrl(source.url)) return false;
         return isSameRetailer(source.url, product.url)
+            && stronglyMatchesProductTitle(source.title, product.name)
+            && isSpecificCitedPage(source, product.name)
             && citedUrl.pathname.replace(/\/$/, '').toLowerCase() === productUrl.pathname.replace(/\/$/, '').toLowerCase();
     });
     if (exact) return exact;
@@ -172,9 +161,11 @@ function productSourceFor(product, sources) {
         if (!safeProductUrl(source.url)) return false;
         const sameRetailer = productUrl && isSameRetailer(source.url, product.url);
         const groundingRedirect = isGroundingRedirect(source.url);
-        const nameMatch = titleMatchesProduct(source.title, product.name, groundingRedirect);
+        const nameMatch = stronglyMatchesProductTitle(source.title, product.name);
+        const specificProductPage = isSpecificCitedPage(source, product.name);
+        if (!specificProductPage) return false;
         if (!sameRetailer && !groundingRedirect && !(nameMatch && isSpecificCitedPage(source, product.name))) return false;
-        if (nameMatch) return true;
+        if (nameMatch && (sameRetailer || groundingRedirect || specificProductPage)) return true;
         if (!sameRetailer) return false;
         let citedUrl;
         try {
@@ -187,7 +178,7 @@ function productSourceFor(product, sources) {
         const overlap = tokenSet => [...nameTokens].filter(token => tokenSet.has(token)).length;
         const titleMatch = nameTokens.size > 0 && overlap(titleTokens) >= Math.min(2, Math.ceil(nameTokens.size * 0.45));
         const pathMatch = nameTokens.size > 0 && overlap(pathTokens) >= Math.min(2, Math.ceil(nameTokens.size * 0.55));
-        return sameRetailer && (titleMatch || pathMatch);
+        return sameRetailer && specificProductPage && (titleMatch || pathMatch);
     }) || null;
 }
 
@@ -214,10 +205,7 @@ function isSpecificCitedPage(source, productName = '') {
 function normaliseProduct(product, sources, context, index) {
     const name = String(product?.product || product?.name || product?.title || product?.productName || '').trim();
     const url = retailerPageUrl(String(product?.link || product?.url || product?.productUrl || product?.product_url || '').trim());
-    const imageUrl = directProductImageUrl(String(
-        product?.image || product?.imageUrl || product?.image_url || product?.image_link || product?.google_image_link || ''
-    ).trim());
-    if (!name || !imageUrl) return null;
+    if (!name || !matchesProductRequest(name, context)) return null;
     const source = productSourceFor({ name, url }, sources);
     if (!source) return null;
     const retailer = (isGroundingRedirect(source.url)
@@ -231,7 +219,6 @@ function normaliseProduct(product, sources, context, index) {
         name: name.slice(0, 120),
         retailer,
         url: source.url,
-        imageUrl,
         price: String(product.price || '').slice(0, 40),
         category,
         index
@@ -241,11 +228,15 @@ function normaliseProduct(product, sources, context, index) {
 function normaliseCitedSource(source, context, index, suggestedProducts = []) {
     const title = String(source.title || '').trim();
     const url = retailerPageUrl(source.url);
-    const suggestedProduct = suggestedProducts.find(product =>
-        stronglyMatchesProductTitle(title, String(product?.product || product?.name || product?.title || ''))
-    );
+    const suggestedProduct = suggestedProducts.find(product => {
+        const name = String(product?.product || product?.name || product?.title || '');
+        const proposedUrl = retailerPageUrl(String(product?.link || product?.url || product?.productUrl || '').trim());
+        return stronglyMatchesProductTitle(title, name)
+            && (!proposedUrl || isSameRetailer(url, proposedUrl));
+    });
     const suggestedName = String(suggestedProduct?.product || suggestedProduct?.name || suggestedProduct?.title || '');
-    if (!title || !url || !isSpecificCitedPage({ ...source, url }, suggestedName)) return null;
+    if (!title || !url || !isSpecificCitedPage({ ...source, url }, suggestedName || context.search)) return null;
+    if (!suggestedProduct && !stronglyMatchesProductTitle(title, context.search)) return null;
     if (suggestedProduct) {
         return normaliseProduct({ ...suggestedProduct, link: url }, [source], context, index);
     }
@@ -268,11 +259,10 @@ function normaliseCitedSource(source, context, index, suggestedProducts = []) {
 
 function parseProducts(text) {
     const cleaned = String(text || '').replace(/```(?:json)?/gi, '').trim();
-    const taggedProducts = [...cleaned.matchAll(/<name>\s*([\s\S]*?)\s*<link>\s*([\s\S]*?)\s*<image>\s*([\s\S]*?)(?=\s*<name>|$)/gi)]
-        .map(([, name, link, image]) => ({
+    const taggedProducts = [...cleaned.matchAll(/<name>\s*([\s\S]*?)\s*<link>\s*([\s\S]*?)(?=\s*<name>|$)/gi)]
+        .map(([, name, link]) => ({
             name: name.replace(/<\/?(?:name|link|image)>/gi, '').trim(),
-            link: link.replace(/<\/?(?:name|link|image)>/gi, '').trim(),
-            image: image.replace(/<\/?(?:name|link|image)>/gi, '').trim()
+            link: link.replace(/<\/?(?:name|link|image)>/gi, '').trim()
         }))
         .filter(product => product.name && product.link);
     if (taggedProducts.length) return taggedProducts;
@@ -295,18 +285,18 @@ async function searchProducts(context, supabase) {
     const model = modelSelect?.value || session?.user?.user_metadata?.preferred_model || 'gemini-3.8-flash';
     if (!key) throw new Error('Add a Gemini API key in Account settings to search products.');
 
-    const prompt = `Find up to ${context.limit} relevant fashion products for this request: "${context.search || 'versatile wardrobe additions'}". Item type: ${context.category}. Style direction: ${context.style === 'all' ? 'any' : context.style}. ${context.brands ? `Prioritise these brands: ${context.brands}.` : ''}
+    const prompt = `Find exactly ${context.limit} distinct, relevant fashion products for this request: "${context.search || 'versatile wardrobe additions'}". Item type: ${context.category}. Style direction: ${context.style === 'all' ? 'any' : context.style}. ${context.brands ? `Prioritise these brands: ${context.brands}.` : ''}
 
 Use Google Search and return only records in exactly this format, with no JSON, markdown, numbering, or extra text:
-<name>EXACT PRODUCT NAME<link>DIRECT PRODUCT PAGE URL COPIED FROM A GOOGLE SEARCH GROUNDING SOURCE<image>DIRECT URL TO ONE PRODUCT IMAGE FILE
-Repeat the three tags for each product. Keep each field on one line and never include the tag text inside a value. The <image> value must be exactly one direct HTTPS URL to one real product photo image file (for example, a retailer-hosted .jpg URL); do not return a Google Images/search page, product page, gallery, or multiple image URLs. Find the image URL through Google Search and make sure it depicts this exact product. Return a different matching image URL for each different product. The product link must be copied exactly from a Google Search grounding source. Never guess, alter, or invent product names or URLs. Exclude search pages, category pages, marketplaces and unavailable items. Prioritise relevance to this request over filling the result limit; return fewer records rather than unrelated products.`;
+<name>EXACT PRODUCT NAME<link>DIRECT RETAILER PRODUCT PAGE URL COPIED VERBATIM FROM A GOOGLE SEARCH GROUNDING SOURCE
+Repeat these two tags once per product. Keep each field on one line and never include tag text inside a value. Do not return image links, image URLs, prices, reasons, or any other fields. Return exactly ${context.limit} different in-stock products that match the request. Use a distinct, real product detail page for every item. Do not use the same retailer page for more than one product. Every link must appear verbatim in the Google Search grounding sources. Never invent, shorten, transform, or guess a URL or product. Exclude search, category, collection, and marketplace pages. If fewer than ${context.limit} verified matching product pages can be found after searching, return every verified matching product found; never pad with guesses or unrelated items.`;
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
             tools: [{ googleSearch: {} }],
-            generationConfig: { temperature: 0.1, maxOutputTokens: 4000 }
+            generationConfig: { temperature: 0.1, maxOutputTokens: 5000 }
         })
     });
     let result;
@@ -336,27 +326,24 @@ Repeat the three tags for each product. Keep each field on one line and never in
     }
     const found = [];
     const seenUrls = new Set();
-    const seenImageUrls = new Set();
     parsed.forEach((item, index) => {
         const normalized = normaliseProduct(item, sources, context, index);
-        if (!normalized || seenUrls.has(normalized.url) || seenImageUrls.has(normalized.imageUrl)) return;
+        if (!normalized || seenUrls.has(normalized.url)) return;
         seenUrls.add(normalized.url);
-        seenImageUrls.add(normalized.imageUrl);
         found.push(normalized);
     });
     sources.forEach((source, index) => {
         if (found.length >= context.limit) return;
         const citedProduct = normaliseCitedSource(source, context, index, parsed);
-        if (!citedProduct || seenUrls.has(citedProduct.url) || seenImageUrls.has(citedProduct.imageUrl)) return;
+        if (!citedProduct || seenUrls.has(citedProduct.url)) return;
         seenUrls.add(citedProduct.url);
-        seenImageUrls.add(citedProduct.imageUrl);
         found.push(citedProduct);
     });
     if (!found.length) {
         if (!sources.length) {
             throw new Error('Gemini returned no Google Search citations for this search. Choose a Gemini model with Google Search grounding enabled, then try again.');
         }
-        throw new Error('Gemini did not return a direct product photo URL with the verified product page. Try again or include a brand to help it find a retailer image.');
+        throw new Error('Google Search did not return verified retailer product pages for this request. Try a more specific item or add a brand.');
     }
     return found.slice(0, context.limit);
 }
@@ -367,13 +354,6 @@ function validWishlist(value) {
         && typeof item.id === 'string'
         && typeof item.name === 'string'
         && safeProductUrl(item.url));
-}
-
-function productImageTile(product) {
-    return `<a class="inspire-product-visual" href="${escapeHTML(product.imageUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Open product photo for ${escapeHTML(product.name)}">
-        <img src="${escapeHTML(product.imageUrl)}" alt="${escapeHTML(product.name)}" loading="lazy">
-        <span class="inspire-photo-label"><i class="fa-regular fa-image" aria-hidden="true"></i> Product photo</span>
-    </a>`;
 }
 
 function renderProducts() {
@@ -393,14 +373,13 @@ function renderProducts() {
     if (!products.length) {
         grid.innerHTML = `<section class="inspire-message inspire-message-empty">
             <span class="inspire-message-icon"><i class="fa-solid fa-sparkles" aria-hidden="true"></i></span>
-            <div><h3>Your next favourite starts here</h3><p>Tell us what you’re looking for. We’ll find verified retailer pages and direct product photos.</p></div>
+            <div><h3>Your next favourite starts here</h3><p>Tell us what you’re looking for. We’ll find verified retailer product pages.</p></div>
         </section>`;
         return;
     }
     grid.innerHTML = products.map(product => {
         const saved = wishlist.some(item => item.id === product.id);
         return `<article class="inspire-product-card">
-            ${productImageTile(product)}
             <div class="inspire-product-content">
                 <div class="inspire-product-meta"><span>${escapeHTML(product.retailer)}</span><span>${escapeHTML(product.category)}</span></div>
                 <h3>${escapeHTML(product.name)}</h3>
@@ -424,7 +403,6 @@ function renderWishlist() {
     if (empty) empty.classList.toggle('hidden', wishlist.length > 0);
     if (!grid) return;
     grid.innerHTML = wishlist.map(item => `<article class="inspire-wishlist-card">
-        ${directProductImageUrl(item.imageUrl) ? `<a class="inspire-wishlist-image" href="${escapeHTML(item.imageUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Open photo of ${escapeHTML(item.name)}"><img src="${escapeHTML(item.imageUrl)}" alt="${escapeHTML(item.name)}" loading="lazy"></a>` : `<div class="inspire-wishlist-image inspire-wishlist-no-image" aria-label="No product photo saved"><i class="fa-regular fa-image" aria-hidden="true"></i></div>`}
         <div class="inspire-wishlist-content"><p class="eyebrow">${escapeHTML(item.retailer || 'Saved find')}</p><h3>${escapeHTML(item.name)}</h3>
             <div class="inspire-product-actions">
                 <a class="inspire-shop-link" href="${escapeHTML(item.url)}" target="_blank" rel="noopener noreferrer">Shop this piece</a>
@@ -481,7 +459,10 @@ async function runSearch(supabase) {
     if (grid) grid.innerHTML = `<div class="inspire-loading"><span class="inspire-spinner"></span><strong>Finding pieces worth a closer look</strong><span>Checking retailer pages before showing results.</span></div>`;
     try {
         products = await searchProducts(context, supabase);
-        setStatus(`${products.length} verified ${products.length === 1 ? 'product' : 'products'} · availability may change at the retailer.`, 'success');
+        const resultCount = products.length === context.limit
+            ? `${products.length} verified ${products.length === 1 ? 'product' : 'products'}`
+            : `${products.length} of ${context.limit} requested finds could be verified`;
+        setStatus(`${resultCount} · availability may change at the retailer.`, 'success');
     } catch (error) {
         console.error('Inspire search failed:', error);
         lastError = error instanceof Error ? error.message : 'The product search failed. Please try again.';
@@ -576,12 +557,6 @@ export function initializeInspire(supabase) {
             setStatus('Your wishlist could not be saved in this browser.', 'error');
         }
     });
-    document.getElementById('inspire-grid')?.addEventListener('error', event => {
-        if (event.target instanceof HTMLImageElement && event.target.closest('.inspire-product-visual')) {
-            event.target.alt = 'This product photo could not be loaded.';
-            event.target.classList.add('inspire-image-unavailable');
-        }
-    }, true);
     document.getElementById('inspire-wishlist-list')?.addEventListener('click', event => {
         const button = event.target.closest('[data-inspire-remove]');
         if (!button) return;
