@@ -326,7 +326,7 @@
         .account-provider { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--paper) 55%, var(--card)); }
         @media (max-width: 640px) { .hero-title { font-size: 3.6rem; } .prompt-wrap { box-shadow: 6px 8px 0 var(--mint); } .response-copy { font-size: 15px; } }
     </style>
-    <link rel="stylesheet" href="styles.css?v=20261005">
+    <link rel="stylesheet" href="styles.css?v=20261001-inspire-products-only-2">
 </head>
 <body>
     <nav class="topbar fixed top-0 z-50 w-full">
@@ -451,9 +451,80 @@
     </div>
 
     <main class="mx-auto max-w-7xl px-5 pb-24 pt-28 md:px-8">
-        <div class="section-tabs mb-10 flex gap-2" role="tablist" aria-label="Curato sections">
-            <button id="wardrobe-tab" class="section-tab" type="button" role="tab" aria-selected="true" aria-controls="wardrobe-view" data-show-view="wardrobe"><i class="fa-solid fa-shirt mr-2" aria-hidden="true"></i>Wardrobe</button>
+        <div class="inspire-tabs mb-10 flex gap-2" role="tablist" aria-label="Curato sections">
+            <button id="wardrobe-tab" class="inspire-tab" type="button" role="tab" aria-selected="true" aria-controls="wardrobe-view" data-show-view="wardrobe"><i class="fa-solid fa-shirt mr-2" aria-hidden="true"></i>Wardrobe</button>
+            <button id="inspire-tab" class="inspire-tab" type="button" role="tab" aria-selected="false" aria-controls="inspire-view" data-show-view="inspire" style="display:none"><i class="fa-solid fa-wand-magic-sparkles mr-2" aria-hidden="true"></i></button>
         </div>
+        <section id="inspire-view" data-app-view="inspire" class="inspire-page hidden" role="tabpanel" aria-labelledby="inspire-tab">
+            <header class="inspire-hero">
+                <div class="inspire-hero-copy">
+                    <p class="inspire-kicker"><span></span> Your personal style desk</p>
+                    <h1>Good finds.<br><em>Better outfits.</em></h1>
+                    <p>Tell us what you have in mind. Explore verified retailer product pages selected for your request.</p>
+                    <a class="inspire-hero-scroll" href="#inspire-controls-title"><span>Start your edit</span><i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a>
+                </div>
+                <div class="inspire-hero-art" aria-hidden="true">
+                    <span class="inspire-art-orbit inspire-art-orbit-one"></span>
+                    <span class="inspire-art-orbit inspire-art-orbit-two"></span>
+                    <span class="inspire-art-tag"><i class="fa-solid fa-wand-magic-sparkles"></i> THE STYLE EDIT</span>
+                    <i class="fa-solid fa-shirt inspire-art-shirt"></i>
+                    <i class="fa-solid fa-bag-shopping inspire-art-bag"></i>
+                    <i class="fa-solid fa-sparkles inspire-art-sparkle"></i>
+                </div>
+                <button id="open-inspire-wishlist" class="inspire-wishlist-trigger" type="button" aria-haspopup="dialog" aria-controls="inspire-wishlist-modal">
+                    <i class="fa-regular fa-heart" aria-hidden="true"></i><span>Saved</span><span id="inspire-wishlist-count" class="inspire-count">0</span>
+                </button>
+            </header>
+
+            <section class="inspire-search-panel" aria-labelledby="inspire-controls-title">
+                <div class="inspire-panel-heading">
+                    <span class="inspire-panel-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
+                    <div><p class="inspire-kicker">Start with an idea</p><h2 id="inspire-controls-title">What would you love to find?</h2></div>
+                </div>
+                <label class="inspire-query">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    <span class="sr-only">Describe what you are looking for</span>
+                    <input id="inspire-search" type="search" maxlength="100" placeholder="Try “a relaxed linen shirt for warm days”" autocomplete="off">
+                    <span class="inspire-query-hint">Be as specific as you like</span>
+                </label>
+                <div class="inspire-filter-row">
+                    <label class="inspire-filter">
+                        <span>Piece type</span>
+                        <select id="inspire-category" class="inspire-select">
+                            <option value="All">Anything</option><option value="Top">Tops</option><option value="Bottom">Bottoms</option><option value="Outerwear">Outerwear</option><option value="Shoes">Shoes</option><option value="Bag">Bags</option><option value="Accessory">Accessories</option>
+                        </select>
+                    </label>
+                    <label class="inspire-filter">
+                        <span>Number of finds</span>
+                        <select id="inspire-result-limit" class="inspire-select">
+                            <option value="6">6 finds</option><option value="9">9 finds</option><option value="12">12 finds</option>
+                        </select>
+                    </label>
+                    <label class="inspire-filter inspire-brand-filter">
+                        <span>Brands <small>optional</small></span>
+                        <input id="inspire-brands" type="text" maxlength="160" placeholder="Comma separated">
+                    </label>
+                </div>
+                <div class="inspire-search-footer">
+                    <div id="inspire-style-toggle" class="inspire-style-toggle" role="group" aria-label="Style direction">
+                        <button type="button" data-inspire-style="masculine" aria-pressed="false">Masculine</button>
+                        <button type="button" data-inspire-style="all" aria-pressed="true">Any style</button>
+                        <button type="button" data-inspire-style="feminine" aria-pressed="false">Feminine</button>
+                    </div>
+                    <button id="refresh-inspire" class="inspire-submit" type="button"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Find my edit</button>
+                </div>
+                <p id="inspire-search-status" class="inspire-status hidden" aria-live="polite"></p>
+                <p class="inspire-search-note"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Shop links are taken directly from cited retailer product pages.</p>
+            </section>
+
+            <section class="inspire-results" aria-labelledby="inspire-results-title">
+                <header class="inspire-results-heading">
+                    <div><p class="inspire-kicker">A little inspiration</p><h2 id="inspire-results-title">Your edit</h2></div>
+                    <p id="inspire-results-count" aria-live="polite"></p>
+                </header>
+                <div id="inspire-grid" class="inspire-grid" aria-live="polite"></div>
+            </section>
+        </section>
         <div id="wardrobe-view" data-app-view="wardrobe" role="tabpanel" aria-labelledby="wardrobe-tab">
         <section class="mx-auto mb-24 max-w-5xl">
             <h1 class="hero-title max-w-4xl font-bold">Get dressed<br><em>to impress.</em></h1>
@@ -466,9 +537,13 @@
                     </div>
                     <div class="formality-range-wrap">
                         <div class="formality-ticks" aria-hidden="true">
-                            <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                            <span></span><span></span><span></span><span></span><span></span>
                         </div>
-                        <input id="formality-slider" class="formality-slider" type="range" min="0" max="5" step="1" value="2" aria-label="Outfit formality">
+                        <input id="formality-slider" class="formality-slider" type="range" min="0" max="4" step="1" value="2" aria-label="Outfit formality">
+                    </div>
+                    <div class="mt-1 flex justify-between text-[10px] text-white/60" aria-hidden="true">
+                        <span>Casual</span>
+                        <span>Formal</span>
                     </div>
                 </div>
                 <div class="flex flex-col items-stretch justify-between gap-3 px-2 pb-2 sm:flex-row sm:items-center">
@@ -555,6 +630,17 @@
         </div>
     </main>
 
+    <div id="inspire-wishlist-modal" class="fixed inset-0 z-[65] hidden items-center justify-center p-5" role="dialog" aria-modal="true" aria-labelledby="inspire-wishlist-title">
+        <div class="absolute inset-0 backdrop-blur-sm" style="background: var(--backdrop)" data-close-inspire-wishlist></div>
+        <section class="relative max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-[25px] border p-6 md:p-9" style="background: var(--card); border-color: var(--line); color: var(--ink);">
+            <div class="mb-7 flex items-start justify-between gap-6">
+                <div><p class="eyebrow mb-2">Saved for later</p><h2 id="inspire-wishlist-title" class="accent-font text-3xl font-bold tracking-[-.06em]">Your wishlist</h2></div>
+                <button type="button" data-close-inspire-wishlist class="text-xl text-[var(--muted)] hover:text-[var(--ink)]" aria-label="Close wishlist"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+            <div id="inspire-wishlist-list" class="grid gap-4 sm:grid-cols-2"></div>
+            <p id="inspire-wishlist-empty" class="py-10 text-center text-sm text-[var(--muted)]">Your wishlist is ready for a little inspiration. Save a piece to see it here.</p>
+        </section>
+    </div>
     <div id="favorites-modal" class="fixed inset-0 z-[60] hidden items-center justify-center p-5" role="dialog" aria-modal="true" aria-labelledby="favorites-title">
         <div class="absolute inset-0 backdrop-blur-sm" style="background: var(--backdrop)" data-close-favorites></div>
         <section class="relative max-h-[85vh] w-full max-w-4xl overflow-y-auto rounded-[25px] border p-7 md:p-10">
@@ -671,6 +757,6 @@
         </section>
     </div>
 
-    <script type="module" src="app.js?v=20261005"></script>
+    <script type="module" src="app.js?v=20261001-inspire-products-only-2"></script>
 </body>
 </html>
