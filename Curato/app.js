@@ -1,5 +1,3 @@
-import { initializeInspire } from './inspire-experience-20261001.js?v=20261001-inspire-products-only-2';
-
 const SUPABASE_URL = 'https://wyvliczohxpyptwxnvfi.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5';
 const REDIRECT_URL = 'https://donutgames113.github.io/Curato/index.html';
@@ -1115,7 +1113,6 @@ async function uploadImageToStorage(base64Data) {
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeTheme();
-    initializeInspire(supabase);
     const appTabs = Array.from(document.querySelectorAll('[data-show-view]'));
     appTabs.forEach((button, index) => {
         button.tabIndex = button.getAttribute('aria-selected') === 'true' ? 0 : -1;
@@ -1205,7 +1202,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const formalityValue =
         document.getElementById('formality-value');
 
-    const formalityLevels = ['Casual', 'Relaxed', 'Smart casual', 'Business', 'Formal'];
+    const formalityLevels = ['Very casual', 'Casual', 'Smart casual', 'Business', 'Formal', 'Black tie'];
 
     const updateFormalityValue = () => {
         if (formalityValue && formalitySlider) {
@@ -2090,11 +2087,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const promptMode = promptModes[promptType] || promptModes.outfit;
                 const formality = formalityLevels[Number(formalitySlider.value)];
                 const formalityGuidance = {
-                    Casual: 'Use relaxed everyday pieces and casual footwear; do not recommend tailoring, dress shoes, or occasionwear.',
-                    Relaxed: 'Keep the whole look informal and easy; avoid business tailoring and formal footwear.',
+                    'Very casual': 'Keep the look relaxed, easy, and everyday; avoid tailored silhouettes, polish, or formal footwear.',
+                    Casual: 'Use relaxed staples and comfortable styling; do not recommend dress shoes, heavy tailoring, or occasionwear.',
                     'Smart casual': 'Build a deliberately balanced look: polished but not business-formal, relaxed but not sloppy.',
                     Business: 'Use polished, structured separates and refined footwear; avoid casual basics and black-tie/occasionwear.',
-                    Formal: 'Use the most elevated formal pieces and footwear available in the archive; do not downgrade the look to smart casual or business.'
+                    Formal: 'Use the most elevated formal pieces and footwear available in the archive; do not downgrade the look to smart casual or business.',
+                    'Black tie': 'Treat this as the highest formality option: use dressier evening tailoring, crisp finishing details, and the most elevated formal styling available.'
                 };
                 const formalityInstruction = promptType === 'outfit'
                     ? `\nNON-NEGOTIABLE OUTFIT FORMALITY: ${formality.toUpperCase()} (selected on the formality control). This setting is the user's explicit instruction and takes priority over any conflicting or implied formality in the free-text request or occasion. ${formalityGuidance[formality]} Keep every recommended piece, footwear choice, and styling detail consistent with ${formality.toLowerCase()} formality. Do not offer a different formality as an alternative and do not silently compromise. If the archive lacks enough appropriate pieces, say clearly that it cannot satisfy the selected level and identify only the closest available archive look; do not describe that look as meeting the requirement. Before responding, check the formality of the complete proposed outfit against this exact level and rewrite it if any piece or styling choice pulls it away from the target. A mandatory event dress code does not change the selected target: briefly flag any conflict, but still honor the selected formality as far as the archive allows.\n`
