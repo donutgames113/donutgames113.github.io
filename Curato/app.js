@@ -72,6 +72,7 @@ let latestSuggestion = null;
 let favoriteOutfits = [];
 let consultationItems = [];
 let wardrobeItems = [];
+let activeLibraryUserId = null;
 let selectedWardrobeItems = new Set();
 let wardrobeSelectionMode = false;
 let nextItemReference = 1;
@@ -398,20 +399,27 @@ function openConsultationItemInspector(item) {
 }
 
 async function loadFavorites() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
+    const userId = await getCurrentUserId();
+    if (!userId) {
         alert("Connect your account to view favorites.");
         return;
     }
     const { data, error } = await supabase.from('favorite_outfits')
         .select('id,title,items,created_at')
+        .eq('user_id', userId)
         .order('created_at', { ascending: false });
     if (error) throw error;
+    if (await getCurrentUserId() !== userId) return;
     favoriteOutfits = data || [];
     renderFavorites();
 }
 
 async function renameFavorite(id, title) {
+    const userId = await getCurrentUserId();
+    if (!userId) {
+        alert("Connect your account to manage favorites.");
+        return;
+    }
     const nextTitle = title.trim();
     if (!nextTitle) {
         alert("Favorite name cannot be empty.");
@@ -421,7 +429,8 @@ async function renameFavorite(id, title) {
     const { error } = await supabase
         .from('favorite_outfits')
         .update({ title: nextTitle })
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', userId);
 
     if (error) {
         alert("Favorite rename failed: " + error.message);
@@ -434,7 +443,15 @@ async function renameFavorite(id, title) {
 }
 
 async function removeFavorite(id) {
-    const { error } = await supabase.from('favorite_outfits').delete().eq('id', id);
+    const userId = await getCurrentUserId();
+    if (!userId) {
+        alert("Connect your account to manage favorites.");
+        return;
+    }
+    const { error } = await supabase.from('favorite_outfits')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', userId);
     if (error) {
         alert("Favorite removal failed: " + error.message);
         return;
@@ -451,6 +468,12 @@ function escapeHTML(value) {
         "'": '&#39;',
         '"': '&quot;'
     })[character]);
+}
+
+async function getCurrentUserId() {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error) throw error;
+    return session?.user.id || null;
 }
 
 // ========================================
@@ -826,20 +849,35 @@ function sortItems(items) {
 // ========================================
 
 async function fetchItems() {
-
-    const { data, error } = await supabase
-        .from('items')
-        .select('id,name,image_url,tags')
-        .order('id', { ascending: false });
-
-    if (error) {
-
-        console.error(error);
-
-        return;
+    const userId = await getCurrentUserId();
+    if (userId !== activeLibraryUserId) {
+        wardrobeItems = [];
+        consultationItems = [];
+        favoriteOutfits = [];
+        selectedWardrobeItems.clear();
+        latestSuggestion = null;
+        document.getElementById('save-outfit-btn')?.classList.add('hidden');
+        activeLibraryUserId = userId;
+        renderFavorites();
     }
 
-    wardrobeItems = data || [];
+    let data = [];
+    if (userId) {
+        const result = await supabase
+            .from('items')
+            .select('id,name,image_url,tags')
+            .eq('user_id', userId)
+            .order('id', { ascending: false });
+
+        if (result.error) {
+            console.error(result.error);
+            return;
+        }
+        if (userId !== activeLibraryUserId || await getCurrentUserId() !== userId) return;
+        data = result.data || [];
+    }
+
+    wardrobeItems = data;
     const availableIds = new Set(wardrobeItems.map(item => String(item.id)));
     selectedWardrobeItems = new Set(
         [...selectedWardrobeItems].filter(id => availableIds.has(id))
@@ -988,7 +1026,15 @@ function openItemEditor(item) {
 
 async function deleteItem(id) {
     if (!window.confirm('Delete this piece from your library?')) return;
-    const { error } = await supabase.from('items').delete().eq('id', id);
+    const userId = await getCurrentUserId();
+    if (!userId) {
+        alert("Connect your account to manage your library.");
+        return;
+    }
+    const { error } = await supabase.from('items')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', userId);
     if (error) {
         console.error(error);
         alert(`Delete failed: ${error.message}`);
@@ -1319,11 +1365,18 @@ document.addEventListener('DOMContentLoaded', () => {
             editItemSubmit.disabled = true;
             editItemSubmit.innerText = 'SAVING...';
             try {
+                const userId = await getCurrentUserId();
+                if (!userId) throw new Error('Connect your account to edit your library.');
+
                 let imageUrl;
                 if (editingImageData) {
                     imageUrl = await uploadImageToStorage(editingImageData);
                 }
-                const currentItem = await supabase.from('items').select('tags').eq('id', editingItemId).single();
+                const currentItem = await supabase.from('items')
+                    .select('tags')
+                    .eq('id', editingItemId)
+                    .eq('user_id', userId)
+                    .single();
                 if (currentItem.error) throw currentItem.error;
                 const tags = { ...(currentItem.data.tags || {}), brand: document.getElementById('edit-item-brand').value.trim() };
                 const updates = {
@@ -1331,7 +1384,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     tags
                 };
                 if (imageUrl) updates.image_url = imageUrl;
-                const { error } = await supabase.from('items').update(updates).eq('id', editingItemId);
+                const { error } = await supabase.from('items')
+                    .update(updates)
+                    .eq('id', editingItemId)
+                    .eq('user_id', userId);
                 if (error) throw error;
                 itemEditorModal.classList.add('hidden');
                 itemEditorModal.classList.remove('flex');
@@ -1708,6 +1764,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 authBtn.title = 'Connect your account';
             }
             closeAccountModal();
+            fetchItems();
 
         }
     });
@@ -1974,8 +2031,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         saveBtn.onclick = async () => {
 
-            const { data: { session } } =
-                await supabase.auth.getSession();
+            const userId = await getCurrentUserId();
+            if (!userId) {
+                alert("Connect your account before adding items to your library.");
+                return;
+            }
 
             if (
                 !currentImageData ||
@@ -2004,8 +2064,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         .from('items')
                         .insert([{
 
-                            user_id:
-                                session?.user?.id || null,
+                            user_id: userId,
 
                             name:
                                 nameInput.value,
@@ -2100,13 +2159,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     ? `\nNON-NEGOTIABLE OUTFIT FORMALITY: ${formality.toUpperCase()} (selected on the formality control). This setting is the user's explicit instruction and takes priority over any conflicting or implied formality in the free-text request or occasion. ${formalityGuidance[formality]} Keep every recommended piece, footwear choice, and styling detail consistent with ${formality.toLowerCase()} formality. Do not offer a different formality as an alternative and do not silently compromise. If the archive lacks enough appropriate pieces, say clearly that it cannot satisfy the selected level and identify only the closest available archive look; do not describe that look as meeting the requirement. Before responding, check the formality of the complete proposed outfit against this exact level and rewrite it if any piece or styling choice pulls it away from the target. A mandatory event dress code does not change the selected target: briefly flag any conflict, but still honor the selected formality as far as the archive allows.\n`
                     : '';
 
-                const { data: items, error: dbError } =
-                    await supabase
+                const userId = await getCurrentUserId();
+                const { data: items, error: dbError } = userId
+                    ? await supabase
                         .from('items')
-                        .select('id,name,image_url,tags');
+                        .select('id,name,image_url,tags')
+                        .eq('user_id', userId)
+                    : { data: [], error: null };
 
                 if (dbError) {
                     throw dbError;
+                }
+                if (await getCurrentUserId() !== userId) {
+                    throw new Error('Your account changed during the consultation. Please try again.');
                 }
 
                 nextItemReference = 1;
