@@ -78,6 +78,42 @@
             --mint: #50633d; --yellow: #e9d16f; --prompt-surface: #354322; --drop-border: #5b6945;
             --shadow: rgba(0, 0, 0, .3); --backdrop: rgba(0, 0, 0, .74);
         }
+        body[data-color-theme="y2k"] {
+            --ink: #28213e; --muted: #77718f; --paper: #f2f1ff; --card: #fcfbff; --line: #ded9f3;
+            --purple: #7959df; --purple-soft: #e8e1ff; --logo-primary: var(--purple); --logo-secondary: var(--yellow); --orange: #dc5ba4; --orange-hover: #eb78b9;
+            --mint: #a9e5e7; --yellow: #ffd978; --prompt-surface: #332653; --drop-border: #c6b8e8;
+            --shadow: rgba(72, 52, 120, .12); --backdrop: rgba(34, 25, 58, .64);
+        }
+        body.dark-mode[data-color-theme="y2k"] {
+            --ink: #f8f2ff; --muted: #c0b6d8; --paper: #191528; --card: #28213b; --line: #4b3d68;
+            --purple: #b9a2ff; --purple-soft: #3a2e57; --logo-primary: var(--purple); --logo-secondary: var(--yellow); --orange: #ff91cc; --orange-hover: #ffadd9;
+            --mint: #28616a; --yellow: #f6d477; --prompt-surface: #211a36; --drop-border: #65527f;
+            --shadow: rgba(0, 0, 0, .34); --backdrop: rgba(0, 0, 0, .76);
+        }
+        body[data-color-theme="rose"] {
+            --ink: #402630; --muted: #8c6875; --paper: #fff3f5; --card: #fffafb; --line: #efd9e0;
+            --purple: #c6537c; --purple-soft: #f8dfe8; --logo-primary: var(--purple); --logo-secondary: var(--yellow); --orange: #d97859; --orange-hover: #ea9476;
+            --mint: #f0c4d3; --yellow: #f3d17f; --prompt-surface: #5a2d43; --drop-border: #dfbdc8;
+            --shadow: rgba(103, 49, 74, .1); --backdrop: rgba(47, 24, 38, .62);
+        }
+        body.dark-mode[data-color-theme="rose"] {
+            --ink: #fff1f5; --muted: #d5aeba; --paper: #261821; --card: #37232f; --line: #644354;
+            --purple: #f18bb0; --purple-soft: #573244; --logo-primary: var(--purple); --logo-secondary: var(--yellow); --orange: #ffad83; --orange-hover: #ffc09e;
+            --mint: #704253; --yellow: #efd078; --prompt-surface: #49283a; --drop-border: #795568;
+            --shadow: rgba(0, 0, 0, .32); --backdrop: rgba(0, 0, 0, .74);
+        }
+        body[data-color-theme="sunset"] {
+            --ink: #42291f; --muted: #92705d; --paper: #fff4e8; --card: #fffbf5; --line: #efddc8;
+            --purple: #bd5b3d; --purple-soft: #f6dfd0; --logo-primary: var(--purple); --logo-secondary: var(--yellow); --orange: #e78943; --orange-hover: #f3a361;
+            --mint: #c7dfc1; --yellow: #f7d174; --prompt-surface: #563321; --drop-border: #dfc4a7;
+            --shadow: rgba(104, 63, 34, .1); --backdrop: rgba(49, 29, 19, .62);
+        }
+        body.dark-mode[data-color-theme="sunset"] {
+            --ink: #fff2e1; --muted: #d5b99f; --paper: #261b17; --card: #382820; --line: #60483a;
+            --purple: #f1a078; --purple-soft: #56372c; --logo-primary: var(--purple); --logo-secondary: var(--yellow); --orange: #ffc16e; --orange-hover: #ffd18e;
+            --mint: #48604a; --yellow: #f1d077; --prompt-surface: #432b20; --drop-border: #755541;
+            --shadow: rgba(0, 0, 0, .32); --backdrop: rgba(0, 0, 0, .74);
+        }
         * {
             box-sizing: border-box;
             user-select: none;
@@ -326,7 +362,7 @@
         .account-provider { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--paper) 55%, var(--card)); }
         @media (max-width: 640px) { .hero-title { font-size: 3.6rem; } .prompt-wrap { box-shadow: 6px 8px 0 var(--mint); } .response-copy { font-size: 15px; } }
     </style>
-    <link rel="stylesheet" href="styles.css?v=20261001-inspire-products-only-2">
+    <link rel="stylesheet" href="styles.css?v=20261007-y2k-palettes">
 </head>
 <body>
     <nav class="topbar fixed top-0 z-50 w-full">
@@ -421,6 +457,11 @@
                         <span class="style-choice-name">Editorial</span>
                         <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
                     </button>
+                    <button type="button" class="style-choice" data-ui-style="y2k" aria-pressed="false">
+                        <i class="style-choice-icon fa-solid fa-compact-disc" aria-hidden="true"></i>
+                        <span class="style-choice-name">Y2K Gloss</span>
+                        <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
+                    </button>
                 </div>
             </details>
             <div class="palette-section">
@@ -444,6 +485,18 @@
                 <button type="button" class="palette-choice" data-color-theme="lime" aria-pressed="false">
                     <span class="font-semibold">Lime</span>
                     <span class="flex items-center gap-3"><span class="palette-swatches" aria-hidden="true"><span style="background:#627a2d"></span><span style="background:#b9792b"></span><span style="background:#d5e4a8"></span></span><i class="palette-choice-check fa-solid fa-check" aria-hidden="true"></i></span>
+                </button>
+                <button type="button" class="palette-choice" data-color-theme="y2k" aria-pressed="false">
+                    <span class="font-semibold">Y2K</span>
+                    <span class="flex items-center gap-3"><span class="palette-swatches" aria-hidden="true"><span style="background:#7959df"></span><span style="background:#dc5ba4"></span><span style="background:#a9e5e7"></span></span><i class="palette-choice-check fa-solid fa-check" aria-hidden="true"></i></span>
+                </button>
+                <button type="button" class="palette-choice" data-color-theme="rose" aria-pressed="false">
+                    <span class="font-semibold">Rose</span>
+                    <span class="flex items-center gap-3"><span class="palette-swatches" aria-hidden="true"><span style="background:#c6537c"></span><span style="background:#d97859"></span><span style="background:#f0c4d3"></span></span><i class="palette-choice-check fa-solid fa-check" aria-hidden="true"></i></span>
+                </button>
+                <button type="button" class="palette-choice" data-color-theme="sunset" aria-pressed="false">
+                    <span class="font-semibold">Sunset</span>
+                    <span class="flex items-center gap-3"><span class="palette-swatches" aria-hidden="true"><span style="background:#bd5b3d"></span><span style="background:#e78943"></span><span style="background:#c7dfc1"></span></span><i class="palette-choice-check fa-solid fa-check" aria-hidden="true"></i></span>
                 </button>
             </div>
             </div>

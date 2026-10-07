@@ -3,7 +3,7 @@ import { initializeInspire } from './inspire-experience-20261001.js?v=20261001-i
 const SUPABASE_URL = 'https://wyvliczohxpyptwxnvfi.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5';
 const REDIRECT_URL = 'https://donutgames113.github.io/Curato/index.html';
-const UI_STYLES = new Set(['curato', 'flat', 'frutiger', 'liquid', 'retro', 'brutalist', 'editorial']);
+const UI_STYLES = new Set(['curato', 'flat', 'frutiger', 'liquid', 'retro', 'brutalist', 'editorial', 'y2k']);
 
 const promptModes = {
     outfit: {
