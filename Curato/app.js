@@ -1,5 +1,3 @@
-import { initializeInspire } from './inspire-experience-20261001.js?v=20261001-inspire-products-only-2';
-
 const SUPABASE_URL = 'https://wyvliczohxpyptwxnvfi.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5';
 const REDIRECT_URL = 'https://donutgames113.github.io/Curato/index.html';
@@ -1161,7 +1159,6 @@ async function uploadImageToStorage(base64Data) {
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeTheme();
-    initializeInspire(supabase);
     const appTabs = Array.from(document.querySelectorAll('[data-show-view]'));
     appTabs.forEach((button, index) => {
         button.tabIndex = button.getAttribute('aria-selected') === 'true' ? 0 : -1;
