@@ -1251,7 +1251,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const formalityValue =
         document.getElementById('formality-value');
 
-    const formalityLevels = ['Casual', 'Relaxed', 'Smart casual', 'Business', 'Formal'];
+    const formalityLevels = ['Casual', 'Relaxed', 'Elevated casual', 'Smart casual', 'Business', 'Formal'];
 
     const updateFormalityValue = () => {
         if (formalityValue && formalitySlider) {
@@ -2151,6 +2151,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const formalityGuidance = {
                     Casual: 'Use relaxed everyday pieces and casual footwear; do not recommend tailoring, dress shoes, or occasionwear.',
                     Relaxed: 'Keep the whole look informal and easy; avoid business tailoring and formal footwear.',
+                    'Elevated casual': 'Choose refined everyday pieces and thoughtful finishing details, keeping the outfit relaxed and short of smart casual.',
                     'Smart casual': 'Build a deliberately balanced look: polished but not business-formal, relaxed but not sloppy.',
                     Business: 'Use polished, structured separates and refined footwear; avoid casual basics and black-tie/occasionwear.',
                     Formal: 'Use the most elevated formal pieces and footwear available in the archive; do not downgrade the look to smart casual or business.'
