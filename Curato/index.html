@@ -362,7 +362,7 @@
         .account-provider { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--paper) 55%, var(--card)); }
         @media (max-width: 640px) { .hero-title { font-size: 3.6rem; } .prompt-wrap { box-shadow: 6px 8px 0 var(--mint); } .response-copy { font-size: 15px; } }
     </style>
-    <link rel="stylesheet" href="styles.css?v=20261007-y2k-palettes">
+    <link rel="stylesheet" href="styles.css?v=20261008-workspace-customization">
 </head>
 <body>
     <nav class="topbar fixed top-0 z-50 w-full">
@@ -386,7 +386,7 @@
                     <option value="gemini-2.5-flash-lite">2.5 Flash-Lite</option>
                 </select>
                 <input id="user-api-key" type="password" placeholder="Gemini key" class="hidden w-24 border-b border-[var(--line)] bg-transparent pb-1 text-[10px] text-[var(--ink)] outline-none md:block" aria-label="Gemini API key">
-                <button id="palette-toggle" class="theme-toggle" type="button" aria-label="Choose color palette" title="Choose color palette" aria-haspopup="dialog" aria-controls="palette-modal"><i class="fa-solid fa-palette" aria-hidden="true"></i></button>
+                <button id="palette-toggle" class="theme-toggle" type="button" aria-label="Personalize Curato" title="Personalize Curato" aria-haspopup="dialog" aria-controls="palette-modal"><i class="fa-solid fa-palette" aria-hidden="true"></i></button>
                 <button id="auth-btn" class="icon-button" type="button" aria-label="Connect your account" title="Connect your account"><i class="fa-regular fa-circle-user text-base" aria-hidden="true"></i></button>
                 <button id="favorites-btn" class="icon-button" type="button" aria-label="Favorites" title="Favorites"><i class="fa-regular fa-bookmark text-base" aria-hidden="true"></i></button>
             </div>
@@ -400,9 +400,9 @@
                 <div>
                     <p class="section-label mb-2">Make it yours</p>
                     <h2 id="palette-title" class="text-3xl font-bold tracking-[-.06em]">Personalize Curato</h2>
-                    <p id="palette-description" class="mt-2 text-sm text-[var(--muted)]">Choose a style, color palette, and appearance.</p>
+                    <p id="palette-description" class="mt-2 text-sm text-[var(--muted)]">Choose a style, color palette, appearance, and what you see.</p>
                 </div>
-                <button type="button" data-close-palette class="text-xl text-[var(--muted)] hover:text-[var(--ink)]" aria-label="Close color palettes"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" data-close-palette class="text-xl text-[var(--muted)] hover:text-[var(--ink)]" aria-label="Close personalization settings"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <button id="theme-toggle" class="appearance-toggle" type="button" aria-label="Switch to dark mode" title="Switch theme">
                 <span class="font-semibold">Appearance</span>
@@ -412,6 +412,22 @@
                     <i class="theme-toggle-icon fa-solid fa-sun" aria-hidden="true"></i>
                 </span>
             </button>
+            <section class="customization-section" aria-labelledby="customization-title">
+                <h3 id="customization-title" class="style-section-title">Workspace</h3>
+                <p class="style-section-description mb-3">Choose which tools and details to show.</p>
+                <label class="customization-option" for="show-ai-tools">
+                    <span><strong>AI styling assistant</strong><small>Show the consultation prompt and generated looks.</small></span>
+                    <input id="show-ai-tools" type="checkbox" data-workspace-preference="ai-tools" checked>
+                </label>
+                <label class="customization-option" for="show-add-piece">
+                    <span><strong>Add a piece panel</strong><small>Show the form for archiving new wardrobe items.</small></span>
+                    <input id="show-add-piece" type="checkbox" data-workspace-preference="add-piece" checked>
+                </label>
+                <label class="customization-option" for="compact-catalog">
+                    <span><strong>Compact catalogue</strong><small>Use tighter spacing and smaller item images.</small></span>
+                    <input id="compact-catalog" type="checkbox" data-workspace-preference="compact-catalog">
+                </label>
+            </section>
             <details class="style-section">
                 <summary id="style-picker-summary" class="style-picker-summary">
                     <span>
@@ -579,7 +595,7 @@
             </section>
         </section>
         <div id="wardrobe-view" data-app-view="wardrobe" role="tabpanel" aria-labelledby="wardrobe-tab">
-        <section class="mx-auto mb-24 max-w-5xl">
+        <section id="ai-consultation-section" class="mx-auto mb-24 max-w-5xl">
             <h1 class="hero-title max-w-4xl font-bold">Get dressed<br><em>to impress.</em></h1>
             <div class="prompt-wrap mt-9">
                 <input id="occasion-input" class="w-full border-0 bg-transparent px-5 pb-5 pt-4 outline-none" placeholder="Where are we going?" aria-label="Tell Curato what you need an outfit for">
@@ -621,7 +637,7 @@
         </section>
 
         <div class="grid grid-cols-1 gap-14 lg:grid-cols-12 lg:gap-20">
-            <aside class="lg:col-span-4 lg:sticky lg:top-28 lg:h-fit">
+            <aside id="add-piece-panel" class="lg:col-span-4 lg:sticky lg:top-28 lg:h-fit">
                 <div class="surface rounded-[25px] p-5 md:p-7">
                     <div class="mb-6 flex items-center justify-between"><span class="section-label">Add a piece</span></div>
                     <div id="drop-zone" class="drop-zone group relative flex cursor-pointer items-center justify-center overflow-hidden">
@@ -671,10 +687,16 @@
                 </div>
                 <div class="mb-5 flex flex-wrap items-center gap-3">
                     <button id="toggle-selection-btn" type="button" class="chip" aria-pressed="false"><i class="fa-regular fa-square-check"></i>Select items</button>
-                    <div id="selection-actions" class="hidden flex flex-wrap items-center gap-2" aria-live="polite">
-                        <span id="selection-count" class="mono px-2 text-xs text-[var(--muted)]">0 selected</span>
-                        <button id="clear-selection-btn" type="button" class="item-card-action">Cancel</button>
-                        <button id="save-selection-btn" type="button" class="primary-button rounded-[12px] px-4 py-2 text-[10px] uppercase tracking-[.1em]" disabled><i class="fa-regular fa-bookmark mr-2"></i>Save as outfit</button>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div id="selection-actions" class="hidden flex flex-wrap items-center gap-2" aria-live="polite">
+                            <span id="selection-count" class="mono px-2 text-xs text-[var(--muted)]">0 selected</span>
+                            <button id="clear-selection-btn" type="button" class="item-card-action">Cancel</button>
+                            <button id="save-selection-btn" type="button" class="primary-button rounded-[12px] px-4 py-2 text-[10px] uppercase tracking-[.1em]" disabled><i class="fa-regular fa-bookmark mr-2"></i>Save as outfit</button>
+                        </div>
+                        <div class="flex items-center gap-1" role="group" aria-label="Catalogue view">
+                            <button type="button" class="chip catalog-view-button" data-catalog-view="list" aria-pressed="false" title="View as a list"><i class="fa-solid fa-list" aria-hidden="true"></i><span>List</span></button>
+                            <button type="button" class="chip catalog-view-button active" data-catalog-view="grid" aria-pressed="true" title="View as a grid"><i class="fa-solid fa-grip" aria-hidden="true"></i><span>Grid</span></button>
+                        </div>
                     </div>
                 </div>
                 <div id="catalog-grid" class="grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-3 md:gap-x-7"></div>
@@ -810,6 +832,6 @@
         </section>
     </div>
 
-    <script type="module" src="app.js?v=20261007-disable-inspire-startup-fix"></script>
+    <script type="module" src="app.js?v=20261008-workspace-customization"></script>
 </body>
 </html>

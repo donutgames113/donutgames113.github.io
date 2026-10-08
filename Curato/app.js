@@ -1159,6 +1159,55 @@ async function uploadImageToStorage(base64Data) {
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeTheme();
+    const workspacePreferenceTargets = {
+        'ai-tools': document.getElementById('ai-consultation-section'),
+        'add-piece': document.getElementById('add-piece-panel'),
+        'compact-catalog': document.getElementById('catalog-grid')
+    };
+    document.querySelectorAll('[data-workspace-preference]').forEach(input => {
+        const preference = input.dataset.workspacePreference;
+        const target = workspacePreferenceTargets[preference];
+        if (!(input instanceof HTMLInputElement) || !target) return;
+
+        const storageKey = `curato-workspace-${preference}`;
+        const savedValue = localStorage.getItem(storageKey);
+        const enabled = savedValue === null
+            ? input.checked
+            : savedValue === 'true';
+        input.checked = enabled;
+        target.classList.toggle('hidden', !enabled && preference !== 'compact-catalog');
+        target.classList.toggle('catalog-compact', enabled && preference === 'compact-catalog');
+
+        input.addEventListener('change', () => {
+            localStorage.setItem(storageKey, String(input.checked));
+            target.classList.toggle('hidden', !input.checked && preference !== 'compact-catalog');
+            target.classList.toggle('catalog-compact', input.checked && preference === 'compact-catalog');
+        });
+    });
+
+    const catalogGrid = document.getElementById('catalog-grid');
+    const catalogViewButtons = document.querySelectorAll('[data-catalog-view]');
+    const applyCatalogView = view => {
+        catalogGrid?.classList.toggle('catalog-list', view === 'list');
+        catalogViewButtons.forEach(button => {
+            const selected = button.dataset.catalogView === view;
+            button.classList.toggle('active', selected);
+            button.setAttribute('aria-pressed', String(selected));
+        });
+    };
+    const savedCatalogView = localStorage.getItem('curato-catalog-view') === 'list'
+        ? 'list'
+        : 'grid';
+    applyCatalogView(savedCatalogView);
+    catalogViewButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const view = button.dataset.catalogView;
+            if (view !== 'list' && view !== 'grid') return;
+            localStorage.setItem('curato-catalog-view', view);
+            applyCatalogView(view);
+        });
+    });
+
     const appTabs = Array.from(document.querySelectorAll('[data-show-view]'));
     appTabs.forEach((button, index) => {
         button.tabIndex = button.getAttribute('aria-selected') === 'true' ? 0 : -1;

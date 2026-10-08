@@ -9,6 +9,105 @@
     height: 26px;
 }
 
+.customization-section {
+    margin: 18px 0;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 15px;
+    background: color-mix(in srgb, var(--paper) 60%, var(--card));
+}
+
+.customization-option {
+    display: flex;
+    min-height: 52px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 10px 0;
+    border-top: 1px solid var(--line);
+    color: var(--ink);
+    cursor: pointer;
+}
+
+.customization-option strong,
+.customization-option small {
+    display: block;
+}
+
+.customization-option strong {
+    font-size: 13px;
+}
+
+.customization-option small {
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.customization-option input {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    accent-color: var(--purple);
+    cursor: pointer;
+}
+
+#catalog-grid.catalog-list {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+#catalog-grid.catalog-compact {
+    gap: 16px;
+}
+
+#catalog-grid.catalog-compact .item-card > .mt-5 {
+    margin-top: 10px;
+}
+
+#catalog-grid.catalog-compact .img-container {
+    aspect-ratio: 1 / 1;
+    border-radius: 14px;
+}
+
+#catalog-grid.catalog-list .item-card {
+    display: grid;
+    grid-template-columns: minmax(78px, 112px) minmax(0, 1fr);
+    align-items: center;
+    gap: 0 16px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--card);
+}
+
+#catalog-grid.catalog-list .item-card:hover {
+    transform: translateY(-2px);
+}
+
+#catalog-grid.catalog-list .img-container {
+    grid-row: 1 / span 2;
+    aspect-ratio: 4 / 5;
+}
+
+#catalog-grid.catalog-list .item-card > .mt-5 {
+    margin-top: 0;
+}
+
+#catalog-grid.catalog-list .item-details {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 480px) {
+    #catalog-grid.catalog-compact {
+        gap: 12px;
+    }
+
+    #catalog-grid.catalog-list .item-card {
+        grid-template-columns: minmax(68px, 88px) minmax(0, 1fr);
+        gap: 0 12px;
+    }
+}
+
 .formality-slider {
     position: relative;
     z-index: 1;
