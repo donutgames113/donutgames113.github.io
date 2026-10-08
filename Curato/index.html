@@ -362,7 +362,7 @@
         .account-provider { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--paper) 55%, var(--card)); }
         @media (max-width: 640px) { .hero-title { font-size: 3.6rem; } .prompt-wrap { box-shadow: 6px 8px 0 var(--mint); } .response-copy { font-size: 15px; } }
     </style>
-    <link rel="stylesheet" href="styles.css?v=20261008-workspace-customization">
+    <link rel="stylesheet" href="styles.css?v=20261008-workspace-toggle-refresh">
 </head>
 <body>
     <nav class="topbar fixed top-0 z-50 w-full">
@@ -416,15 +416,13 @@
                 <h3 id="customization-title" class="style-section-title">Workspace</h3>
                 <p class="style-section-description mb-3">Choose which tools and details to show.</p>
                 <label class="customization-option" for="show-ai-tools">
-                    <span><strong>AI styling assistant</strong><small>Show the consultation prompt and generated looks.</small></span>
+                    <span class="customization-option-icon" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+                    <span class="customization-option-copy"><strong>AI styling assistant</strong><small>Show the consultation prompt and generated looks.</small></span>
                     <input id="show-ai-tools" type="checkbox" data-workspace-preference="ai-tools" checked>
                 </label>
-                <label class="customization-option" for="show-add-piece">
-                    <span><strong>Add a piece panel</strong><small>Show the form for archiving new wardrobe items.</small></span>
-                    <input id="show-add-piece" type="checkbox" data-workspace-preference="add-piece" checked>
-                </label>
                 <label class="customization-option" for="compact-catalog">
-                    <span><strong>Compact catalogue</strong><small>Use tighter spacing and smaller item images.</small></span>
+                    <span class="customization-option-icon" aria-hidden="true"><i class="fa-solid fa-table-cells"></i></span>
+                    <span class="customization-option-copy"><strong>Compact catalogue</strong><small>Use tighter spacing and smaller item images.</small></span>
                     <input id="compact-catalog" type="checkbox" data-workspace-preference="compact-catalog">
                 </label>
             </section>
@@ -637,7 +635,7 @@
         </section>
 
         <div class="grid grid-cols-1 gap-14 lg:grid-cols-12 lg:gap-20">
-            <aside id="add-piece-panel" class="lg:col-span-4 lg:sticky lg:top-28 lg:h-fit">
+            <aside class="lg:col-span-4 lg:sticky lg:top-28 lg:h-fit">
                 <div class="surface rounded-[25px] p-5 md:p-7">
                     <div class="mb-6 flex items-center justify-between"><span class="section-label">Add a piece</span></div>
                     <div id="drop-zone" class="drop-zone group relative flex cursor-pointer items-center justify-center overflow-hidden">
@@ -832,6 +830,6 @@
         </section>
     </div>
 
-    <script type="module" src="app.js?v=20261008-workspace-customization"></script>
+    <script type="module" src="app.js?v=20261008-workspace-toggle-refresh"></script>
 </body>
 </html>

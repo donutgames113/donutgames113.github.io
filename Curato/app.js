@@ -1161,7 +1161,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeTheme();
     const workspacePreferenceTargets = {
         'ai-tools': document.getElementById('ai-consultation-section'),
-        'add-piece': document.getElementById('add-piece-panel'),
         'compact-catalog': document.getElementById('catalog-grid')
     };
     document.querySelectorAll('[data-workspace-preference]').forEach(input => {
