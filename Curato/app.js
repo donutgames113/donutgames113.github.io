@@ -838,6 +838,12 @@ function sortItems(items) {
             return i.tags?.subcategory === "Bottom" || i.tags?.category === "Bottom";
         }
 
+        if (currentSortClass === "Other") {
+            return i.tags?.category === "Other"
+                && i.tags?.subcategory !== "Top"
+                && i.tags?.subcategory !== "Bottom";
+        }
+
         return i.tags?.category === currentSortClass;
     });
 }
