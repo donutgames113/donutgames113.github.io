@@ -1012,8 +1012,18 @@ function openItemEditor(item) {
     if (!item) return;
     editingItemId = item.id;
     editingImageData = null;
-    document.getElementById('edit-item-name').value = item.name || '';
-    document.getElementById('edit-item-brand').value = item.tags?.brand || '';
+    const nameField = document.getElementById('edit-item-name');
+    const brandField = document.getElementById('edit-item-brand');
+    const typeField = document.getElementById('edit-item-type');
+    const tags = item.tags || {};
+    const nextType = tags.subcategory && ['Top', 'Bottom'].includes(tags.subcategory)
+        ? tags.subcategory
+        : (tags.category || 'Other');
+
+    if (nameField) nameField.value = item.name || '';
+    if (brandField) brandField.value = tags.brand || '';
+    if (typeField) typeField.value = nextType;
+
     const preview = document.getElementById('edit-item-preview');
     preview.src = item.image_url;
     preview.classList.remove('hidden');
@@ -1423,7 +1433,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     .eq('user_id', userId)
                     .single();
                 if (currentItem.error) throw currentItem.error;
-                const tags = { ...(currentItem.data.tags || {}), brand: document.getElementById('edit-item-brand').value.trim() };
+
+                const rawType = document.getElementById('edit-item-type')?.value || 'Other';
+                const isLayeringType = rawType === 'Top' || rawType === 'Bottom';
+                const tags = {
+                    ...(currentItem.data.tags || {}),
+                    brand: document.getElementById('edit-item-brand').value.trim(),
+                    category: isLayeringType ? 'Other' : rawType,
+                    subcategory: isLayeringType ? rawType : null,
+                    layerable: rawType === 'Top'
+                };
                 const updates = {
                     name: document.getElementById('edit-item-name').value.trim(),
                     tags

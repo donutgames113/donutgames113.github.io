@@ -742,6 +742,17 @@
             <form id="item-editor-form" class="space-y-4">
                 <input id="edit-item-name" required placeholder="What is it called?" class="field w-full py-3 text-sm">
                 <input id="edit-item-brand" placeholder="Brand or designer (optional)" class="field w-full py-3 text-sm">
+                <label class="block text-xs font-semibold uppercase tracking-[.1em] text-[var(--muted)]">
+                    Piece type
+                    <select id="edit-item-type" class="field mt-2 w-full py-3 text-sm">
+                        <option value="Top">Top</option>
+                        <option value="Bottom">Bottom</option>
+                        <option value="Shoes">Shoes</option>
+                        <option value="Watch">Watch</option>
+                        <option value="Fragrance">Scent</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </label>
                 <label class="block text-xs font-semibold uppercase tracking-[.1em] text-[var(--muted)]">Replace photo
                     <input id="edit-item-file" type="file" accept="image/*" class="mt-2 block w-full text-sm">
                 </label>
