@@ -1,3 +1,27 @@
+* {
+    scrollbar-color: var(--purple) var(--paper);
+    scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--paper);
+}
+
+::-webkit-scrollbar-thumb {
+    border: 2px solid var(--paper);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--purple) 72%, var(--muted));
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--purple);
+}
+
 .style-section,
 .palette-section {
     margin-top: 18px;
