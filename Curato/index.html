@@ -54,6 +54,54 @@
             --mint: #754452; --yellow: #f0cf78; --prompt-surface: #512b36; --drop-border: #77505a;
             --shadow: rgba(0, 0, 0, .3); --backdrop: rgba(0, 0, 0, .72);
         }
+        body[data-color-theme="monochrome"] {
+            --ink: #262626; --muted: #737373; --paper: #f2f2f2; --card: #fafafa; --line: #dedede;
+            --purple: #404040; --purple-soft: #e5e5e5; --logo-primary: var(--purple); --logo-secondary: #a3a3a3; --orange: #525252; --orange-hover: #666666;
+            --mint: #d4d4d4; --yellow: #a3a3a3; --prompt-surface: #262626; --drop-border: #a3a3a3;
+            --shadow: rgba(0, 0, 0, .1); --backdrop: rgba(0, 0, 0, .58);
+        }
+        body.dark-mode[data-color-theme="monochrome"] {
+            --ink: #f5f5f5; --muted: #b3b3b3; --paper: #171717; --card: #262626; --line: #454545;
+            --purple: #d4d4d4; --purple-soft: #383838; --logo-primary: var(--purple); --logo-secondary: #a3a3a3; --orange: #b8b8b8; --orange-hover: #d4d4d4;
+            --mint: #525252; --yellow: #b3b3b3; --prompt-surface: #101010; --drop-border: #666666;
+            --shadow: rgba(0, 0, 0, .34); --backdrop: rgba(0, 0, 0, .76);
+        }
+        body[data-color-theme="crimson"] {
+            --ink: #382326; --muted: #85676b; --paper: #f8f1f1; --card: #fdf9f9; --line: #e7dada;
+            --purple: #a8323e; --purple-soft: #f0dadd; --logo-primary: var(--purple); --logo-secondary: #d6a65e; --orange: #a94b3d; --orange-hover: #bd5c4b;
+            --mint: #ddc2c2; --yellow: #d6a65e; --prompt-surface: #3c2026; --drop-border: #cbaeb0;
+            --shadow: rgba(73, 31, 38, .1); --backdrop: rgba(38, 17, 21, .6);
+        }
+        body.dark-mode[data-color-theme="crimson"] {
+            --ink: #f7eeee; --muted: #c7a9ac; --paper: #211719; --card: #302124; --line: #50353a;
+            --purple: #ed7880; --purple-soft: #482b30; --logo-primary: var(--purple); --logo-secondary: #d8b36f; --orange: #e68b70; --orange-hover: #f1a389;
+            --mint: #694348; --yellow: #d8b36f; --prompt-surface: #321b20; --drop-border: #69464b;
+            --shadow: rgba(0, 0, 0, .34); --backdrop: rgba(0, 0, 0, .76);
+        }
+        body[data-color-theme="graphite"] {
+            --ink: #202a32; --muted: #64717a; --paper: #eef1f2; --card: #fafbfb; --line: #d8dfe2;
+            --purple: #435c6c; --purple-soft: #dce6eb; --logo-primary: var(--purple); --logo-secondary: #c5a76b; --orange: #687b83; --orange-hover: #7e929a;
+            --mint: #c4d4d6; --yellow: #c5a76b; --prompt-surface: #26353e; --drop-border: #b5c2c6;
+            --shadow: rgba(31, 47, 56, .1); --backdrop: rgba(17, 29, 36, .62);
+        }
+        body.dark-mode[data-color-theme="graphite"] {
+            --ink: #edf2f4; --muted: #aab8be; --paper: #151c20; --card: #222c31; --line: #3b4a50;
+            --purple: #8db1c1; --purple-soft: #2c414a; --logo-primary: var(--purple); --logo-secondary: #d0b779; --orange: #9bb4b5; --orange-hover: #b1c8c8;
+            --mint: #39575c; --yellow: #d0b779; --prompt-surface: #17262d; --drop-border: #52666d;
+            --shadow: rgba(0, 0, 0, .34); --backdrop: rgba(0, 0, 0, .76);
+        }
+        body[data-color-theme="forest"] {
+            --ink: #263229; --muted: #69776d; --paper: #f0f3ef; --card: #fafcf9; --line: #d9e1d9;
+            --purple: #41634d; --purple-soft: #dce9df; --logo-primary: var(--purple); --logo-secondary: #c6aa69; --orange: #8a744b; --orange-hover: #a08a5d;
+            --mint: #c3d7c7; --yellow: #c6aa69; --prompt-surface: #26392d; --drop-border: #b8c9bc;
+            --shadow: rgba(34, 58, 41, .1); --backdrop: rgba(20, 35, 25, .62);
+        }
+        body.dark-mode[data-color-theme="forest"] {
+            --ink: #edf3ed; --muted: #afc0b1; --paper: #172019; --card: #253228; --line: #405444;
+            --purple: #91bc9a; --purple-soft: #2e4634; --logo-primary: var(--purple); --logo-secondary: #d2b976; --orange: #c5ae73; --orange-hover: #ddc58b;
+            --mint: #3b5e45; --yellow: #d2b976; --prompt-surface: #1d3023; --drop-border: #526a57;
+            --shadow: rgba(0, 0, 0, .34); --backdrop: rgba(0, 0, 0, .76);
+        }
         body[data-color-theme="ocean"] {
             --ink: #172d42; --muted: #58738a; --paper: #edf6fb; --card: #f9fcff; --line: #d2e2eb;
             --purple: #286ea5; --purple-soft: #d8eaf6; --logo-primary: var(--purple); --logo-secondary: var(--yellow); --orange: #278e91; --orange-hover: #47a5a6;
@@ -493,6 +541,22 @@
                 <button type="button" class="palette-choice" data-color-theme="coral" aria-pressed="false">
                     <span class="font-semibold">Coral</span>
                     <span class="flex items-center gap-3"><span class="palette-swatches" aria-hidden="true"><span style="background:#c84d63"></span><span style="background:#e77d45"></span><span style="background:#f1c4b6"></span></span><i class="palette-choice-check fa-solid fa-check" aria-hidden="true"></i></span>
+                </button>
+                <button type="button" class="palette-choice" data-color-theme="monochrome" aria-pressed="false">
+                    <span class="font-semibold">Monochrome</span>
+                    <span class="flex items-center gap-3"><span class="palette-swatches" aria-hidden="true"><span style="background:#404040"></span><span style="background:#737373"></span><span style="background:#d4d4d4"></span></span><i class="palette-choice-check fa-solid fa-check" aria-hidden="true"></i></span>
+                </button>
+                <button type="button" class="palette-choice" data-color-theme="crimson" aria-pressed="false">
+                    <span class="font-semibold">Crimson</span>
+                    <span class="flex items-center gap-3"><span class="palette-swatches" aria-hidden="true"><span style="background:#a8323e"></span><span style="background:#a94b3d"></span><span style="background:#ddc2c2"></span></span><i class="palette-choice-check fa-solid fa-check" aria-hidden="true"></i></span>
+                </button>
+                <button type="button" class="palette-choice" data-color-theme="graphite" aria-pressed="false">
+                    <span class="font-semibold">Graphite</span>
+                    <span class="flex items-center gap-3"><span class="palette-swatches" aria-hidden="true"><span style="background:#435c6c"></span><span style="background:#687b83"></span><span style="background:#c4d4d6"></span></span><i class="palette-choice-check fa-solid fa-check" aria-hidden="true"></i></span>
+                </button>
+                <button type="button" class="palette-choice" data-color-theme="forest" aria-pressed="false">
+                    <span class="font-semibold">Forest</span>
+                    <span class="flex items-center gap-3"><span class="palette-swatches" aria-hidden="true"><span style="background:#41634d"></span><span style="background:#8a744b"></span><span style="background:#c3d7c7"></span></span><i class="palette-choice-check fa-solid fa-check" aria-hidden="true"></i></span>
                 </button>
                 <button type="button" class="palette-choice" data-color-theme="ocean" aria-pressed="false">
                     <span class="font-semibold">Ocean</span>
