@@ -445,7 +445,7 @@
 
     <div id="palette-modal" class="fixed inset-0 z-[80] hidden items-center justify-center p-5" role="dialog" aria-modal="true" aria-labelledby="palette-title" aria-describedby="palette-description">
         <div class="absolute inset-0 backdrop-blur-sm" style="background: var(--backdrop)" data-close-palette></div>
-        <section class="palette-modal-panel relative max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-[25px] border p-6 md:p-8">
+        <section class="palette-modal-panel relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-[25px] border p-6 md:p-8">
             <div class="mb-6 flex items-start justify-between gap-6">
                 <div>
                     <p class="section-label mb-2">Make it yours</p>
@@ -476,7 +476,7 @@
                     <input id="compact-catalog" type="checkbox" data-workspace-preference="compact-catalog">
                 </label>
             </section>
-            <details class="style-section">
+            <details class="style-section" open>
                 <summary id="style-picker-summary" class="style-picker-summary">
                     <span>
                         <span class="style-section-title">Interface style</span>
@@ -484,46 +484,77 @@
                     </span>
                     <i class="style-picker-chevron fa-solid fa-chevron-down" aria-hidden="true"></i>
                 </summary>
-                <p class="style-section-description mb-3">Give Curato a different look and feel.</p>
+                <p class="style-section-description mb-3">Browse by mood. Your current style stays selected.</p>
+                <div class="style-category-filters" role="group" aria-label="Filter interface styles">
+                    <button type="button" class="style-category-filter" data-style-filter="all" aria-pressed="true">All <span>13</span></button>
+                    <button type="button" class="style-category-filter" data-style-filter="studio" aria-pressed="false">Studio <span>5</span></button>
+                    <button type="button" class="style-category-filter" data-style-filter="playful" aria-pressed="false">Playful <span>5</span></button>
+                    <button type="button" class="style-category-filter" data-style-filter="future" aria-pressed="false">Future <span>3</span></button>
+                </div>
                 <div class="style-choice-grid" aria-label="Interface styles">
-                    <button type="button" class="style-choice" data-ui-style="curato" aria-pressed="false">
-                        <i class="style-choice-icon fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
-                        <span class="style-choice-name">Curato Studio</span>
+                    <button type="button" class="style-choice" data-style-category="studio" data-ui-style="curato" aria-pressed="false">
+                        <span class="style-choice-preview" aria-hidden="true"><span></span><span></span><span></span></span>
+                        <span class="style-choice-copy"><span class="style-choice-heading"><i class="style-choice-icon fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i><span class="style-choice-name">Curato Studio</span></span><span class="style-choice-description">Warm, expressive and made for Curato.</span></span>
                         <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="style-choice" data-ui-style="flat" aria-pressed="false">
-                        <i class="style-choice-icon fa-solid fa-square" aria-hidden="true"></i>
-                        <span class="style-choice-name">Flat</span>
+                    <button type="button" class="style-choice" data-style-category="studio" data-ui-style="flat" aria-pressed="false">
+                        <span class="style-choice-preview" aria-hidden="true"><span></span><span></span><span></span></span>
+                        <span class="style-choice-copy"><span class="style-choice-heading"><i class="style-choice-icon fa-solid fa-square" aria-hidden="true"></i><span class="style-choice-name">Flat</span></span><span class="style-choice-description">Crisp shapes, simple color, no fuss.</span></span>
                         <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="style-choice" data-ui-style="frutiger" aria-pressed="false">
-                        <i class="style-choice-icon fa-solid fa-water" aria-hidden="true"></i>
-                        <span class="style-choice-name">Frutiger Aero</span>
+                    <button type="button" class="style-choice" data-style-category="playful" data-ui-style="frutiger" aria-pressed="false">
+                        <span class="style-choice-preview" aria-hidden="true"><span></span><span></span><span></span></span>
+                        <span class="style-choice-copy"><span class="style-choice-heading"><i class="style-choice-icon fa-solid fa-water" aria-hidden="true"></i><span class="style-choice-name">Frutiger Aero</span></span><span class="style-choice-description">Airy glass, water and optimistic color.</span></span>
                         <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="style-choice" data-ui-style="liquid" aria-pressed="false">
-                        <i class="style-choice-icon fa-solid fa-droplet" aria-hidden="true"></i>
-                        <span class="style-choice-name">Liquid Glass</span>
+                    <button type="button" class="style-choice" data-style-category="future" data-ui-style="liquid" aria-pressed="false">
+                        <span class="style-choice-preview" aria-hidden="true"><span></span><span></span><span></span></span>
+                        <span class="style-choice-copy"><span class="style-choice-heading"><i class="style-choice-icon fa-solid fa-droplet" aria-hidden="true"></i><span class="style-choice-name">Liquid Glass</span></span><span class="style-choice-description">Translucent layers with soft reflections.</span></span>
                         <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="style-choice" data-ui-style="retro" aria-pressed="false">
-                        <i class="style-choice-icon fa-solid fa-gamepad" aria-hidden="true"></i>
-                        <span class="style-choice-name">Retro</span>
+                    <button type="button" class="style-choice" data-style-category="playful" data-ui-style="retro" aria-pressed="false">
+                        <span class="style-choice-preview" aria-hidden="true"><span></span><span></span><span></span></span>
+                        <span class="style-choice-copy"><span class="style-choice-heading"><i class="style-choice-icon fa-solid fa-gamepad" aria-hidden="true"></i><span class="style-choice-name">Retro</span></span><span class="style-choice-description">Playful throwback with punchy details.</span></span>
                         <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="style-choice" data-ui-style="brutalist" aria-pressed="false">
-                        <i class="style-choice-icon fa-solid fa-bolt" aria-hidden="true"></i>
-                        <span class="style-choice-name">Neo-Brutalist</span>
+                    <button type="button" class="style-choice" data-style-category="studio" data-ui-style="brutalist" aria-pressed="false">
+                        <span class="style-choice-preview" aria-hidden="true"><span></span><span></span><span></span></span>
+                        <span class="style-choice-copy"><span class="style-choice-heading"><i class="style-choice-icon fa-solid fa-bolt" aria-hidden="true"></i><span class="style-choice-name">Neo-Brutalist</span></span><span class="style-choice-description">Hard edges, loud contrast and weight.</span></span>
                         <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="style-choice" data-ui-style="editorial" aria-pressed="false">
-                        <i class="style-choice-icon fa-solid fa-book-open" aria-hidden="true"></i>
-                        <span class="style-choice-name">Editorial</span>
+                    <button type="button" class="style-choice" data-style-category="studio" data-ui-style="editorial" aria-pressed="false">
+                        <span class="style-choice-preview" aria-hidden="true"><span></span><span></span><span></span></span>
+                        <span class="style-choice-copy"><span class="style-choice-heading"><i class="style-choice-icon fa-solid fa-book-open" aria-hidden="true"></i><span class="style-choice-name">Editorial</span></span><span class="style-choice-description">Quiet typography and magazine polish.</span></span>
                         <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="style-choice" data-ui-style="y2k" aria-pressed="false">
-                        <i class="style-choice-icon fa-solid fa-compact-disc" aria-hidden="true"></i>
-                        <span class="style-choice-name">Y2K Gloss</span>
+                    <button type="button" class="style-choice" data-style-category="playful" data-ui-style="y2k" aria-pressed="false">
+                        <span class="style-choice-preview" aria-hidden="true"><span></span><span></span><span></span></span>
+                        <span class="style-choice-copy"><span class="style-choice-heading"><i class="style-choice-icon fa-solid fa-compact-disc" aria-hidden="true"></i><span class="style-choice-name">Y2K Gloss</span></span><span class="style-choice-description">Shiny gradients and turn-of-the-millennium fun.</span></span>
+                        <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="style-choice" data-style-category="studio" data-ui-style="swiss" aria-pressed="false">
+                        <span class="style-choice-preview" aria-hidden="true"><span></span><span></span><span></span></span>
+                        <span class="style-choice-copy"><span class="style-choice-heading"><i class="style-choice-icon fa-solid fa-grip" aria-hidden="true"></i><span class="style-choice-name">Swiss</span></span><span class="style-choice-description">Grid-led clarity with a signal-red accent.</span></span>
+                        <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="style-choice" data-style-category="playful" data-ui-style="maximalist" aria-pressed="false">
+                        <span class="style-choice-preview" aria-hidden="true"><span></span><span></span><span></span></span>
+                        <span class="style-choice-copy"><span class="style-choice-heading"><i class="style-choice-icon fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i><span class="style-choice-name">Maximalist</span></span><span class="style-choice-description">More color, more contrast, more character.</span></span>
+                        <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="style-choice" data-style-category="future" data-ui-style="retrofuturism" aria-pressed="false">
+                        <span class="style-choice-preview" aria-hidden="true"><span></span><span></span><span></span></span>
+                        <span class="style-choice-copy"><span class="style-choice-heading"><i class="style-choice-icon fa-solid fa-rocket" aria-hidden="true"></i><span class="style-choice-name">Retrofuturism</span></span><span class="style-choice-description">Analog nostalgia meets electric tomorrow.</span></span>
+                        <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="style-choice" data-style-category="playful" data-ui-style="claymorphic" aria-pressed="false">
+                        <span class="style-choice-preview" aria-hidden="true"><span></span><span></span><span></span></span>
+                        <span class="style-choice-copy"><span class="style-choice-heading"><i class="style-choice-icon fa-solid fa-cubes-stacked" aria-hidden="true"></i><span class="style-choice-name">Claymorphic</span></span><span class="style-choice-description">Puffy shapes and soft, tactile depth.</span></span>
+                        <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="style-choice" data-style-category="future" data-ui-style="iridescent" aria-pressed="false">
+                        <span class="style-choice-preview" aria-hidden="true"><span></span><span></span><span></span></span>
+                        <span class="style-choice-copy"><span class="style-choice-heading"><i class="style-choice-icon fa-solid fa-gem" aria-hidden="true"></i><span class="style-choice-name">Iridescent</span></span><span class="style-choice-description">Pearlescent color that shifts with the light.</span></span>
                         <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
                     </button>
                 </div>

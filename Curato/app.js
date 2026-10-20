@@ -1,7 +1,7 @@
 const SUPABASE_URL = 'https://wyvliczohxpyptwxnvfi.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5';
 const REDIRECT_URL = 'https://donutgames113.github.io/Curato/index.html';
-const UI_STYLES = new Set(['curato', 'flat', 'frutiger', 'liquid', 'retro', 'brutalist', 'editorial', 'y2k']);
+const UI_STYLES = new Set(['curato', 'flat', 'frutiger', 'liquid', 'retro', 'brutalist', 'editorial', 'y2k', 'swiss', 'maximalist', 'retrofuturism', 'claymorphic', 'iridescent']);
 
 const promptModes = {
     outfit: {
@@ -198,6 +198,14 @@ function initializeTheme() {
     applyTheme(savedTheme || (systemPrefersDark ? 'dark' : 'light'), savedColorTheme);
     const paletteToggle = document.getElementById('palette-toggle');
     const paletteModal = document.getElementById('palette-modal');
+    const setStyleFilter = category => {
+        paletteModal?.querySelectorAll('[data-style-filter]').forEach(filter => {
+            filter.setAttribute('aria-pressed', String(filter.dataset.styleFilter === category));
+        });
+        paletteModal?.querySelectorAll('[data-style-category]').forEach(option => {
+            option.hidden = category !== 'all' && option.dataset.styleCategory !== category;
+        });
+    };
     const closePalette = () => {
         paletteModal?.classList.add('hidden');
         paletteModal?.classList.remove('flex');
@@ -210,6 +218,8 @@ function initializeTheme() {
         applyTheme(nextTheme, document.body.dataset.colorTheme);
     });
     paletteToggle?.addEventListener('click', () => {
+        const activeStyle = paletteModal?.querySelector(`[data-ui-style="${document.body.dataset.uiStyle}"]`);
+        setStyleFilter(activeStyle?.dataset.styleCategory || 'all');
         paletteModal?.classList.remove('hidden');
         paletteModal?.classList.add('flex');
         paletteModal?.querySelector('#style-picker-summary')?.focus();
@@ -219,6 +229,14 @@ function initializeTheme() {
     });
     paletteModal?.addEventListener('click', event => {
         if (!(event.target instanceof Element)) return;
+        const styleFilter = event.target.closest('[data-style-filter]');
+        if (styleFilter && paletteModal.contains(styleFilter)) {
+            const category = styleFilter.getAttribute('data-style-filter');
+            if (!category) return;
+            setStyleFilter(category);
+            return;
+        }
+
         const styleOption = event.target.closest('[data-ui-style]');
         if (styleOption && paletteModal.contains(styleOption)) {
             const uiStyle = styleOption.getAttribute('data-ui-style');
