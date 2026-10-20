@@ -1,7 +1,7 @@
 const SUPABASE_URL = 'https://wyvliczohxpyptwxnvfi.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_02EIiOlUVbNn5Lpn5cQWww_UF_uq9E5';
 const REDIRECT_URL = 'https://donutgames113.github.io/Curato/index.html';
-const UI_STYLES = new Set(['curato', 'flat', 'frutiger', 'liquid', 'retro', 'brutalist', 'editorial', 'y2k', 'swiss', 'maximalist', 'retrofuturism', 'claymorphic', 'iridescent']);
+const UI_STYLES = new Set(['curato', 'flat', 'frutiger', 'liquid', 'retro', 'brutalist', 'editorial', 'y2k', 'maximalist', 'retrofuturism', 'claymorphic', 'iridescent']);
 
 const promptModes = {
     outfit: {
@@ -194,6 +194,9 @@ function initializeTheme() {
     initializeBrandIcon();
     const savedTheme = localStorage.getItem('curato-theme');
     const savedColorTheme = localStorage.getItem('curato-color-theme') || 'violet';
+    if (localStorage.getItem('curato-ui-style') === 'swiss') {
+        localStorage.setItem('curato-ui-style', 'curato');
+    }
     const systemPrefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
     applyTheme(savedTheme || (systemPrefersDark ? 'dark' : 'light'), savedColorTheme);
     const paletteToggle = document.getElementById('palette-toggle');

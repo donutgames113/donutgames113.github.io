@@ -412,7 +412,7 @@
         .account-provider { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--paper) 55%, var(--card)); }
         @media (max-width: 640px) { .hero-title { font-size: 3.6rem; } .prompt-wrap { box-shadow: 6px 8px 0 var(--mint); } .response-copy { font-size: 15px; } }
     </style>
-    <link rel="stylesheet" href="styles.css?v=20261008-workspace-toggle-refresh">
+    <link rel="stylesheet" href="styles.css?v=20261020-theme-refinements">
 </head>
 <body>
     <nav class="topbar fixed top-0 z-50 w-full">
@@ -486,8 +486,8 @@
                 </summary>
                 <p class="style-section-description mb-3">Browse by mood. Your current style stays selected.</p>
                 <div class="style-category-filters" role="group" aria-label="Filter interface styles">
-                    <button type="button" class="style-category-filter" data-style-filter="all" aria-pressed="true">All <span>13</span></button>
-                    <button type="button" class="style-category-filter" data-style-filter="studio" aria-pressed="false">Studio <span>5</span></button>
+                    <button type="button" class="style-category-filter" data-style-filter="all" aria-pressed="true">All <span>12</span></button>
+                    <button type="button" class="style-category-filter" data-style-filter="studio" aria-pressed="false">Studio <span>4</span></button>
                     <button type="button" class="style-category-filter" data-style-filter="playful" aria-pressed="false">Playful <span>5</span></button>
                     <button type="button" class="style-category-filter" data-style-filter="future" aria-pressed="false">Future <span>3</span></button>
                 </div>
@@ -530,11 +530,6 @@
                     <button type="button" class="style-choice" data-style-category="playful" data-ui-style="y2k" aria-pressed="false">
                         <span class="style-choice-preview" aria-hidden="true"><span></span><span></span><span></span></span>
                         <span class="style-choice-copy"><span class="style-choice-heading"><i class="style-choice-icon fa-solid fa-compact-disc" aria-hidden="true"></i><span class="style-choice-name">Y2K Gloss</span></span><span class="style-choice-description">Shiny gradients and turn-of-the-millennium fun.</span></span>
-                        <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
-                    </button>
-                    <button type="button" class="style-choice" data-style-category="studio" data-ui-style="swiss" aria-pressed="false">
-                        <span class="style-choice-preview" aria-hidden="true"><span></span><span></span><span></span></span>
-                        <span class="style-choice-copy"><span class="style-choice-heading"><i class="style-choice-icon fa-solid fa-grip" aria-hidden="true"></i><span class="style-choice-name">Swiss</span></span><span class="style-choice-description">Grid-led clarity with a signal-red accent.</span></span>
                         <i class="style-choice-check fa-solid fa-check" aria-hidden="true"></i>
                     </button>
                     <button type="button" class="style-choice" data-style-category="playful" data-ui-style="maximalist" aria-pressed="false">
@@ -938,6 +933,6 @@
         </section>
     </div>
 
-    <script type="module" src="app.js?v=20261008-workspace-toggle-refresh"></script>
+    <script type="module" src="app.js?v=20261020-theme-refinements"></script>
 </body>
 </html>

@@ -2391,17 +2391,6 @@ body.dark-mode[data-ui-style="y2k"] .theme-toggle {
     background: linear-gradient(135deg, #bfeef0, #edd9ff 48%, #ffe1ee);
 }
 
-.style-choice[data-ui-style="swiss"] .style-choice-preview {
-    border-radius: 4px;
-    background:
-        linear-gradient(90deg, transparent 49%, #d4d4d4 49% 51%, transparent 51%),
-        linear-gradient(#fff 0 64%, #f0f0f0 64%);
-}
-
-.style-choice[data-ui-style="swiss"] .style-choice-preview span:nth-child(2) {
-    background: #e53935;
-}
-
 .style-choice[data-ui-style="maximalist"] .style-choice-preview {
     background: repeating-linear-gradient(135deg, #ff8a5b 0 12px, #ffd667 12px 24px, #bfa8ff 24px 36px);
 }
@@ -2412,26 +2401,26 @@ body.dark-mode[data-ui-style="y2k"] .theme-toggle {
 
 .style-choice[data-ui-style="retrofuturism"] .style-choice-preview {
     background:
-        linear-gradient(transparent 47%, rgb(76 221 221 / 35%) 48% 50%, transparent 51%),
-        linear-gradient(90deg, transparent 47%, rgb(76 221 221 / 28%) 48% 50%, transparent 51%),
-        linear-gradient(135deg, #10172b, #20284a);
-    background-size: 16px 16px, 16px 16px, auto;
+        radial-gradient(ellipse at 50% 105%, #ff9d62 0 17%, transparent 18%),
+        linear-gradient(160deg, transparent 54%, rgb(105 231 221 / 48%) 55% 57%, transparent 58%),
+        repeating-linear-gradient(90deg, transparent 0 7px, rgb(105 231 221 / 24%) 7px 8px),
+        linear-gradient(160deg, #1b2440, #34284e);
 }
 
 .style-choice[data-ui-style="retrofuturism"] .style-choice-preview span:nth-child(2) {
-    background: #ffad59;
+    background: #ff9d62;
 }
 
 .style-choice[data-ui-style="claymorphic"] .style-choice-preview {
-    border: 0;
-    border-radius: 15px;
-    background: #e8dcf4;
-    box-shadow: inset 3px 3px 7px rgb(255 255 255 / 75%), inset -3px -3px 7px rgb(116 85 120 / 14%);
+    border-color: color-mix(in srgb, var(--purple) 24%, var(--line));
+    border-radius: 12px;
+    background: linear-gradient(145deg, color-mix(in srgb, var(--purple) 22%, var(--card)), color-mix(in srgb, var(--mint) 34%, var(--card)));
+    box-shadow: inset 2px 2px 5px color-mix(in srgb, white 34%, transparent), inset -2px -2px 5px color-mix(in srgb, var(--purple) 12%, transparent);
 }
 
 .style-choice[data-ui-style="claymorphic"] .style-choice-preview span {
-    border-radius: 9px;
-    box-shadow: 2px 3px 6px rgb(82 58 105 / 17%), -2px -2px 5px rgb(255 255 255 / 75%);
+    border-radius: 7px;
+    box-shadow: 2px 3px 5px color-mix(in srgb, var(--ink) 17%, transparent), -1px -1px 4px color-mix(in srgb, white 42%, transparent);
 }
 
 .style-choice[data-ui-style="iridescent"] .style-choice-preview {
@@ -2440,42 +2429,6 @@ body.dark-mode[data-ui-style="y2k"] .theme-toggle {
 
 .style-choice[data-ui-style="iridescent"] .style-choice-preview span {
     background: linear-gradient(145deg, #90e7db, #c4a8ff 55%, #ff9fc0);
-}
-
-body[data-ui-style="swiss"] {
-    background-image:
-        linear-gradient(90deg, transparent calc(50% - .5px), color-mix(in srgb, var(--line) 55%, transparent) 50%, transparent calc(50% + .5px)),
-        linear-gradient(var(--paper), var(--paper));
-    background-size: 88px 88px;
-}
-
-body[data-ui-style="swiss"]::before {
-    opacity: .2;
-    background-image: linear-gradient(90deg, var(--line) 1px, transparent 1px), linear-gradient(var(--line) 1px, transparent 1px);
-    background-size: 44px 44px;
-}
-
-body[data-ui-style="swiss"] .surface,
-body[data-ui-style="swiss"] .glass,
-body[data-ui-style="swiss"] .palette-modal-panel,
-body[data-ui-style="swiss"] #favorites-modal section,
-body[data-ui-style="swiss"] #item-inspector-modal section,
-body[data-ui-style="swiss"] #item-editor-modal section,
-body[data-ui-style="swiss"] #auth-modal section,
-body[data-ui-style="swiss"] #account-modal section {
-    border-radius: 5px;
-    box-shadow: 0 2px 0 color-mix(in srgb, var(--ink) 9%, transparent);
-}
-
-body[data-ui-style="swiss"] .prompt-wrap {
-    border-radius: 5px;
-    box-shadow: 6px 6px 0 var(--orange);
-}
-
-body[data-ui-style="swiss"] .section-label,
-body[data-ui-style="swiss"] .eyebrow {
-    letter-spacing: .16em;
-    text-transform: uppercase;
 }
 
 body[data-ui-style="maximalist"] {
@@ -2512,18 +2465,30 @@ body[data-ui-style="maximalist"] .prompt-submit {
 }
 
 body[data-ui-style="retrofuturism"] {
+    position: relative;
+    isolation: isolate;
     background-color: var(--paper);
     background-image:
-        linear-gradient(color-mix(in srgb, var(--purple) 8%, transparent) 1px, transparent 1px),
-        linear-gradient(90deg, color-mix(in srgb, var(--purple) 8%, transparent) 1px, transparent 1px),
-        radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--purple) 16%, transparent), transparent 60%);
-    background-size: 36px 36px, 36px 36px, auto;
+        radial-gradient(ellipse at 50% -12%, color-mix(in srgb, #cf668f 34%, transparent), transparent 48%),
+        linear-gradient(180deg, color-mix(in srgb, var(--paper) 87%, #222541), var(--paper) 66%);
     background-attachment: fixed;
 }
 
+body[data-ui-style="retrofuturism"]::before {
+    z-index: -1;
+    opacity: .55;
+    background-image:
+        linear-gradient(90deg, color-mix(in srgb, #77ddd0 26%, transparent) 1px, transparent 1px),
+        linear-gradient(color-mix(in srgb, #77ddd0 26%, transparent) 1px, transparent 1px),
+        radial-gradient(circle, #ffd28a 0 1px, transparent 1.5px);
+    background-size: 42px 42px, 42px 42px, 83px 71px;
+    mask-image: linear-gradient(to bottom, #000 0%, transparent 70%);
+}
+
 body[data-ui-style="retrofuturism"] .topbar {
-    border-bottom-color: color-mix(in srgb, var(--mint) 52%, var(--line));
-    box-shadow: 0 4px 24px color-mix(in srgb, var(--purple) 12%, transparent);
+    border-bottom-color: color-mix(in srgb, #72dcd0 50%, var(--line));
+    background: color-mix(in srgb, var(--card) 84%, #27243f);
+    box-shadow: 0 5px 24px color-mix(in srgb, #5acfc5 14%, transparent), inset 0 -1px 0 color-mix(in srgb, #ffb36d 32%, transparent);
 }
 
 body[data-ui-style="retrofuturism"] .surface,
@@ -2534,27 +2499,111 @@ body[data-ui-style="retrofuturism"] #item-inspector-modal section,
 body[data-ui-style="retrofuturism"] #item-editor-modal section,
 body[data-ui-style="retrofuturism"] #auth-modal section,
 body[data-ui-style="retrofuturism"] #account-modal section {
-    border-color: color-mix(in srgb, var(--purple) 32%, var(--line));
-    border-radius: 10px;
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--mint) 12%, transparent), 0 12px 32px var(--shadow);
+    border-color: color-mix(in srgb, #73dcd0 34%, var(--line));
+    border-radius: 12px;
+    background:
+        linear-gradient(145deg, color-mix(in srgb, #ffffff 7%, transparent), transparent 45%),
+        color-mix(in srgb, var(--card) 92%, #27243f);
+    box-shadow: 0 0 0 1px color-mix(in srgb, #72dcd0 16%, transparent), 0 12px 32px var(--shadow), inset 0 1px 0 color-mix(in srgb, white 14%, transparent);
 }
 
 body[data-ui-style="retrofuturism"] .prompt-wrap {
-    border: 1px solid color-mix(in srgb, var(--mint) 48%, var(--purple));
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, #73dcd0 62%, #d16d9c);
     background:
-        linear-gradient(90deg, transparent 49%, color-mix(in srgb, var(--mint) 10%, transparent) 50%, transparent 51%),
-        linear-gradient(150deg, var(--prompt-surface), color-mix(in srgb, var(--prompt-surface) 75%, var(--purple)));
-    background-size: 28px 28px, auto;
-    box-shadow: 0 0 24px color-mix(in srgb, var(--purple) 24%, transparent), 0 12px 0 color-mix(in srgb, var(--mint) 55%, var(--purple));
+        radial-gradient(ellipse at 50% 125%, color-mix(in srgb, #ff9e63 88%, transparent) 0 14%, transparent 15%),
+        repeating-linear-gradient(90deg, transparent 0 29px, color-mix(in srgb, #73dcd0 15%, transparent) 29px 30px),
+        linear-gradient(155deg, color-mix(in srgb, var(--prompt-surface) 80%, #20243e), color-mix(in srgb, var(--prompt-surface) 70%, #59334f));
+    background-size: auto, auto, auto;
+    box-shadow: 0 0 25px color-mix(in srgb, #d16d9c 22%, transparent), 0 0 0 1px color-mix(in srgb, #73dcd0 16%, transparent), 0 11px 0 color-mix(in srgb, #73dcd0 54%, #37324b);
+}
+
+body[data-ui-style="retrofuturism"] .prompt-wrap::before {
+    position: absolute;
+    z-index: -1;
+    right: -8%;
+    bottom: -74%;
+    left: -8%;
+    height: 110%;
+    border: 1px solid color-mix(in srgb, #ffbd78 65%, transparent);
+    border-radius: 50%;
+    background: repeating-linear-gradient(0deg, transparent 0 12px, color-mix(in srgb, #ffbd78 38%, transparent) 12px 13px);
+    content: "";
+    transform: perspective(110px) rotateX(34deg);
+}
+
+body[data-ui-style="retrofuturism"] .prompt-wrap > * {
+    position: relative;
+    z-index: 1;
+}
+
+body[data-ui-style="retrofuturism"] .section-label,
+body[data-ui-style="retrofuturism"] .eyebrow {
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+
+body[data-ui-style="retrofuturism"] #wardrobe-view {
+    background-image:
+        radial-gradient(ellipse at 76% 13%, color-mix(in srgb, #e77d8f 16%, transparent), transparent 38%),
+        linear-gradient(90deg, color-mix(in srgb, #76dcd0 8%, transparent) 1px, transparent 1px),
+        linear-gradient(color-mix(in srgb, #76dcd0 8%, transparent) 1px, transparent 1px);
+    background-size: auto, 52px 52px, 52px 52px;
+}
+
+body[data-ui-style="retrofuturism"] .hero-title {
+    color: transparent;
+    background: linear-gradient(180deg, #fff0c2 0%, #f6aa82 48%, #dc7294 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    filter: drop-shadow(0 0 14px color-mix(in srgb, #dc7294 28%, transparent));
+}
+
+body[data-ui-style="retrofuturism"] .hero-title em {
+    color: transparent;
+    background: linear-gradient(180deg, #9bf1e0, #55bfc8 68%, #9275c6);
+    background-clip: text;
+    -webkit-background-clip: text;
 }
 
 body[data-ui-style="retrofuturism"] .primary-button,
 body[data-ui-style="retrofuturism"] .prompt-submit {
-    box-shadow: 0 0 16px color-mix(in srgb, var(--orange) 32%, transparent), inset 0 0 0 1px color-mix(in srgb, white 26%, transparent);
+    border: 1px solid color-mix(in srgb, #ffe0a3 65%, var(--orange));
+    background: linear-gradient(180deg, #ffd18a, #e98560 62%, #be5c70);
+    color: #29233e;
+    box-shadow: inset 0 2px 0 color-mix(in srgb, white 68%, transparent), 0 4px 0 #793d63, 0 0 18px color-mix(in srgb, #f09972 22%, transparent);
+}
+
+body[data-ui-style="retrofuturism"] .primary-button:hover,
+body[data-ui-style="retrofuturism"] .prompt-submit:hover {
+    filter: brightness(1.08);
+    transform: translateY(-2px);
+}
+
+body[data-ui-style="retrofuturism"] .img-container {
+    border: 1px solid color-mix(in srgb, #73dcd0 42%, var(--line));
+    box-shadow: 0 0 0 2px color-mix(in srgb, #25243f 82%, transparent), 0 0 17px color-mix(in srgb, #73dcd0 20%, transparent);
+}
+
+body[data-ui-style="retrofuturism"] .chip,
+body[data-ui-style="retrofuturism"] .suggestion-chip,
+body[data-ui-style="retrofuturism"] .palette-choice,
+body[data-ui-style="retrofuturism"] .style-choice,
+body[data-ui-style="retrofuturism"] .appearance-toggle,
+body[data-ui-style="retrofuturism"] .item-card-action,
+body[data-ui-style="retrofuturism"] .icon-button,
+body[data-ui-style="retrofuturism"] .theme-toggle {
+    border-color: color-mix(in srgb, #73dcd0 34%, var(--line));
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 14%, transparent), 0 3px 9px color-mix(in srgb, #1c203c 14%, transparent);
 }
 
 body[data-ui-style="claymorphic"] {
-    background-image: radial-gradient(ellipse at 12% 4%, color-mix(in srgb, var(--purple-soft) 62%, transparent), transparent 40%);
+    background-image:
+        radial-gradient(ellipse at 8% 8%, color-mix(in srgb, var(--purple) 13%, transparent), transparent 38%),
+        radial-gradient(ellipse at 92% 30%, color-mix(in srgb, var(--mint) 20%, transparent), transparent 40%),
+        linear-gradient(145deg, color-mix(in srgb, var(--paper) 90%, var(--purple-soft)), var(--paper) 62%, color-mix(in srgb, var(--paper) 90%, var(--mint)));
 }
 
 body[data-ui-style="claymorphic"] .surface,
@@ -2565,14 +2614,17 @@ body[data-ui-style="claymorphic"] #item-inspector-modal section,
 body[data-ui-style="claymorphic"] #item-editor-modal section,
 body[data-ui-style="claymorphic"] #auth-modal section,
 body[data-ui-style="claymorphic"] #account-modal section {
-    border-color: color-mix(in srgb, white 32%, var(--line));
-    border-radius: 28px;
-    box-shadow: 10px 12px 28px color-mix(in srgb, var(--ink) 9%, transparent), -6px -6px 18px color-mix(in srgb, white 55%, transparent);
+    border-color: color-mix(in srgb, var(--purple) 12%, var(--line));
+    border-radius: 25px;
+    background: color-mix(in srgb, var(--card) 91%, var(--purple-soft));
+    box-shadow: 9px 10px 24px color-mix(in srgb, var(--ink) 11%, transparent), -5px -5px 16px color-mix(in srgb, var(--card) 72%, white);
 }
 
 body[data-ui-style="claymorphic"] .prompt-wrap {
-    border-radius: 28px;
-    box-shadow: 10px 12px 0 color-mix(in srgb, var(--mint) 82%, var(--purple-soft)), 0 18px 35px var(--shadow);
+    border-color: color-mix(in srgb, var(--purple) 18%, var(--line));
+    border-radius: 26px;
+    background: linear-gradient(145deg, color-mix(in srgb, var(--prompt-surface) 94%, var(--purple)), color-mix(in srgb, var(--prompt-surface) 78%, var(--purple)));
+    box-shadow: 9px 10px 0 color-mix(in srgb, var(--mint) 58%, var(--purple-soft)), 0 18px 35px var(--shadow), inset 2px 2px 8px color-mix(in srgb, white 10%, transparent);
 }
 
 body[data-ui-style="claymorphic"] .chip,
@@ -2583,8 +2635,27 @@ body[data-ui-style="claymorphic"] .appearance-toggle,
 body[data-ui-style="claymorphic"] .item-card-action,
 body[data-ui-style="claymorphic"] .icon-button,
 body[data-ui-style="claymorphic"] .theme-toggle {
-    border-color: color-mix(in srgb, white 36%, var(--line));
-    box-shadow: 3px 4px 9px color-mix(in srgb, var(--ink) 10%, transparent), -2px -2px 7px color-mix(in srgb, white 52%, transparent);
+    border-color: color-mix(in srgb, var(--purple) 14%, var(--line));
+    background: color-mix(in srgb, var(--card) 90%, var(--purple-soft));
+    box-shadow: 4px 5px 10px color-mix(in srgb, var(--ink) 12%, transparent), -3px -3px 8px color-mix(in srgb, var(--card) 68%, white), inset 1px 1px 2px color-mix(in srgb, white 45%, transparent);
+}
+
+body[data-ui-style="claymorphic"] .drop-zone,
+body[data-ui-style="claymorphic"] .img-container {
+    border-color: color-mix(in srgb, var(--purple) 16%, var(--line));
+    box-shadow: 5px 6px 14px color-mix(in srgb, var(--ink) 11%, transparent), -3px -3px 10px color-mix(in srgb, var(--card) 65%, white);
+}
+
+body.dark-mode[data-ui-style="claymorphic"] .surface,
+body.dark-mode[data-ui-style="claymorphic"] .glass,
+body.dark-mode[data-ui-style="claymorphic"] .palette-modal-panel,
+body.dark-mode[data-ui-style="claymorphic"] #favorites-modal section,
+body.dark-mode[data-ui-style="claymorphic"] #item-inspector-modal section,
+body.dark-mode[data-ui-style="claymorphic"] #item-editor-modal section,
+body.dark-mode[data-ui-style="claymorphic"] #auth-modal section,
+body.dark-mode[data-ui-style="claymorphic"] #account-modal section {
+    background: color-mix(in srgb, var(--card) 88%, var(--purple));
+    box-shadow: 9px 10px 24px color-mix(in srgb, black 24%, transparent), -4px -4px 14px color-mix(in srgb, var(--card) 82%, white);
 }
 
 body[data-ui-style="iridescent"] {
@@ -2622,7 +2693,6 @@ body[data-ui-style="iridescent"] .prompt-wrap {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    body[data-ui-style="swiss"] .style-choice,
     body[data-ui-style="maximalist"] .style-choice,
     body[data-ui-style="retrofuturism"] .style-choice,
     body[data-ui-style="claymorphic"] .style-choice,
