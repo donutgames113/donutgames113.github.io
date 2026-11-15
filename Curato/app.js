@@ -1678,15 +1678,28 @@ document.addEventListener('DOMContentLoaded', () => {
             if (itemsResult.error) throw itemsResult.error;
             if (favoritesResult.error) throw favoritesResult.error;
 
+            const withoutImages = value => {
+                if (Array.isArray(value)) return value.map(withoutImages);
+                if (!value || typeof value !== 'object') return value;
+                return Object.fromEntries(
+                    Object.entries(value)
+                        .filter(([key]) => !/^(?:image|photo)(?:_|$)/i.test(key))
+                        .map(([key, nestedValue]) => [key, withoutImages(nestedValue)])
+                );
+            };
+            const settings = Object.fromEntries(
+                [...localStorage].filter(([key]) => key.startsWith('curato-'))
+            );
             const exportData = {
                 exported_at: new Date().toISOString(),
                 account: {
+                    id: session.user.id,
                     email: session.user.email,
-                    display_name: session.user.user_metadata?.full_name || null,
-                    preferred_model: session.user.user_metadata?.preferred_model || null
+                    profile: session.user.user_metadata || {}
                 },
-                items: itemsResult.data || [],
-                favorite_outfits: favoritesResult.data || []
+                settings,
+                items: withoutImages(itemsResult.data || []),
+                favorite_outfits: withoutImages(favoritesResult.data || [])
             };
             const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
             const downloadUrl = URL.createObjectURL(blob);
