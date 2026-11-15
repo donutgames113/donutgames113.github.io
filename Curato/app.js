@@ -1687,9 +1687,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         .map(([key, nestedValue]) => [key, withoutImages(nestedValue)])
                 );
             };
-            const settings = Object.fromEntries(
-                [...localStorage].filter(([key]) => key.startsWith('curato-'))
-            );
+            const settings = {};
+            for (let index = 0; index < localStorage.length; index += 1) {
+                const key = localStorage.key(index);
+                if (key?.startsWith('curato-')) {
+                    settings[key] = localStorage.getItem(key);
+                }
+            }
             const exportData = {
                 exported_at: new Date().toISOString(),
                 account: {
